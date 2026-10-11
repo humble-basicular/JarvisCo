@@ -1,0 +1,24 @@
+# Handoff: proof-site autonomous run awaiting implementation results
+From: codex · To: codex parent · Date: 2026-10-11T16:44+03:00
+## Objective
+Execute docs/SPEC-2026-10-proof-site.md in JarvisCo. Parent T3 thread 73cbaea8-b082-4caf-aa85-98f730d63661. User autonomous instruction authorizes stage delegation and normal decisions/deployments; ask only for Computer Use/deletions/spending. All current-task Computer Use and backed-up legacy removal explicitly approved; Wrangler limited access separately approved and authorized by user.
+## State
+- Baseline user changes preserved at fc660a7; backed up in main Drive Business/JarvisWeb/rebuild-2026-10/backups. Board 0c5d713, parent coordination 91e3925.
+- Main checkout integration branch rebuild-2026-10; no application source edited there yet.
+- Site implementation ACTIVE: Claude Opus 5.5 high, ../JarvisCo-worktrees/site branch rebuild-2026-10-site. Own src/public/site root configs/dependencies. Async clientRequestId proof-site-20261011-site-impl-r1.
+- Worker implementation ACTIVE: Codex GPT-6.1-Sol high, ../JarvisCo-worktrees/worker branch rebuild-2026-10-worker, owns tracking/**. Async clientRequestId proof-site-20261011-worker-impl-r1. Early API contract committed 22cd293.
+- Routine read-only interface review COMPLETE: GPT-6-Luna medium, clientRequestId proof-site-20261011-interface-check-r1. CRM normalized events support types; puller still being implemented in separate run. Added exact Worker contract receipt to CRM board. No CRM source or data changed.
+## Deployment access/external state
+- Vercel expired CLI login refreshed successfully. Existing jarvis-co project linked locally; project prj_1J4mVnB2lVH7f7OPiiMaVaP4ch9C / team_f3sel9GLdWHYnRtNZwzjmq1o. .vercel/.env.local ignored; env file mode 0600. Domains: apex redirects www; both verified. Production Git branch remains master; do not push master accidentally.
+- Cloudflare login via existing jarvisworks.co@gmail.com account succeeded. Wrangler OAuth user/account/zone read + workers scripts/routes/D1 write + background access. Existing account 66630421549be6d6b0e59028b19e597c, zone 40fa7d7121a0d3c82d179283e222b799, Workers subdomain jarvisworks-co. Credentials in Wrangler default config; never print.
+- Empty free D1 jarvisweb-proof-events created, database_id c329d373-b8c4-464d-8f21-c0692d5dda62, region EEUR. d1 list before create was empty; create response verified. Existing zone Worker routes empty.
+- No site or Worker deployed, no live form submit, no SMS, no money spent.
+## Checks
+Vercel API account/project/domains reads succeeded with refreshed auth. Wrangler whoami succeeded; only intentionally restricted OAuth scopes granted (expected warning about unused scopes). No builds/acceptance tests by parent yet.
+## Browser
+T3 first preview_open transient disconnected, later corrected request succeeded. Parent current native Chrome session signed into Vercel and Cloudflare; use T3 for site QA. Parent T3 tab_5_0f47c01e-c6a6-414f-9078-f11bea623abe at Vercel login can navigate to local site later. Computer Use fully approved current task. No standalone Playwright.
+## Next action + owner
+On each completion wake call task_status for its exact taskId, read commit and handoff. Delegate opposite-provider review via NEW delegate_task round including original brief, full findings and prior responses (max 2 fixes). Worker reviewer Claude Sonnet 5.5 high; site reviewer Codex GPT-6.1-Sol high. Run focused acceptance ourselves. Rebase child branches on integration before review if necessary, avoid source overlap. Approved reviewer merges respective branch to rebuild-2026-10 (main checkout) and reruns checks; parent can final verify. Replace Worker D1 placeholder on integration after owner done; deploy only approved code.
+Prepare Vercel preview then production using autonomous user authorization (latest user instruction only asks before GUI/deletion/spend supersedes spec preview-approval gate). Worker secret random token stored only private local Application Support/JarvisWeb file with mode0600 and wrangler secret stdin; give separate CRM owner its private file path, never token. Provision migration and secret before four precise routes. Check human/bot click, view, auth and paging live; synthetic code a2345 only. Verify production 199 EUR pages/assets; browser 360px, beacon cleanup, Lighthouse report, Android native sms/tel behavior remains real-phone check if no phone usage approved.
+## Omitted context
+Spec and board contain full requirements. Original proof assets found in ~/Library/CloudStorage/GoogleDrive-jarvisworks.co@gmail.com/My Drive/Work - WebAgency/ArbCut rezultatu vaizdai/. Evidence review main Drive Personal Everything/research/arborist-outreach-2026-10-09/web3forms-proof-review.md confirms Aug7/Sep13 submissions, no Google attribution. Never use AI mockups.
