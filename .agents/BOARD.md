@@ -28,3 +28,12 @@ Parent preflight: independent local Lighthouse all100,LCP784ms,CLS0. CFWebAnalyt
 Lead: Claude Opus 5.5 parent (same T3 thread). Footer fix e4976c6 reviewed by Claude parent (1-line CSS, not cross-provider) and merged. astro build pass, git diff --check clean, banned-content grep clean, no copy exclamation marks.
 Vercel PREVIEW (protected, log in as jarvisworksco): https://jarvis-6yw6au1gs-jarvisworkscos-projects.vercel.app — /arboristams H1 matches build, sms:/tel: +37067699395, /atsiliepimas 404. Production NOT deployed: spec §7.9 gate, awaiting Jarvis approval.
 Worker LIVE: jarvisweb-proof-tracking version 4b9d1c4b, four routes, EVENTS_TOKEN set via secret bulk. Live: /p/a2345 302 → /arboristams?r=a2345 (human), WhatsApp UA → bot, malformed → /, beacon 204, /t/events 401 without token, JSON with token. 19 Worker tests pass. Synthetic a2345 rows (ids 1–3) remain in D1; delete only with Jarvis approval.
+
+## Main-site rebuild — 2026-10-11 17:25 (Claude parent)
+Jarvis rejected the preview home as too plain ("PDF proof thing"); wants the full main business site, fancy design, current offer + real ArbCut results. Spec: docs/SPEC-2026-10-main-site.md. Production deploy of the earlier preview is NOT approved.
+
+| Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance / status |
+|---|---|---|---|---|
+| M1 design + build | Claude Opus 5.5 high / rebuild-2026-10-main-site (worktree JarvisCo-worktrees/main-site) | spec v2 → `/`, `/darbai/arbcut`, restyled `/arboristams`, legal, 404 | src/**, public/**, package*.json, astro.config.mjs | spec §5 checks + screenshots; WAITING: Claude session 96% and Codex 100% until ~21:30 Europe/Vilnius |
+| M2 review | Codex GPT-6.1-Sol high, read-only | M1 diff → findings | own handoff | ≤ 2 fix rounds |
+| M3 integrate + preview | Claude parent | approved M1 → Vercel preview + screenshots | integration only | Jarvis approves before prod |
