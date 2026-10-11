@@ -21,3 +21,5 @@ Thumbs.db
 
 # local IDE state
 .claude/
+.vercel
+.env*

@@ -12,4 +12,7 @@ Integration branch: rebuild-2026-10 in main checkout. Baseline: fc660a724034bfce
 
 Interfaces: page POST /t/e JSON {code,type} (sendBeacon application/json); types view,scroll_proof,cta_sms,cta_call,pdf,arbcut. r query captures into sessionStorage then is removed from address bar. No cookies/IP/full-UA storage. GET /t/events Bearer with stable event id and UTC timestamp cursor. Worker owns API details and reports early.
 
-Constraints: no GUI until current-task approval; no deletions until approval and backup; no paid services; no live form submits/SMS; no CRM code edits (separate run owns §4.3). Parent alone edits this board; children return receipts and commit own handoff.
+Constraints: no GUI until current-task approval; no deletions until approval and backup; no paid services; no live form submits/SMS; no CRM code edits (separate run owns §4.3). Current-task Computer Use and backed-up spec-named legacy removal approved by Jarvis. Parent alone edits this board; children return receipts and commit own handoff.
+
+## Interface review receipt
+GPT-6-Luna medium reviewed early Worker contract 22cd293 against CRM work in progress: normalized event mapping supports Worker types; puller not yet implemented at review. CRM owner must validate envelope events/next_cursor/has_more, inclusive since, same-since opaque paging and stable database+event ID dedup. No CRM code changed. Contract: ../JarvisCo-worktrees/worker/tracking/README.md.
