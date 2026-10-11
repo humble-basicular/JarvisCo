@@ -85,6 +85,8 @@ const { showMessage = true, submitLabel = contact.submit, source = 'svetainė' }
 </style>
 
 <script>
+  import { validateEmail } from '@scripts/email_validation.js';
+
   // Laukia, kol DOM'e atsiras elementas (chat widget'as mounto'jasi asinchroniškai).
   function waitForEl(selector, timeout = 5000) {
     return new Promise((resolve) => {
@@ -104,13 +106,10 @@ const { showMessage = true, submitLabel = contact.submit, source = 'svetainė' }
     });
   }
 
-  // Tikriname, kad būtų įvestas veikiantis (teisingo formato) telefonas ir el. paštas.
+  // Tikriname, kad būtų įvestas veikiantis (teisingo formato) telefonas.
   function isValidLtPhone(v) {
     const n = v.replace(/[\s\-()]/g, '');
     return /^(\+370|370|8)\d{8}$/.test(n);
-  }
-  function isValidEmail(v) {
-    return /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v.trim());
   }
 
   // Iš formos laukų sudaro pirmą žinutę pokalbiui (vartotojo vardu).
