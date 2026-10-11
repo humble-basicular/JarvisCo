@@ -1,0 +1,247 @@
+---
+import { Image } from 'astro:assets';
+import { brand, cta, home, offer } from '@data/content.js';
+import desktop from '@assets/site/arbcut-desktop.webp';
+import mobile from '@assets/site/arbcut-mobile.webp';
+import face from '@assets/people/matas-face.webp';
+
+const { hero } = home;
+---
+<section class="hero t-dark" aria-labelledby="hero-title">
+  <div class="aurora" aria-hidden="true"><div class="aurora__grid"></div><div class="aurora__grain"></div></div>
+
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <p class="eyebrow eyebrow--pill">{hero.eyebrow}</p>
+      <h1 id="hero-title" class="hero__title">
+        {hero.h1.before}<span class="grad-text">{hero.h1.highlight}</span>{hero.h1.after}
+      </h1>
+      <p class="hero__sub">{hero.sub}</p>
+      <p class="hero__price"><span class="num">{offer.price}</span> {offer.priceLine}</p>
+      <div class="btn-row btn-row--stack hero__ctas" data-hero-cta>
+        <a class="btn btn--lime" href={brand.smsHref} data-track="cta_sms" data-magnetic>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg>
+          {cta.sms}
+        </a>
+        <a class="btn btn--ghost" href="#rezultatai" data-magnetic>
+          {cta.results}
+          <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <p class="hero__by">
+        <Image src={face} alt="" width={44} height={44} densities={[1, 2]} quality={75} loading="eager" />
+        <span>{hero.by}</span>
+      </p>
+    </div>
+
+    <div class="stage" data-tilt>
+      <div class="stage__3d">
+        <div class="laptop">
+          <div class="laptop__screen">
+            <Image
+              src={desktop}
+              alt={hero.deviceAlt.desktop}
+              widths={[480, 760, 1100]}
+              sizes="(min-width: 64rem) 40rem, 88vw"
+              quality={74}
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+          <div class="laptop__base" aria-hidden="true"></div>
+        </div>
+        <div class="phone">
+          <div class="phone__screen">
+            <Image src={mobile} alt={hero.deviceAlt.mobile} widths={[180, 300]} sizes="(min-width: 64rem) 9.5rem, 28vw" quality={74} loading="eager" />
+          </div>
+        </div>
+      </div>
+      {hero.chips.map((chip, i) => (
+        <a class:list={['chip', 'glass', `chip--${i + 1}`]} href={chip.href}>
+          <b><span class:list={['num', { 'grad-text': i === 0 }]}>{chip.figure}</span> {chip.unit}</b>
+          <span>{chip.text}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: clip;
+    isolation: isolate;
+    padding: calc(var(--hdr-h) + clamp(2rem, 7vw, 4.5rem)) 0 clamp(3.5rem, 8vw, 6rem);
+  }
+  .hero::after {
+    /* soft fade into the next (paper) section */
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 6rem;
+    background: linear-gradient(transparent, rgba(6, 17, 12, 0.8));
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero__grid { position: relative; z-index: 1; display: grid; gap: clamp(3rem, 8vw, 2rem); align-items: center; }
+  .hero__title {
+    font-size: clamp(2.625rem, 9.6vw, 5.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    font-weight: 780;
+    margin: 0.25rem 0 1.25rem;
+  }
+  .hero__title .grad-text { padding-right: 0.04em; }
+  .hero__sub { max-width: 34rem; font-size: clamp(1.0625rem, 0.5vw + 1rem, 1.25rem); color: #c3d6cb; margin-bottom: 1.5rem; }
+  .hero__price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.75rem; color: #dfeee5; margin-bottom: 1.75rem; }
+  .hero__price .num { font-size: clamp(1.875rem, 3vw, 2.375rem); font-weight: 800; color: #fff; line-height: 1; }
+  .hero__by { display: flex; align-items: center; gap: 0.75rem; margin: 1.75rem 0 0; font-size: 0.9375rem; color: var(--mute-dark); }
+  .hero__by :global(img) { width: 2.75rem; height: 2.75rem; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px rgba(200, 245, 96, 0.6); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__copy > * { animation: hero-in 0.9s var(--ease) both; }
+    .hero__copy > :nth-child(2) { animation-delay: 0.06s; }
+    .hero__copy > :nth-child(3) { animation-delay: 0.14s; }
+    .hero__copy > :nth-child(4) { animation-delay: 0.2s; }
+    .hero__copy > :nth-child(5) { animation-delay: 0.26s; }
+    .hero__copy > :nth-child(6) { animation-delay: 0.32s; }
+    .stage { animation: stage-in 1.2s 0.15s var(--ease) both; }
+  }
+  @keyframes hero-in { from { opacity: 0; transform: translateY(18px); } }
+  @keyframes stage-in { from { opacity: 0; transform: translateY(40px) scale(0.96); } }
+
+  /* ---------- Device stage ---------- */
+  .stage {
+    --rx: 0deg;
+    --ry: 0deg;
+    position: relative;
+    width: 100%;
+    max-width: 40rem;
+    margin-inline: auto;
+    aspect-ratio: 10 / 8.2;
+    perspective: 1500px;
+  }
+  .stage__3d {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform 0.9s var(--ease);
+  }
+  .stage.is-live .stage__3d { transition-duration: 0.25s; }
+  @media (prefers-reduced-motion: no-preference) {
+    .stage:not(.is-live) .stage__3d { animation: idle-float 9s ease-in-out infinite; }
+  }
+  @keyframes idle-float {
+    0%, 100% { transform: rotateX(0deg) rotateY(0deg) translateY(0); }
+    50% { transform: rotateX(2deg) rotateY(-4deg) translateY(-8px); }
+  }
+
+  .laptop {
+    position: absolute;
+    top: 6%;
+    left: 6%;
+    width: 94%;
+    transform: rotateY(-14deg) rotateX(7deg) rotateZ(1deg);
+    transform-style: preserve-3d;
+  }
+  .laptop__screen {
+    padding: 2.2% 2.2% 2.6%;
+    border-radius: 16px 16px 6px 6px;
+    background: linear-gradient(160deg, #24382d, #0d1712 60%);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 50px 90px -30px rgba(0, 0, 0, 0.9),
+      0 0 120px -30px rgba(31, 191, 117, 0.35);
+  }
+  .laptop__screen :global(img) { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 6px; }
+  .laptop__base {
+    position: relative;
+    left: -6%;
+    width: 112%;
+    height: clamp(8px, 1.6vw, 14px);
+    border-radius: 2px 2px 14px 14px;
+    background: linear-gradient(#2b3f34, #0b130f);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 20px 30px -12px rgba(0, 0, 0, 0.8);
+  }
+  .laptop__base::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 16%;
+    height: 40%;
+    transform: translateX(-50%);
+    border-radius: 0 0 8px 8px;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .phone {
+    position: absolute;
+    left: 0;
+    bottom: 2%;
+    width: 25%;
+    padding: 1.2%;
+    border-radius: clamp(18px, 4vw, 30px);
+    background: linear-gradient(160deg, #22332a, #070d0a);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 40px 70px -18px rgba(0, 0, 0, 0.95);
+    transform: translateZ(90px) rotateZ(-6deg) rotateY(10deg);
+  }
+  .phone__screen { position: relative; overflow: hidden; border-radius: clamp(14px, 3.4vw, 25px); }
+  .phone__screen::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 3.5%;
+    left: 50%;
+    width: 30%;
+    height: 3.6%;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: #050a07;
+  }
+  .phone__screen :global(img) { width: 100%; aspect-ratio: 520 / 1125; object-fit: cover; }
+
+  /* ---------- Floating stat chips ---------- */
+  .chip {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    gap: 0.125rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 16px;
+    color: #c3d6cb;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+    text-decoration: none;
+    box-shadow: 0 24px 44px -16px rgba(0, 0, 0, 0.75);
+    transition: transform 0.4s var(--ease), border-color 0.3s;
+  }
+  .chip b { font: 750 1rem/1.1 var(--font-d); color: #fff; letter-spacing: -0.02em; }
+  .chip b .num { font-size: 1.875rem; font-weight: 800; }
+  .chip:hover { border-color: rgba(200, 245, 96, 0.5); }
+  .chip--1 { top: 0; right: 2%; }
+  .chip--2 { bottom: 0; right: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .chip--1 { animation: chip-float 6s ease-in-out infinite; }
+    .chip--2 { animation: chip-float 7s ease-in-out -2.5s infinite; }
+  }
+  @keyframes chip-float { 50% { transform: translateY(-9px); } }
+
+  @media (min-width: 40rem) {
+    .chip { padding: 0.75rem 1rem; font-size: 0.875rem; }
+    .chip b .num { font-size: 2.25rem; }
+  }
+
+  @media (min-width: 64rem) {
+    .hero { padding-bottom: clamp(4rem, 8vw, 7rem); }
+    .hero__grid { grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr); gap: 2.5rem; min-height: min(44rem, calc(100svh - 10rem)); }
+    .stage { max-width: none; width: 118%; margin: 0; }
+    .chip--1 { top: -2%; right: auto; left: 30%; }
+    .chip--2 { right: 10%; bottom: 2%; }
+  }
+</style>

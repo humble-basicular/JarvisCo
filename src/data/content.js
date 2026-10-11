@@ -1,10 +1,10 @@
 /* =====================================================================
    JARVISWEB — single text source for every page.
    Lithuanian, formal "Jūs", plain tone, no exclamation marks, no hype.
-   Rules (spec docs/SPEC-2026-10-proof-site.md §2, §6):
+   Rules (docs/SPEC-2026-10-main-site.md §6, proof spec §2, §6, §7.10):
    - every number shown must have its original screenshot on the same page;
    - no reviews, quotes, logos or figures that a source file does not back;
-   - a new niche page = one more entry in `niches`, no new components.
+   - allowed figures and their labels: src/assets/proof/PROVENANCE.md.
    ===================================================================== */
 
 import { TRACKING_PREFIXES } from './tracking.js';
@@ -35,6 +35,39 @@ export const brand = {
 export const cta = {
   sms: 'Parašyti SMS',
   call: 'Skambinti',
+  email: 'Rašyti el. paštu',
+  contact: 'Susisiekti',
+  results: 'Žiūrėti rezultatus',
+  allResults: 'Visi rezultatai su ekrano kopijomis',
+};
+
+/* Header anchors. Order follows the page. */
+export const nav = {
+  home: [
+    { label: 'Rezultatai', href: '#rezultatai' },
+    { label: 'Procesas', href: '#procesas' },
+    { label: 'Paslauga', href: '#paslauga' },
+    { label: 'Kaina', href: '#kaina' },
+    { label: 'Apie', href: '#apie' },
+    { label: 'D.U.K.', href: '#duk' },
+  ],
+  results: [
+    { label: 'Rezultatai', href: '#rezultatai' },
+    { label: 'Kaina', href: '#kaina' },
+    { label: 'Procesas', href: '#procesas' },
+    { label: 'Apie', href: '#apie' },
+    { label: 'D.U.K.', href: '#duk' },
+  ],
+  // Legal pages and 404: anchors point back to the home page.
+  other: [
+    { label: 'Rezultatai', href: '/rezultatai' },
+    { label: 'Procesas', href: '/#procesas' },
+    { label: 'Kaina', href: '/#kaina' },
+    { label: 'Apie', href: '/#apie' },
+    { label: 'D.U.K.', href: '/#duk' },
+  ],
+  menuLabel: 'Meniu',
+  closeLabel: 'Uždaryti',
 };
 
 /* Web3Forms (no backend). Submissions are e-mailed to the account owner. */
@@ -62,10 +95,16 @@ export const form = {
   failure: `Nepavyko išsiųsti. Parašykite SMS arba skambinkite ${PHONE}.`,
 };
 
-/* ---------- Offer: the same on every page (spec §3.1.3–3.1.5) ---------- */
+/* ---------- Offer: the same on every page (proof spec §3.1.3–3.1.5) ---------- */
 
 export const offer = {
+  eyebrow: 'Paslauga',
+  title: 'Svetainė Jūsų paslaugoms. Viena kaina.',
+  lead: 'Kuriu svetaines paslaugų verslams, kad klientai galėtų Jus rasti Google ir kreiptis tiesiogiai.',
   price: '199 €',
+  priceNote: 'vieną kartą',
+  priceLine: 'vieną kartą · be mėnesinių mokesčių',
+  noMonthly: 'Be mėnesinių mokesčių',
   includesTitle: 'Ką gaunate už 199 €',
   includes: [
     'Pagrindinis puslapis su paslaugomis, darbų pavyzdžiais ir kontaktais',
@@ -74,6 +113,9 @@ export const offer = {
     'Pritaikymas telefonui, paieškos (SEO) pagrindai',
     'Vienas korekcijų etapas',
   ],
+  audienceTitle: 'Kam tinka',
+  audienceText: 'Paslaugų verslams, kurie dirba savo mieste ar rajone.',
+  audience: ['Medžių darbai', 'Aplinkos ir vejos priežiūra', 'Santechnika', 'Stogai', 'Statybos ir remontas', 'Valymas'],
   costsTitle: 'Kiek tai kainuoja',
   costs: [
     { label: 'Sukūrimas', value: '199 € vieną kartą' },
@@ -84,10 +126,22 @@ export const offer = {
   ownership: 'Svetainė, failai ir domenas – Jūsų. Galite ją perkelti kur norite.',
   // Verified in Jarvis's Paslaugos.lt account: €49.99/month, 2026-10-06.
   comparison: 'Palyginimui: Paslaugos.lt PRO kainuoja apie 50 € kas mėnesį.',
+  payback: 'Užtenka vieno užsakymo, kad atsipirktų. Svetainė lieka Jūsų ir dirba toliau.',
+  year: {
+    title: 'Per pirmus metus',
+    lead: 'Paslaugos.lt PRO kainuoja apie 50 € kas mėnesį (patikrinta 2026-10-06).',
+    rows: [
+      { label: 'Paslaugos.lt PRO', value: '~600 €', detail: '12 mėn. × ~50 €', share: 100 },
+      { label: 'Svetainė', value: '214 €', detail: '199 € + 15 € domenas', share: 36 },
+    ],
+    note: 'Antrais metais svetainė kainuoja tik domeną – 15 €. Paslaugos.lt atsisakyti nereikia: svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
+  },
 };
 
 export const steps = {
+  eyebrow: 'Procesas',
   title: 'Kaip vyksta darbas',
+  lead: 'Penki žingsniai nuo Jūsų žinutės iki veikiančios svetainės.',
   items: [
     'Atsakote į SMS.',
     'Trumpai aptariame paslaugas ir vietoves.',
@@ -95,47 +149,57 @@ export const steps = {
     'Kuriu, Jūs peržiūrite, viena korekcija.',
     'Perduodu svetainę ir prieigas.',
   ],
+  // Labels of the "site builds itself" frame on the home page.
+  stages: ['Eskizas', 'Dizainas', 'Gyva svetainė'],
+  frameUrl: 'arbcut.lt',
 };
 
 export const about = {
+  eyebrow: 'Apie',
   title: 'Kas aš',
   name: 'Matas Bašinskas',
   text: 'Matas Bašinskas, Kaunas. Individuali veikla. Svetaines kuriu pats ir atsakau pats – be tarpininkų.',
+  facts: ['Kaunas', 'Individuali veikla', 'Nuo pokalbio iki paleidimo – vienas žmogus'],
+  photoAlt: 'Matas Bašinskas prie savo darbo vietos',
   gbpLabel: 'Google verslo profilis',
 };
 
-/* FAQ shared by all pages. D1 (changes after handover) is an open decision
-   for Jarvis; the text below is the spec default. */
-const faqCommon = [
-  {
-    q: 'Ar garantuojate klientų?',
-    a: 'Ne. Konkretaus skaičiaus nežadu. Rezultatas priklauso nuo vietovės, konkurencijos, sezono ir paslaugų. Galiu parodyti, ką gavo Mantas.',
-  },
-  {
-    q: 'Paslaugos.lt man ir taip veikia.',
-    a: 'Jo atsisakyti nereikia. Svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
-  },
-  {
-    q: 'Jau turiu svetainę.',
-    a: 'Tada šis pasiūlymas gali netikti. Jei ji neatneša užklausų, parašykite – pasižiūrėsiu.',
-  },
-  {
-    q: 'Kas priklausys man?',
-    a: offer.ownership,
-  },
-  {
-    q: 'Ką reikės pateikti?',
-    a: 'Paslaugas, vietoves, kelias darbų nuotraukas ir kontaktus. Tekstus parašysiu pats.',
-  },
-  {
-    q: 'O jei vėliau reikės pakeitimų?',
-    a: 'Mėnesinio mokesčio nėra. Po paleidimo 30 dienų smulkius pataisymus darau nemokamai. Vėliau – susitarsime atskirai, tik jei to norėsite.',
-  },
-  {
-    q: 'Kodėl tokia kaina?',
-    a: 'Tai nedidelės, aiškios apimties svetainė. Sudėtingos sistemos į 199 € neįeina.',
-  },
-];
+/* FAQ shared by all pages. D1 (changes after handover) = spec default. */
+export const faq = {
+  eyebrow: 'D.U.K.',
+  title: 'Dažni klausimai',
+  aside: 'Neradote atsakymo? Parašykite – atsakau pats.',
+  items: [
+    {
+      q: 'Ar garantuojate klientų?',
+      a: 'Ne. Konkretaus skaičiaus nežadu. Rezultatas priklauso nuo vietovės, konkurencijos, sezono ir paslaugų. Galiu parodyti, ką gavo Mantas.',
+    },
+    {
+      q: 'Paslaugos.lt man ir taip veikia.',
+      a: 'Jo atsisakyti nereikia. Svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
+    },
+    {
+      q: 'Jau turiu svetainę.',
+      a: 'Tada šis pasiūlymas gali netikti. Jei ji neatneša užklausų, parašykite – pasižiūrėsiu.',
+    },
+    {
+      q: 'Kas priklausys man?',
+      a: offer.ownership,
+    },
+    {
+      q: 'Ką reikės pateikti?',
+      a: 'Paslaugas, vietoves, kelias darbų nuotraukas ir kontaktus. Tekstus parašysiu pats.',
+    },
+    {
+      q: 'O jei vėliau reikės pakeitimų?',
+      a: 'Mėnesinio mokesčio nėra. Po paleidimo 30 dienų smulkius pataisymus darau nemokamai. Vėliau – susitarsime atskirai, tik jei to norėsite.',
+    },
+    {
+      q: 'Kodėl tokia kaina?',
+      a: 'Tai nedidelės, aiškios apimties svetainė. Sudėtingos sistemos į 199 € neįeina.',
+    },
+  ],
+};
 
 /* ---------- Proof: ArbCut (arbcut.lt), one client ----------
    Images live in src/assets/proof (see PROVENANCE.md there). Every figure
@@ -144,7 +208,8 @@ const faqCommon = [
    "Work - WebAgency/ArbCut rezultatu vaizdai" (2026-10-09). */
 
 export const arbcutProof = {
-  title: 'Rezultatai: originalios ekrano kopijos',
+  eyebrow: 'Rezultatai · arbcut.lt',
+  title: 'Skaičiai su originaliomis ekrano kopijomis.',
   lead: 'Arboristo Manto Gerulio svetainė arbcut.lt. Paspaudę ekrano kopiją, pamatysite ją visą.',
   items: [
     {
@@ -152,6 +217,11 @@ export const arbcutProof = {
       figure: '20',
       label: 'formos užklausų per rugpjūtį ir rugsėjį',
       detail: 'Rugpjūtis – 7, rugsėjis – 13. Duomenys iš Web3Forms – sistemos, per kurią veikia arbcut.lt užklausos forma.',
+      months: [
+        { label: 'Rugpjūtis', value: 7 },
+        { label: 'Rugsėjis', value: 13 },
+      ],
+      source: 'Web3Forms',
       shots: [
         {
           card: 'web3forms-rugpjutis-card',
@@ -173,12 +243,19 @@ export const arbcutProof = {
       id: 'paieska',
       figure: '573',
       label: 'paspaudimai iš Google paieškos',
-      detail: '11,4 tūkst. parodymų Google paieškoje. Laikotarpis 2026-07-05 – 2026-10-04. Google Search Console, arbcut.lt.',
+      detail: '11,4 tūkst. parodymų Google paieškoje, vidutinis paspaudimų rodiklis (CTR) 5 %, vidutinė pozicija 8,2. Laikotarpis 2026-07-05 – 2026-10-04. Google Search Console, arbcut.lt.',
+      stats: [
+        { figure: '11,4 tūkst.', count: 11.4, decimals: 1, unit: 'tūkst.', label: 'parodymų Google paieškoje' },
+        { figure: '5 %', count: 5, decimals: 0, unit: '%', label: 'vidutinis paspaudimų rodiklis (CTR)' },
+        { figure: '8,2', count: 8.2, decimals: 1, unit: '', label: 'vidutinė pozicija Google' },
+      ],
+      period: '2026-07-05 – 2026-10-04',
+      source: 'Google Search Console',
       shots: [
         {
           card: 'search-console-card',
           full: 'search-console-full',
-          alt: 'Google Search Console, arbcut.lt: 573 paspaudimai (Total clicks), 11,4 tūkst. parodymų (Total impressions), vidutinė pozicija 8,2.',
+          alt: 'Google Search Console, arbcut.lt: 573 paspaudimai (Total clicks), 11,4 tūkst. parodymų (Total impressions), vidutinis CTR 5 %, vidutinė pozicija 8,2.',
           caption: 'Google Search Console, Web paieška, 2026-07-05 – 2026-10-04.',
         },
       ],
@@ -196,12 +273,14 @@ export const arbcutProof = {
           full: 'google-kaunas-full',
           alt: 'Google paieškos „medziu pjovimas kaunas“ rezultatai, tarp jų arbcut.lt: Medžių pjovimas Kaunas – arboristas ArbCut.',
           caption: 'Paieška „medziu pjovimas kaunas“.',
+          place: 'Kaunas',
         },
         {
           card: 'google-jonava-card',
           full: 'google-jonava-full',
           alt: 'Google paieškos „medziu pjovimas jonava“ rezultatai: arbcut.lt rezultatas ir ArbCut paminėjimas Google DI apžvalgoje.',
           caption: 'Paieška „medziu pjovimas jonava“: arbcut.lt rezultatuose ir DI apžvalgoje.',
+          place: 'Jonava',
         },
       ],
       saved: '2026-10-09',
@@ -211,6 +290,7 @@ export const arbcutProof = {
   notes: ['Tai vieno kliento rezultatas, ne garantija.'],
   savedLabel: 'Ekrano kopija išsaugota',
   zoomLabel: 'Padidinti',
+  viewLabel: 'Peržiūrėti',
   site: { label: 'Aplankyti arbcut.lt', href: 'https://arbcut.lt' },
   pdf: {
     label: 'Atsisiųsti įrodymus (PDF)',
@@ -221,63 +301,74 @@ export const arbcutProof = {
 
 /* ---------- Pages ---------- */
 
-const finalCta = {
+export const contact = {
+  eyebrow: 'Kontaktai',
   title: 'Ar tai Jums būtų naudinga?',
   lead: 'Parašykite – atsakau pats.',
 };
 
-export const niches = {
-  arboristai: {
-    slug: 'arboristams',
-    trackingPrefix: 'a',
-    meta: {
-      ogImage: '/assets/og-arboristams.png',
-      title: 'Svetainė arboristui – 199 € vieną kartą | jarvisweb.lt',
-      description:
-        '20 formos užklausų per rugpjūtį ir rugsėjį sulaukė arboristo Manto Gerulio svetainė arbcut.lt. Tokią pačią sukursiu ir Jums: 199 € vieną kartą, be mėnesinių mokesčių.',
-    },
-    hero: {
-      h1: [{ text: '20', big: true }, { text: ' užklausų dėl medžių darbų per 3 mėnesius' }],
-      sub: 'Tiek per rugpjūtį ir rugsėjį sulaukė mano sukurta svetainė arboristui Mantui Geruliui – arbcut.lt. Tokią pačią galiu sukurti ir Jums.',
-      price: { big: '199 €', text: 'vieną kartą. Be mėnesinių mokesčių.' },
-      payback: 'Užtenka vieno užsakymo, kad atsipirktų. Svetainė lieka Jūsų ir dirba toliau.',
-    },
-    proof: arbcutProof,
-    audience: null,
-    faq: faqCommon,
-    finalCta,
-    formSource: 'arboristams',
-  },
-};
-
 export const home = {
-  slug: '',
-  trackingPrefix: null,
   meta: {
     ogImage: '/assets/og.png',
     title: 'Svetainė paslaugų verslui – 199 € vieną kartą | jarvisweb.lt',
     description:
-      'Svetainė paslaugų verslui už 199 € vieną kartą, be mėnesinių mokesčių. Svetainė ir domenas – Jūsų. Pavyzdys: arboristo svetainė arbcut.lt ir jos rezultatai.',
+      'Svetainė vietiniam paslaugų verslui už 199 € vieną kartą, be mėnesinių mokesčių. Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų.',
   },
   hero: {
-    h1: [{ text: 'Svetainė paslaugų verslui – ' }, { text: '199 €', big: true }, { text: ' vieną kartą' }],
-    sub: 'Kuriu svetaines paslaugų verslams, kad klientai galėtų Jus rasti Google ir kreiptis tiesiogiai. Žemiau – ką per rugpjūtį ir rugsėjį sulaukė mano sukurta arboristo Manto Gerulio svetainė arbcut.lt.',
-    price: { big: null, text: 'Be mėnesinių mokesčių.' },
-    payback: 'Užtenka vieno užsakymo, kad atsipirktų. Svetainė lieka Jūsų ir dirba toliau.',
+    eyebrow: 'Svetainės vietiniam paslaugų verslui',
+    // h1 = before + highlighted part + after
+    h1: { before: 'Svetainė, kuri ', highlight: 'atneša užklausas', after: ' iš Google.' },
+    sub: 'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 užklausų. Tokią pačią galiu sukurti ir Jums.',
+    chips: [
+      { figure: '20', unit: 'užklausų', text: 'per rugpjūtį ir rugsėjį', href: '#rezultatai' },
+      { figure: '573', unit: 'paspaudimai', text: 'iš Google paieškos per 3 mėn.', href: '#rezultatai' },
+    ],
+    by: 'Kuria Matas Bašinskas, Kaunas',
+    deviceAlt: {
+      desktop: 'Arboristo svetainė arbcut.lt kompiuterio ekrane.',
+      mobile: 'Arboristo svetainė arbcut.lt telefono ekrane.',
+    },
   },
-  proof: arbcutProof,
-  audience: {
-    title: 'Kam tinka',
-    text: 'Paslaugų verslams, kurie dirba savo mieste ar rajone: medžių darbai, aplinkos ir vejos priežiūra, santechnika, stogai, statybos ir remontas, valymas.',
+  caseStudy: {
+    eyebrow: 'Atvejis · ArbCut',
+    title: 'Arboristo svetainė, kuri sulaukia užklausų.',
+    facts: [
+      { label: 'Klientas', text: 'Mantas Gerulis, arboristas. Dirba Kaune, Jonavoje ir aplink.' },
+      { label: 'Ką sukūriau', text: 'Svetainę arbcut.lt: paslaugos, darbų galerija, D.U.K., užklausos forma, pritaikyta telefonui.' },
+      { label: 'Kas įvyko', text: '20 formos užklausų per rugpjūtį ir rugsėjį, 573 paspaudimai iš Google paieškos per 3 mėnesius. Svetainė rodoma paieškose „medziu pjovimas kaunas“ ir „medziu pjovimas jonava“.' },
+    ],
+    imageAlt: 'arbcut.lt pagrindinis puslapis kompiuterio ekrane.',
   },
-  faq: faqCommon,
-  finalCta,
-  formSource: 'pradinis',
+};
+
+export const resultsPage = {
+  meta: {
+    ogImage: '/assets/og.png',
+    title: '20 užklausų per 2 mėnesius – rezultatai ir kaina | jarvisweb.lt',
+    description:
+      'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Originalios ekrano kopijos, kaina 199 € vieną kartą, be mėnesinių mokesčių.',
+  },
+  hero: {
+    eyebrow: 'Rezultatai · arbcut.lt',
+    figure: '20',
+    h1: 'užklausų per 2 mėnesius',
+    sub: 'Tiek formos užklausų per rugpjūtį ir rugsėjį sulaukė mano sukurta arboristo Manto Gerulio svetainė arbcut.lt. Tokią pačią galiu sukurti ir Jums.',
+    by: 'Matas Bašinskas, svetainių kūrėjas, Kaunas',
+  },
+  stepsLead: 'Penki žingsniai. Kainą ir apimtį sutariame raštu prieš darbą.',
 };
 
 export { TRACKING_PREFIXES };
 
 export const footer = {
+  blurb: 'Svetainės vietiniam paslaugų verslui. 199 € vieną kartą, be mėnesinių mokesčių.',
+  contactsTitle: 'Kontaktai',
+  linksTitle: 'Puslapiai',
+  socialTitle: 'Sekite',
+  pages: [
+    { label: 'Pradžia', href: '/' },
+    { label: 'Rezultatai', href: '/rezultatai' },
+  ],
   privacy: { label: 'Privatumo politika', href: '/privatumo-politika' },
   terms: { label: 'Taisyklės', href: '/taisykles' },
 };

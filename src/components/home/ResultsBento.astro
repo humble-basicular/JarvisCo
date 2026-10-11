@@ -1,0 +1,240 @@
+---
+/* Home results: bento grid. Every number sits next to (or opens) its original
+   screenshot (src/assets/proof/PROVENANCE.md). */
+import { arbcutProof as proof, cta } from '@data/content.js';
+import { resolveShot } from '@data/proof-images';
+import Shot from '@components/Shot.astro';
+
+const [forms, search, google] = proof.items;
+const [aug, sep] = await Promise.all(forms.shots.map(resolveShot));
+const [gsc] = await Promise.all(search.shots.map(resolveShot));
+const [kaunas, jonava] = await Promise.all(google.shots.map(resolveShot));
+const [impr, ctr, pos] = search.stats;
+const max = Math.max(...forms.months.map((m) => m.value));
+---
+<section class="sec t-paper res" id="rezultatai" aria-labelledby="res-title">
+  <div class="wrap">
+    <header class="sec-head res__head">
+      <p class="eyebrow">{proof.eyebrow}</p>
+      <h2 class="sec-title" id="res-title">{proof.title}</h2>
+      <p class="sec-lead">{proof.lead}</p>
+    </header>
+
+    <div class="bento">
+      <article class="tile tile--forms t-dark" data-proof-anchor data-spot data-reveal aria-labelledby="t-forms">
+        <div class="tile__top">
+          <p class="tile__src">{forms.source}</p>
+          <h3 id="t-forms" class="tile__h">
+            <span class="tile__big num grad-text" data-count={forms.figure}>{forms.figure}</span>
+            <span class="tile__label">{forms.label}</span>
+          </h3>
+        </div>
+        <ol class="bars" aria-label="Užklausos pagal mėnesį">
+          {forms.months.map((m) => (
+            <li style={`--h:${(m.value / max) * 100}%`}>
+              <span class="bars__v num">{m.value}</span>
+              <span class="bars__col" aria-hidden="true"></span>
+              <span class="bars__l">{m.label}</span>
+            </li>
+          ))}
+        </ol>
+        <div class="tile__shots">
+          <Shot shot={aug} sizes="(min-width: 64rem) 17rem, 44vw" class="tile__shot" />
+          <Shot shot={sep} sizes="(min-width: 64rem) 17rem, 44vw" class="tile__shot" />
+        </div>
+        <p class="tile__note">{forms.note} {proof.savedLabel} {forms.saved}.</p>
+      </article>
+
+      <article class="tile tile--clicks" data-spot data-reveal aria-labelledby="t-clicks">
+        <div class="tile__top">
+          <p class="tile__src">{search.source}</p>
+          <h3 id="t-clicks" class="tile__h">
+            <span class="tile__mid num" data-count={search.figure}>{search.figure}</span>
+            <span class="tile__label">{search.label}</span>
+          </h3>
+          <p class="tile__meta">{search.period}</p>
+        </div>
+        <Shot shot={gsc} sizes="(min-width: 64rem) 34rem, calc(100vw - 3rem)" class="tile__wide" />
+        <p class="tile__note">{search.note} {proof.savedLabel} {search.saved}.</p>
+      </article>
+
+      <article class="tile tile--stat" data-spot data-reveal aria-labelledby="t-impr">
+        <p class="tile__src">{search.source}</p>
+        <h3 id="t-impr" class="tile__h">
+          <span class="tile__mid num"><span data-count={impr.count} data-decimals={impr.decimals}>11,4</span> <small>{impr.unit}</small></span>
+          <span class="tile__label">{impr.label}</span>
+        </h3>
+        <p class="tile__meta">{search.period}</p>
+      </article>
+
+      <article class="tile tile--stat tile--ink" data-spot data-reveal aria-labelledby="t-pos">
+        <p class="tile__src">{search.source}</p>
+        <div class="tile__pair">
+          <h3 id="t-pos" class="tile__h">
+            <span class="tile__mid num" data-count={pos.count} data-decimals={pos.decimals}>{pos.figure}</span>
+            <span class="tile__label">{pos.label}</span>
+          </h3>
+          <p class="tile__h">
+            <span class="tile__mid num"><span data-count={ctr.count}>5</span> %</span>
+            <span class="tile__label">{ctr.label}</span>
+          </p>
+        </div>
+        <a class="tile__link" href={gsc.href} data-zoom data-w={gsc.w} data-h={gsc.h} data-alt={gsc.alt} data-caption={gsc.caption}>
+          {proof.viewLabel}: Search Console
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        </a>
+      </article>
+
+      {[kaunas, jonava].map((shot, i) => (
+        <article class="tile tile--google" data-spot data-reveal aria-labelledby={`t-g${i}`}>
+          <div class="tile__top">
+            <p class="tile__src">Google · {google.shots[i].place}</p>
+            <h3 id={`t-g${i}`} class="tile__label tile__label--strong">{shot.caption}</h3>
+          </div>
+          <Shot shot={shot} sizes="(min-width: 64rem) 34rem, calc(100vw - 3rem)" class:list={['tile__wide', { 'tile__wide--short': i === 0 }]} />
+          <p class="tile__note">{proof.savedLabel} {google.saved}.</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="res__foot" data-reveal>
+      <p class="res__honest">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+        {proof.notes[0]} {google.note}
+      </p>
+      <div class="res__links">
+        <a class="btn btn--ink" href="/rezultatai" data-magnetic>
+          {cta.allResults}
+          <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="text-link" href={proof.site.href} rel="noopener" data-track="arbcut">{proof.site.label} ↗</a>
+        <a class="text-link" href={proof.pdf.href} download data-track="pdf">{proof.pdf.label}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .res__head { max-width: 50rem; }
+
+  .bento { display: grid; gap: 0.875rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile {
+    --spot: rgba(31, 191, 117, 0.12);
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+    padding: clamp(1.125rem, 3vw, 1.75rem);
+    border-radius: var(--r-l);
+    background: var(--card);
+    border: 1px solid var(--line-light);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 30px 60px -45px rgba(6, 17, 12, 0.45);
+    overflow: hidden;
+  }
+  .tile--stat { justify-content: space-between; }
+  .tile__src {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--em-ink);
+  }
+  .tile__h { display: grid; gap: 0.375rem; margin: 0; font-family: var(--font-b); font-weight: 500; letter-spacing: 0; }
+  .tile__big { font-size: clamp(6.5rem, 30vw, 11rem); font-weight: 800; line-height: 0.82; padding-bottom: 0.06em; }
+  .tile__mid { font-size: clamp(2.75rem, 11vw, 4.25rem); font-weight: 800; line-height: 0.95; color: var(--on-light); white-space: nowrap; }
+  .tile__mid small { font-size: 0.45em; font-weight: 700; letter-spacing: -0.02em; }
+  .tile__label { font-size: 1.0625rem; line-height: 1.35; color: var(--mute-light); }
+  .tile__label--strong { font: 650 1.1875rem/1.3 var(--font-d); letter-spacing: -0.01em; color: var(--on-light); }
+  .tile__meta { margin: 0.375rem 0 0; font-size: 0.9375rem; color: var(--mute-light); }
+  .tile__note { margin: auto 0 0; font-size: 0.9375rem; color: var(--mute-light); }
+
+  /* Dark hero tile: 20 inquiries */
+  .tile--forms {
+    --spot: rgba(200, 245, 96, 0.12);
+    background:
+      radial-gradient(80% 60% at 100% 0%, rgba(31, 191, 117, 0.3), transparent 70%),
+      radial-gradient(60% 50% at 0% 100%, rgba(79, 209, 197, 0.14), transparent 70%),
+      var(--ink);
+    border-color: transparent;
+    color: var(--on-dark);
+  }
+  .tile--forms .tile__src { color: var(--lime); }
+  .tile--forms .tile__label { color: #cfe0d6; font-size: 1.125rem; }
+  .tile--forms .tile__note { color: var(--mute-dark); }
+
+  .bars { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; height: 9.5rem; align-items: end; }
+  .bars li { position: relative; display: grid; grid-template-rows: auto 1fr auto; height: 100%; gap: 0.375rem; }
+  .bars__v { font-size: 1.5rem; font-weight: 800; color: #fff; text-align: center; align-self: end; }
+  .bars__col {
+    align-self: end;
+    height: var(--h);
+    min-height: 1.5rem;
+    border-radius: 12px 12px 4px 4px;
+    background: linear-gradient(180deg, var(--lime), var(--em) 55%, #0f5c39);
+    box-shadow: 0 0 40px -10px rgba(200, 245, 96, 0.5);
+    transform-origin: bottom;
+  }
+  .bars__l { text-align: center; font-size: 0.875rem; color: var(--mute-dark); }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .bars__col { animation: bar-grow linear both; animation-timeline: view(); animation-range: entry 20% cover 45%; }
+    }
+  }
+  @keyframes bar-grow { from { transform: scaleY(0.06); } }
+
+  .tile__shots { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+  .tile__shots :global(.tile__shot) { aspect-ratio: 4 / 3; }
+
+  .tile :global(.tile__wide) { aspect-ratio: 740 / 235; }
+  .tile :global(.tile__wide--short) { aspect-ratio: 700 / 170; }
+  .tile--google :global(.tile__wide:not(.tile__wide--short)) { aspect-ratio: 690 / 470; }
+
+  .tile--ink { background: var(--ink-2); border-color: transparent; color: var(--on-dark); }
+  .tile--ink .tile__src { color: var(--lime); }
+  .tile--ink .tile__mid { color: #fff; }
+  .tile--ink .tile__label { color: #cfe0d6; }
+  .tile__pair { display: grid; gap: 1.25rem; }
+  .tile__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--lime);
+    text-underline-offset: 0.25em;
+  }
+  .tile__link svg { width: 1.125rem; height: 1.125rem; }
+
+  .res__foot {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+    padding: 1.25rem clamp(1.125rem, 3vw, 1.75rem);
+    border-radius: var(--r);
+    border: 1px dashed rgba(13, 26, 19, 0.25);
+  }
+  .res__honest { display: flex; gap: 0.75rem; margin: 0; color: var(--mute-light); font-size: 0.9375rem; }
+  .res__honest svg { width: 1.375rem; height: 1.375rem; flex: none; color: var(--em-ink); margin-top: 0.1rem; }
+  .res__links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.5rem; }
+  .res__links .btn { white-space: normal; text-align: left; }
+
+  @media (max-width: 39.99rem) {
+    .tile--ink .tile__pair { grid-template-columns: 1fr 1fr; }
+  }
+  @media (min-width: 40rem) {
+    .tile--stat { grid-column: span 1; min-height: 15rem; }
+  }
+  @media (min-width: 64rem) {
+    .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+    .tile--forms { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+    .tile--clicks { grid-column: 3 / span 2; }
+    .tile--stat { grid-column: span 1; }
+    .tile--google { grid-column: span 2; }
+    .tile--forms .tile__label { font-size: 1.25rem; max-width: 18rem; }
+    .bars { height: 11rem; }
+    .res__foot { grid-template-columns: 1fr auto; align-items: center; }
+  }
+</style>

@@ -1,0 +1,262 @@
+---
+/* "The site builds itself": the 5 process steps drive a browser frame from
+   wireframe → design → the live arbcut.lt screen.
+   Primary: CSS scroll-driven animations (view timelines shared through
+   timeline-scope). Fallback: effects.ts sets data-stage via
+   IntersectionObserver. Reduced motion / no support: final state, all steps. */
+import { Image } from 'astro:assets';
+import { steps } from '@data/content.js';
+import desktop from '@assets/site/arbcut-desktop.webp';
+
+// Shared block layout (percent of the frame), mirroring the arbcut.lt fold.
+const blocks = [
+  { k: 'logo', x: 10, y: 3.4, w: 9, h: 4.4 },
+  { k: 'link', x: 35, y: 4.8, w: 5.5, h: 1.6 },
+  { k: 'link', x: 43, y: 4.8, w: 5.5, h: 1.6 },
+  { k: 'link', x: 51, y: 4.8, w: 3.5, h: 1.6 },
+  { k: 'link', x: 57, y: 4.8, w: 5.5, h: 1.6 },
+  { k: 'btn', x: 79.5, y: 2.6, w: 10.3, h: 5.2 },
+  { k: 'kicker', x: 10.3, y: 14, w: 23, h: 1.4 },
+  { k: 'h', x: 10.3, y: 18.6, w: 38, h: 7.4 },
+  { k: 'h', x: 10.3, y: 28, w: 8, h: 7.4 },
+  { k: 'h', x: 10.3, y: 37.4, w: 41, h: 7.4 },
+  { k: 'h', x: 10.3, y: 46.8, w: 13, h: 7.4 },
+  { k: 'h accent', x: 10.3, y: 56.2, w: 42.5, h: 7.4 },
+  { k: 'p', x: 10.3, y: 66.6, w: 40, h: 1.7 },
+  { k: 'p', x: 10.3, y: 70.4, w: 39, h: 1.7 },
+  { k: 'p', x: 10.3, y: 74.2, w: 27, h: 1.7 },
+  { k: 'stars', x: 10.3, y: 79.8, w: 21, h: 1.6 },
+  { k: 'btn', x: 10.3, y: 86, w: 14.5, h: 5.8 },
+  { k: 'btn ghost', x: 26, y: 86, w: 13.5, h: 5.8 },
+  { k: 'card', x: 60.5, y: 16.5, w: 29.2, h: 78.5 },
+  { k: 'in title', x: 62.8, y: 20.5, w: 19, h: 2.8 },
+  { k: 'in sub', x: 62.8, y: 24.6, w: 20, h: 1.4 },
+  { k: 'in field', x: 62.8, y: 34.6, w: 24.6, h: 5.8 },
+  { k: 'in field', x: 62.8, y: 45.3, w: 24.6, h: 5.8 },
+  { k: 'in area', x: 62.8, y: 56, w: 24.6, h: 11.8 },
+  { k: 'in captcha', x: 62.8, y: 69.8, w: 21, h: 8.2 },
+  { k: 'in btn', x: 62.8, y: 81, w: 24.6, h: 5.8 },
+];
+const pos = (b: (typeof blocks)[number]) => `left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%`;
+const notes = [
+  { t: 'Antraštė', x: 30, y: 31 },
+  { t: 'Užklausos forma', x: 66, y: 9.8 },
+  { t: 'Mygtukai', x: 41.5, y: 87.6 },
+];
+---
+<section class="sec t-paper build" id="procesas" data-build aria-labelledby="build-title">
+  <div class="wrap">
+    <header class="sec-head build__head">
+      <p class="eyebrow">{steps.eyebrow}</p>
+      <h2 class="sec-title" id="build-title">{steps.title}</h2>
+      <p class="sec-lead">{steps.lead}</p>
+    </header>
+
+    <div class="build__grid">
+      <div class="build__sticky">
+        <div class="frame" aria-hidden="true">
+          <div class="frame__bar">
+            <span class="frame__dots"><i></i><i></i><i></i></span>
+            <span class="frame__url">{steps.frameUrl}</span>
+            <span class="frame__labels">
+              {steps.stages.map((s, i) => <span class:list={['frame__lbl', `frame__lbl--${i + 1}`]}>{s}</span>)}
+            </span>
+          </div>
+          <div class="frame__view">
+            <div class="layer layer--wire">
+              {blocks.map((b) => <i class:list={['blk', ...b.k.split(' ').map((c) => `blk--${c}`)]} style={pos(b)}></i>)}
+              {notes.map((n) => <span class="note" style={`left:${n.x}%;top:${n.y}%`}>{n.t}</span>)}
+            </div>
+            <div class="layer layer--design">
+              {blocks.map((b) => <i class:list={['blk', ...b.k.split(' ').map((c) => `blk--${c}`)]} style={pos(b)}></i>)}
+            </div>
+            <div class="layer layer--live">
+              <Image src={desktop} alt="" widths={[480, 760, 1100]} sizes="(min-width: 64rem) 38rem, calc(100vw - 3rem)" quality={72} loading="lazy" />
+            </div>
+          </div>
+          <div class="frame__progress"><span></span></div>
+        </div>
+      </div>
+
+      <ol class="build__steps">
+        {steps.items.map((text, i) => (
+          <li class="step" data-step={i + 1}>
+            <span class="step__n num">0{i + 1}</span>
+            <p class="step__t">{text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .build__grid { display: grid; gap: 1.5rem; align-items: start; }
+
+  /* ---------- Frame ---------- */
+  .build__sticky {
+    position: sticky;
+    top: calc(var(--hdr-h) + 0.25rem);
+    z-index: 2;
+    margin-inline: calc(-1 * var(--gutter));
+    padding: 0.5rem var(--gutter) 1.25rem;
+    background: linear-gradient(var(--paper) 82%, rgba(244, 241, 232, 0));
+  }
+  .frame {
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(13, 26, 19, 0.12), 0 40px 80px -40px rgba(6, 17, 12, 0.55);
+  }
+  .frame__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    background: #ece8dc;
+    border-bottom: 1px solid #ddd6c5;
+    font-size: 0.8125rem;
+  }
+  .frame__dots { display: flex; gap: 0.3rem; }
+  .frame__dots i { width: 0.5625rem; height: 0.5625rem; border-radius: 50%; background: #cfc8b5; }
+  .frame__url { padding: 0.125rem 0.625rem; border-radius: 999px; background: #fff; color: #4a574f; }
+  .frame__labels { position: relative; margin-left: auto; display: grid; justify-items: end; }
+  .frame__lbl {
+    grid-area: 1 / 1;
+    padding: 0.125rem 0.625rem;
+    border-radius: 999px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--ink);
+    color: var(--lime);
+  }
+  .frame__lbl--1, .frame__lbl--2 { opacity: 0; }
+
+  .frame__view { position: relative; aspect-ratio: 16 / 10; container-type: inline-size; overflow: hidden; }
+  .layer { position: absolute; inset: 0; }
+  .layer--wire {
+    background-color: #fbfaf5;
+    background-image: linear-gradient(rgba(13, 26, 19, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(13, 26, 19, 0.05) 1px, transparent 1px);
+    background-size: 2.5cqw 2.5cqw;
+  }
+  .layer--design { background: radial-gradient(70% 90% at 30% 40%, #2c4637, #16271e); }
+  .layer--live :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  .blk { position: absolute; display: block; border-radius: 0.4cqw; }
+  /* Wireframe: dashed outlines */
+  .layer--wire .blk { border: 1.5px dashed #7e9187; background: rgba(13, 26, 19, 0.025); }
+  .layer--wire .blk--card { border-style: solid; border-color: #9fb0a6; background: rgba(255, 255, 255, 0.6); }
+  .layer--wire .blk--h { background: rgba(13, 26, 19, 0.07); }
+  .note {
+    position: absolute;
+    padding: 0.2cqw 0.8cqw;
+    border-radius: 0.6cqw;
+    background: var(--lime);
+    color: var(--ink);
+    font: 600 max(9px, 1.5cqw)/1.3 var(--font-b);
+    transform: rotate(-2deg);
+    white-space: nowrap;
+  }
+  /* Design: filled like the real site */
+  .layer--design .blk--logo { background: linear-gradient(90deg, #e08a2c 22%, transparent 22% 30%, #f4efe4 30%); border-radius: 0.3cqw; }
+  .layer--design .blk--link { background: rgba(255, 255, 255, 0.85); border-radius: 99px; }
+  .layer--design .blk--btn { background: #e08a2c; border-radius: 0.7cqw; box-shadow: 0 0.8cqw 2cqw -0.8cqw rgba(224, 138, 44, 0.8); }
+  .layer--design .blk--ghost { background: transparent; border: 1.5px solid rgba(255, 255, 255, 0.7); box-shadow: none; }
+  .layer--design .blk--kicker { background: #e8a33d; border-radius: 99px; }
+  .layer--design .blk--h { background: #fff; border-radius: 0.3cqw; }
+  .layer--design .blk--accent { background: #e8a33d; }
+  .layer--design .blk--p { background: rgba(255, 255, 255, 0.55); border-radius: 99px; }
+  .layer--design .blk--stars { background: repeating-linear-gradient(90deg, #e8a33d 0 1.6cqw, transparent 1.6cqw 2.2cqw); border-radius: 0; }
+  .layer--design .blk--card { background: #fff; border-radius: 1cqw; box-shadow: 0 2cqw 4cqw -1.5cqw rgba(0, 0, 0, 0.6); border-top: 0.5cqw solid #e08a2c; }
+  .layer--design .blk--title { background: #1e3a2a; }
+  .layer--design .blk--sub { background: #c9c3b6; border-radius: 99px; }
+  .layer--design .blk--field, .layer--design .blk--area { background: #fff; border: 1px solid #ddd6c8; }
+  .layer--design .blk--captcha { background: #f6f4ef; border: 1px solid #ddd6c8; }
+  .layer--design .blk--in.blk--btn { background: #e08a2c; }
+
+  .frame__progress { height: 4px; background: #ece8dc; }
+  .frame__progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--lime), var(--em)); transform-origin: left; }
+
+  /* ---------- Steps ---------- */
+  .build__steps { list-style: none; counter-reset: s; }
+  .step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.125rem;
+    align-items: start;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--line-light);
+  }
+  .step:last-child { border-bottom: 1px solid var(--line-light); }
+  .step__n {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--lime);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .step__t { margin: 0.35rem 0 0; font: 700 clamp(1.375rem, 4.6vw, 2.25rem)/1.15 var(--font-d); letter-spacing: -0.025em; }
+
+  @media (min-width: 64rem) {
+    .build__grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 4rem; }
+    .build__sticky { order: 2; top: max(calc(var(--hdr-h) + 1.5rem), calc(50svh - 15rem)); margin: 0; padding: 0; background: none; }
+    .build__steps { order: 1; }
+    .frame__bar { font-size: 0.875rem; }
+  }
+
+  /* ---------- Scroll-driven version ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .step { min-height: 42svh; }
+    .build__steps { padding-bottom: 12svh; }
+    @media (min-width: 64rem) {
+      .step { min-height: 40svh; align-content: center; }
+      .build__steps { padding-bottom: 20svh; }
+    }
+
+    @supports (animation-timeline: view()) and (timeline-scope: --a) {
+      .build { timeline-scope: --steps, --st4, --st5; }
+      .build__steps { view-timeline: --steps block; }
+      .step[data-step='4'] { view-timeline: --st4 block; }
+      .step[data-step='5'] { view-timeline: --st5 block; }
+      /* Mobile: the frame covers the top of the screen, so a step is "active"
+         in the lower part; desktop: when it reaches the middle. */
+
+      .step { animation: step-on linear both; animation-timeline: view(); animation-range: cover 12% cover 32%; }
+      .layer--design { animation: wipe-in linear both; animation-timeline: --st4; animation-range: cover 12% cover 32%; }
+      .layer--live { animation: wipe-in linear both; animation-timeline: --st5; animation-range: cover 12% cover 32%; }
+      .frame__lbl--1 { animation: lbl-on linear both, lbl-off linear forwards; animation-timeline: --steps, --st4; animation-range: cover 0% cover 1%, cover 12% cover 32%; }
+      .frame__lbl--2 { animation: lbl-on linear both, lbl-off linear forwards; animation-timeline: --st4, --st5; animation-range: cover 12% cover 32%, cover 12% cover 32%; }
+      .frame__lbl--3 { animation: lbl-on linear both; animation-timeline: --st5; animation-range: cover 12% cover 32%; }
+      .frame__progress span { animation: grow linear both; animation-timeline: --steps; animation-range: cover 20% cover 80%; }
+      .layer--wire .blk { animation: draw linear both; animation-timeline: --steps; animation-range: entry 0% entry 40%; }
+      @media (min-width: 64rem) {
+        .step, .layer--design, .layer--live, .frame__lbl--3 { animation-range: cover 30% cover 50%; }
+        .frame__lbl--1 { animation-range: cover 0% cover 1%, cover 30% cover 50%; }
+        .frame__lbl--2 { animation-range: cover 30% cover 50%, cover 30% cover 50%; }
+      }
+    }
+  }
+  @keyframes step-on { from { opacity: 0.32; } to { opacity: 1; } }
+  @keyframes wipe-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes lbl-on { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes lbl-off { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes draw { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
+
+  /* ---------- IntersectionObserver fallback (effects.ts) ---------- */
+  .build:global(.is-js) .step { opacity: 0.32; transition: opacity 0.5s; }
+  .build:global(.is-js) .step:global(.is-on) { opacity: 1; }
+  .build:global(.is-js) .layer--design, .build:global(.is-js) .layer--live { clip-path: inset(0 100% 0 0); transition: clip-path 0.9s var(--ease); }
+  .build:global(.is-js)[data-stage='4'] .layer--design,
+  .build:global(.is-js)[data-stage='5'] .layer--design,
+  .build:global(.is-js)[data-stage='5'] .layer--live { clip-path: inset(0 0 0 0); }
+  .build:global(.is-js) .frame__lbl { opacity: 0; transition: opacity 0.4s; }
+  .build:global(.is-js):not([data-stage='4']):not([data-stage='5']) .frame__lbl--1,
+  .build:global(.is-js)[data-stage='4'] .frame__lbl--2,
+  .build:global(.is-js)[data-stage='5'] .frame__lbl--3 { opacity: 1; }
+</style>

@@ -1,18 +1,203 @@
 ---
-import { brand } from '@data/content.js';
+/* Sticky glass pill header. Desktop: anchors + CTA. Mobile: a menu sheet in
+   a native modal <dialog> (focus trap, Esc, focus return for free). */
+import { brand, cta, nav as navText } from '@data/content.js';
+
+interface Props { nav: { label: string; href: string }[] }
+const { nav } = Astro.props;
+const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
 ---
-<header class="header">
-  <div class="wrap wrap--wide header__in">
-    <a class="header__brand" href="/">{brand.name}</a>
-    <a class="header__phone" href={brand.telHref} data-track="cta_call">
-      <span class="visually-hidden">Skambinti </span>{brand.phone}
-    </a>
+<header class="hdr" data-header>
+  <div class="hdr__bar glass">
+    <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}>Jarvis<span>Co</span></a>
+    <nav class="hdr__nav" aria-label="Pagrindinė navigacija">
+      <ul>
+        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </nav>
+    <a class="btn btn--lime btn--sm hdr__cta" href={contactHref}>{cta.contact}</a>
+    <button class="hdr__burger" type="button" aria-haspopup="dialog" aria-controls="menu-sheet" data-menu-open>
+      <span class="visually-hidden">{navText.menuLabel}</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
+    </button>
   </div>
+
+  <dialog class="sheet t-dark" id="menu-sheet" aria-label={navText.menuLabel} data-menu>
+    <div class="sheet__top">
+      <a class="logo" href="/">Jarvis<span>Co</span></a>
+      <button class="sheet__close" type="button" data-menu-close>
+        <span class="visually-hidden">{navText.closeLabel}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <nav aria-label="Meniu nuorodos">
+      <ul class="sheet__list">
+        {nav.map((item, i) => (
+          <li style={`--i:${i}`}><a href={item.href} data-menu-link><span class="sheet__n">0{i + 1}</span>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <div class="sheet__ctas">
+      <a class="btn btn--lime" href={brand.smsHref} data-track="cta_sms">{cta.sms}</a>
+      <a class="btn btn--ghost" href={brand.telHref} data-track="cta_call">{cta.call} {brand.phone}</a>
+    </div>
+  </dialog>
 </header>
 
+<script>
+  const sheet = document.querySelector<HTMLDialogElement>('[data-menu]');
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  if (sheet && openBtn && typeof sheet.showModal === 'function') {
+    openBtn.addEventListener('click', () => sheet.showModal());
+    sheet.querySelector('[data-menu-close]')?.addEventListener('click', () => sheet.close());
+    sheet.addEventListener('click', (e) => {
+      const t = e.target as Element;
+      if (t === sheet || t.closest('[data-menu-link]')) sheet.close();
+    });
+  }
+  // Header gets denser once the page scrolls.
+  if (header) {
+    const onScroll = () => header.classList.toggle('is-scrolled', scrollY > 24);
+    onScroll();
+    addEventListener('scroll', onScroll, { passive: true });
+  }
+</script>
+
 <style>
-  .header { border-bottom: 1px solid var(--line); background: #fff; }
-  .header__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; }
-  .header__brand { font-weight: 800; color: var(--ink); text-decoration: none; font-size: 1.0625rem; display: inline-flex; align-items: center; min-height: 3rem; }
-  .header__phone { font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; min-height: 3rem; }
+  .hdr {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 60;
+    padding: 0.625rem var(--gutter) 0;
+    pointer-events: none;
+    view-transition-name: site-header;
+  }
+  .hdr__bar {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: min(100%, 75rem);
+    margin-inline: auto;
+    min-height: 3.75rem;
+    padding: 0.375rem 0.375rem 0.375rem 1.125rem;
+    border-radius: 999px;
+    background: rgba(6, 17, 12, 0.5);
+    box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  .hdr.is-scrolled .hdr__bar { background: rgba(6, 17, 12, 0.82); box-shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.9); }
+
+  .logo {
+    font: 800 1.375rem/1 var(--font-d);
+    letter-spacing: -0.04em;
+    color: #fff;
+    text-decoration: none;
+    margin-right: auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    view-transition-name: brand;
+  }
+  .logo span { color: var(--lime); }
+
+  .hdr__nav { display: none; }
+  .hdr__nav ul { display: flex; list-style: none; gap: 0.125rem; }
+  .hdr__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0 0.875rem;
+    border-radius: 999px;
+    color: #d3e3d9;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .hdr__nav a:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+  .hdr__cta { display: none; }
+
+  .hdr__burger {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    cursor: pointer;
+  }
+  .hdr__burger svg { width: 1.375rem; }
+
+  @media (min-width: 64rem) {
+    .hdr__nav { display: block; }
+    .hdr__cta { display: inline-flex; }
+    .hdr__burger { display: none; }
+  }
+  /* No JS: the sheet cannot open, so hide the button and show the CTA. */
+  :global(html:not(.js)) .hdr__burger { display: none; }
+  :global(html:not(.js)) .hdr__cta { display: inline-flex; }
+
+  /* Mobile menu sheet */
+  .sheet {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0.625rem var(--gutter) calc(1.5rem + env(safe-area-inset-bottom));
+    border: 0;
+    overflow-y: auto;
+    background:
+      radial-gradient(60% 40% at 90% 0%, rgba(31, 191, 117, 0.28), transparent 70%),
+      radial-gradient(50% 30% at 0% 100%, rgba(200, 245, 96, 0.12), transparent 70%),
+      var(--ink);
+    color: #fff;
+  }
+  .sheet[open] { display: flex; flex-direction: column; }
+  .sheet::backdrop { background: rgba(6, 17, 12, 0.6); }
+  .sheet__top {
+    display: flex;
+    align-items: center;
+    min-height: 3.75rem;
+    padding: 0.375rem 0.375rem 0.375rem 1.125rem;
+    border: 1px solid var(--line-dark);
+    border-radius: 999px;
+  }
+  .sheet__close {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+  }
+  .sheet__close svg { width: 1.25rem; }
+  .sheet__list { list-style: none; margin: 2rem 0 auto; }
+  .sheet__list a {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.875rem 0.25rem;
+    border-bottom: 1px solid var(--line-dark);
+    font: 700 clamp(1.75rem, 8vw, 2.5rem)/1.1 var(--font-d);
+    letter-spacing: -0.03em;
+    color: #fff;
+    text-decoration: none;
+  }
+  .sheet__n { font: 600 0.8125rem/1 var(--font-b); letter-spacing: 0.1em; color: var(--lime); }
+  .sheet__ctas { display: grid; gap: 0.75rem; margin-top: 2rem; }
+  .sheet__ctas .btn { width: 100%; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sheet[open] .sheet__list li { animation: sheet-in 0.5s var(--ease) both; animation-delay: calc(var(--i) * 45ms + 60ms); }
+    .sheet[open] { animation: sheet-fade 0.3s ease both; }
+  }
+  @keyframes sheet-in { from { opacity: 0; transform: translateY(14px); } }
+  @keyframes sheet-fade { from { opacity: 0; } }
 </style>

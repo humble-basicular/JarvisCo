@@ -4,22 +4,45 @@ import { brand, offer } from '@data/content.js';
 import Header from '@components/Header.astro';
 import Footer from '@components/Footer.astro';
 import StickyBar from '@components/StickyBar.astro';
+// Self-hosted fonts (fontsource, OFL): latin + latin-ext only. Lithuanian
+// letters (ąčęėįšųūž) are in latin-ext. Bricolage uses the opsz+wght file so
+// large headings get the display cut.
+import bricoLatin from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-opsz-normal.woff2?url';
+import bricoExt from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-ext-opsz-normal.woff2?url';
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import interExt from '@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2?url';
 
+interface NavItem { label: string; href: string }
 interface Props {
   title: string;
   description: string;
+  nav: NavItem[];
   faq?: { q: string; a: string }[];
   noindex?: boolean;
   stickyBar?: boolean;
   ogImage?: string;
 }
-const { title, description, faq = [], noindex = false, stickyBar = true, ogImage: ogPath = '/assets/og.png' } = Astro.props;
+const { title, description, nav, faq = [], noindex = false, stickyBar = true, ogImage: ogPath = '/assets/og.png' } = Astro.props;
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', brand.url).href;
 const ogImage = new URL(ogPath, brand.url).href;
 
 // Cloudflare Web Analytics (cookieless). Set PUBLIC_CF_ANALYTICS_TOKEN at build
 // time, or enable the automatic setup in Cloudflare; empty = no script.
 const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+
+const LATIN = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
+const EXT = 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
+const face = (family: string, src: string, range: string, weight: string) =>
+  `@font-face{font-family:'${family}';font-style:normal;font-display:swap;font-weight:${weight};src:url(${src}) format('woff2');unicode-range:${range}}`;
+// Metric-matched local fallbacks keep text from shifting when the fonts swap in.
+const fontCss = [
+  face('Bricolage Grotesque Variable', bricoLatin, LATIN, '200 800'),
+  face('Bricolage Grotesque Variable', bricoExt, EXT, '200 800'),
+  face('Inter Variable', interLatin, LATIN, '100 900'),
+  face('Inter Variable', interExt, EXT, '100 900'),
+  "@font-face{font-family:'Bricolage Fallback';src:local('Arial'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:26%;line-gap-override:0%}",
+  "@font-face{font-family:'Inter Fallback';src:local('Arial'),local('Helvetica Neue'),local('Roboto');size-adjust:107.1%;ascent-override:90.4%;descent-override:22.5%;line-gap-override:0%}",
+].join('');
 
 const business = {
   '@context': 'https://schema.org',
@@ -53,13 +76,17 @@ const faqSchema = faq.length
 <html lang="lt">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="format-detection" content="telephone=no" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#06110c" />
+
+    <link rel="preload" href={bricoLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bricoExt} as="font" type="font/woff2" crossorigin />
+    <style is:inline set:html={fontCss}></style>
 
     <meta property="og:site_name" content="jarvisweb.lt" />
     <meta property="og:type" content="website" />
@@ -83,14 +110,15 @@ const faqSchema = faq.length
   </head>
   <body>
     <a href="#main" class="skip-link">Pereiti prie turinio</a>
-    <Header />
-    <main id="main">
+    <Header nav={nav} />
+    <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />
     {stickyBar && <StickyBar />}
     <script>
       import '../scripts/track';
+      import '../scripts/effects';
     </script>
   </body>
 </html>

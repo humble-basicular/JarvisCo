@@ -12,7 +12,7 @@ export const EVENT_TYPES = ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf'
 export const CODE_PATTERN = /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/;
 
 /** First character of a code = niche. Mirrors the Worker `prefixes` config. */
-export const TRACKING_PREFIXES = { a: '/arboristams' };
+export const TRACKING_PREFIXES = { a: '/rezultatai' };
 
 /** sessionStorage key; the code lives only for the browser tab session. */
 export const STORAGE_KEY = 'jw_proof_code';

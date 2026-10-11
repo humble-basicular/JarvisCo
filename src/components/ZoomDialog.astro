@@ -1,0 +1,82 @@
+---
+/* One dialog per page for every proof screenshot (src/scripts/zoom.ts). */
+---
+<dialog class="zoom" data-zoom-dialog aria-labelledby="zoom-caption">
+  <form method="dialog" class="zoom__bar">
+    <p class="zoom__caption" id="zoom-caption" data-zoom-caption>Ekrano kopija</p>
+    <button class="zoom__close" type="submit">
+      Uždaryti
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </form>
+  <div class="zoom__stage">
+    <img alt="" decoding="async" />
+  </div>
+</dialog>
+
+<script>
+  import '../scripts/zoom';
+</script>
+
+<style>
+  .zoom {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(6, 17, 12, 0.94);
+    color: #fff;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .zoom::backdrop { background: rgba(6, 17, 12, 0.5); }
+  .zoom__bar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem var(--gutter);
+    background: rgba(6, 17, 12, 0.9);
+    border-bottom: 1px solid var(--line-dark);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .zoom__caption { margin: 0; flex: 1; font-size: 0.9375rem; color: #dbe8e0; min-width: 0; }
+  .zoom__close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0 1.125rem;
+    border-radius: 999px;
+    border: 0;
+    background: var(--lime);
+    color: var(--ink);
+    font-weight: 700;
+    cursor: pointer;
+    flex: none;
+  }
+  .zoom__close svg { width: 1.125rem; height: 1.125rem; }
+  .zoom__stage { padding: 1rem var(--gutter) 2rem; }
+  /* At least 56rem wide on phones so dashboard text is readable; pan to explore. */
+  .zoom img {
+    width: max(100%, 56rem);
+    max-width: none;
+    margin: 0 auto;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+    transform-origin: 0 0;
+  }
+  @media (min-width: 56rem) { .zoom img { width: min(100%, 1600px); } }
+  @media (prefers-reduced-motion: no-preference) {
+    .zoom[open] { animation: zoom-fade 0.3s ease both; }
+  }
+  @keyframes zoom-fade { from { background-color: rgba(6, 17, 12, 0); } }
+</style>

@@ -1,0 +1,120 @@
+---
+import { Image } from 'astro:assets';
+import { arbcutProof as proof, cta, home } from '@data/content.js';
+import { proofImage } from '@data/proof-images';
+import desktop from '@assets/site/arbcut-desktop.webp';
+
+const { caseStudy } = home;
+const kaunas = proofImage(proof.items[2].shots[0].card);
+---
+<section class="sec t-dark-2 case" id="atvejis" aria-labelledby="case-title">
+  <div class="case__glow" aria-hidden="true"></div>
+  <div class="wrap case__grid">
+    <div class="case__copy">
+      <p class="eyebrow">{caseStudy.eyebrow}</p>
+      <h2 class="sec-title" id="case-title">{caseStudy.title}</h2>
+      <dl class="case__facts">
+        {caseStudy.facts.map((f, i) => (
+          <div class="case__fact" data-reveal>
+            <dt><span class="num">0{i + 1}</span>{f.label}</dt>
+            <dd>{f.text}</dd>
+          </div>
+        ))}
+      </dl>
+      <div class="btn-row btn-row--stack">
+        <a class="btn btn--lime" href="/rezultatai" data-magnetic>
+          {cta.allResults}
+          <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn--ghost" href={proof.site.href} rel="noopener" data-track="arbcut">{proof.site.label} ↗</a>
+      </div>
+    </div>
+
+    <figure class="case__visual" data-reveal>
+      <div class="case__stack">
+      <div class="browser">
+        <div class="browser__bar" aria-hidden="true">
+          <span class="browser__dots"><i></i><i></i><i></i></span>
+          <span class="browser__url">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            arbcut.lt
+          </span>
+        </div>
+        <Image src={desktop} alt={caseStudy.imageAlt} widths={[480, 760, 1100]} sizes="(min-width: 64rem) 36rem, calc(100vw - 3rem)" quality={72} loading="lazy" />
+      </div>
+      <div class="case__serp">
+        <Image src={kaunas} alt={proof.items[2].shots[0].alt} widths={[360, 700]} sizes="(min-width: 64rem) 22rem, 80vw" quality={80} loading="lazy" />
+      </div>
+      </div>
+      <figcaption class="small">{proof.items[2].shots[0].caption} {proof.savedLabel} {proof.items[2].saved}.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .case { overflow: clip; }
+  .case__glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(40% 50% at 85% 40%, rgba(31, 191, 117, 0.22), transparent 70%),
+      radial-gradient(30% 40% at 10% 90%, rgba(79, 209, 197, 0.1), transparent 70%);
+    pointer-events: none;
+  }
+  .case__grid { position: relative; display: grid; gap: clamp(3rem, 8vw, 5rem); align-items: center; }
+  .case__facts { margin: clamp(2rem, 5vw, 3rem) 0 2.25rem; display: grid; gap: 0; }
+  .case__fact { padding: 1.25rem 0; border-top: 1px solid var(--line-dark); display: grid; gap: 0.375rem; }
+  .case__fact:last-child { border-bottom: 1px solid var(--line-dark); }
+  .case__fact dt { display: flex; align-items: baseline; gap: 0.75rem; font: 650 1.125rem/1.3 var(--font-d); color: #fff; letter-spacing: -0.01em; }
+  .case__fact dt .num { font-size: 0.875rem; color: var(--lime); letter-spacing: 0.02em; font-family: var(--font-b); font-weight: 600; }
+  .case__fact dd { margin: 0; color: #c3d6cb; }
+  .case .btn-row .btn { white-space: normal; }
+
+  .case__visual { margin: 0; }
+  .case__stack { position: relative; padding-bottom: 2.75rem; }
+  .browser {
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0e1a14;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 50px 100px -40px rgba(0, 0, 0, 0.9), 0 0 120px -40px rgba(31, 191, 117, 0.4);
+    transform: perspective(1600px) rotateY(-8deg) rotateX(3deg);
+    transform-origin: 60% 50%;
+  }
+  .browser__bar { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.875rem; background: #15241c; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+  .browser__dots { display: flex; gap: 0.375rem; }
+  .browser__dots i { width: 0.625rem; height: 0.625rem; border-radius: 50%; background: rgba(255, 255, 255, 0.18); }
+  .browser__url {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    max-width: 16rem;
+    margin-inline: auto;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    font-size: 0.8125rem;
+    color: #cfe0d6;
+  }
+  .browser__url svg { width: 0.75rem; height: 0.75rem; }
+  .browser :global(img) { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+
+  .case__serp {
+    position: absolute;
+    right: -0.5rem;
+    bottom: 0;
+    width: min(82%, 23rem);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16), 0 30px 60px -20px rgba(0, 0, 0, 0.85);
+    transform: rotate(-2deg);
+  }
+  .case__serp :global(img) { width: 100%; }
+  .case__visual figcaption { margin-top: 1rem; color: var(--mute-dark); font-size: 0.875rem; }
+
+  @media (min-width: 64rem) {
+    .case__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
+    .case__serp { right: -1.5rem; }
+  }
+</style>

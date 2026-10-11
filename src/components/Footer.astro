@@ -1,26 +1,109 @@
 ---
 import { brand, footer } from '@data/content.js';
+const year = new Date().getFullYear();
 ---
-<footer class="footer">
-  <div class="wrap wrap--wide">
-    <p><strong>{brand.owner}</strong> · {brand.status} · {brand.city}</p>
-    <p>
-      <a href={brand.emailHref}>{brand.email}</a> ·
-      <a href={brand.telHref} data-track="cta_call">{brand.phone}</a>
-    </p>
-    <ul class="footer__links">
-      <li><a href={footer.privacy.href}>{footer.privacy.label}</a></li>
-      <li><a href={footer.terms.href}>{footer.terms.label}</a></li>
-      <li><a href={brand.facebook} rel="noopener">Facebook</a></li>
-      <li><a href={brand.instagram} rel="noopener">Instagram</a></li>
-    </ul>
+<footer class="ftr t-dark">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div class="ftr__brand">
+        <a class="ftr__logo" href="/">Jarvis<span>Co</span></a>
+        <p>{footer.blurb}</p>
+      </div>
+      <div class="ftr__contacts">
+        <h2 class="ftr__h">{footer.contactsTitle}</h2>
+        <ul>
+          <li><a href={brand.telHref} data-track="cta_call">{brand.phone}</a></li>
+          <li><a href={brand.emailHref}>{brand.email}</a></li>
+          <li><span>{brand.city}, Lietuva</span></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="ftr__h">{footer.linksTitle}</h2>
+        <ul>
+          {footer.pages.map((p) => <li><a href={p.href}>{p.label}</a></li>)}
+          <li><a href={footer.privacy.href}>{footer.privacy.label}</a></li>
+          <li><a href={footer.terms.href}>{footer.terms.label}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="ftr__h">{footer.socialTitle}</h2>
+        <ul>
+          <li><a href={brand.facebook} rel="noopener">Facebook</a></li>
+          <li><a href={brand.instagram} rel="noopener">Instagram</a></li>
+          <li><a href={brand.gbp} rel="noopener">Google verslo profilis</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <svg class="ftr__mark" viewBox="0 0 1000 214" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="ftr-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#eef5f0" stop-opacity="0.95" />
+          <stop offset="1" stop-color="#eef5f0" stop-opacity="0.08" />
+        </linearGradient>
+        <linearGradient id="ftr-grad-co" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#c8f560" />
+          <stop offset="1" stop-color="#1fbf75" stop-opacity="0.15" />
+        </linearGradient>
+      </defs>
+      <text x="0" y="178" textLength="1000" lengthAdjust="spacingAndGlyphs"><tspan fill="url(#ftr-grad)">Jarvis</tspan><tspan fill="url(#ftr-grad-co)">Co</tspan></text>
+    </svg>
+
+    <div class="ftr__base">
+      <p>© {year} {brand.owner} · {brand.status} · {brand.city}</p>
+      <p>jarvisweb.lt</p>
+    </div>
   </div>
 </footer>
 
 <style>
-  .footer { border-top: 1px solid var(--line); padding: 2rem 0 calc(2rem + var(--bar-h)); font-size: 0.9375rem; color: var(--muted); }
-  .footer p { margin-bottom: 0.5rem; }
-  .footer a { display: inline-flex; align-items: center; min-height: 3rem; }
-  .footer__links { list-style: none; padding: 0; margin: 0.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
-  @media (min-width: 48.0625rem) { .footer { padding-bottom: 2rem; } }
+  .ftr {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(3.5rem, 8vw, 6rem) 0 calc(1.5rem + var(--bar-h) + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line-dark);
+  }
+  .ftr::before {
+    content: '';
+    position: absolute;
+    inset: auto -20% -40% -20%;
+    height: 70%;
+    background: radial-gradient(50% 50% at 50% 100%, rgba(31, 191, 117, 0.22), transparent 70%);
+    pointer-events: none;
+  }
+  .ftr .wrap { position: relative; }
+  .ftr__grid { display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; }
+  .ftr__brand, .ftr__contacts { grid-column: 1 / -1; }
+  .ftr__brand { max-width: 26rem; }
+  .ftr__logo { font: 800 1.75rem/1 var(--font-d); letter-spacing: -0.04em; color: #fff; text-decoration: none; display: inline-flex; min-height: 3rem; align-items: center; }
+  .ftr__logo span { color: var(--lime); }
+  .ftr__brand p { color: var(--mute-dark); margin: 0.5rem 0 0; }
+  .ftr__h { font: 600 0.8125rem/1.2 var(--font-b); letter-spacing: 0.14em; text-transform: uppercase; color: var(--lime); margin-bottom: 0.5rem; }
+  .ftr ul { list-style: none; }
+  .ftr li a, .ftr li span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    color: #dbe8e0;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  .ftr li a:hover { color: #fff; text-decoration: underline; }
+  .ftr__mark { width: 100%; margin: clamp(2.5rem, 7vw, 5rem) 0 0; font: 800 200px/1 var(--font-d); letter-spacing: -0.05em; }
+  .ftr__base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line-dark);
+    font-size: 0.9375rem;
+    color: var(--mute-dark);
+  }
+  .ftr__base p { margin: 0; }
+  @media (min-width: 48rem) {
+    .ftr { padding-bottom: 2rem; }
+    .ftr__grid { grid-template-columns: 1.6fr 1fr 1fr 1fr; }
+    .ftr__brand, .ftr__contacts { grid-column: auto; }
+  }
 </style>
