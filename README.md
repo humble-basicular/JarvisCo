@@ -48,7 +48,7 @@ npm run check        # build + check:copy + check:js
 
 ## Local preview with tracking
 
-`npm run preview` serves only the static pages. Beacons post to `/t/e`, which exists only behind the Worker, so locally they get a 404 (harmless). To exercise the full flow run the Worker (`npm run dev` inside `tracking/`, see its README) and open `/arboristams?r=a2345`.
+`npm run preview` serves only the static pages. Beacons post to `/t/e`, which exists only behind the Worker, so under plain `preview` they fail without a Worker (not tested whether the page tolerates that silently). To exercise the full flow run the Worker (`npm run dev` inside `tracking/`, see its README) and open `/arboristams?r=a2345`.
 
 ## Testing rules
 
