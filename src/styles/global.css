@@ -36,7 +36,9 @@
   --bar-h: 5rem;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --grad-text: linear-gradient(100deg, var(--lime) 0%, var(--em) 55%, var(--ice) 100%);
-  color-scheme: dark light;
+  color-scheme: light;
+  --mute: var(--mute-light);
+  --line: var(--line-light);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -90,7 +92,7 @@ a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px
   outline-offset: 3px;
   border-radius: 6px;
 }
-.t-dark :focus-visible { outline-color: var(--lime); }
+.t-dark :focus-visible, .t-dark-2 :focus-visible, .hdr :focus-visible, .zoom :focus-visible { outline-color: var(--lime); }
 
 .skip-link {
   position: fixed;
@@ -125,7 +127,7 @@ a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px
 .t-dark { background: var(--ink); color: var(--on-dark); }
 .t-dark-2 { background: var(--ink-2); color: var(--on-dark); }
 .t-paper { background: var(--paper); color: var(--on-light); }
-.t-dark, .t-dark-2 { --mute: var(--mute-dark); --line: var(--line-dark); }
+.t-dark, .t-dark-2 { color-scheme: dark; --mute: var(--mute-dark); --line: var(--line-dark); }
 .t-paper { --mute: var(--mute-light); --line: var(--line-light); }
 
 /* ---------- Type ---------- */
@@ -159,7 +161,7 @@ a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px
   font-weight: 500;
 }
 .eyebrow--pill::before {
-  width: 0.5rem; height: 0.5rem; border-radius: 50%;
+  width: 0.5rem; height: 0.5rem; flex: none; border-radius: 50%;
   background: var(--em);
   box-shadow: 0 0 0 4px rgba(31, 191, 117, 0.22);
 }
@@ -197,7 +199,8 @@ a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px
   font: 600 1.0625rem/1.2 var(--font-b);
   letter-spacing: -0.005em;
   text-decoration: none;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
   cursor: pointer;
   transform: translate3d(var(--mx), var(--my), 0);
   transition: transform 0.35s var(--ease), background-color 0.2s, box-shadow 0.3s, border-color 0.2s, color 0.2s;
@@ -333,9 +336,16 @@ a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px
 /* ---------- Reduced motion: everything static ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    animation: none !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
 }
+
+/* Fallback reveal starts only after its observer has been attached. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal].reveal-ready { opacity: 0; transform: translateY(1.5rem); transition: opacity 0.65s var(--ease), transform 0.65s var(--ease); }
+  [data-reveal].reveal-ready.is-revealed { opacity: 1; transform: none; }
+}
+html:has(dialog[open]) { overflow: hidden; }
+@media (forced-colors: active) { .grad-text { background: none; color: CanvasText; } }

@@ -1,12 +1,24 @@
 ---
 import Layout from '@layouts/Layout.astro';
+import { nav, utility, cta } from '@data/content.js';
 ---
-<Layout title="Puslapis nerastas | jarvisweb.lt" description="Tokio puslapio nėra." noindex>
-  <section class="section">
-    <div class="wrap">
-      <h1>Tokio puslapio nėra</h1>
-      <p>Galbūt nuoroda pasenusi.</p>
-      <p><a href="/">Į pradžią</a> · <a href="/arboristams">Svetainės arboristams</a></p>
+<Layout title={utility.notFound.metaTitle} description={utility.notFound.title} nav={nav.other} noindex stickyBar={false}>
+  <section class="missing t-dark">
+    <div class="aurora" aria-hidden="true"><div class="aurora__grid"></div></div>
+    <div class="wrap wrap--narrow missing__in">
+      <p class="missing__code num grad-text" aria-hidden="true">404</p>
+      <h1 class="sec-title">{utility.notFound.title}</h1>
+      <p class="sec-lead">{utility.notFound.text}</p>
+      <div class="btn-row btn-row--stack">
+        <a class="btn btn--lime" href="/">{utility.home}</a>
+        <a class="btn btn--ghost" href="/rezultatai">{cta.results}</a>
+      </div>
     </div>
   </section>
 </Layout>
+<style>
+  .missing { position: relative; overflow: clip; padding: calc(var(--hdr-h) + 3rem) 0 5rem; min-height: 75svh; }
+  .missing__in { position: relative; }
+  .missing__code { font-size: clamp(7rem, 26vw, 15rem); line-height: 1; font-weight: 800; width: fit-content; margin: 0 0 1.5rem; }
+  .missing .btn-row { margin-top: 2rem; }
+</style>

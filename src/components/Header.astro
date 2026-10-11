@@ -1,7 +1,7 @@
 ---
 /* Sticky glass pill header. Desktop: anchors + CTA. Mobile: a menu sheet in
    a native modal <dialog> (focus trap, Esc, focus return for free). */
-import { brand, cta, nav as navText } from '@data/content.js';
+import { brand, cta, nav as navText, utility } from '@data/content.js';
 
 interface Props { nav: { label: string; href: string }[] }
 const { nav } = Astro.props;
@@ -10,13 +10,13 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
 <header class="hdr" data-header>
   <div class="hdr__bar glass">
     <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}>Jarvis<span>Co</span></a>
-    <nav class="hdr__nav" aria-label="Pagrindinė navigacija">
+    <nav class="hdr__nav" aria-label={utility.mainNav}>
       <ul>
         {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
       </ul>
     </nav>
     <a class="btn btn--lime btn--sm hdr__cta" href={contactHref}>{cta.contact}</a>
-    <button class="hdr__burger" type="button" aria-haspopup="dialog" aria-controls="menu-sheet" data-menu-open>
+    <button class="hdr__burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu-sheet" data-menu-open>
       <span class="visually-hidden">{navText.menuLabel}</span>
       <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
     </button>
@@ -30,7 +30,7 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </div>
-    <nav aria-label="Meniu nuorodos">
+    <nav aria-label={utility.menuNav}>
       <ul class="sheet__list">
         {nav.map((item, i) => (
           <li style={`--i:${i}`}><a href={item.href} data-menu-link><span class="sheet__n">0{i + 1}</span>{item.label}</a></li>
@@ -49,7 +49,14 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
   const header = document.querySelector<HTMLElement>('[data-header]');
   const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
   if (sheet && openBtn && typeof sheet.showModal === 'function') {
-    openBtn.addEventListener('click', () => sheet.showModal());
+    openBtn.addEventListener('click', () => {
+      sheet.showModal();
+      openBtn.setAttribute('aria-expanded', 'true');
+    });
+    sheet.addEventListener('close', () => openBtn.setAttribute('aria-expanded', 'false'));
+    matchMedia('(min-width: 64rem)').addEventListener('change', (event) => {
+      if (event.matches && sheet.open) sheet.close();
+    });
     sheet.querySelector('[data-menu-close]')?.addEventListener('click', () => sheet.close());
     sheet.addEventListener('click', (e) => {
       const t = e.target as Element;
@@ -98,7 +105,6 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
     display: inline-flex;
     align-items: center;
     min-height: 3rem;
-    view-transition-name: brand;
   }
   .logo span { color: var(--lime); }
 

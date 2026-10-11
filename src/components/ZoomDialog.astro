@@ -1,15 +1,16 @@
 ---
 /* One dialog per page for every proof screenshot (src/scripts/zoom.ts). */
+import { utility, nav } from '@data/content.js';
 ---
 <dialog class="zoom" data-zoom-dialog aria-labelledby="zoom-caption">
   <form method="dialog" class="zoom__bar">
-    <p class="zoom__caption" id="zoom-caption" data-zoom-caption>Ekrano kopija</p>
+    <p class="zoom__caption" id="zoom-caption" data-zoom-caption>{utility.screenshot}</p>
     <button class="zoom__close" type="submit">
-      Uždaryti
+      {nav.closeLabel}
       <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
   </form>
-  <div class="zoom__stage">
+  <div class="zoom__stage" tabindex="0" role="region" aria-label={utility.screenshot}>
     <img alt="" decoding="async" />
   </div>
 </dialog>
@@ -29,12 +30,14 @@
     border: 0;
     background: rgba(6, 17, 12, 0.94);
     color: #fff;
-    overflow: auto;
+    overflow: hidden;
     overscroll-behavior: contain;
   }
+  .zoom[open] { display: flex; flex-direction: column; }
   .zoom::backdrop { background: rgba(6, 17, 12, 0.5); }
   .zoom__bar {
-    position: sticky;
+    flex: none;
+    position: relative;
     top: 0;
     left: 0;
     z-index: 1;
@@ -63,7 +66,7 @@
     flex: none;
   }
   .zoom__close svg { width: 1.125rem; height: 1.125rem; }
-  .zoom__stage { padding: 1rem var(--gutter) 2rem; }
+  .zoom__stage { min-height: 0; flex: 1; overflow: auto; overscroll-behavior: contain; padding: 1rem var(--gutter) 2rem; }
   /* At least 56rem wide on phones so dashboard text is readable; pan to explore. */
   .zoom img {
     width: max(100%, 56rem);

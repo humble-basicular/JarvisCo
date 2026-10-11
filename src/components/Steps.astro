@@ -1,0 +1,24 @@
+---
+import { steps, resultsPage } from '@data/content.js';
+---
+<section class="sec t-paper steps" id="procesas" aria-labelledby="steps-title">
+  <div class="wrap steps__grid">
+    <header class="sec-head">
+      <p class="eyebrow">{steps.eyebrow}</p>
+      <h2 class="sec-title" id="steps-title">{steps.title}</h2>
+      <p class="sec-lead">{resultsPage.stepsLead}</p>
+    </header>
+    <ol class="steps__list">
+      {steps.items.map((item, i) => <li data-reveal><span class="steps__n num" aria-hidden="true">0{i + 1}</span><p>{item}</p></li>)}
+    </ol>
+  </div>
+</section>
+<style>
+  .steps__grid { display: grid; gap: 1rem; }
+  .steps__list { list-style: none; }
+  .steps__list li { display: flex; align-items: center; gap: 1.25rem; padding: 1.5rem 0; border-top: 1px solid var(--line-light); }
+  .steps__list li:last-child { border-bottom: 1px solid var(--line-light); }
+  .steps__n { display: grid; place-items: center; flex: none; width: 3rem; height: 3rem; border-radius: 50%; background: var(--ink); color: var(--lime); font-weight: 700; }
+  .steps__list p { margin: 0; font: 650 clamp(1.25rem, 3vw, 1.75rem)/1.25 var(--font-d); }
+  @media (min-width: 64rem) { .steps__grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 5rem; } }
+</style>

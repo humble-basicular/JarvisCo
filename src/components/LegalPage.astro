@@ -1,19 +1,28 @@
 ---
 import Layout from '@layouts/Layout.astro';
+import { nav, utility } from '@data/content.js';
 interface Props { title: string; description: string; updated: string }
 const { title, description, updated } = Astro.props;
 ---
-<Layout title={`${title} | jarvisweb.lt`} description={description} stickyBar={false}>
-  <article class="section legal">
-    <div class="wrap">
-      <h1>{title}</h1>
-      <p class="small">Atnaujinta {updated}</p>
-      <slot />
-    </div>
+<Layout title={`${title} | jarvisweb.lt`} description={description} nav={nav.other} stickyBar={false}>
+  <article class="legal t-paper">
+    <header class="legal__head t-dark">
+      <div class="wrap wrap--narrow">
+        <a class="text-link" href="/">← {utility.home}</a>
+        <h1 class="sec-title">{title}</h1>
+        <p class="small">{utility.updated} {updated}</p>
+      </div>
+    </header>
+    <div class="wrap wrap--narrow legal__body"><slot /></div>
   </article>
 </Layout>
-
 <style>
-  .legal h1 { font-size: 2rem; }
-  .legal :global(h2) { font-size: 1.25rem; margin-top: 2rem; }
+  .legal__head { padding: calc(var(--hdr-h) + 2rem) 0 3rem; background: radial-gradient(ellipse at top right, #153f29, transparent 65%), var(--ink); }
+  .legal__head .text-link { color: var(--lime); margin-bottom: 1.5rem; }
+  .legal__head .small { margin: 1.5rem 0 0; }
+  .legal__body { padding-block: 1rem 5rem; }
+  .legal__body :global(h2) { font-size: clamp(1.375rem, 3vw, 1.75rem); margin: 2.5rem 0 1rem; }
+  .legal__body :global(ul) { padding-left: 1.25rem; margin-bottom: 1.5rem; }
+  .legal__body :global(li) { margin-bottom: 0.75rem; }
+  .legal__body :global(a) { color: var(--em-ink); display: inline-block; min-height: 3rem; padding-block: 0.5rem; overflow-wrap: anywhere; }
 </style>

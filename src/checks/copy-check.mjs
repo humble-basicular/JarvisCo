@@ -1,39 +1,45 @@
-// Fails if built pages contain copy the spec forbids (§2, §6, §7.1, §7.10).
-// Run after `astro build`: node src/checks/copy-check.mjs
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+// Checks rendered copy, metadata, accessible labels and form messages. Script
+// operators, CSS and comments are excluded; offer comparison remains allowed.
+import { arbcutProof, faq, home, offer, resultsPage } from '../data/content.js';
+import { pages, text, normalized } from './html.mjs';
 
 const banned = [
-  /500\s?€/, /47\s?€/, /€\s?\/\s?mėn/, /prenumerat/i, /atsiliepim/i, /\/atsiliepimas/,
-  /Kazlausk|Vaitkut|Petrausk|Stankevič|Jankausk/, /TOP pozicij/i, /5,0\s?★/, /100\+/, /<\s?1 s/,
-  /praleisto skambučio/i, /three\.js|gsap/i, /geriausi|revoliucin/i, /!/,
+  /500\s*€|47\s*€/u, /11[\s,.]*362/u, /prenumerat|mėnesiniai planai/iu,
+  /atsiliepim|\/atsiliepimas/iu, /Kazlausk|Vaitkut|Petrausk|Stankevič|Jankausk/u,
+  /TOP pozicij|5[,.]0\s*★|100\+|<\s*1\s*s/iu,
+  /praleist[oaų]\s+skambuči|automatiz|automatinės SMS/iu,
+  /three\.js|gsap|geriausi|revoliucin/iu, /!/u,
+  /20\s+(?:formos\s+)?užklausų\s+per\s+3/iu,
 ];
-const required = { 'arboristams/index.html': ['20', '573', '199 €', '11,4 tūkst.'] };
-
-const files = [];
-(function walk(dir) {
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    if (statSync(path).isDirectory()) walk(path);
-    else if (name.endsWith('.html')) files.push(path);
-  }
-})('dist');
-
-let failed = false;
-for (const file of files) {
-  const text = readFileSync(file, 'utf8')
-    .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, ' ')
-    .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&[a-z]+;|&#\d+;/g, ' ');
+const shared = [
+  '199 €', '20', '573', '11,4 tūkst.', '5 %', '8,2',
+  '2026-07-05 – 2026-10-04', '2026-10-09',
+  ...arbcutProof.items.map((item) => item.note), ...arbcutProof.notes,
+  ...offer.includes, ...offer.costs.flatMap((row) => [row.label, row.value]),
+  offer.ownership, ...faq.items.flatMap((item) => [item.q, item.a]),
+];
+const required = new Map([
+  ['index.html', [...shared, `${home.hero.h1.before}${home.hero.h1.highlight}${home.hero.h1.after}`]],
+  ['rezultatai/index.html', [...shared, `${resultsPage.hero.figure} ${resultsPage.hero.h1}`]],
+]);
+const built = pages();
+const errors = [];
+for (const page of built) {
+  const visible = normalized(text(page.tree));
+  const labels = page.nodes.flatMap((node) => (node.attrs ?? [])
+    .filter((a) => ['alt', 'aria-label', 'title', 'placeholder', 'data-caption', 'data-messages', 'content'].includes(a.name))
+    .map((a) => a.value)).join(' ');
   for (const re of banned) {
-    const m = text.match(re);
-    if (m) { failed = true; console.error(`${file}: forbidden "${m[0]}" (${re})`); }
+    const match = normalized(`${visible} ${labels}`).match(re);
+    if (match) errors.push(`${page.file}: forbidden ${JSON.stringify(match[0])}`);
   }
-  const rel = file.slice('dist/'.length);
-  for (const must of required[rel] ?? []) {
-    if (!text.includes(must)) { failed = true; console.error(`${file}: missing "${must}"`); }
+  for (const value of required.get(page.path) ?? []) {
+    if (!visible.includes(normalized(value))) errors.push(`${page.file}: missing ${JSON.stringify(value)}`);
   }
 }
-console.log(`copy-check: ${files.length} pages, ${failed ? 'FAILED' : 'ok'}`);
-process.exit(failed ? 1 : 0);
+for (const path of required.keys()) {
+  if (!built.some((page) => page.path === path)) errors.push(`Missing required page: ${path}`);
+}
+errors.forEach((error) => console.error(error));
+console.log(`copy-check: ${built.length} pages, ${errors.length ? 'FAILED' : 'ok'}`);
+process.exitCode = errors.length ? 1 : 0;

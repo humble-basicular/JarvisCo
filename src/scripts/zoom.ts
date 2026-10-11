@@ -5,13 +5,16 @@
 const dialog = document.querySelector<HTMLDialogElement>('[data-zoom-dialog]');
 const img = dialog?.querySelector<HTMLImageElement>('img');
 const caption = dialog?.querySelector<HTMLElement>('[data-zoom-caption]');
+const stage = dialog?.querySelector<HTMLElement>('.zoom__stage');
+let zoomOpener: HTMLAnchorElement | null = null;
 const still = matchMedia('(prefers-reduced-motion: reduce)');
 
 if (dialog && img && caption && typeof dialog.showModal === 'function') {
   document.addEventListener('click', (event) => {
     const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[data-zoom]');
-    if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return;
+    if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
+    zoomOpener = link;
     const thumb = link.querySelector('img') ?? link;
     const from = thumb.getBoundingClientRect();
 
@@ -21,8 +24,7 @@ if (dialog && img && caption && typeof dialog.showModal === 'function') {
     img.height = Number(link.dataset.h);
     caption.textContent = link.dataset.caption ?? '';
     dialog.showModal();
-    dialog.scrollTop = 0;
-    dialog.scrollLeft = 0;
+    if (stage) { stage.scrollTop = 0; stage.scrollLeft = 0; }
 
     if (still.matches || typeof img.animate !== 'function') return;
     const to = img.getBoundingClientRect();
@@ -42,5 +44,15 @@ if (dialog && img && caption && typeof dialog.showModal === 'function') {
     const t = event.target as Element;
     if (t === dialog || t.classList.contains('zoom__stage')) dialog.close();
   });
-  dialog.addEventListener('close', () => img.removeAttribute('src'));
+  dialog.addEventListener('close', () => {
+    img.getAnimations().forEach((animation) => animation.cancel());
+    img.removeAttribute('src');
+    zoomOpener?.focus({ preventScroll: true });
+    zoomOpener = null;
+  });
+  still.addEventListener('change', () => {
+    if (still.matches) img.getAnimations().forEach((animation) => animation.cancel());
+  });
 }
+
+export {};

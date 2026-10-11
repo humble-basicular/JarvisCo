@@ -1,5 +1,24 @@
 ---
-import ProofPage from '@components/ProofPage.astro';
-import { home } from '@data/content.js';
+import Layout from '@layouts/Layout.astro';
+import Hero from '@components/home/Hero.astro';
+import ResultsBento from '@components/home/ResultsBento.astro';
+import CaseStudy from '@components/home/CaseStudy.astro';
+import BuildProcess from '@components/home/BuildProcess.astro';
+import Offer from '@components/Offer.astro';
+import About from '@components/About.astro';
+import Faq from '@components/Faq.astro';
+import Contact from '@components/Contact.astro';
+import ZoomDialog from '@components/ZoomDialog.astro';
+import { home, nav, faq } from '@data/content.js';
 ---
-<ProofPage page={home} />
+<Layout {...home.meta} nav={nav.home} faq={faq.items}>
+  <Hero />
+  <ResultsBento />
+  <CaseStudy />
+  <BuildProcess />
+  <Offer />
+  <About />
+  <Faq items={faq.items} />
+  <Contact source="home" />
+  <ZoomDialog />
+</Layout>

@@ -1,132 +1,168 @@
-/* Progressive visual effects. The page is complete without this file; every
-   effect is skipped under prefers-reduced-motion.
-   - [data-tilt]: 3D device stage follows the pointer (or device tilt on
-     phones that need no permission prompt); otherwise CSS idle float.
-   - [data-magnetic]: buttons lean toward the pointer (fine pointers only).
-   - [data-spot]: cursor spotlight position for cards.
-   - [data-count]: numbers count up when they scroll into view. The final
-     value is in the HTML; numbers already on screen at load stay as they are.
-   - [data-build]: IntersectionObserver fallback for the scroll-driven
-     "site builds itself" section when CSS scroll timelines are missing. */
-const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+/* Progressive effects, with native CSS timelines where available. Every
+   observer/listener/frame is released when reduced motion is selected. */
+const motion = matchMedia('(prefers-reduced-motion: reduce)');
+const fine = matchMedia('(hover: hover) and (pointer: fine)');
+const timelines = CSS.supports('animation-timeline: view()');
+let dispose = () => {};
 
-/* ---------- Count-up ---------- */
-const nf = (decimals: number) => new Intl.NumberFormat('lt-LT', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-
-function countUp(el: HTMLElement) {
-  const to = Number(el.dataset.count);
-  const decimals = Number(el.dataset.decimals ?? 0);
-  const fmt = nf(decimals);
-  const final = el.dataset.final ?? el.textContent;
-  const start = performance.now();
-  const duration = 1400;
-  const tick = (now: number) => {
-    const t = Math.min(1, (now - start) / duration);
-    const eased = 1 - Math.pow(1 - t, 4);
-    el.textContent = t < 1 ? fmt.format(to * eased) : final;
-    if (t < 1) requestAnimationFrame(tick);
+function initEffects() {
+  dispose();
+  if (motion.matches) return;
+  const controller = new AbortController();
+  const options = { signal: controller.signal };
+  const cleanups: (() => void)[] = [];
+  const frames = new Set<number>();
+  const frame = (callback: FrameRequestCallback) => {
+    const id = requestAnimationFrame((now) => { frames.delete(id); callback(now); });
+    frames.add(id);
   };
-  requestAnimationFrame(tick);
-}
+  dispose = () => {
+    controller.abort();
+    frames.forEach(cancelAnimationFrame);
+    cleanups.forEach((cleanup) => cleanup());
+  };
+  const observe = (callback: IntersectionObserverCallback, settings?: IntersectionObserverInit) => {
+    const io = new IntersectionObserver(callback, settings);
+    cleanups.push(() => io.disconnect());
+    return io;
+  };
 
-if (!still && 'IntersectionObserver' in window) {
-  const counters = [...document.querySelectorAll<HTMLElement>('[data-count]')];
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        io.unobserve(e.target);
-        countUp(e.target as HTMLElement);
+  if ('IntersectionObserver' in window) {
+    const counts = observe((entries, io) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        io.unobserve(entry.target);
+        const el = entry.target as HTMLElement;
+        const final = el.textContent;
+        const to = Number(el.dataset.count);
+        const decimals = Number(el.dataset.decimals ?? 0);
+        const fmt = new Intl.NumberFormat('lt-LT', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        const start = performance.now();
+        // Keep the server-rendered final value until animation starts; do not
+        // replace offscreen evidence with zero or change the number's width.
+        el.style.minInlineSize = `${el.getBoundingClientRect().width}px`;
+        cleanups.push(() => { el.textContent = final; el.style.removeProperty('min-inline-size'); });
+        const tick = (now: number) => {
+          const t = Math.min(1, (now - start) / 1200);
+          el.textContent = t < 1 ? fmt.format(to * (1 - (1 - t) ** 4)) : final;
+          if (t < 1) frame(tick);
+          else el.style.removeProperty('min-inline-size');
+        };
+        frame(tick);
       }
-    },
-    { threshold: 0.6 },
-  );
-  for (const el of counters) {
-    const r = el.getBoundingClientRect();
-    if (r.top < innerHeight && r.bottom > 0) continue; // already on screen
-    el.dataset.final = el.textContent ?? '';
-    el.textContent = nf(Number(el.dataset.decimals ?? 0)).format(0);
-    io.observe(el);
-  }
-}
+    }, { threshold: 0.6 });
+    document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+      const bounds = el.getBoundingClientRect();
+      if (bounds.top >= innerHeight || bounds.bottom <= 0) counts.observe(el);
+    });
 
-/* ---------- Device tilt ---------- */
-const stage = document.querySelector<HTMLElement>('[data-tilt]');
-if (stage && !still) {
-  let raf = 0;
-  const set = (x: number, y: number) => {
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(() => {
-      stage.style.setProperty('--ry', `${(x * 10).toFixed(2)}deg`);
-      stage.style.setProperty('--rx', `${(-y * 8).toFixed(2)}deg`);
-    });
-  };
-  if (finePointer) {
-    const area = stage.closest('section') ?? stage;
-    area.addEventListener('pointermove', (e) => {
-      const r = stage.getBoundingClientRect();
-      const x = ((e as PointerEvent).clientX - (r.left + r.width / 2)) / r.width;
-      const y = ((e as PointerEvent).clientY - (r.top + r.height / 2)) / r.height;
-      stage.classList.add('is-live');
-      set(Math.max(-1, Math.min(1, x)), Math.max(-1, Math.min(1, y)));
-    });
-    area.addEventListener('pointerleave', () => {
+    if (!timelines) {
+      const reveal = observe((entries, io) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add('is-revealed');
+          io.unobserve(entry.target);
+        }
+      }, { threshold: 0.08 });
+      document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
+        if (el.getBoundingClientRect().top < innerHeight) return;
+        reveal.observe(el);
+        el.classList.add('reveal-ready');
+        cleanups.push(() => el.classList.remove('reveal-ready', 'is-revealed'));
+      });
+    }
+  }
+
+  const stage = document.querySelector<HTMLElement>('[data-tilt]');
+  if (stage) {
+    let queued = false;
+    let x = 0;
+    let y = 0;
+    const tilt = (nextX: number, nextY: number) => {
+      x = Math.max(-1, Math.min(1, nextX));
+      y = Math.max(-1, Math.min(1, nextY));
+      if (queued) return;
+      queued = true;
+      frame(() => {
+        queued = false;
+        stage.style.setProperty('--ry', `${x * 10}deg`);
+        stage.style.setProperty('--rx', `${-y * 8}deg`);
+      });
+    };
+    const reset = () => {
       stage.classList.remove('is-live');
-      set(0, 0);
-    });
-  } else if (
-    'DeviceOrientationEvent' in window &&
-    typeof (DeviceOrientationEvent as unknown as { requestPermission?: unknown }).requestPermission !== 'function'
-  ) {
-    // Android: no permission prompt. iOS needs one, so it keeps the idle float.
-    let base: number | null = null;
-    addEventListener('deviceorientation', (e) => {
-      if (e.beta == null || e.gamma == null) return;
-      base ??= e.beta;
-      stage.classList.add('is-live');
-      set(Math.max(-1, Math.min(1, e.gamma / 30)), Math.max(-1, Math.min(1, (e.beta - base) / 30)));
-    });
+      stage.style.removeProperty('--ry');
+      stage.style.removeProperty('--rx');
+    };
+    cleanups.push(reset);
+    if (fine.matches) {
+      const area = stage.closest('section') ?? stage;
+      area.addEventListener('pointermove', (event) => {
+        const e = event as PointerEvent;
+        const r = stage.getBoundingClientRect();
+        stage.classList.add('is-live');
+        tilt((e.clientX - r.left - r.width / 2) / r.width, (e.clientY - r.top - r.height / 2) / r.height);
+      }, options);
+      area.addEventListener('pointerleave', () => { reset(); tilt(0, 0); }, options);
+    } else if ('DeviceOrientationEvent' in window &&
+      typeof (DeviceOrientationEvent as unknown as { requestPermission?: unknown }).requestPermission !== 'function') {
+      // Devices requiring a permission prompt retain the CSS idle float.
+      let base: number | null = null;
+      addEventListener('deviceorientation', (event) => {
+        if (event.beta == null || event.gamma == null) return;
+        base ??= event.beta;
+        stage.classList.add('is-live');
+        tilt(event.gamma / 30, (event.beta - base) / 30);
+      }, options);
+    }
   }
-}
 
-/* ---------- Magnetic buttons + spotlight ---------- */
-if (finePointer && !still) {
-  for (const el of document.querySelectorAll<HTMLElement>('[data-magnetic]')) {
-    el.addEventListener('pointermove', (e) => {
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', `${((e.clientX - r.left - r.width / 2) * 0.22).toFixed(1)}px`);
-      el.style.setProperty('--my', `${((e.clientY - r.top - r.height / 2) * 0.3).toFixed(1)}px`);
+  if (fine.matches) {
+    document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
+      const reset = () => { el.style.removeProperty('--mx'); el.style.removeProperty('--my'); };
+      cleanups.push(reset);
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        el.style.setProperty('--mx', `${(e.clientX - r.left - r.width / 2) * 0.16}px`);
+        el.style.setProperty('--my', `${(e.clientY - r.top - r.height / 2) * 0.2}px`);
+      }, options);
+      el.addEventListener('pointerleave', reset, options);
     });
-    el.addEventListener('pointerleave', () => {
-      el.style.setProperty('--mx', '0px');
-      el.style.setProperty('--my', '0px');
-    });
+    document.addEventListener('pointermove', (e) => {
+      const card = (e.target as Element | null)?.closest?.<HTMLElement>('[data-spot]');
+      if (!card) return;
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--sx', `${e.clientX - r.left}px`);
+      card.style.setProperty('--sy', `${e.clientY - r.top}px`);
+    }, options);
   }
-  document.addEventListener('pointermove', (e) => {
-    const card = (e.target as Element | null)?.closest?.<HTMLElement>('[data-spot]');
-    if (!card) return;
-    const r = card.getBoundingClientRect();
-    card.style.setProperty('--sx', `${e.clientX - r.left}px`);
-    card.style.setProperty('--sy', `${e.clientY - r.top}px`);
-  });
-}
 
-/* ---------- "Site builds itself" fallback ---------- */
-const build = document.querySelector<HTMLElement>('[data-build]');
-if (build && !still && !CSS.supports('animation-timeline: view()') && 'IntersectionObserver' in window) {
-  build.classList.add('is-js');
-  const steps = [...build.querySelectorAll<HTMLElement>('[data-step]')];
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        const n = Number((e.target as HTMLElement).dataset.step);
-        build.dataset.stage = String(n);
-        steps.forEach((s, i) => s.classList.toggle('is-on', i < n));
+  const build = document.querySelector<HTMLElement>('[data-build]');
+  if (build && !(timelines && CSS.supports('timeline-scope: --a')) && 'IntersectionObserver' in window) {
+    const steps = [...build.querySelectorAll<HTMLElement>('[data-step]')];
+    const setStage = (n: number) => {
+      build.dataset.stage = String(n);
+      steps.forEach((step, i) => step.classList.toggle('is-on', i < n));
+    };
+    build.classList.add('is-js');
+    // Restore the correct stage when navigating back into the middle of a page.
+    const current = steps.filter((step) => step.getBoundingClientRect().top < innerHeight * 0.6).at(-1);
+    setStage(Number(current?.dataset.step ?? 1));
+    const observer = observe((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) setStage(Number((entry.target as HTMLElement).dataset.step));
       }
-    },
-    { rootMargin: '-45% 0px -45% 0px' },
-  );
-  steps.forEach((s) => io.observe(s));
+    }, { rootMargin: '-48% 0px -42% 0px' });
+    steps.forEach((step) => observer.observe(step));
+    cleanups.push(() => {
+      build.classList.remove('is-js');
+      delete build.dataset.stage;
+      steps.forEach((step) => step.classList.remove('is-on'));
+    });
+  }
 }
+initEffects();
+motion.addEventListener('change', initEffects);
+fine.addEventListener('change', initEffects);
+
+export {};

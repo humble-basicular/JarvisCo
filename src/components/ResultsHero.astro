@@ -1,0 +1,51 @@
+---
+import { Image } from 'astro:assets';
+import { brand, cta, offer, resultsPage, arbcutProof } from '@data/content.js';
+import face from '@assets/people/matas-face.webp';
+const { hero } = resultsPage;
+---
+<section class="proof-hero t-dark" aria-labelledby="proof-title">
+  <div class="aurora" aria-hidden="true"><div class="aurora__grid"></div><div class="aurora__grain"></div></div>
+  <div class="wrap proof-hero__grid">
+    <div>
+      <p class="eyebrow eyebrow--pill">{hero.eyebrow}</p>
+      <h1 id="proof-title"><span class="proof-hero__number num grad-text">{hero.figure}</span><span class="proof-hero__heading">{hero.h1}</span></h1>
+      <p class="proof-hero__sub">{hero.sub}</p>
+      <p class="proof-hero__note">{arbcutProof.items[0].note} {arbcutProof.notes[0]}</p>
+    </div>
+    <div class="proof-hero__offer glass">
+      <p class="proof-hero__price"><strong class="num">{offer.price}</strong> <span>{offer.priceNote}</span></p>
+      <p class="proof-hero__monthly">{offer.noMonthly}</p>
+      <div class="btn-row btn-row--stack" data-hero-cta>
+        <a class="btn btn--lime" href={brand.smsHref} data-track="cta_sms" data-magnetic>{cta.sms}</a>
+        <a class="btn btn--ghost" href={brand.telHref} data-track="cta_call">{cta.call}</a>
+      </div>
+      <a class="text-link proof-hero__results" href="#rezultatai">{cta.results}<span aria-hidden="true">↓</span></a>
+      <div class="proof-hero__by">
+        <Image src={face} alt="" width={52} height={52} densities={[1, 2]} quality={75} loading="eager" />
+        <p>{hero.by}</p>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .proof-hero { position: relative; isolation: isolate; overflow: clip; padding: calc(var(--hdr-h) + 2.5rem) 0 clamp(3rem, 6vw, 5rem); }
+  .proof-hero__grid { position: relative; display: grid; gap: 2rem; align-items: center; }
+  .proof-hero h1 { display: grid; gap: 0.625rem; }
+  .proof-hero__number { display: block; width: fit-content; font-size: clamp(6rem, 22vw, 11rem); line-height: 0.85; font-weight: 800; padding-bottom: 0.06em; }
+  .proof-hero__heading { font-size: clamp(2.25rem, 6vw, 4rem); max-width: 13ch; }
+  .proof-hero__sub { margin: 1.5rem 0 0.75rem; max-width: 38rem; color: #c3d6cb; }
+  .proof-hero__note { color: var(--mute-dark); font-size: 0.9375rem; max-width: 35rem; margin: 0; }
+  .proof-hero__offer { padding: clamp(1.25rem, 3vw, 2.25rem); border-radius: var(--r-l); }
+  .proof-hero__price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1rem; margin-bottom: 0.75rem; }
+  .proof-hero__price strong { font-size: clamp(3.75rem, 12vw, 5rem); line-height: 1; color: #fff; }
+  .proof-hero__price span { color: #c3d6cb; }
+  .proof-hero__monthly { color: var(--lime); margin-bottom: 1.5rem; }
+  .proof-hero .btn-row { display: grid; grid-template-columns: 1fr; }
+  .proof-hero__results { margin-top: 0.75rem; color: #fff; gap: 0.75rem; }
+  .proof-hero__by { display: flex; align-items: center; gap: 0.875rem; padding-top: 1.25rem; margin-top: 1rem; border-top: 1px solid var(--line-dark); }
+  .proof-hero__by :global(img) { width: 3.25rem; height: 3.25rem; flex: none; object-fit: cover; border-radius: 50%; }
+  .proof-hero__by p { margin: 0; font-size: 0.9375rem; color: #c3d6cb; }
+  @media (min-width: 48rem) { .proof-hero__grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 3rem; } }
+  @media (min-width: 64rem) { .proof-hero__grid { gap: 6rem; } }
+</style>

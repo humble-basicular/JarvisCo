@@ -1,7 +1,7 @@
 ---
 /* Web3Forms inquiry form. Posts natively without JS; inquiry-form.ts adds
    accessible validation (phone AND e-mail required, as before the rebuild). */
-import { form } from '@data/content.js';
+import { form, footer } from '@data/content.js';
 
 interface Props { source: string }
 const { source } = Astro.props;
@@ -30,7 +30,7 @@ const messages = JSON.stringify({ ...form.errors, success: form.success, failure
       required
       inputmode="tel"
       autocomplete="tel"
-      pattern="[+0-9 ()\-]{9,20}"
+      pattern={String.raw`[+0-9 \(\)\-]{9,20}`}
       placeholder="+370 6xx xxxxx"
       aria-describedby={`e-phone-${source}`}
     />
@@ -54,8 +54,8 @@ const messages = JSON.stringify({ ...form.errors, success: form.success, failure
     <textarea id={`f-msg-${source}`} name="message" rows="3"></textarea>
   </div>
 
-  <button type="submit" class="btn btn--primary form__submit">{form.submit}</button>
-  <p class="small form__privacy">{form.privacy} <a href="/privatumo-politika">Privatumo politika</a>.</p>
+  <button type="submit" class="btn btn--ink form__submit">{form.submit}</button>
+  <p class="small form__privacy">{form.privacy} <a href="/privatumo-politika">{footer.privacy.label}</a>.</p>
   <p class="form__status" data-status role="status" aria-live="polite"></p>
 </form>
 
@@ -64,7 +64,9 @@ const messages = JSON.stringify({ ...form.errors, success: form.success, failure
 </script>
 
 <style>
-  .form { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.25rem; }
+  .form { background: #fff; color-scheme: light; border: 1px solid var(--line-light); border-radius: var(--r-l); padding: clamp(1.25rem, 3vw, 2.5rem); box-shadow: 0 30px 70px -50px rgba(6,17,12,.3); }
+  .form h3 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 0.75rem; }
+  .form > .small { color: var(--mute-light); }
   .field { margin-bottom: 1rem; }
   .field label { display: block; font-weight: 600; margin-bottom: 0.375rem; }
   .field input, .field textarea {
@@ -73,14 +75,16 @@ const messages = JSON.stringify({ ...form.errors, success: form.success, failure
     border: 2px solid #8a8f96; border-radius: 10px;
   }
   .field textarea { resize: vertical; }
-  .field input:focus-visible, .field textarea:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--focus); }
+  .field input:focus-visible, .field textarea:focus-visible { outline: 3px solid var(--em-ink); outline-offset: 1px; border-color: var(--em-ink); }
   .field input[aria-invalid='true'] { border-color: var(--err); }
   .field__err { color: var(--err); font-weight: 600; font-size: 0.9375rem; margin: 0.375rem 0 0; }
   .form__hp { position: absolute; left: -9999px; opacity: 0; }
   .form__submit { width: 100%; }
+  .form__submit:disabled { opacity: 0.65; cursor: wait; }
+  .form__privacy a { display: inline-flex; align-items: center; min-height: 3rem; }
   .form__privacy { margin: 0.75rem 0 0; }
   .form__status { margin: 0.75rem 0 0; font-weight: 600; }
   .form__status:empty { display: none; }
-  .form__status.is-ok { color: var(--accent); }
+  .form__status.is-ok { color: var(--em-ink); }
   .form__status.is-err { color: var(--err); }
 </style>

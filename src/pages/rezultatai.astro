@@ -1,0 +1,22 @@
+---
+import Layout from '@layouts/Layout.astro';
+import ResultsHero from '@components/ResultsHero.astro';
+import ResultsBento from '@components/home/ResultsBento.astro';
+import Offer from '@components/Offer.astro';
+import Steps from '@components/Steps.astro';
+import About from '@components/About.astro';
+import Faq from '@components/Faq.astro';
+import Contact from '@components/Contact.astro';
+import ZoomDialog from '@components/ZoomDialog.astro';
+import { resultsPage, nav, faq } from '@data/content.js';
+---
+<Layout {...resultsPage.meta} nav={nav.results} faq={faq.items}>
+  <ResultsHero />
+  <ResultsBento fullPage />
+  <Offer />
+  <Steps />
+  <About />
+  <Faq items={faq.items} />
+  <Contact source="rezultatai" />
+  <ZoomDialog />
+</Layout>

@@ -10,8 +10,9 @@
     "preview": "astro preview",
     "check:copy": "node src/checks/copy-check.mjs",
     "check:js": "node src/checks/js-budget.mjs",
-    "check": "astro build && npm run check:copy && npm run check:js",
-    "astro": "astro"
+    "check": "astro build && npm run check:copy && npm run check:js && npm run check:static",
+    "astro": "astro",
+    "check:static": "node src/checks/static-check.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.3.0",
@@ -20,6 +21,8 @@
     "astro": "^5.5.0"
   },
   "devDependencies": {
+    "es-module-lexer": "^1.7.0",
+    "parse5": "^7.3.0",
     "sharp": "^0.33.5"
   }
 }

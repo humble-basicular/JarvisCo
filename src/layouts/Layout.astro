@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { brand, offer } from '@data/content.js';
+import { brand, offer, nav as navigation, utility } from '@data/content.js';
 import Header from '@components/Header.astro';
 import Footer from '@components/Footer.astro';
 import StickyBar from '@components/StickyBar.astro';
@@ -16,13 +16,13 @@ interface NavItem { label: string; href: string }
 interface Props {
   title: string;
   description: string;
-  nav: NavItem[];
+  nav?: NavItem[];
   faq?: { q: string; a: string }[];
   noindex?: boolean;
   stickyBar?: boolean;
   ogImage?: string;
 }
-const { title, description, nav, faq = [], noindex = false, stickyBar = true, ogImage: ogPath = '/assets/og.png' } = Astro.props;
+const { title, description, nav = navigation.other, faq = [], noindex = false, stickyBar = true, ogImage: ogPath = '/assets/og.png' } = Astro.props;
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', brand.url).href;
 const ogImage = new URL(ogPath, brand.url).href;
 
@@ -109,7 +109,7 @@ const faqSchema = faq.length
     )}
   </head>
   <body>
-    <a href="#main" class="skip-link">Pereiti prie turinio</a>
+    <a href="#main" class="skip-link">{utility.skip}</a>
     <Header nav={nav} />
     <main id="main" tabindex="-1">
       <slot />

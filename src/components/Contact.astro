@@ -1,0 +1,36 @@
+---
+import { brand, contact, cta } from '@data/content.js';
+import InquiryForm from '@components/InquiryForm.astro';
+interface Props { source: string }
+const { source } = Astro.props;
+---
+<section class="sec t-paper contact" id="kontaktai" aria-labelledby="contact-title">
+  <div class="wrap contact__grid">
+    <div class="contact__copy">
+      <p class="eyebrow">{contact.eyebrow}</p>
+      <h2 class="sec-title" id="contact-title">{contact.title}</h2>
+      <p class="sec-lead">{contact.lead}</p>
+      <div class="contact__actions" data-contact-cta>
+        <a class="btn btn--ink" href={brand.smsHref} data-track="cta_sms" data-magnetic>{cta.sms}<span aria-hidden="true">↗</span></a>
+        <a class="btn btn--line" href={brand.telHref} data-track="cta_call">{cta.call}<span aria-hidden="true">↗</span></a>
+        <a class="btn btn--line" href={brand.emailHref}>{cta.email}<span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="contact__details">
+        <p>{brand.owner} · {brand.city}</p>
+        <a class="text-link" href={brand.telHref} data-track="cta_call">{brand.phone}</a>
+        <a class="text-link" href={brand.emailHref}>{brand.email}</a>
+      </div>
+    </div>
+    <InquiryForm source={source} />
+  </div>
+</section>
+<style>
+  .contact { border-top: 1px solid var(--line-light); background: radial-gradient(ellipse at 0% 100%, rgba(31,191,117,.09), transparent 55%), var(--paper); }
+  .contact__grid { display: grid; gap: 2.5rem; align-items: start; }
+  .contact__actions { display: grid; gap: 0.75rem; margin-top: 2rem; max-width: 26rem; }
+  .contact__actions .btn { justify-content: space-between; }
+  .contact__details { display: grid; justify-items: start; margin-top: 2rem; color: var(--mute-light); }
+  .contact__details p { margin-bottom: 0.25rem; }
+  .contact__details a { max-width: 100%; overflow-wrap: anywhere; }
+  @media (min-width: 64rem) { .contact__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5rem; } }
+</style>

@@ -3,35 +3,35 @@ import { Image } from 'astro:assets';
 import { about, brand } from '@data/content.js';
 import matas from '@assets/people/matas.webp';
 ---
-<section class="section" id="apie" aria-labelledby="about-title">
-  <div class="wrap about">
-    <Image
-      src={matas}
-      alt="Matas Bašinskas prie savo darbo vietos"
-      widths={[240, 480, 720]}
-      sizes="(min-width: 48rem) 15rem, 40vw"
-      quality={78}
-      loading="lazy"
-      class="about__img"
-    />
-    <div>
-      <h2 id="about-title">{about.title}</h2>
-      <p>{about.text}</p>
+<section class="sec t-paper about" id="apie" aria-labelledby="about-title">
+  <div class="wrap about__grid">
+    <figure class="about__portrait" data-reveal>
+      <Image src={matas} alt={about.photoAlt} widths={[360, 540, 800]} sizes="(min-width: 64rem) 30rem, (min-width: 40rem) 38vw, 85vw" quality={78} loading="lazy" class="about__img" />
+      <figcaption><span>{brand.city}</span><span>{brand.status}</span></figcaption>
+    </figure>
+    <div class="about__copy">
+      <p class="eyebrow">{about.eyebrow}</p>
+      <h2 class="sec-title" id="about-title">{about.name}</h2>
+      <p class="sec-lead">{about.text}</p>
+      <p class="about__fact">{about.facts[2]}</p>
       <ul class="about__links">
-        <li><a href={brand.telHref} data-track="cta_call">{brand.phone}</a></li>
-        <li><a href={brand.emailHref}>{brand.email}</a></li>
-        <li><a href={brand.gbp} rel="noopener">{about.gbpLabel}</a></li>
+        <li><a class="text-link" href={brand.telHref} data-track="cta_call">{brand.phone}</a></li>
+        <li><a class="text-link" href={brand.emailHref}>{brand.email}</a></li>
+        <li><a class="text-link" href={brand.gbp} rel="noopener">{about.gbpLabel}<span aria-hidden="true">↗</span></a></li>
       </ul>
     </div>
   </div>
 </section>
-
 <style>
-  .about { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1.25rem; align-items: start; }
-  .about__img { width: 100%; aspect-ratio: 10 / 13; object-fit: cover; border-radius: var(--radius); }
-  .about > div { min-width: 0; }
-  .about__links { list-style: none; padding: 0; margin: 0; }
-  .about__links a { display: inline-flex; align-items: center; min-height: 3rem; font-weight: 600; overflow-wrap: anywhere; }
-  @media (max-width: 22rem) { .about { grid-template-columns: 1fr; } .about__img { width: 9rem; } }
-  @media (min-width: 48rem) { .about { grid-template-columns: 15rem 1fr; gap: 2rem; } }
+  .about { border-top: 1px solid var(--line-light); }
+  .about__grid { display: grid; gap: 2.5rem; align-items: center; }
+  .about__portrait { position: relative; width: min(100%, 30rem); margin: 0; border-radius: var(--r-l); overflow: hidden; background: var(--paper-2); }
+  .about__portrait :global(img) { width: 100%; aspect-ratio: 4 / 4.5; object-fit: cover; object-position: center 35%; }
+  .about__portrait figcaption { position: absolute; inset: auto 0 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; justify-content: space-between; padding: 4rem 1.25rem 1.25rem; background: linear-gradient(transparent, rgba(6,17,12,.95)); color: #fff; font-size: 0.9375rem; }
+  .about__copy { min-width: 0; }
+  .about__fact { margin: 1.75rem 0 1.25rem; padding-left: 1.125rem; border-left: 3px solid var(--em-ink); font-weight: 600; }
+  .about__links { list-style: none; }
+  .about__links a { max-width: 100%; overflow-wrap: anywhere; }
+  @media (min-width: 40rem) { .about__grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); } }
+  @media (min-width: 64rem) { .about__grid { gap: 6rem; } }
 </style>

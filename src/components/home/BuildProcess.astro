@@ -39,9 +39,9 @@ const blocks = [
 ];
 const pos = (b: (typeof blocks)[number]) => `left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%`;
 const notes = [
-  { t: 'Antraštė', x: 30, y: 31 },
-  { t: 'Užklausos forma', x: 66, y: 9.8 },
-  { t: 'Mygtukai', x: 41.5, y: 87.6 },
+  { t: steps.annotations[0], x: 30, y: 31 },
+  { t: steps.annotations[1], x: 66, y: 9.8 },
+  { t: steps.annotations[2], x: 41.5, y: 87.6 },
 ];
 ---
 <section class="sec t-paper build" id="procesas" data-build aria-labelledby="build-title">
@@ -241,16 +241,19 @@ const notes = [
       }
     }
   }
-  @keyframes step-on { from { opacity: 0.32; } to { opacity: 1; } }
+  @keyframes step-on { from { border-color: var(--line-light); } to { border-color: var(--em-ink); } }
   @keyframes wipe-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
   @keyframes lbl-on { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   @keyframes lbl-off { from { opacity: 1; } to { opacity: 0; } }
   @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @keyframes draw { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
 
+  @media (max-height: 40rem) and (max-width: 63.99rem) { .build__sticky { position: relative; top: auto; } }
+  @media (prefers-reduced-motion: reduce) { .build__sticky { position: relative; top: auto; } }
+
   /* ---------- IntersectionObserver fallback (effects.ts) ---------- */
-  .build:global(.is-js) .step { opacity: 0.32; transition: opacity 0.5s; }
-  .build:global(.is-js) .step:global(.is-on) { opacity: 1; }
+  .build:global(.is-js) .step { transition: border-color 0.5s; }
+  .build:global(.is-js) .step:global(.is-on) { border-color: var(--em-ink); }
   .build:global(.is-js) .layer--design, .build:global(.is-js) .layer--live { clip-path: inset(0 100% 0 0); transition: clip-path 0.9s var(--ease); }
   .build:global(.is-js)[data-stage='4'] .layer--design,
   .build:global(.is-js)[data-stage='5'] .layer--design,

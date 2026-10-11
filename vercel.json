@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/arboristams", "destination": "/rezultatai", "statusCode": 301 },
+    { "source": "/arboristams/", "destination": "/rezultatai", "statusCode": 301 }
+  ]
+}

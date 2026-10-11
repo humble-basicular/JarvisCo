@@ -45,9 +45,9 @@ export const cta = {
 export const nav = {
   home: [
     { label: 'Rezultatai', href: '#rezultatai' },
-    { label: 'Procesas', href: '#procesas' },
     { label: 'Paslauga', href: '#paslauga' },
     { label: 'Kaina', href: '#kaina' },
+    { label: 'Procesas', href: '#procesas' },
     { label: 'Apie', href: '#apie' },
     { label: 'D.U.K.', href: '#duk' },
   ],
@@ -152,6 +152,7 @@ export const steps = {
   // Labels of the "site builds itself" frame on the home page.
   stages: ['Eskizas', 'Dizainas', 'Gyva svetainė'],
   frameUrl: 'arbcut.lt',
+  annotations: ['Antraštė', 'Užklausos forma', 'Mygtukai'],
 };
 
 export const about = {
@@ -371,4 +372,19 @@ export const footer = {
   ],
   privacy: { label: 'Privatumo politika', href: '/privatumo-politika' },
   terms: { label: 'Taisyklės', href: '/taisykles' },
+};
+
+export const utility = {
+  home: 'Į pradžią',
+  updated: 'Atnaujinta',
+  skip: 'Pereiti prie turinio',
+  screenshot: 'Ekrano kopija',
+  mainNav: 'Pagrindinė navigacija',
+  menuNav: 'Meniu nuorodos',
+  inquiriesByMonth: 'Užklausos pagal mėnesį',
+  notFound: {
+    metaTitle: 'Puslapis nerastas | jarvisweb.lt',
+    title: 'Tokio puslapio nėra',
+    text: 'Galbūt nuoroda pasenusi.',
+  },
 };
