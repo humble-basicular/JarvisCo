@@ -34,6 +34,9 @@ Jarvis rejected the preview home as too plain ("PDF proof thing"); wants the ful
 
 | Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance / status |
 |---|---|---|---|---|
-| M1 design + build | Claude Opus 5.5 high / rebuild-2026-10-main-site (worktree JarvisCo-worktrees/main-site) | spec v2 → `/`, `/darbai/arbcut`, restyled `/arboristams`, legal, 404 | src/**, public/**, package*.json, astro.config.mjs | spec §5 checks + screenshots; WAITING: Claude session 96% and Codex 100% until ~21:30 Europe/Vilnius |
+| M1 design + build | Claude Opus 5.5 high / rebuild-2026-10-main-site (worktree JarvisCo-worktrees/main-site) | spec v2 → `/` (results highlighted), `/rezultatai`, `/arboristams` 301, no niche pages, legal, 404 | src/** (incl. src/data/tracking.js), public/**, package*.json, astro.config.mjs, vercel.json | spec §5 checks + screenshots; WAITING: Claude session 96% and Codex 100% until ~21:30 Europe/Vilnius |
+| M1b tracking target | Codex GPT-6.1-Sol medium / rebuild-2026-10-worker | prefix a → /rezultatai | tracking/** | 19+ Worker tests, redeploy after M1 is in production only |
 | M2 review | Codex GPT-6.1-Sol high, read-only | M1 diff → findings | own handoff | ≤ 2 fix rounds |
 | M3 integrate + preview | Claude parent | approved M1 → Vercel preview + screenshots | integration only | Jarvis approves before prod |
+
+Update 17:25: Jarvis dropped niche pages; SMS links land on one generic `/rezultatai`. CRM fallback template text `jarvisweb.lt/arboristams` keeps working via 301; changing it to `/rezultatai` needs Jarvis's template approval.
