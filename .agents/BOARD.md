@@ -34,7 +34,7 @@ Jarvis rejected the preview home as too plain ("PDF proof thing"); wants the ful
 
 | Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance / status |
 |---|---|---|---|---|
-| M1 design + build | Claude Opus 5.5 high / rebuild-2026-10-main-site (worktree JarvisCo-worktrees/main-site) | spec v2 → `/` (results highlighted), `/rezultatai`, `/arboristams` 301, no niche pages, legal, 404 | src/** (incl. src/data/tracking.js), public/**, package*.json, astro.config.mjs, vercel.json | spec §5 checks + screenshots; WAITING: Claude session 96% and Codex 100% until ~21:30 Europe/Vilnius |
+| M1 design + build | Claude Opus 5.5 high / rebuild-2026-10-main-site (worktree JarvisCo-worktrees/main-site) | spec v2 → `/` (results highlighted), `/rezultatai`, `/arboristams` 301, no niche pages, legal, 404 | src/** (incl. src/data/tracking.js), public/**, package*.json, astro.config.mjs, vercel.json | spec §5 checks + screenshots; ACTIVE since 21:50 (task jarvisweb-m1-build-r1), design concept approved by Jarvis |
 | M1b tracking target | Codex GPT-6.1-Sol medium / rebuild-2026-10-worker | prefix a → /rezultatai | tracking/** | DONE 219e2bd (Codex GPT-6.1-Sol medium); Claude parent reviewed 1-line diff, 19/19 tests rerun; merged to rebuild-2026-10; NOT deployed (deploy only after new site is in production) |
 | M2 review | Codex GPT-6.1-Sol high, read-only | M1 diff → findings | own handoff | ≤ 2 fix rounds |
 | M3 integrate + preview | Claude parent | approved M1 → Vercel preview + screenshots | integration only | Jarvis approves before prod |
