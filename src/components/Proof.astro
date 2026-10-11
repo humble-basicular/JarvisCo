@@ -1,0 +1,164 @@
+---
+/* Proof section: real screenshots only (see src/assets/proof/PROVENANCE.md).
+   Each thumbnail links to the full screenshot; zoom.ts opens it in a dialog. */
+import type { ImageMetadata } from 'astro';
+import { Image, getImage } from 'astro:assets';
+
+interface Shot { card: string; full: string; alt: string; caption: string }
+interface Item {
+  id: string;
+  figure: string | null;
+  label: string;
+  detail: string;
+  shots: Shot[];
+  saved: string;
+  note: string;
+}
+interface Props {
+  proof: {
+    title: string;
+    lead: string;
+    items: Item[];
+    notes: string[];
+    savedLabel: string;
+    zoomLabel: string;
+    site: { label: string; href: string };
+    pdf: { label: string; href: string; size: string };
+  };
+}
+const { proof } = Astro.props;
+
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/proof/*.{png,jpg}', { eager: true });
+const byName = (name: string) => {
+  const hit = Object.entries(files).find(([path]) => path.split('/').pop()!.replace(/\.\w+$/, '') === name);
+  if (!hit) throw new Error(`Missing proof image: ${name}`);
+  return hit[1].default;
+};
+
+const items = await Promise.all(
+  proof.items.map(async (item) => ({
+    ...item,
+    shots: await Promise.all(
+      item.shots.map(async (shot) => {
+        const fullSrc = byName(shot.full);
+        const full = await getImage({
+          src: fullSrc,
+          width: Math.min(fullSrc.width, 1600),
+          format: 'webp',
+          quality: 82,
+        });
+        return { ...shot, cardImg: byName(shot.card), full };
+      }),
+    ),
+  })),
+);
+---
+<section class="section section--alt proof" id="rezultatai" aria-labelledby="proof-title">
+  <div class="wrap wrap--wide">
+    <h2 id="proof-title">{proof.title}</h2>
+    <p class="section__lead">{proof.lead}</p>
+
+    <div class="proof__list">
+      {items.map((item, i) => (
+        <article class="proof__item" aria-labelledby={`proof-${item.id}`} {...(i === 0 ? { 'data-proof-anchor': '' } : {})}>
+          <h3 id={`proof-${item.id}`} class="proof__head">
+            {item.figure && <span class="proof__figure">{item.figure}</span>}
+            <span>{item.label}</span>
+          </h3>
+          <p>{item.detail}</p>
+          <div class:list={['proof__shots', { 'proof__shots--two': item.shots.length > 1 }]}>
+            {item.shots.map((shot) => (
+              <figure class="shot">
+                <a
+                  href={shot.full.src}
+                  class="shot__link"
+                  data-zoom
+                  data-w={shot.full.attributes.width}
+                  data-h={shot.full.attributes.height}
+                  data-alt={shot.alt}
+                  data-caption={shot.caption}
+                  aria-label={`${proof.zoomLabel}: ${shot.caption}`}
+                >
+                  <Image
+                    src={shot.cardImg}
+                    alt={shot.alt}
+                    widths={[360, 720, 1080].filter((w) => w < shot.cardImg.width).concat(shot.cardImg.width)}
+                    sizes="(min-width: 64rem) 30rem, calc(100vw - 2.25rem)"
+                    quality={80}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class="shot__zoom" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5M11 8v6M8 11h6"/></svg>
+                  </span>
+                </a>
+                <figcaption>
+                  {shot.caption}
+                  <span class="shot__date">{proof.savedLabel} {item.saved}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <p class="small proof__note">{item.note}</p>
+        </article>
+      ))}
+    </div>
+
+    {proof.notes.map((note) => <p class="small proof__note">{note}</p>)}
+
+    <div class="link-row">
+      <a href={proof.site.href} rel="noopener" data-track="arbcut">{proof.site.label}</a>
+      <a href={proof.pdf.href} download data-track="pdf">{proof.pdf.label}</a>
+    </div>
+  </div>
+
+  <dialog class="zoom" data-zoom-dialog aria-label="Ekrano kopija">
+    <form method="dialog" class="zoom__bar">
+      <p class="zoom__caption" data-zoom-caption></p>
+      <button class="zoom__close" type="submit">Uždaryti</button>
+    </form>
+    <img alt="" decoding="async" />
+  </dialog>
+</section>
+
+<script>
+  import '../scripts/zoom';
+</script>
+
+<style>
+  .proof__list { display: grid; gap: 1.25rem; margin: 1.5rem 0 1rem; }
+  .proof__item { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.125rem; }
+  .proof__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.5rem; }
+  .proof__figure { font-size: 2.75rem; line-height: 1; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
+  .proof__shots { display: grid; gap: 1rem; }
+  .proof__note { margin: 0.75rem 0 0; font-style: italic; }
+  .proof .link-row { margin-top: 1rem; }
+
+  .shot { margin: 0; }
+  .shot__link { position: relative; display: block; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+  .shot__link img { width: 100%; }
+  .shot__zoom {
+    position: absolute; right: 0.5rem; bottom: 0.5rem;
+    display: grid; place-items: center;
+    width: 2.75rem; height: 2.75rem; border-radius: 50%;
+    background: rgba(17, 20, 24, 0.82); color: #fff;
+  }
+  .shot__zoom svg { width: 1.375rem; height: 1.375rem; }
+  .shot figcaption { font-size: 0.9375rem; margin-top: 0.5rem; }
+  .shot__date { display: block; color: var(--muted); font-size: 0.875rem; }
+
+  .zoom { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; padding: 0; border: 0; background: #111418; color: #fff; overflow: auto; }
+  .zoom::backdrop { background: rgba(0, 0, 0, 0.7); }
+  .zoom__bar { position: sticky; top: 0; left: 0; z-index: 1; display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; background: #111418; }
+  .zoom__caption { margin: 0; flex: 1; font-size: 0.9375rem; }
+  .zoom__close { min-height: 3rem; padding: 0 1.125rem; border-radius: 999px; border: 2px solid #fff; background: transparent; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+  /* At least 56rem wide so dashboard text is readable; pan to explore. */
+  .zoom img { width: max(100%, 56rem); max-width: none; margin: 0 auto; background: #fff; }
+  @media (min-width: 56rem) { .zoom img { width: min(100%, 1600px); } }
+
+  @media (min-width: 48rem) {
+    .proof__item { padding: 1.5rem; }
+    .proof__shots--two { grid-template-columns: 1fr 1fr; }
+    .proof__figure { font-size: 3.5rem; }
+  }
+</style>

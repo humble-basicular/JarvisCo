@@ -1,0 +1,30 @@
+---
+import LegalPage from '@components/LegalPage.astro';
+import { brand, offer } from '@data/content.js';
+---
+<LegalPage title="Taisyklės" description="Svetainės jarvisweb.lt naudojimo taisyklės ir pasiūlymo sąlygos." updated="2026-10-11">
+  <h2>Kas teikia paslaugą</h2>
+  <p>
+    {brand.owner}, {brand.status.toLowerCase()}, {brand.city}. El. paštas
+    <a href={brand.emailHref}>{brand.email}</a>, tel. <a href={brand.telHref}>{brand.phone}</a>.
+  </p>
+
+  <h2>Pasiūlymas</h2>
+  <p>
+    Šioje svetainėje aprašyta svetainės sukūrimo paslauga: {offer.includes.map((x) => x[0].toLowerCase() + x.slice(1)).join('; ')}.
+    Kaina – {offer.price} vieną kartą. Tikslią apimtį, kainą ir perdavimo sąlygas nurodau rašytiniame
+    pasiūlyme prieš apmokėjimą. Sutartis sudaroma tik Jums sutikus su tuo pasiūlymu.
+  </p>
+
+  <h2>Rezultatai</h2>
+  <p>
+    Svetainėje rodomi vieno kliento (arbcut.lt) rezultatai su originaliomis ekrano kopijomis. Tai nėra
+    pažadas ar garantija, kad kita svetainė gaus tiek pat užklausų ar paspaudimų.
+  </p>
+
+  <h2>Nuosavybė</h2>
+  <p>{offer.ownership}</p>
+
+  <h2>Klausimai</h2>
+  <p>Klausimus ir pastabas siųskite <a href={brand.emailHref}>{brand.email}</a>.</p>
+</LegalPage>

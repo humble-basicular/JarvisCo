@@ -1,0 +1,44 @@
+---
+/* Mobile-only (≤ 768 px) bottom bar with the two actions. Without JS it is
+   always shown; with JS it shows only while neither the hero buttons nor the
+   final contact section is on screen. */
+import { brand, cta } from '@data/content.js';
+---
+<nav class="bar" aria-label="Susisiekti" data-sticky-bar>
+  <a class="btn btn--primary" href={brand.smsHref} data-track="cta_sms">{cta.sms}</a>
+  <a class="btn btn--ghost" href={brand.telHref} data-track="cta_call">{cta.call}</a>
+</nav>
+
+<script>
+  // Hide the bar while the hero buttons or the final contact section are on screen.
+  const bar = document.querySelector<HTMLElement>('[data-sticky-bar]');
+  const targets = document.querySelectorAll('[data-hero-cta], #kontaktai');
+  if (bar && targets.length && 'IntersectionObserver' in window) {
+    const visible = new Set<Element>();
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) visible.add(e.target);
+        else visible.delete(e.target);
+      }
+      bar.classList.toggle('is-shown', visible.size === 0);
+    });
+    targets.forEach((t) => io.observe(t));
+  } else {
+    bar?.classList.add('is-shown');
+  }
+</script>
+
+<style>
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem;
+    padding: 0.625rem 0.875rem calc(0.625rem + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 16px rgba(17, 20, 24, 0.08);
+    transition: transform 0.2s ease, visibility 0.2s;
+  }
+  :global(html.js) .bar:not(.is-shown) { transform: translateY(110%); visibility: hidden; }
+  .bar .btn { padding: 0.5rem 0.75rem; }
+  @media (min-width: 48.0625rem) { .bar { display: none; } }
+</style>

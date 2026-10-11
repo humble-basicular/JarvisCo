@@ -1,93 +1,37 @@
 ---
+import { Image } from 'astro:assets';
 import { about, brand } from '@data/content.js';
-import Icon from './Icon.astro';
+import matas from '@assets/people/matas.webp';
 ---
-<section class="section about" id="apie">
-  <div class="container">
-    <div class="about__grid">
-      <!-- Tekstas -->
-      <div class="about__text">
-        <span class="eyebrow" data-reveal="up">{about.eyebrow}</span>
-        <h2 data-reveal="up">{about.title}</h2>
-        {about.paragraphs.map((p) => <p class="about__p" data-reveal="up">{p}</p>)}
-
-        <ul class="about__points" data-reveal="up">
-          {about.points.map((pt) => (
-            <li><span class="about__check"><Icon name="check" /></span>{pt}</li>
-          ))}
-        </ul>
-
-        <div class="about__sign" data-reveal="up">
-          <span class="about__sign-name">{about.signature}</span>
-          <span class="about__sign-role">{about.signatureRole}</span>
-        </div>
-      </div>
-
-      <!-- Nuotrauka -->
-      <div class="about__media" data-reveal="right">
-        <figure class="about__photo">
-          <img src={about.img} alt={`${brand.savininkas} — ${brand.pavadinimas} įkūrėjas`} width="1000" height="1300" loading="lazy" />
-          <figcaption class="about__badge">
-            <span class="about__badge-name">{brand.savininkas}</span>
-            <span class="about__badge-role">{about.signatureRole}</span>
-          </figcaption>
-        </figure>
-      </div>
+<section class="section" id="apie" aria-labelledby="about-title">
+  <div class="wrap about">
+    <Image
+      src={matas}
+      alt="Matas Bašinskas prie savo darbo vietos"
+      widths={[240, 480, 720]}
+      sizes="(min-width: 48rem) 15rem, 40vw"
+      quality={78}
+      loading="lazy"
+      class="about__img"
+    />
+    <div>
+      <h2 id="about-title">{about.title}</h2>
+      <p>{about.text}</p>
+      <ul class="about__links">
+        <li><a href={brand.telHref} data-track="cta_call">{brand.phone}</a></li>
+        <li><a href={brand.emailHref}>{brand.email}</a></li>
+        <li><a href={brand.gbp} rel="noopener">{about.gbpLabel}</a></li>
+      </ul>
     </div>
   </div>
 </section>
 
 <style>
-  .about__grid {
-    display: grid;
-    grid-template-columns: 1.3fr 0.7fr;
-    gap: clamp(2.5rem, 6vw, 4.5rem);
-    align-items: center;
-  }
-  .about__p { color: var(--text-soft); margin-top: 1.1rem; }
-  .about__points { display: grid; gap: 0.85rem; margin: 1.75rem 0; }
-  .about__points li { display: flex; gap: 0.75rem; align-items: center; color: var(--text); font-weight: 500; }
-  .about__check {
-    flex-shrink: 0; width: 24px; height: 24px;
-    display: grid; place-items: center; border-radius: 50%;
-    background: rgba(198,242,78,0.14); color: var(--accent); font-size: 0.85rem;
-  }
-  .about__sign { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
-  .about__sign-name {
-    display: block; font-family: var(--font-display); font-size: 1.4rem;
-    color: var(--accent); letter-spacing: -0.01em;
-  }
-  .about__sign-role { color: var(--muted); font-size: 0.9rem; }
-
-  /* Media — viena portreto nuotrauka */
-  .about__media { width: 100%; max-width: 360px; justify-self: end; }
-  .about__photo {
-    position: relative;
-    border-radius: var(--r-lg);
-    overflow: hidden;
-    border: 1px solid var(--line-strong);
-    aspect-ratio: 4 / 5;
-    box-shadow: var(--shadow-md);
-  }
-  .about__photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-  .about__badge {
-    position: absolute;
-    left: 0.8rem; bottom: 0.8rem;
-    display: flex; flex-direction: column;
-    padding: 0.55rem 0.9rem;
-    background: rgba(10,11,13,0.72);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--line);
-    border-radius: var(--r-sm);
-  }
-  .about__badge-name { font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; }
-  .about__badge-role { color: var(--accent); font-size: 0.78rem; }
-
-  @media (max-width: 920px) {
-    .about__grid { grid-template-columns: 1fr; }
-    .about__media { max-width: 320px; justify-self: start; }
-  }
-  @media (max-width: 480px) {
-    .about__media { max-width: 100%; }
-  }
+  .about { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1.25rem; align-items: start; }
+  .about__img { width: 100%; aspect-ratio: 10 / 13; object-fit: cover; border-radius: var(--radius); }
+  .about > div { min-width: 0; }
+  .about__links { list-style: none; padding: 0; margin: 0; }
+  .about__links a { display: inline-flex; align-items: center; min-height: 3rem; font-weight: 600; overflow-wrap: anywhere; }
+  @media (max-width: 22rem) { .about { grid-template-columns: 1fr; } .about__img { width: 9rem; } }
+  @media (min-width: 48rem) { .about { grid-template-columns: 15rem 1fr; gap: 2rem; } }
 </style>

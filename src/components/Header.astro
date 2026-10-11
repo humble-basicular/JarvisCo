@@ -1,135 +1,18 @@
 ---
-import { brand, nav } from '@data/content.js';
-import Icon from './Icon.astro';
+import { brand } from '@data/content.js';
 ---
-<header class="hdr" id="site-header" data-header>
-  <div class="container hdr__inner">
-    <a href="#top" class="logo" aria-label={`${brand.pavadinimas} — pradžia`}>
-      <span class="logo__text">Jarvis<span class="accent">Co</span></span>
+<header class="header">
+  <div class="wrap wrap--wide header__in">
+    <a class="header__brand" href="/">{brand.name}</a>
+    <a class="header__phone" href={brand.telHref} data-track="cta_call">
+      <span class="visually-hidden">Skambinti </span>{brand.phone}
     </a>
-
-    <nav class="nav" aria-label="Pagrindinė navigacija">
-      {nav.map((item) => <a href={item.href} class="nav__link">{item.label}</a>)}
-    </nav>
-
-    <div class="hdr__actions">
-      <a href={brand.telefonasHref} class="hdr__phone">
-        <Icon name="phone" /><span>{brand.telefonas}</span>
-      </a>
-      <a href="#kontaktai" class="btn btn--primary hdr__cta">Nemokama konsultacija</a>
-      <button class="hdr__burger" aria-label="Atidaryti meniu" aria-expanded="false" data-burger>
-        <Icon name="menu" />
-      </button>
-    </div>
   </div>
 </header>
 
-<!-- Mobilus meniu — TIESIOG po <header>, kad nepatektų į .hdr backdrop-filter
-     containing block (kitaip slenkant suplotų ir „prasišviestų"). -->
-<div class="mobile-menu" data-mobile-menu hidden>
-  <nav class="mobile-menu__nav" aria-label="Mobili navigacija">
-    {nav.map((item) => <a href={item.href} class="mobile-menu__link" data-mobile-link>{item.label}</a>)}
-  </nav>
-  <div class="mobile-menu__foot">
-    <a href={brand.telefonasHref} class="btn btn--ghost btn--block"><Icon name="phone" />{brand.telefonas}</a>
-    <a href="#kontaktai" class="btn btn--primary btn--block" data-mobile-link>Nemokama konsultacija</a>
-  </div>
-</div>
-
 <style>
-  .hdr {
-    position: fixed;
-    inset: 0 0 auto 0;
-    z-index: 100;
-    /* Vientisas fonas (be backdrop-filter) — kad slenkant nevibruotų / „nejudėtų". */
-    background: var(--ink);
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.3s, box-shadow 0.3s;
-  }
-  .hdr.is-scrolled {
-    border-bottom-color: var(--line);
-    box-shadow: 0 8px 30px -16px rgba(0,0,0,0.8);
-  }
-  .hdr__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    height: 76px;
-  }
-
-  .logo { display: inline-flex; align-items: center; }
-  .logo__text {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.4rem;
-    letter-spacing: -0.02em;
-  }
-
-  .nav { display: flex; gap: 0.35rem; }
-  .nav__link {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-soft);
-    padding: 0.5rem 0.85rem;
-    border-radius: var(--r-pill);
-    transition: color 0.25s, background 0.25s;
-  }
-  .nav__link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-
-  .hdr__actions { display: flex; align-items: center; gap: 0.85rem; }
-  .hdr__phone {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    font-weight: 600; font-size: 0.95rem; color: var(--text-soft);
-    transition: color 0.25s;
-  }
-  .hdr__phone svg { color: var(--accent); }
-  .hdr__phone:hover { color: var(--text); }
-  .hdr__cta { padding: 0.7rem 1.25rem; font-size: 0.92rem; }
-
-  .hdr__burger {
-    display: none;
-    width: 44px; height: 44px;
-    border-radius: 11px;
-    border: 1px solid var(--line-strong);
-    color: var(--text);
-    font-size: 1.4rem;
-    place-items: center;
-  }
-
-  /* Mobilus meniu */
-  .mobile-menu {
-    position: fixed;
-    inset: 76px 0 0 0;
-    z-index: 99;
-    background: var(--ink);
-    padding: 1.5rem var(--gutter) 2.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transform: translateY(-12px);
-    opacity: 0;
-    transition: opacity 0.3s, transform 0.3s;
-  }
-  /* KRITINIS: [hidden] turi paslėpti meniu (kitaip nematomas overlay gaudo klikus) */
-  .mobile-menu[hidden] { display: none !important; }
-  .mobile-menu.is-open { opacity: 1; transform: none; }
-  .mobile-menu__nav { display: flex; flex-direction: column; }
-  .mobile-menu__link {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 600;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid var(--line);
-    color: var(--text);
-  }
-  .mobile-menu__foot { display: grid; gap: 0.75rem; margin-top: 2rem; }
-
-  @media (max-width: 1024px) {
-    .nav, .hdr__phone { display: none; }
-  }
-  @media (max-width: 720px) {
-    .hdr__cta { display: none; }
-    .hdr__burger { display: grid; }
-  }
+  .header { border-bottom: 1px solid var(--line); background: #fff; }
+  .header__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; }
+  .header__brand { font-weight: 800; color: var(--ink); text-decoration: none; font-size: 1.0625rem; display: inline-flex; align-items: center; min-height: 3rem; }
+  .header__phone { font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; min-height: 3rem; }
 </style>

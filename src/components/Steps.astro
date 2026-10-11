@@ -1,0 +1,21 @@
+---
+import { steps } from '@data/content.js';
+---
+<section class="section section--alt" aria-labelledby="steps-title">
+  <div class="wrap">
+    <h2 id="steps-title">{steps.title}</h2>
+    <ol class="steps">
+      {steps.items.map((step) => <li>{step}</li>)}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 0.75rem; }
+  .steps li { counter-increment: s; display: flex; align-items: center; gap: 0.875rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.75rem 1rem; }
+  .steps li::before {
+    content: counter(s); flex: none; display: grid; place-items: center;
+    width: 2.25rem; height: 2.25rem; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 800;
+  }
+</style>

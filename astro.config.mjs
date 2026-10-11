@@ -2,16 +2,17 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// JarvisCo svetainės domenas — turi sutapti su content.js `url`
+// Must match `brand.url` in src/data/content.js
 export const SITE_URL = 'https://jarvisweb.lt';
 
 export default defineConfig({
   site: SITE_URL,
+  trailingSlash: 'ignore',
   integrations: [
     sitemap({
-      filter: (page) => !/\/(privatumo-politika|taisykles)\/?$/.test(page),
+      filter: (page) => !/\/(privatumo-politika|taisykles|404)\/?$/.test(page),
     }),
   ],
-  build: { inlineStylesheets: 'auto' },
+  build: { inlineStylesheets: 'always' },
   compressHTML: true,
 });

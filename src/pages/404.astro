@@ -1,33 +1,12 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro';
-import { brand } from '@data/content.js';
+import Layout from '@layouts/Layout.astro';
 ---
-<BaseLayout title="Puslapis nerastas — JarvisCo">
-  <main class="nf" id="main">
-    <div class="container nf__inner">
-      <span class="nf__code">404</span>
-      <h1>Toks puslapis pasislėpė</h1>
-      <p>Atrodo, ieškomo puslapio nebėra arba pasikeitė jo adresas. Grįžkime į saugų krantą.</p>
-      <div class="nf__cta">
-        <a href="/" class="btn btn--primary btn--lg">Grįžti į pradžią</a>
-        <a href={brand.telefonasHref} class="btn btn--ghost btn--lg">{brand.telefonas}</a>
-      </div>
+<Layout title="Puslapis nerastas | jarvisweb.lt" description="Tokio puslapio nėra." noindex>
+  <section class="section">
+    <div class="wrap">
+      <h1>Tokio puslapio nėra</h1>
+      <p>Galbūt nuoroda pasenusi.</p>
+      <p><a href="/">Į pradžią</a> · <a href="/arboristams">Svetainės arboristams</a></p>
     </div>
-  </main>
-</BaseLayout>
-
-<style>
-  .nf { min-height: 88vh; display: grid; place-items: center; text-align: center; }
-  .nf__inner { max-width: 560px; }
-  .nf__code {
-    font-family: var(--font-display);
-    font-size: clamp(5rem, 18vw, 11rem);
-    font-weight: 700;
-    line-height: 1;
-    background: linear-gradient(120deg, var(--accent), var(--cyan));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  .nf h1 { margin: 0.5rem 0 1rem; }
-  .nf p { color: var(--text-soft); margin-bottom: 2rem; }
-  .nf__cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-</style>
+  </section>
+</Layout>

@@ -1,0 +1,35 @@
+---
+/* Native <details>: keyboard and screen-reader friendly, zero JS. */
+interface Props { items: { q: string; a: string }[] }
+const { items } = Astro.props;
+---
+<section class="section section--alt" id="duk" aria-labelledby="faq-title">
+  <div class="wrap">
+    <h2 id="faq-title">Dažni klausimai</h2>
+    <div class="faq">
+      {items.map((item) => (
+        <details class="faq__item">
+          <summary>{item.q}</summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq { display: grid; gap: 0.625rem; }
+  .faq__item { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+  .faq__item summary {
+    cursor: pointer; list-style: none; position: relative;
+    min-height: 3.25rem; padding: 0.875rem 3rem 0.875rem 1rem;
+    font-weight: 700; display: flex; align-items: center;
+  }
+  .faq__item summary::-webkit-details-marker { display: none; }
+  .faq__item summary::after {
+    content: '+'; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+    font-size: 1.5rem; font-weight: 400; color: var(--accent);
+  }
+  .faq__item[open] summary::after { content: '−'; }
+  .faq__item p { margin: 0; padding: 0 1rem 1rem; }
+</style>

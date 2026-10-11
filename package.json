@@ -1,20 +1,21 @@
 {
   "name": "jarvisco",
   "type": "module",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check:copy": "node src/checks/copy-check.mjs",
+    "check:js": "node src/checks/js-budget.mjs",
+    "check": "astro build && npm run check:copy && npm run check:js",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.3.0",
-    "astro": "^5.5.0",
-    "gsap": "^3.12.5",
-    "three": "^0.169.0"
+    "astro": "^5.5.0"
   },
   "devDependencies": {
     "sharp": "^0.33.5"

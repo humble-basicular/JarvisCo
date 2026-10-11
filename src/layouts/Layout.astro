@@ -1,0 +1,96 @@
+---
+import '../styles/global.css';
+import { brand, offer } from '@data/content.js';
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import StickyBar from '@components/StickyBar.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  faq?: { q: string; a: string }[];
+  noindex?: boolean;
+  stickyBar?: boolean;
+  ogImage?: string;
+}
+const { title, description, faq = [], noindex = false, stickyBar = true, ogImage: ogPath = '/assets/og.png' } = Astro.props;
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', brand.url).href;
+const ogImage = new URL(ogPath, brand.url).href;
+
+// Cloudflare Web Analytics (cookieless). Set PUBLIC_CF_ANALYTICS_TOKEN at build
+// time, or enable the automatic setup in Cloudflare; empty = no script.
+const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+
+const business = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  '@id': `${brand.url}/#business`,
+  name: brand.name,
+  url: brand.url,
+  telephone: brand.phone,
+  email: brand.email,
+  founder: { '@type': 'Person', name: brand.owner },
+  areaServed: { '@type': 'Country', name: 'Lietuva' },
+  address: { '@type': 'PostalAddress', addressLocality: brand.city, addressCountry: 'LT' },
+  sameAs: [brand.gbp, brand.facebook, brand.instagram],
+  makesOffer: {
+    '@type': 'Offer',
+    name: 'Svetainė paslaugų verslui',
+    price: '199',
+    priceCurrency: 'EUR',
+    description: offer.includes.join('; '),
+  },
+};
+const faqSchema = faq.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faq.map((it) => ({ '@type': 'Question', name: it.q, acceptedAnswer: { '@type': 'Answer', text: it.a } })),
+    }
+  : null;
+---
+<!doctype html>
+<html lang="lt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#ffffff" />
+
+    <meta property="og:site_name" content="jarvisweb.lt" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="lt_LT" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script type="application/ld+json" set:html={JSON.stringify(business)} />
+    {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+    {cfToken && (
+      <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: cfToken })}></script>
+    )}
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Pereiti prie turinio</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    {stickyBar && <StickyBar />}
+    <script>
+      import '../scripts/track';
+    </script>
+  </body>
+</html>

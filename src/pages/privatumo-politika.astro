@@ -1,0 +1,58 @@
+---
+import LegalPage from '@components/LegalPage.astro';
+import { brand } from '@data/content.js';
+---
+<LegalPage title="Privatumo politika" description="Kokius duomenis renka jarvisweb.lt, kam jie naudojami ir kiek laiko saugomi." updated="2026-10-11">
+  <h2>Kas tvarko duomenis</h2>
+  <p>
+    {brand.owner}, {brand.status.toLowerCase()}, {brand.city}. El. paštas
+    <a href={brand.emailHref}>{brand.email}</a>, tel. <a href={brand.telHref}>{brand.phone}</a>.
+  </p>
+
+  <h2>Užklausos forma</h2>
+  <p>
+    Kai pateikiate formą, gaunu Jūsų vardą, telefono numerį, el. pašto adresą ir žinutę. Juos naudoju tik
+    atsakyti į Jūsų užklausą ir tartis dėl svetainės. Pagrindas – Jūsų prašymas prieš sudarant sutartį.
+    Forma veikia per paslaugą Web3Forms, kuri užklausą persiunčia man el. paštu. Duomenis saugau tiek, kiek
+    reikia bendrauti dėl užklausos.
+  </p>
+
+  <h2>Asmeninės nuorodos iš SMS</h2>
+  <p>
+    SMS žinutėje gali būti asmeninė nuoroda (pvz. jarvisweb.lt/p/a2345). Joje yra trumpas kodas, skirtas
+    vienam gavėjui. Kai nuoroda atidaroma, įrašau:
+  </p>
+  <ul>
+    <li>kodą ir laiką (UTC), kada nuoroda atidaryta;</li>
+    <li>ar atidarė žmogus, ar automatinė nuorodų peržiūros programa (vien šis požymis, ne visas naršyklės aprašas);</li>
+    <li>kuriuos veiksmus atlikote puslapyje: ar puslapis buvo parodytas, ar peržiūrėjote rezultatus, ar spaudėte „Parašyti SMS“, „Skambinti“, PDF atsisiuntimą ar nuorodą į arbcut.lt.</li>
+  </ul>
+  <p>
+    IP adreso ir viso naršyklės aprašo nesaugau. Slapukų nenaudoju. Kodas apsilankymo metu laikomas tik Jūsų
+    naršyklės skirtuko atmintyje (sessionStorage) ir dingsta jį uždarius. Šiuos duomenis naudoju tam, kad
+    suprasčiau, ar pasiūlymas Jus domina. Pagrindas – teisėtas interesas. Duomenys saugomi 12 mėnesių.
+  </p>
+  <p>
+    Jei nenorite, kad tai būtų įrašoma, parašykite <a href={brand.emailHref}>{brand.email}</a> arba SMS
+    numeriu {brand.phone} – įrašus ištrinsiu.
+  </p>
+
+  <h2>Lankomumo statistika</h2>
+  <p>
+    Bendram lankomumui matuoti naudoju Cloudflare Web Analytics. Ji nenaudoja slapukų ir neseka atskirų
+    lankytojų.
+  </p>
+
+  <h2>Kas dar gali matyti duomenis</h2>
+  <p>
+    Svetainę talpina Vercel, nuorodų įrašus tvarko Cloudflare, formą – Web3Forms. Jie duomenis tvarko tik
+    tam, kad šios paslaugos veiktų.
+  </p>
+
+  <h2>Jūsų teisės</h2>
+  <p>
+    Galite prašyti parodyti, ištaisyti ar ištrinti apie Jus saugomus duomenis ir nesutikti su jų tvarkymu.
+    Parašykite <a href={brand.emailHref}>{brand.email}</a>. Taip pat galite kreiptis į Valstybinę duomenų
+    apsaugos inspekciją (<a href="https://vdai.lrv.lt" rel="noopener">vdai.lrv.lt</a>).
+  </p>
+</LegalPage>

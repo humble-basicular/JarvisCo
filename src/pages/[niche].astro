@@ -1,0 +1,11 @@
+---
+/* Niche landing pages (/arboristams, …), one per entry in `niches`. */
+import ProofPage from '@components/ProofPage.astro';
+import { niches } from '@data/content.js';
+
+export function getStaticPaths() {
+  return Object.values(niches).map((page) => ({ params: { niche: page.slug }, props: { page } }));
+}
+const { page } = Astro.props;
+---
+<ProofPage page={page} />
