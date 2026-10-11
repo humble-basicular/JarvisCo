@@ -1,0 +1,135 @@
+<!doctype html><html lang="lt"><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#06110c;--ink2:#0c1d15;--paper:#f4f1e8;--em:#1fbf75;--lime:#c8f560;--mute:#9db3a7;--line:rgba(255,255,255,.09)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--foreground)}
+.wrap{display:grid;gap:22px}
+.lbl{font:600 11px/1 Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-foreground);margin:0 0 8px}
+.panel{border-radius:18px;overflow:hidden;position:relative}
+/* palette */
+.pal{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.sw{height:70px;border-radius:12px;padding:10px;font:600 11px Inter;display:flex;align-items:flex-end;border:1px solid var(--border)}
+.type{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap;margin-top:12px}
+.type .d{font:800 44px/1 'Bricolage Grotesque';letter-spacing:-.03em}
+.type .b{font:400 15px Inter;color:var(--muted-foreground)}
+/* hero */
+.hero{background:var(--ink);color:#fff;padding:22px 26px 0;min-height:500px;isolation:isolate}
+.hero:before{content:"";position:absolute;inset:-30%;z-index:-2;background:
+ radial-gradient(40% 35% at 75% 30%,rgba(31,191,117,.55),transparent 70%),
+ radial-gradient(30% 30% at 20% 80%,rgba(200,245,96,.22),transparent 70%),
+ radial-gradient(35% 40% at 95% 85%,rgba(20,120,140,.45),transparent 70%);filter:blur(30px);animation:drift 14s ease-in-out infinite alternate}
+.hero:after{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:44px 44px;mask:radial-gradient(70% 60% at 60% 40%,#000,transparent)}
+@keyframes drift{to{transform:translate(-6%,4%) rotate(8deg)}}
+nav{display:flex;align-items:center;gap:18px;font-size:13px;color:#cfe0d6;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);backdrop-filter:blur(12px)}
+.logo{font:800 17px 'Bricolage Grotesque';color:#fff;margin-right:auto}.logo i{color:var(--lime);font-style:normal}
+.pill{background:var(--lime);color:#0b1a10;font-weight:600;padding:8px 14px;border-radius:999px}
+.hgrid{display:grid;grid-template-columns:1.05fr 1fr;gap:10px;margin-top:34px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;color:#cfe0d6;border:1px solid var(--line);padding:6px 11px;border-radius:999px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--em);box-shadow:0 0 0 4px rgba(31,191,117,.2)}
+h1{font:800 46px/.98 'Bricolage Grotesque';letter-spacing:-.035em;margin:16px 0 14px}
+h1 .g{background:linear-gradient(100deg,var(--lime),var(--em) 60%,#4fd1c5);-webkit-background-clip:text;color:transparent}
+.sub{color:#b9cdc2;font-size:14.5px;line-height:1.55;max-width:31ch}
+.price{margin:16px 0;font-size:13px;color:#dfeee5}.price b{font:800 22px 'Bricolage Grotesque';color:#fff;margin-right:6px}
+.btns{display:flex;gap:10px}.b1{background:var(--lime);color:#0b1a10;padding:12px 18px;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 10px 30px -8px rgba(200,245,96,.6)}
+.b2{border:1px solid rgba(255,255,255,.2);padding:12px 18px;border-radius:12px;font-size:14px}
+.stage{position:relative;perspective:1200px;height:380px}
+.laptop{position:absolute;right:-60px;top:10px;width:430px;transform:rotateY(-16deg) rotateX(6deg);transform-style:preserve-3d;border-radius:12px;padding:8px;background:linear-gradient(#1b2a22,#0e1813);box-shadow:0 40px 80px -20px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08)}
+.laptop img{width:100%;border-radius:6px;display:block}
+.phone{position:absolute;left:10px;top:110px;width:128px;border-radius:22px;padding:5px;background:#0d1511;box-shadow:0 30px 60px -10px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.12);transform:rotate(-6deg) translateZ(60px)}
+.phone img{width:100%;border-radius:17px;display:block}
+.chip{position:absolute;background:rgba(10,24,17,.62);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:9px 12px;font-size:11px;color:#b9cdc2;box-shadow:0 20px 40px -12px rgba(0,0,0,.6)}
+.chip b{display:block;font:800 24px/1 'Bricolage Grotesque';color:#fff}
+.chip b em{font-style:normal;color:var(--lime)}
+.c1{left:120px;top:20px;animation:float 6s ease-in-out infinite}.c2{right:10px;bottom:30px;animation:float 7s ease-in-out -2s infinite}
+@keyframes float{50%{transform:translateY(-8px)}}
+/* results */
+.res{background:var(--paper);color:#0d1a13;padding:26px}
+.res h2{font:800 32px/1 'Bricolage Grotesque';letter-spacing:-.03em;margin:6px 0 18px}
+.k{font:600 11px Inter;letter-spacing:.14em;text-transform:uppercase;color:#1a7a4c}
+.bento{display:grid;grid-template-columns:1.3fr 1fr 1fr;grid-auto-rows:150px;gap:10px}
+.t{background:#fff;border-radius:16px;padding:14px;position:relative;overflow:hidden;border:1px solid #e4dfd2}
+.t .n{font:800 46px/1 'Bricolage Grotesque';letter-spacing:-.04em}
+.t .cap{font-size:12px;color:#55625b;margin-top:4px}
+.t img{position:absolute;right:-10px;bottom:-8px;width:62%;border-radius:8px;box-shadow:0 12px 30px -10px rgba(0,0,0,.35);transform:rotate(-3deg)}
+.big{grid-row:span 2;background:var(--ink);color:#fff;border:0}
+.big .cap{color:#9db3a7}.big .n{font-size:86px;background:linear-gradient(var(--lime),var(--em));-webkit-background-clip:text;color:transparent}
+.bars{display:flex;gap:6px;align-items:flex-end;height:90px;margin-top:16px}
+.bars div{flex:1;border-radius:6px 6px 2px 2px;background:linear-gradient(var(--em),#0f5c39);position:relative}
+.bars span{position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:11px;color:#cfe0d6}
+.src{font-size:10.5px;color:#7a857f;position:absolute;left:14px;bottom:10px}
+.big .src{color:#6f8a7c}
+.zoom{position:absolute;top:12px;right:12px;font-size:10px;padding:4px 8px;border-radius:999px;background:#0d1a13;color:#fff}
+/* offer */
+.off{background:var(--ink2);color:#fff;padding:26px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{position:relative;border-radius:20px;padding:22px;background:#0b1812;isolation:isolate}
+.card:before{content:"";position:absolute;inset:-1px;border-radius:21px;z-index:-1;background:conic-gradient(from var(--a,0deg),var(--lime),var(--em),#4fd1c5,#0b1812 40%,#0b1812 60%,var(--lime));animation:spin 6s linear infinite}
+.card:after{content:"";position:absolute;inset:1px;border-radius:19px;background:#0b1812;z-index:-1}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}@keyframes spin{to{--a:360deg}}
+.card .p{font:800 64px/1 'Bricolage Grotesque';letter-spacing:-.04em}.card .p small{font-size:18px;color:#9db3a7;font-weight:600}
+.card ul{padding:0;margin:14px 0 0;list-style:none;font-size:13px;color:#cfe0d6;display:grid;gap:7px}
+.card li:before{content:"✓";color:var(--lime);margin-right:8px}
+.cmp h3{font:700 18px 'Bricolage Grotesque';margin:0 0 4px}.cmp p{font-size:12px;color:#9db3a7;margin:0 0 14px}
+.row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center;font-size:12px;margin-bottom:10px;color:#cfe0d6}
+.bar{height:26px;border-radius:8px;display:flex;align-items:center;padding:0 10px;font-weight:600;font-size:12px}
+.notes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.note{border:1px solid var(--border);border-radius:14px;padding:14px;font-size:13px;line-height:1.45;background:var(--card)}
+.note b{display:block;font:700 15px 'Bricolage Grotesque';margin-bottom:4px}
+</style></head><body><div class="wrap">
+
+<div><p class="lbl">1 · Spalvos ir šriftai</p>
+<div class="pal">
+<div class="sw" style="background:#06110c;color:#cfe0d6">Naktis #06110C</div>
+<div class="sw" style="background:#1fbf75;color:#06110c">Smaragdas #1FBF75</div>
+<div class="sw" style="background:#c8f560;color:#06110c">Signalas #C8F560</div>
+<div class="sw" style="background:#4fd1c5;color:#06110c">Ledas #4FD1C5</div>
+<div class="sw" style="background:#f4f1e8;color:#06110c">Popierius #F4F1E8</div></div>
+<div class="type"><span class="d">Bricolage Grotesque — ąčęėįšųūž</span><span class="b">Inter tekstui · savo serveryje</span></div></div>
+
+<div><p class="lbl">2 · Hero (tamsus, gyvas fonas, 3D įrenginiai)</p>
+<div class="panel hero">
+<nav><span class="logo">Jarvis<i>Co</i></span><span>Rezultatai</span><span>Paslauga</span><span>Kaina</span><span>Procesas</span><span>D.U.K.</span><span class="pill">Susisiekti</span></nav>
+<div class="hgrid"><div>
+<span class="eyebrow"><span class="dot"></span>Svetainės vietiniam paslaugų verslui</span>
+<h1>Svetainė, kuri <span class="g">atneša užklausas</span> iš Google.</h1>
+<p class="sub">Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 užklausų. Tokią pačią galiu sukurti ir Jums.</p>
+<p class="price"><b>199 €</b>vieną kartą · be mėnesinių mokesčių</p>
+<div class="btns"><span class="b1">Parašyti SMS</span><span class="b2">Žiūrėti rezultatus →</span></div>
+</div>
+<div class="stage">
+<div class="laptop"><img src="../../public/assets/images/arbcut-desktop.webp"></div>
+<div class="phone"><img src="../../public/assets/images/arbcut-mobile.webp"></div>
+<div class="chip c1"><b><em>20</em> užklausų</b>per 2 mėnesius</div>
+<div class="chip c2"><b>573</b>paspaudimai iš Google</div>
+</div></div></div></div>
+
+<div><p class="lbl">3 · Rezultatai (pagrindinis akcentas)</p>
+<div class="panel res"><span class="k">Rezultatai · arbcut.lt</span><h2>Skaičiai su ekrano kopijomis.</h2>
+<div class="bento">
+<div class="t big"><div class="n">20</div><div class="cap">užklausų per formą, 2026 m. rugpjūtis–rugsėjis</div>
+<div class="bars"><div style="height:35%"><span>rugp. 7</span></div><div style="height:65%"><span>rugs. 13</span></div></div><span class="src">Šaltinis: Web3Forms · ekrano kopija ↗</span></div>
+<div class="t"><div class="n">573</div><div class="cap">paspaudimai iš Google</div><img src="../../public/assets/images/search-console-card.jpg"><span class="zoom">Peržiūrėti</span></div>
+<div class="t"><div class="n">11,4k</div><div class="cap">parodymai paieškoje</div><span class="src">Search Console, 07-05 – 10-04</span></div>
+<div class="t"><div class="n">8,2</div><div class="cap">vidutinė pozicija Google</div><span class="src">Search Console</span></div>
+<div class="t"><div class="cap" style="font-weight:600;color:#0d1a13">arbcut.lt Google paieškoje, Kaunas</div><img src="../../public/assets/images/google-kaunas-card.jpg" style="width:92%;transform:rotate(-2deg)"></div>
+</div></div></div>
+
+<div><p class="lbl">4 · Pasiūlymas ir kaštų palyginimas</p>
+<div class="panel off">
+<div class="card"><div class="p">199 € <small>vieną kartą</small></div>
+<ul><li>Pagrindinis puslapis su paslaugomis ir darbais</li><li>Iki 3 vietovių puslapių</li><li>Užklausos forma</li><li>Telefonui pritaikyta, SEO pagrindai</li><li>Svetainė ir domenas – Jūsų</li></ul></div>
+<div class="cmp"><h3>Per pirmus metus</h3><p>Paslaugos.lt PRO ≈ 50 €/mėn. palyginimui</p>
+<div class="row">Paslaugos.lt PRO<div class="bar" style="width:100%;background:#2a3b33">~600 €</div></div>
+<div class="row">Svetainė<div class="bar" style="width:36%;background:linear-gradient(90deg,var(--lime),var(--em));color:#06110c">214 €</div></div>
+<p style="margin-top:12px">199 € + 15 € domenas. Antrais metais – tik 15 €.</p></div>
+</div></div>
+
+<div><p class="lbl">5 · „Parodomieji“ efektai (visi CSS + ~10 KB JS, išjungiami „sumažinti judesį“)</p>
+<div class="notes">
+<div class="note"><b>Gyvas aurora fonas</b>Lėtai judantis spalvų rūkas, tinklelis ir grūdėtumas hero dalyje.</div>
+<div class="note"><b>3D įrenginiai</b>Kompiuteris ir telefonas su tikra arbcut.lt pakrypsta pagal pelę / telefono pasvirimą.</div>
+<div class="note"><b>Svetainė „susikuria“</b>Slenkant: eskizas → dizainas → gyva svetainė. Tai ir proceso skiltis.</div>
+<div class="note"><b>Skaičiai skaičiuoja</b>20, 573, 11,4k suskaičiuoja, kai pasirodo ekrane.</div>
+<div class="note"><b>Įrodymų priartinimas</b>Paspaudus plytelę ekrano kopija sklandžiai išsiplečia (View Transitions).</div>
+<div class="note"><b>Švytintis kainos rėmas</b>Besisukantis spalvų kraštas aplink 199 € kortelę, magnetiniai mygtukai.</div>
+</div></div>
+</div></body></html>
