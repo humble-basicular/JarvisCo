@@ -1,0 +1,333 @@
+import assert from 'node:assert/strict';
+import { afterEach, beforeEach, test } from 'node:test';
+import { readFile } from 'node:fs/promises';
+import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
+import worker, { retentionCutoff } from '../dist/worker.mjs';
+
+const TOKEN = 'local-test-only-token';
+const SINCE = '2025-01-01T00:00:00.000Z';
+const productionScript = await readFile(new URL('../dist/worker.mjs', import.meta.url), 'utf8');
+// Deterministically drain waitUntil tasks for SQL assertions; redirect latency has
+// a separate direct-handler test that does not drain background tasks.
+const script = productionScript.replace('index_default as default', 'test_default as default') + `
+const test_default = {
+  async fetch(request, env, ctx) {
+    const pending = [];
+    const response = await index_default.fetch(request, env, {
+      waitUntil(task) { pending.push(task); ctx.waitUntil(task); }
+    });
+    await Promise.all(pending);
+    return response;
+  }
+};
+`;
+const migration = await readFile(new URL('../migrations/0001_events.sql', import.meta.url), 'utf8');
+const fixedNow = Date.now();
+let mf;
+let db;
+
+async function createRuntime({ schema = true, token = TOKEN } = {}) {
+  const runtime = new Miniflare(convertV4MiniflareOptions({
+    modules: true,
+    // Freeze the fixed-window limiter's clock so tests cannot race a minute boundary.
+    script: `Date.now = () => ${fixedNow};\n${script}`,
+    compatibilityDate: '2026-10-01',
+    d1Databases: { DB: 'local-test-database' },
+    bindings: token === null ? {} : { EVENTS_TOKEN: token },
+  }));
+  const database = await runtime.getD1Database('DB');
+  if (schema) {
+    // D1 exec is line-oriented; execute complete migration statements in a batch.
+    const statements = migration.split(';').map((sql) => sql.trim()).filter(Boolean);
+    await database.batch(statements.map((sql) => database.prepare(sql)));
+  }
+  return { runtime, database };
+}
+
+beforeEach(async () => {
+  ({ runtime: mf, database: db } = await createRuntime());
+});
+afterEach(async () => { await mf?.dispose(); });
+
+async function request(path, init = {}, host = 'jarvisweb.lt') {
+  const response = await mf.dispatchFetch(`https://${host}${path}`, { redirect: 'manual', ...init });
+  return response;
+}
+function post(code = 'a2345', type = 'view', contentType = 'application/json', extras = {}) {
+  return request('/t/e', {
+    method: 'POST', headers: { 'Content-Type': contentType, ...extras }, body: JSON.stringify({ code, type }),
+  });
+}
+async function pull(params = {}, auth = `Bearer ${TOKEN}`) {
+  const query = new URLSearchParams({ since: SINCE, ...params });
+  return request(`/t/events?${query}`, { headers: auth === null ? {} : { Authorization: auth } });
+}
+async function seed(at, count = 1, code = 'a2345') {
+  const query = db.prepare('INSERT INTO events(code,type,at,ua_class) VALUES (?, ?, ?, ?)');
+  await db.batch(Array.from({ length: count }, () => query.bind(code, 'view', at, 'human')));
+}
+
+// Execute all endpoint tests in a real workerd isolate, using its actual D1 SQL engine.
+test('apex and www valid links redirect uncached and record human clicks', async () => {
+  for (const host of ['jarvisweb.lt', 'www.jarvisweb.lt']) {
+    const response = await request('/p/a2345?ignored=x', { headers: { 'User-Agent': 'Mozilla/5.0 Android' } }, host);
+    assert.equal(response.status, 302);
+    assert.equal(response.headers.get('Location'), '/arboristams?r=a2345');
+    assert.equal(response.headers.get('Cache-Control'), 'no-store');
+  }
+  const rows = (await db.prepare('SELECT * FROM events ORDER BY id').all()).results;
+  assert.equal(rows.length, 2);
+  for (const row of rows) {
+    assert.equal(row.code, 'a2345');
+    assert.equal(row.type, 'click');
+    assert.equal(row.ua_class, 'human');
+    assert.match(row.at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/);
+    assert.deepEqual(Object.keys(row).sort(), ['at', 'code', 'id', 'type', 'ua_class']);
+  }
+});
+
+test('invalid alphabet/length/case/encoded path and unknown prefix go home without writes', async () => {
+  for (const code of ['', 'a234', 'a23456', 'a23o5', 'a2315', 'a23l5', 'a23i5', 'A2345', 'b2345', 'a2345/', '%612345', 'a2345%2Fbad']) {
+    const response = await request(`/p/${code}`);
+    assert.equal(response.status, 302, code);
+    assert.equal(response.headers.get('Location'), '/', code);
+  }
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 0);
+});
+
+test('all specified scanners and generic bot patterns are classified, never storing UA/IP', async () => {
+  const bots = ['facebookexternalhit/1.1', 'WhatsApp/2.0', 'TelegramBot', 'Slackbot-LinkExpanding', 'Twitterbot/1.0',
+    'SkypeUriPreview', 'Googlebot', 'bingbot', 'Google-PageRenderer', 'customBoT', 'customCrawler', 'spider', 'PREVIEW'];
+  for (const ua of bots) {
+    assert.equal((await request('/p/a2345', { headers: { 'User-Agent': ua, 'CF-Connecting-IP': '192.0.2.1' } })).status, 302);
+  }
+  await post('a2345', 'view', 'application/json', { 'User-Agent': 'WhatsApp/2.0' });
+  const rows = (await db.prepare('SELECT * FROM events').all()).results;
+  assert.equal(rows.length, bots.length + 1);
+  assert.ok(rows.every((row) => row.ua_class === 'bot'));
+  const columns = (await db.prepare('PRAGMA table_info(events)').all()).results.map((row) => row.name);
+  assert.deepEqual(columns, ['id', 'code', 'type', 'at', 'ua_class']);
+});
+
+test('all six types work with sendBeacon JSON Blob and plain-text string bodies', async () => {
+  const types = ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut'];
+  for (const type of types) {
+    const response = await post('a2345', type, 'text/plain;charset=UTF-8');
+    assert.equal(response.status, 204);
+    assert.equal(await response.text(), '');
+  }
+  assert.equal((await post('a2345', 'view', 'application/json;charset=utf-8')).status, 204);
+  assert.equal((await request('/t/e', { method: 'POST', body: new Blob([JSON.stringify({ code: 'a2345', type: 'pdf' })], { type: 'application/json' }) })).status, 204);
+  // No content type (byte-array body), also compatible with native beacon transports.
+  assert.equal((await request('/t/e', { method: 'POST', body: new TextEncoder().encode('{"code":"a2345","type":"view"}') })).status, 204);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 9);
+});
+
+test('invalid event JSON/code/type and oversized bodies have no event or rate-limit writes', async () => {
+  for (const value of [null, [], 'text', 1, {}, { code: 'b2345', type: 'view' }, { code: 'a23o5', type: 'view' },
+    { code: 'a2345', type: 'click' }, { code: 'a2345', type: 'VIEW' }, { code: 'a2345', type: 'not-real' }, { code: 12345, type: 'view' }]) {
+    const response = await request('/t/e', { method: 'POST', body: JSON.stringify(value) });
+    assert.equal(response.status, 400, JSON.stringify(value));
+  }
+  assert.equal((await request('/t/e', { method: 'POST', body: '{bad' })).status, 400);
+  assert.equal((await post('a2345', 'view', 'application/x-www-form-urlencoded')).status, 415);
+  assert.equal((await request('/t/e', { method: 'POST', body: ' '.repeat(1025) })).status, 413);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 0);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM rate_limits').first('n'), 0);
+});
+
+test('shared per-code fixed window is atomic across 80 simultaneous calls and two isolates', async () => {
+  // Two Worker isolates in one Miniflare use the same D1 identity.
+  await mf.dispose();
+  mf = new Miniflare(convertV4MiniflareOptions({ workers: ['first', 'second', 'next-minute'].map((name) => ({
+    name, modules: true, script: `Date.now = () => ${fixedNow + (name === 'next-minute' ? 60_000 : 0)};\n${script}`,
+    compatibilityDate: '2026-10-01', d1Databases: { DB: 'shared-database' }, bindings: { EVENTS_TOKEN: TOKEN },
+  })) }));
+  db = await mf.getD1Database('DB', 'first');
+  await db.batch(migration.split(';').map((s) => s.trim()).filter(Boolean).map((s) => db.prepare(s)));
+  const first = await mf.getWorker('first');
+  const second = await mf.getWorker('second');
+  const results = await Promise.all(Array.from({ length: 80 }, (_, index) => (index % 2 ? first : second).fetch('https://jarvisweb.lt/t/e', {
+    method: 'POST', body: JSON.stringify({ code: 'a2345', type: 'view' }),
+  })));
+  assert.equal(results.filter((r) => r.status === 204).length, 60);
+  assert.equal(results.filter((r) => r.status === 429).length, 20);
+  for (const response of results.filter((r) => r.status === 429)) {
+    assert.ok(Number(response.headers.get('Retry-After')) >= 1);
+    assert.ok(Number(response.headers.get('Retry-After')) <= 60);
+  }
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 60);
+  assert.equal((await first.fetch('https://jarvisweb.lt/t/e', { method: 'POST', body: '{"code":"a2346","type":"view"}' })).status, 204);
+  const nextMinute = await mf.getWorker('next-minute');
+  assert.equal((await nextMinute.fetch('https://jarvisweb.lt/t/e', { method: 'POST', body: '{"code":"a2345","type":"view"}' })).status, 204);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM rate_limits WHERE code = ?').bind('a2345').first('n'), 2);
+});
+
+test('pull auth denies absent/wrong/malformed tokens without leaking secrets', async () => {
+  for (const token of [null, '', 'Bearer wrong', `bearer ${TOKEN}`, TOKEN, `Bearer ${TOKEN}extra`]) {
+    const response = await pull({}, token);
+    assert.equal(response.status, 401, String(token));
+    assert.equal(response.headers.get('WWW-Authenticate'), 'Bearer');
+    assert.equal(response.headers.get('Cache-Control'), 'no-store');
+    assert.equal((await response.text()).includes(TOKEN), false);
+  }
+  assert.equal((await pull()).status, 200);
+});
+
+test('missing secret fails closed even with valid database', async () => {
+  const { runtime } = await createRuntime({ token: null });
+  try {
+    const response = await runtime.dispatchFetch(`https://jarvisweb.lt/t/events?since=${SINCE}`);
+    assert.equal(response.status, 503);
+  } finally { await runtime.dispose(); }
+});
+
+test('pull validates since, limit and cursor; ISO offsets normalize consistently', async () => {
+  assert.equal((await request('/t/events', { headers: { Authorization: `Bearer ${TOKEN}` } })).status, 400);
+  for (const since of ['bad', '2026-10-11', '2026-10-11T13:00:00', '2026-02-30T00:00:00Z', '2026-13-01T00:00:00Z']) {
+    assert.equal((await pull({ since })).status, 400, since);
+  }
+  for (const limit of ['0', '-1', '501', '1.5', '1e2', '01', '', '5000']) {
+    assert.equal((await pull({ limit })).status, 400, limit);
+  }
+  for (const cursor of ['', 'bad', '*', 'a'.repeat(513), Buffer.from('{}').toString('base64url')]) {
+    assert.equal((await pull({ cursor })).status, 400, cursor);
+  }
+  assert.equal((await pull({ since: '2026-10-11T16:00:00+03:00', limit: '1' })).status, 200);
+});
+
+test('500+ equal timestamps page without gaps/duplicates; boundary replay is safely deduplicated', async () => {
+  const at = new Date(fixedNow - 60_000).toISOString();
+  await seed(at, 503);
+  const params = { since: at, limit: '500' };
+  const first = await (await pull(params)).json();
+  assert.equal(first.events.length, 500);
+  assert.equal(first.has_more, true);
+  assert.ok(first.next_cursor);
+  const repeated = await (await pull(params)).json();
+  assert.deepEqual(repeated, first);
+  const second = await (await pull({ ...params, cursor: first.next_cursor })).json();
+  assert.equal(second.events.length, 3);
+  assert.equal(second.has_more, false);
+  assert.equal(second.next_cursor, null);
+  const ids = [...first.events, ...second.events].map((e) => e.id);
+  assert.equal(new Set(ids).size, 503);
+  assert.ok(ids.every((id, index) => id === String(index + 1)));
+  assert.ok(first.events.every((e) => e.at === at));
+  assert.equal((await pull({ ...params, since: SINCE, cursor: first.next_cursor })).status, 400);
+  const boundary = await (await pull({ since: at })).json();
+  assert.equal(boundary.events[0].id, '1');
+});
+
+test('IDs above JavaScript safe-integer range stay exact through paged pull', async () => {
+  const at = new Date(fixedNow - 60_000).toISOString();
+  for (const id of ['9007199254740993', '9007199254740994']) {
+    await db.prepare('INSERT INTO events(id,code,type,at,ua_class) VALUES (?, ?, ?, ?, ?)')
+      .bind(id, 'a2345', 'view', at, 'human').run();
+  }
+  const first = await (await pull({ since: at, limit: '1' })).json();
+  assert.equal(first.events[0].id, '9007199254740993');
+  const second = await (await pull({ since: at, limit: '1', cursor: first.next_cursor })).json();
+  assert.equal(second.events[0].id, '9007199254740994');
+  assert.equal(second.has_more, false);
+});
+
+test('snapshot cursor excludes concurrent arrivals; next inclusive poll recovers same-time new IDs', async () => {
+  const at = new Date(fixedNow - 30_000).toISOString();
+  await seed(at, 3);
+  const first = await (await pull({ since: at, limit: '2' })).json();
+  await seed(at, 1); // New ID at the same time as prior events.
+  const second = await (await pull({ since: at, limit: '2', cursor: first.next_cursor })).json();
+  assert.deepEqual(second.events.map((e) => e.id), ['3']);
+  assert.equal(second.has_more, false);
+  const next = await (await pull({ since: at })).json();
+  assert.deepEqual(next.events.map((e) => e.id), ['1', '2', '3', '4']);
+});
+
+test('events are oldest first by timestamp then numeric ID, even inserted out of order', async () => {
+  const newer = new Date(fixedNow - 1000).toISOString();
+  const older = new Date(fixedNow - 2000).toISOString();
+  await seed(newer);
+  await seed(older, 11);
+  const response = await (await pull({ since: older, limit: '20' })).json();
+  assert.deepEqual(response.events.map((e) => e.id), [...Array.from({ length: 11 }, (_, i) => String(i + 2)), '1']);
+  assert.deepEqual(Object.keys(response.events[0]).sort(), ['at', 'code', 'id', 'type', 'ua_class']);
+});
+
+test('request-time cleanup removes expired events and buckets, keeping unexpired data', async () => {
+  const old = new Date(fixedNow);
+  old.setUTCFullYear(old.getUTCFullYear() - 2);
+  await seed(old.toISOString());
+  await seed(new Date(fixedNow - 1000).toISOString());
+  await db.prepare('INSERT INTO rate_limits(code,window_start,requests) VALUES (?, ?, ?)').bind('a2345', fixedNow - 120_000, 1).run();
+  const response = await (await pull()).json();
+  assert.equal(response.events.length, 1);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 1);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM rate_limits').first('n'), 0);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM maintenance').first('n'), 1);
+});
+
+test('pull excludes expired events even when cleanup lease is held by another isolate', async () => {
+  await db.prepare("INSERT INTO maintenance(key,next_at) VALUES ('retention', ?)").bind(fixedNow + 3_600_000).run();
+  const old = new Date(fixedNow);
+  old.setUTCFullYear(old.getUTCFullYear() - 2);
+  await seed(old.toISOString());
+  await seed(new Date(fixedNow - 1000).toISOString());
+  assert.equal((await (await pull()).json()).events.length, 1);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 2);
+  assert.equal(retentionCutoff(new Date('2024-02-29T12:34:56.789Z')), '2023-02-28T12:34:56.789Z');
+  assert.equal(retentionCutoff(new Date('2026-10-11T12:34:56.789Z')), '2025-10-11T12:34:56.789Z');
+});
+
+test('twelve-month boundary is inclusive; data one millisecond older is deleted', async () => {
+  const cutoff = retentionCutoff(new Date(fixedNow));
+  await seed(new Date(new Date(cutoff).getTime() - 1).toISOString());
+  await seed(cutoff);
+  await seed(new Date(new Date(cutoff).getTime() + 1).toISOString());
+  const result = await (await pull()).json();
+  assert.deepEqual(result.events.map((e) => e.id), ['2', '3']);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 2);
+});
+
+test('D1 failure still redirects valid links; beacon and authenticated pull fail safely', async () => {
+  const { runtime } = await createRuntime({ schema: false });
+  try {
+    const redirect = await runtime.dispatchFetch('https://jarvisweb.lt/p/a2345', { redirect: 'manual' });
+    assert.equal(redirect.status, 302);
+    assert.equal(redirect.headers.get('Location'), '/arboristams?r=a2345');
+    const beacon = await runtime.dispatchFetch('https://jarvisweb.lt/t/e', { method: 'POST', body: '{"code":"a2345","type":"view"}' });
+    assert.equal(beacon.status, 503);
+    const pull = await runtime.dispatchFetch(`https://jarvisweb.lt/t/events?since=${SINCE}`, { headers: { Authorization: `Bearer ${TOKEN}` } });
+    assert.equal(pull.status, 503);
+  } finally { await runtime.dispose(); }
+});
+
+test('slow or synchronously broken storage cannot block the public redirect', async () => {
+  for (const database of [
+    { prepare() { throw new Error('offline'); } },
+    { prepare() { return { bind() { return { run() { return new Promise(() => {}); } }; } }; } },
+  ]) {
+    const ctx = { waitUntil() {} };
+    const response = await Promise.race([
+      worker.fetch(new Request('https://jarvisweb.lt/p/a2345'), { DB: database }, ctx),
+      new Promise((_, reject) => { const timer = setTimeout(() => reject(new Error('redirect blocked')), 1000); timer.unref(); }),
+    ]);
+    assert.equal(response.status, 302);
+    assert.equal(response.headers.get('Location'), '/arboristams?r=a2345');
+  }
+});
+
+test('methods/unknown routes fail clearly; D1 enforces event constraints and transaction rollback', async () => {
+  for (const [path, method, expected, allow] of [['/p/a2345', 'POST', 405, 'GET'], ['/t/e', 'GET', 405, 'POST'], ['/t/events', 'POST', 405, 'GET'], ['/t/other', 'GET', 404, null]]) {
+    const response = await request(path, { method });
+    assert.equal(response.status, expected);
+    assert.equal(response.headers.get('Allow'), allow);
+  }
+  await assert.rejects(db.prepare("INSERT INTO events(code,type,ua_class) VALUES ('a23o5','view','human')").run(), /CHECK/);
+  await assert.rejects(db.prepare("INSERT INTO events(code,type,ua_class) VALUES ('a2345','made_up','human')").run(), /CHECK/);
+  await assert.rejects(db.batch([
+    db.prepare("INSERT INTO rate_limits(code,window_start,requests) VALUES ('a2345',0,1)"),
+    db.prepare("INSERT INTO events(code,type,ua_class) VALUES ('a2345','view','invalid')"),
+  ]), /CHECK/);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM rate_limits').first('n'), 0);
+});

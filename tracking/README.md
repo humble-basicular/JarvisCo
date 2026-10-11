@@ -38,3 +38,30 @@ After `has_more:false`, start the next poll with `since` equal to the largest in
 Events expire after 12 calendar months in UTC (month-end clamps to the last day of the destination month). Request-time cleanup deletes expired events and expired rate-limit buckets, at most once per hour using a D1 lease. Pulls always exclude expired events even before deletion. No cron/scheduler is configured; physical deletion awaits the next handled request after expiry if the Worker is idle. Secrets, IPs, and full user agents are never logged or committed.
 
 Implementation, local checks, and deploy prerequisites will be documented below before handoff. No provisioning or deployment is performed by this child.
+
+## Local commands (run inside tracking)
+
+```sh
+export PATH=/opt/homebrew/bin:$PATH
+npm ci
+npm test
+npm run typecheck
+npm run migrate:local
+npm run dev
+npm run deploy:check
+```
+
+Keep `.dev.vars` local/ignored with a test `EVENTS_TOKEN` for `wrangler dev`. Tests use an ephemeral local D1, fake token, workerd HTTP requests and two isolates sharing a D1 for limiter concurrency. The test wrapper drains background writes for deterministic SQL assertions; a separate handler test checks that slow/failed storage cannot delay redirects. Tests do not contact the live site, send SMS, submit forms, provision resources, or make paid API calls. Dependencies and lockfile live only in `tracking/`; no root site dependency changes. Installed Wrangler 4.149.0 uses Miniflare `5.20261006.1-alpha`; the tests pin that same runtime and its supported v4 option converter.
+
+## Deployment prerequisites — parent only
+
+1. Ensure the Cloudflare account/zone has Workers and D1 on the free plan and that both apex/www DNS records are proxied; retain the Vercel origin. Authenticate Wrangler locally (do not write account tokens into the repo).
+2. Create a free D1 database named `jarvisweb-proof-events`; replace the all-zero placeholder `database_id` in `wrangler.toml` with its actual ID. No database exists from this implementation task.
+3. Apply `npx wrangler d1 migrations apply DB --remote` **before** enabling the routes. The migration creates only the new tracking schema; it does not touch CRM data. Review/backup any already-existing database before reuse.
+4. Set a fresh random `EVENTS_TOKEN` with `npx wrangler secret put EVENTS_TOKEN`; provide the same token privately to the separate CRM integration. Never log/commit the value. Configure CRM exactly as the inclusive-since/cursor contract above.
+5. After parent obtains the required preview approval, run `npx wrangler deploy` from `tracking/`. Four configured zone routes cover apex/www `/p/*` and `/t/*`; `workers.dev` and preview URLs are disabled. `npm run deploy:check` is bundle/config validation only, **not a deployment**.
+6. Verify a parent-approved synthetic code redirects and records human/bot clicks; post only synthetic tracking events and pull them with the secret. Check both hosts, beacon types, auth denial, and CRM ingestion. Do not submit a real inquiry or send SMS.
+
+`[observability].enabled=false`, no `console` calls and `send_metrics=false` keep application request logs and Wrangler telemetry disabled in this configuration. Cloudflare infrastructure may independently retain provider-level request metadata; this Worker stores only the schema documented above. Request-time cleanup avoids creating any persistent automation; if strict physical deletion during completely idle periods is later required, the parent must explicitly approve a built-in cron change before enabling it.
+
+For implementation reference: [D1 transactional batches](https://developers.cloudflare.com/d1/worker-api/d1-database/#batch), [Miniflare D1 access](https://developers.cloudflare.com/workers/testing/miniflare/storage/d1/). Live Cloudflare routes, live D1, Vercel interactions, site/CRM beacon integration and production retention have not been tested by this child.
