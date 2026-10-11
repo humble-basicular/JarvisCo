@@ -72,7 +72,7 @@ test('apex and www valid links redirect uncached and record human clicks', async
   for (const host of ['jarvisweb.lt', 'www.jarvisweb.lt']) {
     const response = await request('/p/a2345?ignored=x', { headers: { 'User-Agent': 'Mozilla/5.0 Android' } }, host);
     assert.equal(response.status, 302);
-    assert.equal(response.headers.get('Location'), '/arboristams?r=a2345');
+    assert.equal(response.headers.get('Location'), '/rezultatai?r=a2345');
     assert.equal(response.headers.get('Cache-Control'), 'no-store');
   }
   const rows = (await db.prepare('SELECT * FROM events ORDER BY id').all()).results;
@@ -294,7 +294,7 @@ test('D1 failure still redirects valid links; beacon and authenticated pull fail
   try {
     const redirect = await runtime.dispatchFetch('https://jarvisweb.lt/p/a2345', { redirect: 'manual' });
     assert.equal(redirect.status, 302);
-    assert.equal(redirect.headers.get('Location'), '/arboristams?r=a2345');
+    assert.equal(redirect.headers.get('Location'), '/rezultatai?r=a2345');
     const beacon = await runtime.dispatchFetch('https://jarvisweb.lt/t/e', { method: 'POST', body: '{"code":"a2345","type":"view"}' });
     assert.equal(beacon.status, 503);
     const pull = await runtime.dispatchFetch(`https://jarvisweb.lt/t/events?since=${SINCE}`, { headers: { Authorization: `Bearer ${TOKEN}` } });
@@ -313,7 +313,7 @@ test('slow or synchronously broken storage cannot block the public redirect', as
       new Promise((_, reject) => { const timer = setTimeout(() => reject(new Error('redirect blocked')), 1000); timer.unref(); }),
     ]);
     assert.equal(response.status, 302);
-    assert.equal(response.headers.get('Location'), '/arboristams?r=a2345');
+    assert.equal(response.headers.get('Location'), '/rezultatai?r=a2345');
   }
 });
 

@@ -19,7 +19,7 @@ interface Cursor {
   high: string;
 }
 
-const PREFIXES: Readonly<Record<string, string>> = { a: '/arboristams' };
+const PREFIXES: Readonly<Record<string, string>> = { a: '/rezultatai' };
 const CODE = /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/;
 const TYPES: readonly string[] = ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut'];
 const BOT = /facebookexternalhit|whatsapp|telegrambot|slackbot|twitterbot|skypeuripreview|googlebot|bingbot|google-pagerenderer|bot|crawler|spider|preview/i;
