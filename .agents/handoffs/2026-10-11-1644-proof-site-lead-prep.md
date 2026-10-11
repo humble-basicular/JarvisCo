@@ -1,5 +1,5 @@
 # Handoff: proof-site autonomous run awaiting implementation results
-From: codex · To: codex parent · Date: 2026-10-11T16:44+03:00
+From: codex · To: codex parent · Date: 2026-10-11T16:43:15+03:00
 ## Objective
 Execute docs/SPEC-2026-10-proof-site.md in JarvisCo. Parent T3 thread 73cbaea8-b082-4caf-aa85-98f730d63661. User autonomous instruction authorizes stage delegation and normal decisions/deployments; ask only for Computer Use/deletions/spending. All current-task Computer Use and backed-up legacy removal explicitly approved; Wrangler limited access separately approved and authorized by user.
 ## State
@@ -22,3 +22,7 @@ On each completion wake call task_status for its exact taskId, read commit and h
 Prepare Vercel preview then production using autonomous user authorization (latest user instruction only asks before GUI/deletion/spend supersedes spec preview-approval gate). Worker secret random token stored only private local Application Support/JarvisWeb file with mode0600 and wrangler secret stdin; give separate CRM owner its private file path, never token. Provision migration and secret before four precise routes. Check human/bot click, view, auth and paging live; synthetic code a2345 only. Verify production 199 EUR pages/assets; browser 360px, beacon cleanup, Lighthouse report, Android native sms/tel behavior remains real-phone check if no phone usage approved.
 ## Omitted context
 Spec and board contain full requirements. Original proof assets found in ~/Library/CloudStorage/GoogleDrive-jarvisworks.co@gmail.com/My Drive/Work - WebAgency/ArbCut rezultatu vaizdai/. Evidence review main Drive Personal Everything/research/arborist-outreach-2026-10-09/web3forms-proof-review.md confirms Aug7/Sep13 submissions, no Google attribution. Never use AI mockups.
+
+## Retained task IDs
+- Site: node:delegated-task:command%3Amcp%3A17f11b6c-ef09-4a83-bc2c-40f959b5fc94%3Adelegate-task%3Aproof-site-20261011-site-impl-r1
+- Worker: node:delegated-task:command%3Amcp%3A17f11b6c-ef09-4a83-bc2c-40f959b5fc94%3Adelegate-task%3Aproof-site-20261011-worker-impl-r1
