@@ -4,9 +4,9 @@ Integration branch: rebuild-2026-10 in main checkout. Baseline: fc660a724034bfce
 
 | Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance/status |
 |---|---|---|---|---|
-| Site rebuild | Claude Opus 5.5 high / rebuild-2026-10-site | spec + original evidence → Astro pages/beacons | src/**, public/**, root package*.json, astro.config.mjs, tsconfig.json | build/copy/JS/accessibility; active |
+| Site rebuild | Claude Opus 5.5 high / rebuild-2026-10-site | spec + original evidence → Astro pages/beacons | src/**, public/**, root package*.json, astro.config.mjs, tsconfig.json | build/copy/JS/accessibility; committed 4080e59, review active |
 | Tracking | Codex GPT-6.1-Sol high / rebuild-2026-10-worker | spec §4 → D1 Worker + tests | tracking/** | redirects/auth/bots/rate limits/retention/pagination; approved/merged 4315ec5; parent 19 tests/typecheck/dry-run pass |
-| Site review | Codex GPT-6.1-Sol high | site commit → review | read only + own handoff | ≤2 fix rounds; pending |
+| Site review | Codex GPT-6.1-Sol high | site commit → review | read only + own handoff | ≤2 fix rounds; active, pinned 4080e59, owns review-site worktree + handoff |
 | Worker review | Claude Sonnet 5.5 high | Worker commit → review | read only + own handoff | approved round 1, merged 4315ec5; 19 tests + independent paging fuzz |
 | Integration/verification/deploy | Codex parent GPT-6.1-Sol high | approved commits → preview/live receipts | coordination/integration only | focused checks and remote checks; pending |
 
@@ -19,3 +19,5 @@ GPT-6-Luna medium reviewed early Worker contract 22cd293 against CRM work in pro
 
 ## Deployment preparation update
 Remote D1 migration 0001_events.sql passed (6 commands). Production config and EVENTS_TOKEN JSON prepared privately under ~/Library/Application Support/JarvisWeb, mode0600; token never printed/committed. Worker routes not enabled yet. Parent page QA: 360px no overflow, zoom/Esc/focus return pass, empty/valid fake-fetch form pass; rebuilt original-capture PDF 3 pages rendered/read. Main frozen only while an integration reviewer is actively merging.
+
+Site review round 1: parent freezes main during reviewer rebase/approval/merge. Source branch 4080e59 is clean; original task runtime reports waiting_for_children although its implementation handoff declares done. Review owns no source edits. Documentation refresh: Claude Sonnet 5.5 low owns README.md + own handoff in documentation worktree; no merge until parent accepts.
