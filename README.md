@@ -13,7 +13,7 @@ Spec: [`docs/SPEC-2026-10-proof-site.md`](docs/SPEC-2026-10-proof-site.md). Trac
 | `/privatumo-politika`, `/taisykles` | `src/pages/*.astro` | Legal pages (privacy covers per-recipient link codes) |
 | `/404` | `src/pages/404.astro` | Not found |
 
-A new niche is one more entry in `niches` in `src/data/content.js`, not new components. The legacy `/atsiliepimas` review funnel was removed on purpose (review gating).
+A new niche needs three things, not one. (1) An entry in `niches` in `src/data/content.js`, with no new components. (2) A matching prefix in the Worker config (`prefixes` in `tracking/`) and in `TRACKING_PREFIXES` in `src/data/tracking.js`. (3) D1 schema changes in the Worker, if the schema needs them for the new prefix. The `content.js` entry alone does not enable tracking: links for that niche are rejected or redirected to `/` until (2) and (3) are done. The legacy `/atsiliepimas` review funnel was removed on purpose (review gating).
 
 ## Content
 
@@ -48,7 +48,9 @@ npm run check        # build + check:copy + check:js
 
 ## Local preview with tracking
 
-`npm run preview` serves only the static pages. Beacons post to `/t/e`, which exists only behind the Worker, so under plain `preview` they fail without a Worker (not tested whether the page tolerates that silently). To exercise the full flow run the Worker (`npm run dev` inside `tracking/`, see its README) and open `/arboristams?r=a2345`.
+`npm run preview` serves the static pages and is verified to work: the page renders and the tracked-link UI behaves, even though beacons fail. The static preview has no `/t/e` endpoint, because the Worker is not part of it, so beacon POSTs return errors there. This is expected and is not a page bug.
+
+The Worker in `tracking/` handles only the API routes (`/p/*`, `/t/*`). It does not serve the static landing page, so running it locally does not give a full tracked flow. To test the full flow, use the deployed site behind the Cloudflare routes (`jarvisweb.lt/p/<code>`), or a dev reverse proxy that routes `/t/*` to the Worker and everything else to the site. No such proxy is in this repo; do not create one for this check. The full tracked flow was tested on production.
 
 ## Testing rules
 
@@ -58,7 +60,7 @@ npm run check        # build + check:copy + check:js
 
 ## Deployment
 
-- Hosting: Vercel (free plan). Astro is detected automatically (build `astro build`, output `dist`), no adapter. Domain: `jarvisweb.lt` (DNS on Cloudflare). Production deploys only after Jarvis approves a preview URL.
+- Hosting: Vercel (free plan). Astro is detected automatically (build `astro build`, output `dist`), no adapter. Domain: `jarvisweb.lt` (DNS on Cloudflare). Production deploys only after code review and a verified preview (see Testing rules and Commands). Computer Use and file deletion are pre-approved for the current autonomous task; spending money still needs a user decision.
 - Analytics: Cloudflare Web Analytics (cookieless). Either set `PUBLIC_CF_ANALYTICS_TOKEN` in the build environment (Vercel project settings), or enable Cloudflare's automatic setup. With neither, no analytics script is emitted. The token is never committed.
 - Tracking Worker: Cloudflare Worker + D1 on routes `jarvisweb.lt/p/*`, `jarvisweb.lt/t/*` and the `www.` equivalents, deployed from `tracking/`. The repo's `tracking/wrangler.toml` holds a placeholder `database_id`; the real production Wrangler config and the `EVENTS_TOKEN` JSON are kept privately outside the repo (`~/Library/Application Support/JarvisWeb/`, mode 0600). Never copy them, or any token value, into the repo. Steps and verification: `tracking/README.md`.
 - Domain change: update `SITE_URL` in `astro.config.mjs` and `brand.url` in `src/data/content.js`.
