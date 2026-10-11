@@ -34,7 +34,7 @@ Jarvis rejected the preview home as too plain ("PDF proof thing"); wants the ful
 
 | Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance / status |
 |---|---|---|---|---|
-| M1 design + build | Claude Opus 5.5 high / rebuild-2026-10-main-site (worktree JarvisCo-worktrees/main-site) | spec v2 → `/` (results highlighted), `/rezultatai`, `/arboristams` 301, no niche pages, legal, 404 | src/** (incl. src/data/tracking.js), public/**, package*.json, astro.config.mjs, vercel.json | spec §5 checks + screenshots; ACTIVE since 21:50 (task jarvisweb-m1-build-r1), design concept approved by Jarvis |
+| M1 design + build | Claude Opus 5.5 high / rebuild-2026-10-main-site (worktree JarvisCo-worktrees/main-site) | spec v2 → `/` (results highlighted), `/rezultatai`, `/arboristams` 301, no niche pages, legal, 404 | src/** (incl. src/data/tracking.js), public/**, package*.json, astro.config.mjs, vercel.json | INTERRUPTED: task jarvisweb-m1-build-r1 failed on Claude rate limit; no pending child runs. Original dirty worktree preserved. Continuation in M1c below. |
 | M1b tracking target | Codex GPT-6.1-Sol medium / rebuild-2026-10-worker | prefix a → /rezultatai | tracking/** | DONE 219e2bd (Codex GPT-6.1-Sol medium); Claude parent reviewed 1-line diff, 19/19 tests rerun; merged to rebuild-2026-10; NOT deployed (deploy only after new site is in production) |
 | M2 review | Codex GPT-6.1-Sol high, read-only | M1 diff → findings | own handoff | ≤ 2 fix rounds |
 | M3 integrate + preview | Claude parent | approved M1 → Vercel preview + screenshots | integration only | Jarvis approves before prod |
@@ -42,3 +42,16 @@ Jarvis rejected the preview home as too plain ("PDF proof thing"); wants the ful
 Update 17:25: Jarvis dropped niche pages; SMS links land on one generic `/rezultatai`. CRM fallback template text `jarvisweb.lt/arboristams` keeps working via 301; changing it to `/rezultatai` needs Jarvis's template approval.
 
 21:45: design concept (palette, Bricolage Grotesque, hero, results bento, 199 € card, effects list) shown to Jarvis; M1 waits for his approval.
+
+## Astra continuation — 2026-10-11
+Lead: GPT-6-Astra xhigh. User enabled autonomous reassignment and asked whether Astra can continue while Claude is unavailable. Decision: continue approved design now, retain Claude visual/code review before final acceptance. No promise of equivalent visual quality without rendered inspection.
+Usage at takeover: Codex session 28%, weekly 34%; Claude session 100%, weekly 73%, session reset 2026-10-12 02:30 Europe/Vilnius. No Claude task launched while exhausted.
+
+| Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance / status |
+|---|---|---|---|---|
+| Recovery | Lead GPT-6-Astra xhigh / rebuild-2026-10-astra-main-site | failed Claude task + WIP → preserved checkpoint aa83ae4 | recovery checkpoint + parent coordination | COMPLETE: 84 source-path hashes/existence match; original Claude status unchanged; recovery patch/untracked backup in /private/tmp/jarvisweb-astra-recovery-2026-10-11 |
+| M1c completion | Codex GPT-6-Astra xhigh / rebuild-2026-10-astra-main-site in JarvisCo-worktrees/astra-main-site | approved concept + spec + aa83ae4 → complete main site/results/legal/error pages | src/**, public/**, package*.json, astro.config.mjs, vercel.json, tsconfig.json if needed; own handoff only | READY TO DELEGATE jarvisweb-m1-astra-continue-r1; npm run check, diff check, content/evidence, preserved tracking/form/phone contracts. No further deletions or browser work until lead resolves authorization. |
+| M2 cross-provider review | Claude Opus 5.5 high, after allowance reset | M1c diff + concept + verification receipts → findings | read only + own handoff | Pending; maximum two fix rounds. Consequential work is not accepted until opposite-provider review. |
+| M3 acceptance + preview | Lead GPT-6-Astra xhigh | implementation + review → checked preview | integration and coordination only | Pending: independently rerun checks; rendered widths 360/390/430/768/1024/1440, screenshots 390/1440, keyboard/reduced-motion, Lighthouse home ≥90/95 and results ≥95/95, CLS <0.05. Production and Worker deployment remain gated on approved preview. |
+
+Only the M1c agent writes site files this round. Original Claude main-site worktree remains untouched. Parent owns this board. Browser authorization will be resolved before browser operation; do not infer it from an older agent brief.
