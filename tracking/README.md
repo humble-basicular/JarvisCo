@@ -37,7 +37,7 @@ After `has_more:false`, start the next poll with `since` equal to the largest in
 
 Events expire after 12 calendar months in UTC (month-end clamps to the last day of the destination month). Request-time cleanup deletes expired events and expired rate-limit buckets, at most once per hour using a D1 lease. Pulls always exclude expired events even before deletion. No cron/scheduler is configured; physical deletion awaits the next handled request after expiry if the Worker is idle. Secrets, IPs, and full user agents are never logged or committed.
 
-Implementation, local checks, and deploy prerequisites will be documented below before handoff. No provisioning or deployment is performed by this child.
+Local commands and deployment prerequisites are documented below. No provisioning or deployment is performed by this child.
 
 ## Local commands (run inside tracking)
 
