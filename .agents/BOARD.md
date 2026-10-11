@@ -4,9 +4,9 @@ Integration branch: rebuild-2026-10 in main checkout. Baseline: fc660a724034bfce
 
 | Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance/status |
 |---|---|---|---|---|
-| Site rebuild | Claude Opus 5.5 high / rebuild-2026-10-site | spec + original evidence → Astro pages/beacons | src/**, public/**, root package*.json, astro.config.mjs, tsconfig.json | build/copy/JS/accessibility; committed 4080e59, review active |
+| Site rebuild | Claude Opus 5.5 high / rebuild-2026-10-site | spec + original evidence → Astro pages/beacons | src/**, public/**, root package*.json, astro.config.mjs, tsconfig.json | build/copy/JS/accessibility; approved/merged b273bec; footer48px fix active |
 | Tracking | Codex GPT-6.1-Sol high / rebuild-2026-10-worker | spec §4 → D1 Worker + tests | tracking/** | redirects/auth/bots/rate limits/retention/pagination; approved/merged 4315ec5; parent 19 tests/typecheck/dry-run pass |
-| Site review | Codex GPT-6.1-Sol high | site commit → review | read only + own handoff | ≤2 fix rounds; active, pinned 4080e59, owns review-site worktree + handoff |
+| Site review | Codex GPT-6.1-Sol high | site commit → review | read only + own handoff | round1 approved/merged b273bec; round2 only footer fix |
 | Worker review | Claude Sonnet 5.5 high | Worker commit → review | read only + own handoff | approved round 1, merged 4315ec5; 19 tests + independent paging fuzz |
 | Integration/verification/deploy | Codex parent GPT-6.1-Sol high | approved commits → preview/live receipts | coordination/integration only | focused checks and remote checks; pending |
 
@@ -20,4 +20,6 @@ GPT-6-Luna medium reviewed early Worker contract 22cd293 against CRM work in pro
 ## Deployment preparation update
 Remote D1 migration 0001_events.sql passed (6 commands). Production config and EVENTS_TOKEN JSON prepared privately under ~/Library/Application Support/JarvisWeb, mode0600; token never printed/committed. Worker routes not enabled yet. Parent page QA: 360px no overflow, zoom/Esc/focus return pass, empty/valid fake-fetch form pass; rebuilt original-capture PDF 3 pages rendered/read. Main frozen only while an integration reviewer is actively merging.
 
-Site review round 1: parent freezes main during reviewer rebase/approval/merge. Source branch 4080e59 is clean; original task runtime reports waiting_for_children although its implementation handoff declares done. Review owns no source edits. Documentation refresh: Claude Sonnet 5.5 low owns README.md + own handoff in documentation worktree; no merge until parent accepts.
+Site review round 1 completed; main unfrozen. Source branch 4080e59 is clean; original task runtime reports waiting_for_children although its implementation handoff declares done. Review owns no source edits. Documentation refresh: Sonnet 5.5 low + Haiku 5.5 low corrections accepted/cherry-picked through1b0c3c5. Parent now owns README final release wording and coordination.
+
+Parent preflight: independent local Lighthouse all100,LCP784ms,CLS0. CFWebAnalytics automatic injection switched from excludeEU to enable, persisted afterreload and script verified onwww. ProductionWrangler dryrun passes9.85KiB/gzip3.63 afterremoving config-location tsconfig override (compiler discovers source tsconfig); noWorker routes enabled. Rollback previousVercel dpl_3mb1Y1Sic2js48HF1KPvshnvQkoY (jarvis-ddag2echm-jarvisworkscos-projects.vercel.app); if coreflowfails, rollbackVercel and remove ONLYfournewWorker routes, keepD1data. FooterstageownsFooter.astro + ownhandoff branchrebuild-2026-10-footer; no packagechanges.
