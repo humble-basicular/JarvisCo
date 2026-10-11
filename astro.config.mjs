@@ -11,6 +11,8 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: (page) => !/\/(privatumo-politika|taisykles|404)\/?$/.test(page),
+      // Match the canonical URLs (no trailing slash except the root).
+      serialize: (item) => ({ ...item, url: item.url === `${SITE_URL}/` ? item.url : item.url.replace(/\/$/, '') }),
     }),
   ],
   build: { inlineStylesheets: 'always' },
