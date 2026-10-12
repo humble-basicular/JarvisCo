@@ -93,3 +93,11 @@ User selected option 2: "ig use 2". Editorial JarvisCo wordmark is approved for 
 | Final acceptance | Parent GPT-6-Astra, short changed-file review | final Claude delta → cross-provider review and focused checks | Board/integration/handoff only | Pending; preview approval remains required before production |
 
 Usage checked: Codex session83%/weekly58%; Claude session23%/weekly2%. Claude handles implementation to conserve Codex allowance. Parallel logo stage creates only its newly allocated asset directory; no shared-file edits.
+
+## Production authorization — latest user instruction, 2026-10-12
+User: "finish this site no matter what withing the usage limit, also launch it on the live domain. To prod. Use mostly claude codex is almost gone of usage".
+This explicitly authorizes production deployment and supersedes ALL earlier requirements to wait for user preview acceptance. Do not ask again for production approval. Browser QA is already approved. No permission to spend money, delete data, or submit real customer forms/messages.
+
+Release plan: (1) existing Claude Opus5.5high finish and editorial-asset tasks complete their disjoint owned files; (2) new Claude Opus5.5high round integrates both commits, selected logo, current OG graphics and QA in its own worktree; (3) parent performs bounded cross-provider changed-file review and independent focused checks; (4) Claude Sonnet5.5medium or Opus5.5high deploys the accepted site to the EXISTING Vercel project/live domains, then deploys approved Worker target219e2bd only after /rezultatai works live, verifies routes/assets/tracking auth, and records release/rollback receipts. All stages preserve existing forms, phone and tracking interfaces. No DNS/project migration or paid services needed. No repeat full audits of unchanged code.
+
+Allowance at authorization: Codex session89%/weekly59%; Claude session23%/weekly2%. Keep parent brief; Claude owns implementation, browser QA, integration preparation and deployment. Final report requires actual deployment ID/URL, live HTTP checks, build/QA results and exact unverified items; never call queued work live.
