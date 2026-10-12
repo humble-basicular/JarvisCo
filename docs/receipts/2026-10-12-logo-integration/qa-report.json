@@ -1,0 +1,1269 @@
+{
+ "overflow": [
+  {
+   "path": "/",
+   "w": 360,
+   "ok": true,
+   "sw": 360
+  },
+  {
+   "path": "/",
+   "w": 390,
+   "ok": true,
+   "sw": 390
+  },
+  {
+   "path": "/",
+   "w": 430,
+   "ok": true,
+   "sw": 430
+  },
+  {
+   "path": "/",
+   "w": 768,
+   "ok": true,
+   "sw": 768
+  },
+  {
+   "path": "/",
+   "w": 1024,
+   "ok": true,
+   "sw": 1024
+  },
+  {
+   "path": "/",
+   "w": 1440,
+   "ok": true,
+   "sw": 1440
+  },
+  {
+   "path": "/rezultatai",
+   "w": 360,
+   "ok": true,
+   "sw": 360
+  },
+  {
+   "path": "/rezultatai",
+   "w": 390,
+   "ok": true,
+   "sw": 390
+  },
+  {
+   "path": "/rezultatai",
+   "w": 430,
+   "ok": true,
+   "sw": 430
+  },
+  {
+   "path": "/rezultatai",
+   "w": 768,
+   "ok": true,
+   "sw": 768
+  },
+  {
+   "path": "/rezultatai",
+   "w": 1024,
+   "ok": true,
+   "sw": 1024
+  },
+  {
+   "path": "/rezultatai",
+   "w": 1440,
+   "ok": true,
+   "sw": 1440
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 360,
+   "ok": true,
+   "sw": 360
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 390,
+   "ok": true,
+   "sw": 390
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 430,
+   "ok": true,
+   "sw": 430
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 768,
+   "ok": true,
+   "sw": 768
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 1024,
+   "ok": true,
+   "sw": 1024
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 1440,
+   "ok": true,
+   "sw": 1440
+  },
+  {
+   "path": "/taisykles",
+   "w": 360,
+   "ok": true,
+   "sw": 360
+  },
+  {
+   "path": "/taisykles",
+   "w": 390,
+   "ok": true,
+   "sw": 390
+  },
+  {
+   "path": "/taisykles",
+   "w": 430,
+   "ok": true,
+   "sw": 430
+  },
+  {
+   "path": "/taisykles",
+   "w": 768,
+   "ok": true,
+   "sw": 768
+  },
+  {
+   "path": "/taisykles",
+   "w": 1024,
+   "ok": true,
+   "sw": 1024
+  },
+  {
+   "path": "/taisykles",
+   "w": 1440,
+   "ok": true,
+   "sw": 1440
+  },
+  {
+   "path": "/404",
+   "w": 360,
+   "ok": true,
+   "sw": 360
+  },
+  {
+   "path": "/404",
+   "w": 390,
+   "ok": true,
+   "sw": 390
+  },
+  {
+   "path": "/404",
+   "w": 430,
+   "ok": true,
+   "sw": 430
+  },
+  {
+   "path": "/404",
+   "w": 768,
+   "ok": true,
+   "sw": 768
+  },
+  {
+   "path": "/404",
+   "w": 1024,
+   "ok": true,
+   "sw": 1024
+  },
+  {
+   "path": "/404",
+   "w": 1440,
+   "ok": true,
+   "sw": 1440
+  }
+ ],
+ "header": [],
+ "keyboard": [
+  {
+   "path": "/",
+   "menu": {
+    "reachedBurger": true,
+    "opened": true,
+    "closed": true,
+    "focusBack": true
+   },
+   "faq": true,
+   "zoom": {
+    "opened": true,
+    "closed": true,
+    "focusBack": true
+   }
+  },
+  {
+   "path": "/rezultatai",
+   "menu": {
+    "reachedBurger": true,
+    "opened": true,
+    "closed": true,
+    "focusBack": true
+   },
+   "faq": true,
+   "zoom": {
+    "opened": true,
+    "closed": true,
+    "focusBack": true
+   }
+  }
+ ],
+ "logo": [
+  {
+   "path": "/",
+   "w": 360,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 324,
+     "h": 73.1,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 90
+  },
+  {
+   "path": "/",
+   "w": 390,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 354,
+     "h": 79.9,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 120
+  },
+  {
+   "path": "/",
+   "w": 430,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 391.3,
+     "h": 88.3,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 157.3
+  },
+  {
+   "path": "/",
+   "w": 768,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 698.9,
+     "h": 157.8,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 464.9
+  },
+  {
+   "path": "/",
+   "w": 1024,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 944,
+     "h": 213.1,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 646.2
+  },
+  {
+   "path": "/",
+   "w": 1440,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 1200,
+     "h": 270.9,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 902.2
+  },
+  {
+   "path": "/rezultatai",
+   "w": 360,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 324,
+     "h": 73.1,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 90
+  },
+  {
+   "path": "/rezultatai",
+   "w": 390,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 354,
+     "h": 79.9,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 120
+  },
+  {
+   "path": "/rezultatai",
+   "w": 430,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 391.3,
+     "h": 88.3,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 157.3
+  },
+  {
+   "path": "/rezultatai",
+   "w": 768,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 698.9,
+     "h": 157.8,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 464.9
+  },
+  {
+   "path": "/rezultatai",
+   "w": 1024,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 944,
+     "h": 213.1,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 646.2
+  },
+  {
+   "path": "/rezultatai",
+   "w": 1440,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 1200,
+     "h": 270.9,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 902.2
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 360,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 324,
+     "h": 73.1,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 90
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 390,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 354,
+     "h": 79.9,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 120
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 430,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": false,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 391.3,
+     "h": 88.3,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 157.3
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 768,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 698.9,
+     "h": 157.8,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 464.9
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 1024,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 944,
+     "h": 213.1,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 646.2
+  },
+  {
+   "path": "/privatumo-politika",
+   "w": 1440,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 1200,
+     "h": 270.9,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 902.2
+  },
+  {
+   "path": "/taisykles",
+   "w": 360,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 324,
+     "h": 73.1,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 90
+  },
+  {
+   "path": "/taisykles",
+   "w": 390,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 354,
+     "h": 79.9,
+     "loaded": false,
+     "visible": true
+    }
+   ],
+   "gapToControl": 120
+  },
+  {
+   "path": "/taisykles",
+   "w": 430,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 391.3,
+     "h": 88.3,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 157.3
+  },
+  {
+   "path": "/taisykles",
+   "w": 768,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 698.9,
+     "h": 157.8,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 464.9
+  },
+  {
+   "path": "/taisykles",
+   "w": 1024,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 944,
+     "h": 213.1,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 646.2
+  },
+  {
+   "path": "/taisykles",
+   "w": 1440,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 1200,
+     "h": 270.9,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 902.2
+  },
+  {
+   "path": "/404",
+   "w": 360,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 324,
+     "h": 73.1,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 90
+  },
+  {
+   "path": "/404",
+   "w": 390,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 354,
+     "h": 79.9,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 120
+  },
+  {
+   "path": "/404",
+   "w": 430,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 391.3,
+     "h": 88.3,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 157.3
+  },
+  {
+   "path": "/404",
+   "w": 768,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 698.9,
+     "h": 157.8,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 464.9
+  },
+  {
+   "path": "/404",
+   "w": 1024,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 944,
+     "h": 213.1,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 646.2
+  },
+  {
+   "path": "/404",
+   "w": 1440,
+   "imgs": [
+    {
+     "cls": "logo",
+     "w": 160,
+     "h": 36.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "logo",
+     "w": 0,
+     "h": 0,
+     "loaded": true,
+     "visible": false
+    },
+    {
+     "cls": "ftr__logo",
+     "w": 200,
+     "h": 45.1,
+     "loaded": true,
+     "visible": true
+    },
+    {
+     "cls": "ftr__mark",
+     "w": 1200,
+     "h": 270.9,
+     "loaded": true,
+     "visible": true
+    }
+   ],
+   "gapToControl": 902.2
+  }
+ ]
+}

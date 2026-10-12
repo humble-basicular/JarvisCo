@@ -1,13 +1,18 @@
 ---
 import { brand, footer } from '@data/content.js';
 const year = new Date().getFullYear();
+// Editorial wordmark, dark variant (the footer is always on ink).
+const LOGO = '/brand/editorial/jarvisco-wordmark-dark.svg';
+// Keep short phrases on one line ("199 € | vieną kartą" split at narrow widths).
+const nb = (text: string) => text.replaceAll(' ', '\u00a0');
+const blurb = footer.blurb.replace('199 € vieną kartą', nb('199 € vieną kartą'));
 ---
 <footer class="ftr t-dark">
   <div class="wrap">
     <div class="ftr__grid">
       <div class="ftr__brand">
-        <a class="ftr__logo" href="/">Jarvis<span>Co</span></a>
-        <p>{footer.blurb}</p>
+        <a class="ftr__logo" href="/"><img src={LOGO} width="200" height="45" alt={brand.name} loading="lazy" decoding="async" /></a>
+        <p>{blurb}</p>
       </div>
       <div class="ftr__contacts">
         <h2 class="ftr__h">{footer.contactsTitle}</h2>
@@ -35,22 +40,10 @@ const year = new Date().getFullYear();
       </div>
     </div>
 
-    <svg class="ftr__mark" viewBox="0 0 1000 214" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="ftr-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#eef5f0" stop-opacity="0.95" />
-          <stop offset="1" stop-color="#eef5f0" stop-opacity="0.08" />
-        </linearGradient>
-        <linearGradient id="ftr-grad-co" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#c8f560" />
-          <stop offset="1" stop-color="#1fbf75" stop-opacity="0.15" />
-        </linearGradient>
-      </defs>
-      <text x="2" y="178" textLength="986" lengthAdjust="spacingAndGlyphs"><tspan fill="url(#ftr-grad)">Jarvis</tspan><tspan fill="url(#ftr-grad-co)">Co</tspan></text>
-    </svg>
+    <img class="ftr__mark" src={LOGO} width="1010" height="228" alt="" loading="lazy" decoding="async" />
 
     <div class="ftr__base">
-      <p>© {year} {brand.owner}{'\u00a0'}· {brand.status}{'\u00a0'}· {brand.city}</p>
+      <p>© {year} {brand.owner}{'\u00a0'}· {nb(brand.status)}{'\u00a0'}· {brand.city}</p>
       <p>jarvisweb.lt</p>
     </div>
   </div>
@@ -75,8 +68,8 @@ const year = new Date().getFullYear();
   .ftr__grid { display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; }
   .ftr__brand, .ftr__contacts { grid-column: 1 / -1; }
   .ftr__brand { max-width: 26rem; }
-  .ftr__logo { font: 800 1.75rem/1 var(--font-d); letter-spacing: -0.04em; color: #fff; text-decoration: none; display: inline-flex; min-height: 3rem; align-items: center; }
-  .ftr__logo span { color: var(--lime); }
+  .ftr__logo { display: inline-flex; min-height: 3rem; align-items: center; border-radius: 0.5rem; }
+  .ftr__logo img { display: block; width: 12.5rem; height: auto; aspect-ratio: 1010 / 228; }
   .ftr__brand p { color: var(--mute-dark); margin: 0.5rem 0 0; }
   .ftr__h { font: 600 0.8125rem/1.2 var(--font-b); letter-spacing: 0.14em; text-transform: uppercase; color: var(--lime); margin-bottom: 0.5rem; }
   .ftr ul { list-style: none; }
@@ -89,7 +82,16 @@ const year = new Date().getFullYear();
     overflow-wrap: anywhere;
   }
   .ftr li a:hover { color: #fff; text-decoration: underline; }
-  .ftr__mark { width: 100%; margin: clamp(2.5rem, 7vw, 5rem) 0 0; font: 800 200px/1 var(--font-d); letter-spacing: -0.05em; }
+  /* Giant wordmark fading into the footer base, as the old text mark did. */
+  .ftr__mark {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1010 / 228;
+    margin: clamp(2.5rem, 7vw, 5rem) 0 clamp(1rem, 2.5vw, 1.75rem);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.1) 100%);
+    mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.1) 100%);
+  }
   .ftr__base {
     display: flex;
     flex-wrap: wrap;

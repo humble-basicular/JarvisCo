@@ -5,11 +5,14 @@ import { brand, cta, nav as navText, utility } from '@data/content.js';
 
 interface Props { nav: { label: string; href: string }[] }
 const { nav } = Astro.props;
+// Editorial wordmark (dark variant: header and sheet are always on ink).
+// 1010 × 228 viewBox → 160 × 36; README: never narrower than 120 px.
+const LOGO = '/brand/editorial/jarvisco-wordmark-dark.svg';
 const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
 ---
 <header class="hdr" data-header>
   <div class="hdr__bar glass">
-    <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}>Jarvis<span>Co</span></a>
+    <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}><img src={LOGO} width="160" height="36" alt="" /></a>
     <nav class="hdr__nav" aria-label={utility.mainNav}>
       <ul>
         {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
@@ -24,8 +27,8 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
 
   <dialog class="sheet t-dark" id="menu-sheet" aria-label={navText.menuLabel} data-menu>
     <div class="sheet__top">
-      <a class="logo" href="/">Jarvis<span>Co</span></a>
-      <button class="sheet__close" type="button" data-menu-close>
+      <a class="logo" href="/"><img src={LOGO} width="160" height="36" alt={brand.name} /></a>
+      <button class="sheet__close" type="button" data-menu-close autofocus>
         <span class="visually-hidden">{navText.closeLabel}</span>
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
@@ -97,16 +100,14 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
   .hdr.is-scrolled .hdr__bar { background: rgba(6, 17, 12, 0.82); box-shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.9); }
 
   .logo {
-    font: 800 1.375rem/1 var(--font-d);
-    letter-spacing: -0.04em;
-    color: #fff;
-    text-decoration: none;
     margin-right: auto;
     display: inline-flex;
     align-items: center;
+    flex: none;
     min-height: 3rem;
+    border-radius: 0.5rem;
   }
-  .logo span { color: var(--lime); }
+  .logo img { display: block; width: 10rem; height: auto; aspect-ratio: 1010 / 228; }
 
   .hdr__nav { display: none; }
   .hdr__nav ul { display: flex; list-style: none; gap: 0.125rem; }

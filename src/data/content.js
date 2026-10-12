@@ -344,7 +344,7 @@ export const home = {
 
 export const resultsPage = {
   meta: {
-    ogImage: '/assets/og.png',
+    ogImage: '/assets/og-rezultatai.png',
     title: '20 užklausų per 2 mėnesius – rezultatai ir kaina | jarvisweb.lt',
     description:
       'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Originalios ekrano kopijos, kaina 199 € vieną kartą, be mėnesinių mokesčių.',
