@@ -50,10 +50,20 @@ Usage at takeover: Codex session 28%, weekly 34%; Claude session 100%, weekly 73
 | Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance / status |
 |---|---|---|---|---|
 | Recovery | Lead GPT-6-Astra xhigh / rebuild-2026-10-astra-main-site | failed Claude task + WIP → preserved checkpoint aa83ae4 | recovery checkpoint + parent coordination | COMPLETE: 84 source-path hashes/existence match; original Claude status unchanged; recovery patch/untracked backup in /private/tmp/jarvisweb-astra-recovery-2026-10-11 |
-| M1c completion | Codex GPT-6-Astra xhigh / rebuild-2026-10-astra-main-site in JarvisCo-worktrees/astra-main-site | approved concept + spec + aa83ae4 → complete main site/results/legal/error pages | src/**, public/**, package*.json, astro.config.mjs, vercel.json, tsconfig.json if needed; own handoff only | RUNNING jarvisweb-m1-astra-continue-r1; npm run check, diff check, content/evidence, preserved tracking/form/phone contracts. No further deletions or browser work until lead resolves authorization. |
+| M1c completion | Codex GPT-6-Astra xhigh / rebuild-2026-10-astra-main-site in JarvisCo-worktrees/astra-main-site | approved concept + spec + aa83ae4 → complete main site/results/legal/error pages | src/**, public/**, package*.json, astro.config.mjs, vercel.json, tsconfig.json if needed; own handoff only | IMPLEMENTED a978d49; task ended on usage limit after commit (no pending child runs). Parent verification and review active; npm run check, diff check, content/evidence, preserved tracking/form/phone contracts. No further deletions or browser work until lead resolves authorization. |
 | M2 cross-provider review | Claude Opus 5.5 high, after allowance reset | M1c diff + concept + verification receipts → findings | read only + own handoff | Pending; maximum two fix rounds. Consequential work is not accepted until opposite-provider review. |
 | M3 acceptance + preview | Lead GPT-6-Astra xhigh | implementation + review → checked preview | integration and coordination only | Pending: independently rerun checks; rendered widths 360/390/430/768/1024/1440, screenshots 390/1440, keyboard/reduced-motion, Lighthouse home ≥90/95 and results ≥95/95, CLS <0.05. Production and Worker deployment remain gated on approved preview. |
 
 Only the M1c agent writes site files this round. Original Claude main-site worktree remains untouched. Parent owns this board. Browser authorization will be resolved before browser operation; do not infer it from an older agent brief.
 
 M1c task receipt: node:delegated-task:command%3Amcp%3Aa3f6a21e-afab-4d2d-b421-31c6565c8957%3Adelegate-task%3Ajarvisweb-m1-astra-continue-r1; child thread thread:delegated-task:command%3Amcp%3Aa3f6a21e-afab-4d2d-b421-31c6565c8957%3Adelegate-task%3Ajarvisweb-m1-astra-continue-r1; delegate_task returned running, provider codex, model gpt-6-astra (xhigh, standard tier).
+
+## Finish and acceptance — 2026-10-12
+Both providers reset: Codex session 0% / weekly 45%; Claude session 0% / weekly 0% at 05:06 UTC.
+
+| Stage | Owner / model / branch | Inputs → outputs | Owned files | Acceptance/status |
+|---|---|---|---|---|
+| M2 source review round 1 | Claude Opus 5.5 high / rebuild-2026-10-main-review-r1 (main-review-r1 worktree) | integration 94a92d5...a978d49 + approved concept/spec → actionable findings | read-only source; own handoff only | Active, jarvisweb-main-review-20261012-r1. Review correctness, tracking/form lifecycle, content provenance, accessibility/performance risks; no browser until approved, no source mutation/merge. |
+| Parent verification | Codex GPT-6-Astra xhigh | a978d49 → independent build/copy/JS/static receipts | board/handoffs and temporary receipts only | Active; browser approval requested in current user turn. |
+| Fix rounds | Implementation owner assigned after findings | review/QA defects → corrected commit | src/**, public/**, package*.json, astro.config.mjs, vercel.json (one owner per round) | Pending, max two rounds; no new file deletion without approval. |
+| Final QA/integration/preview | Parent GPT-6-Astra xhigh + Claude cross-provider approval | corrected commit → complete preview | integration/coordination only | Build/copy/JS/static, viewport fit, screenshots, keyboard/reduced motion, Lighthouse and hosted redirect required; production waits for preview approval. |
