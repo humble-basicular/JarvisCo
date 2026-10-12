@@ -28,7 +28,7 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
   <dialog class="sheet t-dark" id="menu-sheet" aria-label={navText.menuLabel} data-menu>
     <div class="sheet__top">
       <a class="logo" href="/"><img src={LOGO} width="160" height="36" alt={brand.name} /></a>
-      <button class="sheet__close" type="button" data-menu-close>
+      <button class="sheet__close" type="button" data-menu-close autofocus>
         <span class="visually-hidden">{navText.closeLabel}</span>
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>

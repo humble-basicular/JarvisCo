@@ -3,13 +3,16 @@ import { brand, footer } from '@data/content.js';
 const year = new Date().getFullYear();
 // Editorial wordmark, dark variant (the footer is always on ink).
 const LOGO = '/brand/editorial/jarvisco-wordmark-dark.svg';
+// Keep short phrases on one line ("199 € | vieną kartą" split at narrow widths).
+const nb = (text: string) => text.replaceAll(' ', '\u00a0');
+const blurb = footer.blurb.replace('199 € vieną kartą', nb('199 € vieną kartą'));
 ---
 <footer class="ftr t-dark">
   <div class="wrap">
     <div class="ftr__grid">
       <div class="ftr__brand">
         <a class="ftr__logo" href="/"><img src={LOGO} width="200" height="45" alt={brand.name} loading="lazy" decoding="async" /></a>
-        <p>{footer.blurb}</p>
+        <p>{blurb}</p>
       </div>
       <div class="ftr__contacts">
         <h2 class="ftr__h">{footer.contactsTitle}</h2>
@@ -40,7 +43,7 @@ const LOGO = '/brand/editorial/jarvisco-wordmark-dark.svg';
     <img class="ftr__mark" src={LOGO} width="1010" height="228" alt="" loading="lazy" decoding="async" />
 
     <div class="ftr__base">
-      <p>© {year} {brand.owner}{'\u00a0'}· {brand.status}{'\u00a0'}· {brand.city}</p>
+      <p>© {year} {brand.owner}{'\u00a0'}· {nb(brand.status)}{'\u00a0'}· {brand.city}</p>
       <p>jarvisweb.lt</p>
     </div>
   </div>
