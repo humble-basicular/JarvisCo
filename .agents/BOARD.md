@@ -108,3 +108,10 @@ Codex session 100% until 13:06; Claude session 45%. Logo branch was based on pre
 |---|---|---|
 | Logo + OG integration + final QA | Claude Opus 5.5 high / rebuild-2026-10-claude-finish | ACTIVE jarvisweb-logo-integration-20261012-r1 |
 | Release | Claude parent | after integration: parent diff review + checks → `npx vercel deploy --prod` (project jarvis-co, CLI auth verified as jarvisworksco) → live checks → Worker 219e2bd deploy (wrangler auth verified) → live /p/ check. Rollback: Vercel dpl_3mb1Y1Sic2js48HF1KPvshnvQkoY; Worker previous version 4b9d1c4b |
+
+## RELEASED — 2026-10-12 09:00 (Claude parent)
+- Site: merged 22ca4d8 (logo/OG/QA, Claude Opus 5.5 high) → parent hotfixes 958ccfb/311964b/7c3fc13/cdfb9b6 (live font CLS 0.28 → fixed; header logo inlined, was mobile LCP). Production Vercel dpl_Hmg98QXxx28oVLuvYcL91iLjDn27 aliased www.jarvisweb.lt + jarvisweb.lt.
+- Worker: 219e2bd deployed with private config ~/Library/Application Support/JarvisWeb/wrangler-production.toml (repo wrangler.toml has placeholder DB id and fails safely). Version 22c5cc03-ff4a-4826-965d-52526da37f90.
+- Live checks: / 200, /rezultatai 200, /arboristams?r=a2345 301 → /rezultatai?r=a2345, apex 307 → www, 404 page, og.png + favicon 200, /p/a2345 302 → /rezultatai?r=a2345 (apex+www), malformed /p → /, /t/events no token 401. Lighthouse mobile live (2 runs): / 94,93 / A100 / BP100 / SEO100, CLS 0–0.029; /rezultatai 96,92 / 100 / 100 / 100, CLS 0. Live screenshots 1440/390: Bricolage loaded, scrollWidth = viewport.
+- Not done: Codex cross-provider review of parent hotfixes (Codex session limit until 13:06); social OG debugger; real phone sms:/tel: tap; CRM fallback template text still `jarvisweb.lt/arboristams` (works via 301; change needs Jarvis's template approval). Live checks added synthetic a2345 click rows in D1.
+- Rollback: Vercel promote dpl_3mb1Y1Sic2js48HF1KPvshnvQkoY (old site) or previous new-site deploys; Worker rollback to 4b9d1c4b.
