@@ -14,10 +14,6 @@ edited. Astro converts to WebP at build time.
 | web3forms-rugsejis-card.png | same | crop 820×600+2140+1142 ("September 2026 · Submissions 13") |
 | search-console-full.jpg | 12-google-search-console-original.jpg (1840×640) | none (re-encode) |
 | search-console-card.jpg | same | crop 740×235+0+0 (Total clicks 573, Total impressions 11.4K) |
-| google-jonava-full.jpg | 13-google-jonava-original.jpg (1530×1545) | none (re-encode) |
-| google-jonava-card.jpg | same | crop 690×470+100+575 (arbcut.lt result + DI apžvalga) |
-| google-kaunas-full.jpg | 14-google-kaunas-original.jpg (5006×8021, mostly empty page) | crop 770×3560+230+0 (results column from query to arbcut.lt result) |
-| google-kaunas-card.jpg | same | crop 700×170+260+3385 (arbcut.lt result) |
 
 Dates: "Ekrano kopija išsaugota 2026-10-09" = `kMDItemContentCreationDate` of the source files
 (2026-10-09 13:28–13:32 UTC). The Web3Forms review (`Personal Everything/research/
@@ -28,5 +24,16 @@ research notes and matches the chart axis.
 Figure sources: 7 + 13 = 20 (tooltips), 573 clicks and "11.4K" impressions (Search Console
 tiles). The exact 11 362 is not visible in the screenshot, so the site shows "11,4 tūkst.".
 
-`public/assets/arbcut-irodymai-2026-10.pdf` is printed (headless Chrome) from
+
+## Google search captures (replaced 2026-10-12)
+Jarvis's own browser screenshots, attached in the T3 thread on 2026-10-12 (created 06:01–06:02 UTC). They replace the 2026-10-09 Kaunas/Jonava captures (the Kaunas one was a mostly empty full-page capture with the result at the very bottom). Full = original converted to JPEG q88 (no resize); card = crop of the arbcut.lt result only (880×210).
+
+| File here | Query | Original (sha256 prefix) | Card crop |
+|---|---|---|---|
+| google-arboristas-kaunas-* | arboristas kaunas | 1530×1726 (bb7812af) | 880×210+362+1478 |
+| google-kaunas-* | medziu pjovimas kaunas | 1712×1106 (eb043367) | 880×210+364+872 |
+| google-jonava-* | medziu pjovimas jonava | 1818×1550 (afbd124f) | 880×210+362+578 |
+| google-kazlu-ruda-* | medziu pjovimas kazlu ruda | 1548×984 (2fb142c3) | 880×210+292+768 |
+
+`public/assets/arbcut-irodymai-2026-10.pdf` (4 pages) is printed (headless Chrome) from
 `irodymai-pdf.html` using only the files above.

@@ -10,7 +10,7 @@ const { fullPage = false } = Astro.props;
 const [forms, search, google] = proof.items;
 const [aug, sep] = await Promise.all(forms.shots.map(resolveShot));
 const [gsc] = await Promise.all(search.shots.map(resolveShot));
-const [kaunas, jonava] = await Promise.all(google.shots.map(resolveShot));
+const googleShots = await Promise.all(google.shots.map(resolveShot));
 const [impr, ctr, pos] = search.stats;
 const max = Math.max(...forms.months.map((m) => m.value));
 ---
@@ -88,13 +88,13 @@ const max = Math.max(...forms.months.map((m) => m.value));
         </a>
       </article>
 
-      {[kaunas, jonava].map((shot, i) => (
+      {googleShots.map((shot, i) => (
         <article class="tile tile--google" data-spot data-reveal aria-labelledby={`t-g${i}`}>
           <div class="tile__top">
             <p class="tile__src">Google · {google.shots[i].place}</p>
             <h3 id={`t-g${i}`} class="tile__label tile__label--strong">{shot.caption}</h3>
           </div>
-          <Shot shot={shot} sizes="(min-width: 64rem) 34rem, calc(100vw - 3rem)" class:list={['tile__wide', { 'tile__wide--short': i === 0 }]} />
+          <Shot shot={shot} sizes="(min-width: 64rem) 34rem, calc(100vw - 3rem)" class="tile__wide" />
           <p class="tile__note">{proof.savedLabel} <time datetime={google.saved}>{google.saved}</time>.</p>
         </article>
       ))}
@@ -198,8 +198,7 @@ const max = Math.max(...forms.months.map((m) => m.value));
   .tile__shots :global(.shot__label) { display: none; }
 
   .tile :global(.tile__wide) { aspect-ratio: 740 / 235; }
-  .tile :global(.tile__wide--short) { aspect-ratio: 700 / 170; }
-  .tile--google :global(.tile__wide:not(.tile__wide--short)) { aspect-ratio: 690 / 470; }
+  .tile--google :global(.tile__wide) { aspect-ratio: 880 / 210; margin-top: auto; }
 
   .tile--ink { background: var(--ink-2); border-color: transparent; color: var(--on-dark); }
   .tile--ink .tile__src { color: var(--lime); }
@@ -244,7 +243,6 @@ const max = Math.max(...forms.months.map((m) => m.value));
     .tile--stat { grid-column: span 1; }
     .tile--google { grid-column: span 2; }
     /* The Kaunas crop is short; centre it instead of leaving one large gap. */
-    .tile--google :global(.tile__wide--short) { margin-block: auto; }
     .tile--forms .tile__label { font-size: 1.25rem; max-width: 18rem; }
     .bars { height: 11rem; }
     .res__foot { grid-template-columns: 1fr auto; align-items: center; }
