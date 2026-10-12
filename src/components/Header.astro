@@ -2,17 +2,22 @@
 /* Sticky glass pill header. Desktop: anchors + CTA. Mobile: a menu sheet in
    a native modal <dialog> (focus trap, Esc, focus return for free). */
 import { brand, cta, nav as navText, utility } from '@data/content.js';
+import logoSvg from '../../public/brand/editorial/jarvisco-wordmark-dark.svg?raw';
 
 interface Props { nav: { label: string; href: string }[] }
 const { nav } = Astro.props;
 // Editorial wordmark (dark variant: header and sheet are always on ink).
 // 1010 × 228 viewBox → 160 × 36; README: never narrower than 120 px.
 const LOGO = '/brand/editorial/jarvisco-wordmark-dark.svg';
+// Header copy is inlined: as an <img> it was the mobile LCP element (extra request).
+const logoInline = logoSvg
+  .replace(/<title>[\s\S]*?<\/title>/, '')
+  .replace('role="img" aria-label="JarvisCo"', 'aria-hidden="true" focusable="false" width="160" height="36"');
 const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
 ---
 <header class="hdr" data-header>
   <div class="hdr__bar glass">
-    <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}><img src={LOGO} width="160" height="36" alt="" fetchpriority="high" decoding="async" /></a>
+    <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}><Fragment set:html={logoInline} /></a>
     <nav class="hdr__nav" aria-label={utility.mainNav}>
       <ul>
         {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
@@ -107,7 +112,7 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
     min-height: 3rem;
     border-radius: 0.5rem;
   }
-  .logo img { display: block; width: 10rem; height: auto; aspect-ratio: 1010 / 228; }
+  .logo img, .logo :global(svg) { display: block; width: 10rem; height: auto; aspect-ratio: 1010 / 228; }
 
   .hdr__nav { display: none; }
   .hdr__nav ul { display: flex; list-style: none; gap: 0.125rem; }
