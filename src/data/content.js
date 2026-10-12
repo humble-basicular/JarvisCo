@@ -309,7 +309,7 @@ export const arbcutProof = {
   site: { label: 'Aplankyti arbcut.lt', href: 'https://arbcut.lt' },
   pdf: {
     label: 'Atsisiųsti įrodymus (PDF)',
-    href: '/assets/arbcut-irodymai-2026-10.pdf',
+    href: '/assets/arbcut-irodymai-2026-10-12.pdf',
     size: 'PDF',
   },
 };

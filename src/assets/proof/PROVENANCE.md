@@ -35,5 +35,5 @@ Jarvis's own browser screenshots, attached in the T3 thread on 2026-10-12 (creat
 | google-jonava-* | medziu pjovimas jonava | 1818×1550 (afbd124f) | 880×210+362+578 |
 | google-kazlu-ruda-* | medziu pjovimas kazlu ruda | 1548×984 (2fb142c3) | 880×210+292+768 |
 
-`public/assets/arbcut-irodymai-2026-10.pdf` (4 pages) is printed (headless Chrome) from
+`public/assets/arbcut-irodymai-2026-10-12.pdf` (4 pages) is printed (headless Chrome) from
 `irodymai-pdf.html` using only the files above.

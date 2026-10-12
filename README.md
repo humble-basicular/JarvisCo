@@ -27,7 +27,7 @@ There are no niche pages. A new tracked-link prefix needs a matching entry in th
 Only original screenshots are used, from the jarvisworks.co Drive folder `Work - WebAgency/ArbCut rezultatu vaizdai/`. The `01–03 *-maketas.png` mockups and the old `ArbCut-formos-rezultatai-2026-08-09.pdf` (contains AI redraws) must not be used.
 
 - `src/assets/proof/`: crops/resizes of the originals. Crop boxes and sources per file: [`src/assets/proof/PROVENANCE.md`](src/assets/proof/PROVENANCE.md). Pixels are not edited.
-- `public/assets/arbcut-irodymai-2026-10.pdf`: 4-page proof PDF printed from `src/assets/proof/irodymai-pdf.html` using only those files. Re-print it if a proof image changes.
+- `public/assets/arbcut-irodymai-2026-10-12.pdf`: 4-page proof PDF printed from `src/assets/proof/irodymai-pdf.html` using only those files. Re-print it if a proof image changes.
 - Figures: 20 form submissions (7 in August + 13 in September, Web3Forms), 573 clicks, and Search Console impressions shown as **11,4 tūkst.** — rounded, because the screenshot tile reads "11.4K" and the exact 11 362 is not visible in any capture. Do not write 11 362 on the site without a capture that shows it. The Google attribution of the 20 inquiries is not confirmed; the copy does not claim it.
 - Google result screenshots carry the save date 2026-10-09 (file metadata), not a confirmed capture moment.
 
