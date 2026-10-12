@@ -12,7 +12,7 @@ const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
 ---
 <header class="hdr" data-header>
   <div class="hdr__bar glass">
-    <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}><img src={LOGO} width="160" height="36" alt="" /></a>
+    <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}><img src={LOGO} width="160" height="36" alt="" fetchpriority="high" decoding="async" /></a>
     <nav class="hdr__nav" aria-label={utility.mainNav}>
       <ul>
         {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
