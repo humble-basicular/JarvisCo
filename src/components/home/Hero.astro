@@ -244,4 +244,8 @@ const { hero } = home;
     .chip--1 { top: -2%; right: auto; left: 30%; }
     .chip--2 { right: 10%; bottom: 2%; }
   }
+  /* Until the page margin is wider than the 8% bleed, keep the laptop inside the viewport. */
+  @media (min-width: 64rem) and (max-width: 89.99rem) {
+    .stage { width: calc(100% + var(--gutter) * 0.25); }
+  }
 </style>

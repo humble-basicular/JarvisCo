@@ -144,13 +144,14 @@ const icons = [
     inset: -1px;
     z-index: -1;
     border-radius: inherit;
-    background: inherit;
+    /* Static glow: animating a blurred layer repaints it every frame. */
+    background: conic-gradient(from 200deg, var(--lime), var(--em), var(--ice), rgba(12, 29, 21, 0.2) 38%, rgba(12, 29, 21, 0.2) 62%, var(--lime));
     filter: blur(18px);
     opacity: 0.45;
   }
   @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
   @media (prefers-reduced-motion: no-preference) {
-    .price, .price::before { animation: spin 7s linear infinite; }
+    .price { animation: spin 7s linear infinite; }
   }
   @keyframes spin { to { --angle: 360deg; } }
   .price__card {

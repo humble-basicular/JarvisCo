@@ -10,6 +10,11 @@ export function text(node) {
   if (['script', 'style'].includes(node.tagName)) return '';
   return node.nodeName === '#text' ? node.value : (node.childNodes ?? []).map(text).join(' ');
 }
+// DOM textContent: no separator between nodes, so missing source whitespace shows.
+export function textContent(node) {
+  if (['script', 'style'].includes(node.tagName)) return '';
+  return node.nodeName === '#text' ? node.value : (node.childNodes ?? []).map(textContent).join('');
+}
 export function pages(dir = 'dist') {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const file = join(dir, entry.name);

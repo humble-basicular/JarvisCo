@@ -81,7 +81,8 @@ const messages = JSON.stringify({ ...form.errors, success: form.success, failure
   .form__hp { position: absolute; left: -9999px; opacity: 0; }
   .form__submit { width: 100%; }
   .form__submit:disabled { opacity: 0.65; cursor: wait; }
-  .form__privacy a { display: inline-flex; align-items: center; min-height: 3rem; }
+  /* 48px tap target without stretching the wrapped line (negative block margins). */
+  .form__privacy a { display: inline-flex; align-items: center; min-height: 3rem; margin-block: -0.875rem; }
   .form__privacy { margin: 0.75rem 0 0; }
   .form__status { margin: 0.75rem 0 0; font-weight: 600; }
   .form__status:empty { display: none; }

@@ -40,13 +40,13 @@ function initEffects() {
         const start = performance.now();
         // Keep the server-rendered final value until animation starts; do not
         // replace offscreen evidence with zero or change the number's width.
-        el.style.minInlineSize = `${el.getBoundingClientRect().width}px`;
-        cleanups.push(() => { el.textContent = final; el.style.removeProperty('min-inline-size'); });
+        el.style.inlineSize = `${el.getBoundingClientRect().width}px`;
+        cleanups.push(() => { el.textContent = final; el.style.removeProperty('inline-size'); });
         const tick = (now: number) => {
           const t = Math.min(1, (now - start) / 1200);
           el.textContent = t < 1 ? fmt.format(to * (1 - (1 - t) ** 4)) : final;
           if (t < 1) frame(tick);
-          else el.style.removeProperty('min-inline-size');
+          else el.style.removeProperty('inline-size');
         };
         frame(tick);
       }

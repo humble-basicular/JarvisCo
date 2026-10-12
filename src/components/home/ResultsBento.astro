@@ -27,7 +27,7 @@ const max = Math.max(...forms.months.map((m) => m.value));
         <div class="tile__top">
           <p class="tile__src">{forms.source}</p>
           <h3 id="t-forms" class="tile__h">
-            <span class="tile__big num grad-text" data-count={forms.figure}>{forms.figure}</span>
+            <span class="tile__big num grad-text" data-count={forms.figure} aria-hidden="true">{forms.figure}</span><span class="visually-hidden">{forms.figure}</span>
             <span class="tile__label">{forms.label}</span>
           </h3>
         </div>
@@ -45,26 +45,26 @@ const max = Math.max(...forms.months.map((m) => m.value));
           <Shot shot={aug} sizes="(min-width: 64rem) 17rem, 44vw" class="tile__shot" />
           <Shot shot={sep} sizes="(min-width: 64rem) 17rem, 44vw" class="tile__shot" />
         </div>
-        <p class="tile__note">{forms.note} {proof.savedLabel} {forms.saved}.</p>
+        <p class="tile__note">{forms.note} {proof.savedLabel} <time datetime={forms.saved}>{forms.saved}</time>.</p>
       </article>
 
       <article class="tile tile--clicks" data-spot data-reveal aria-labelledby="t-clicks">
         <div class="tile__top">
           <p class="tile__src">{search.source}</p>
           <h3 id="t-clicks" class="tile__h">
-            <span class="tile__mid num" data-count={search.figure}>{search.figure}</span>
+            <span class="tile__mid num" data-count={search.figure} aria-hidden="true">{search.figure}</span><span class="visually-hidden">{search.figure}</span>
             <span class="tile__label">{search.label}</span>
           </h3>
           <p class="tile__meta">{search.period}</p>
         </div>
         <Shot shot={gsc} sizes="(min-width: 64rem) 34rem, calc(100vw - 3rem)" class="tile__wide" />
-        <p class="tile__note">{search.note} {proof.savedLabel} {search.saved}.</p>
+        <p class="tile__note">{search.note} {proof.savedLabel} <time datetime={search.saved}>{search.saved}</time>.</p>
       </article>
 
       <article class="tile tile--stat" data-spot data-reveal aria-labelledby="t-impr">
         <p class="tile__src">{search.source}</p>
         <h3 id="t-impr" class="tile__h">
-          <span class="tile__mid num"><span data-count={impr.count} data-decimals={impr.decimals}>{impr.figure.replace(` ${impr.unit}`, '')}</span> <small>{impr.unit}</small></span>
+          <span class="tile__mid num"><span data-count={impr.count} data-decimals={impr.decimals} aria-hidden="true">{impr.figure.replace(` ${impr.unit}`, '')}</span><span class="visually-hidden">{impr.figure.replace(` ${impr.unit}`, '')}</span> <small>{impr.unit}</small></span>
           <span class="tile__label">{impr.label}</span>
         </h3>
         <p class="tile__meta">{search.period}</p>
@@ -74,11 +74,11 @@ const max = Math.max(...forms.months.map((m) => m.value));
         <p class="tile__src">{search.source}</p>
         <div class="tile__pair">
           <h3 id="t-pos" class="tile__h">
-            <span class="tile__mid num" data-count={pos.count} data-decimals={pos.decimals}>{pos.figure}</span>
+            <span class="tile__mid num" data-count={pos.count} data-decimals={pos.decimals} aria-hidden="true">{pos.figure}</span><span class="visually-hidden">{pos.figure}</span>
             <span class="tile__label">{pos.label}</span>
           </h3>
           <p class="tile__h">
-            <span class="tile__mid num"><span data-count={ctr.count}>{ctr.count}</span> {ctr.unit}</span>
+            <span class="tile__mid num"><span data-count={ctr.count} aria-hidden="true">{ctr.count}</span><span class="visually-hidden">{ctr.count}</span> {ctr.unit}</span>
             <span class="tile__label">{ctr.label}</span>
           </p>
         </div>
@@ -95,7 +95,7 @@ const max = Math.max(...forms.months.map((m) => m.value));
             <h3 id={`t-g${i}`} class="tile__label tile__label--strong">{shot.caption}</h3>
           </div>
           <Shot shot={shot} sizes="(min-width: 64rem) 34rem, calc(100vw - 3rem)" class:list={['tile__wide', { 'tile__wide--short': i === 0 }]} />
-          <p class="tile__note">{proof.savedLabel} {google.saved}.</p>
+          <p class="tile__note">{proof.savedLabel} <time datetime={google.saved}>{google.saved}</time>.</p>
         </article>
       ))}
     </div>
@@ -147,12 +147,15 @@ const max = Math.max(...forms.months.map((m) => m.value));
   .tile__h { display: grid; gap: 0.375rem; margin: 0; font-family: var(--font-b); font-weight: 500; letter-spacing: 0; }
   .tile__big { font-size: clamp(6.5rem, 30vw, 11rem); font-weight: 800; line-height: 0.82; padding-bottom: 0.06em; }
   .tile__mid { font-size: clamp(2.75rem, 11vw, 4.25rem); font-weight: 800; line-height: 0.95; color: var(--on-light); white-space: nowrap; }
+  /* Count-up animates an aria-hidden copy; the box keeps the final width. */
+  .tile [data-count] { display: inline-block; }
   .tile__mid small { font-size: 0.45em; font-weight: 700; letter-spacing: -0.02em; }
   .tile__label { font-size: 1.0625rem; line-height: 1.35; color: var(--mute-light); }
   .tile__label--strong { font: 650 1.1875rem/1.3 var(--font-d); letter-spacing: -0.01em; color: var(--on-light); }
   .tile__meta { margin: 0.375rem 0 0; font-size: 0.9375rem; color: var(--mute-light); }
   .tile__detail { margin: 0; font-size: 0.9375rem; color: #cfe0d6; }
   .tile__note { margin: auto 0 0; font-size: 0.9375rem; color: var(--mute-light); }
+  .tile__note time { white-space: nowrap; }
 
   /* Dark hero tile: 20 inquiries */
   .tile--forms {
@@ -190,6 +193,9 @@ const max = Math.max(...forms.months.map((m) => m.value));
 
   .tile__shots { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
   .tile__shots :global(.tile__shot) { aspect-ratio: 4 / 3; }
+  /* Small thumbnails: icon-only pill so it never hides the month tooltip. */
+  .tile__shots :global(.shot__pill) { width: 2.25rem; padding: 0; justify-content: center; }
+  .tile__shots :global(.shot__label) { display: none; }
 
   .tile :global(.tile__wide) { aspect-ratio: 740 / 235; }
   .tile :global(.tile__wide--short) { aspect-ratio: 700 / 170; }
@@ -237,6 +243,8 @@ const max = Math.max(...forms.months.map((m) => m.value));
     .tile--clicks { grid-column: 3 / span 2; }
     .tile--stat { grid-column: span 1; }
     .tile--google { grid-column: span 2; }
+    /* The Kaunas crop is short; centre it instead of leaving one large gap. */
+    .tile--google :global(.tile__wide--short) { margin-block: auto; }
     .tile--forms .tile__label { font-size: 1.25rem; max-width: 18rem; }
     .bars { height: 11rem; }
     .res__foot { grid-template-columns: 1fr auto; align-items: center; }

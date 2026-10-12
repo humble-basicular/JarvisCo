@@ -22,6 +22,7 @@ if (dialog && img && caption && typeof dialog.showModal === 'function') {
     img.alt = link.dataset.alt ?? '';
     img.width = Number(link.dataset.w);
     img.height = Number(link.dataset.h);
+    img.style.setProperty('--nw', `${img.width}px`);
     caption.textContent = link.dataset.caption ?? '';
     dialog.showModal();
     if (stage) { stage.scrollTop = 0; stage.scrollLeft = 0; }

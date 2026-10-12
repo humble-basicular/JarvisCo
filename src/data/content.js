@@ -319,7 +319,7 @@ export const home = {
     eyebrow: 'Svetainės vietiniam paslaugų verslui',
     // h1 = before + highlighted part + after
     h1: { before: 'Svetainė, kuri ', highlight: 'atneša užklausas', after: ' iš Google.' },
-    sub: 'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 užklausų. Tokią pačią galiu sukurti ir Jums.',
+    sub: 'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Tokią pačią galiu sukurti ir Jums.',
     chips: [
       { figure: '20', unit: 'užklausų', text: 'per rugpjūtį ir rugsėjį', href: '#rezultatai' },
       { figure: '573', unit: 'paspaudimai', text: 'iš Google paieškos per 3 mėn.', href: '#rezultatai' },
