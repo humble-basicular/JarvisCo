@@ -3,9 +3,9 @@
    per screen with JS: trade → services → area → years → photos/logo → contact.
    Posts multipart to /t/form with exactly the spec's wire fields. Trade and
    years have no wire field: their inputs belong to no form (form="pf-none"),
-   and preview-form.ts writes them into `standout`. Without JS every step shows
-   at once and the form posts natively (phone required, native validation). */
-import { funnel, footer } from '@data/content.js';
+   and preview-form.ts writes them into `standout`. Without JS the form stays `hidden`
+   (it cannot navigate to the Worker's JSON) and a noscript block offers call / SMS. */
+import { funnel, footer, brand } from '@data/content.js';
 import { steps as s, MAIN_CTA } from '@data/v4.js';
 import { FORM_ENDPOINT, FORM_LIMITS } from '@data/tracking.js';
 
@@ -23,8 +23,19 @@ const messages = JSON.stringify({
 const accept = ['image/*', ...FORM_LIMITS.extensions.filter((e) => !['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'gif'].includes(e)).map((e) => `.${e}`)].join(',');
 const NONE = 'pf-none'; // no such form: these inputs are never submitted
 ---
+<noscript>
+  <div class="pf-nojs">
+    <p class="pf-nojs__promise">{MAIN_CTA}: {s.noscriptPromise}</p>
+    <div class="pf-nojs__actions">
+      <a class="btn btn--accent btn--big" href={brand.telHref}>{s.noscriptCall}</a>
+      <a class="btn btn--line btn--big" href={brand.smsHref}>{s.noscriptSms}</a>
+    </div>
+    <p class="pf__hint">{s.noscriptLine}</p>
+  </div>
+</noscript>
 <form
   class="pf"
+  hidden
   action={FORM_ENDPOINT}
   method="post"
   enctype="multipart/form-data"
@@ -108,7 +119,6 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
       <label for="pf-standout">{s.years.standout} <span class="pf__opt">{f.optional}</span></label>
       <textarea id="pf-standout" name="standout" rows="3" maxlength="900" placeholder={s.years.standoutHint} aria-describedby="pf-standout-err"></textarea>
       <p class="pf__err" id="pf-standout-err" data-error="standout" hidden></p>
-      <noscript><p class="pf__hint">{s.noscriptHint}</p></noscript>
     </div>
   </fieldset>
 
@@ -181,7 +191,6 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
   </div>
 
   <p class="pf__status" data-status role="status" aria-live="polite"></p>
-  <noscript><p class="pf__hint">{f.noscript}</p></noscript>
 </form>
 
 <div class="pf-thanks" data-thanks hidden tabindex="-1">
@@ -196,6 +205,10 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
 
 <style>
   .pf { color-scheme: light; }
+  .pf-nojs { display: grid; gap: 1rem; padding-block: 1.5rem; }
+  .pf-nojs__promise { margin: 0; font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+  .pf-nojs__actions { display: grid; gap: 0.75rem; }
+  @media (min-width: 48rem) { .pf-nojs__actions { grid-template-columns: auto auto; justify-content: start; } }
   .pf__progress { display: grid; gap: 0.625rem; margin-bottom: 1.5rem; }
   .pf__progress .stamp { color: var(--mute); }
   .pf__bar { display: block; height: 2px; background: var(--rule); }

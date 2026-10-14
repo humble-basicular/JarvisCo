@@ -94,6 +94,9 @@ for (const route of ['/', '/sildymui', '/noriu']) {
   check(attr(named('files')[0], 'multiple') !== undefined && attr(named('files')[0], 'capture') === undefined, `${route}: files must be multiple and not camera-only`);
   const kinds = named('kind').map((node) => attr(node, 'value'));
   check(kinds.join() === 'preview_request,callback_request', `${route}: submit buttons kind ${kinds}`);
+  // No JS: the form stays hidden (it must not navigate to the Worker's JSON); call / SMS are the fallback.
+  check(attr(f, 'hidden') !== undefined, `${route}: preview form must render hidden (script reveals it)`);
+  check(/<noscript>(?:(?!<\/noscript>)[\s\S])*tel:(?:(?!<\/noscript>)[\s\S])*sms:/.test(page.html), `${route}: noscript call + SMS fallback`);
   check(!named('kind').some((node) => attr(node, 'formnovalidate') !== undefined), `${route}: no formnovalidate (native validation without JS)`);
   check(named('contact_time').map((n) => attr(n, 'value')).join() === 'morning,day,evening,sms', `${route}: contact_time values`);
   check(named('photos_ok').map((n) => attr(n, 'value')).join() === 'yes,send_other', `${route}: photos_ok values`);

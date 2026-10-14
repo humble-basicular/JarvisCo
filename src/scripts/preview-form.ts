@@ -71,24 +71,44 @@ function withType(file: File): File | null {
   return null;
 }
 
+/** Natural size from the image header: an <img> load reports it without the explicit full decode. */
+function readSize(file: File): Promise<{ width: number; height: number } | null> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    const done = (size: { width: number; height: number } | null) => {
+      URL.revokeObjectURL(url);
+      img.src = '';
+      resolve(size);
+    };
+    img.onload = () => done(img.naturalWidth && img.naturalHeight ? { width: img.naturalWidth, height: img.naturalHeight } : null);
+    img.onerror = () => done(null);
+    img.src = url;
+  });
+}
+
 /** Downsizes one image. Throws when the browser decoded it but could not redraw it. */
 async function shrink(file: File): Promise<File> {
   if (!SHRINKABLE.test(file.type) || typeof createImageBitmap !== 'function') return file;
   let bitmap: ImageBitmap | null = null;
   let canvas: HTMLCanvasElement | null = null;
   try {
+    const size = await readSize(file);
+    if (!size || size.width * size.height > MAX_DECODED_PIXELS) return file; // unreadable (e.g. HEIC) or too large to redraw: sent as is, the size limit still applies
+    const scale = Math.min(1, FORM_LIMITS.maxImageSide / Math.max(size.width, size.height));
     try {
-      bitmap = await createImageBitmap(file);
+      // Bounded decode: the browser scales while decoding, so a big photo is never held at full size.
+      bitmap = scale < 1
+        ? await createImageBitmap(file, { resizeWidth: Math.round(size.width * scale), resizeHeight: Math.round(size.height * scale), resizeQuality: 'medium' })
+        : await createImageBitmap(file);
     } catch {
-      return file; // e.g. HEIC the browser cannot decode: sent as is, the size limit still applies
+      return file; // no resize-option support or undecodable: sent unchanged
     }
-    if (bitmap.width * bitmap.height > MAX_DECODED_PIXELS) return file;
-    const scale = Math.min(1, FORM_LIMITS.maxImageSide / Math.max(bitmap.width, bitmap.height));
     const mustConvert = /heic|heif/.test(file.type);
     if (scale === 1 && !mustConvert && file.size <= KEEP_BELOW) return file;
     canvas = document.createElement('canvas');
-    canvas.width = Math.round(bitmap.width * scale);
-    canvas.height = Math.round(bitmap.height * scale);
+    canvas.width = bitmap.width; // already scaled by the bounded decode
+    canvas.height = bitmap.height;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('no 2d context');
     ctx.fillStyle = '#fff'; // transparent PNG areas become white, not black
@@ -108,6 +128,7 @@ const mb = (bytes: number) => `${(bytes / 1048576).toFixed(1).replace('.', ',')}
 
 document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((form) => {
   form.noValidate = true;
+  form.hidden = false; // rendered hidden: without JS it stays hidden and a noscript block offers call / SMS
   const messages = JSON.parse(form.dataset.messages ?? '{}') as Messages;
   const status = form.querySelector<HTMLElement>('[data-status]')!;
   const submit = form.querySelector<HTMLButtonElement>('button[value="preview_request"]')!;
@@ -177,6 +198,11 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
     form.querySelectorAll<HTMLElement>('[data-services-for]').forEach((list) => {
       const on = list.dataset.servicesFor === key;
       list.classList.toggle('is-on', on);
+      // Inactive lists are cleared and disabled: FormData skips disabled boxes, so only the active trade's services are posted.
+      list.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((box) => {
+        box.disabled = !on;
+        if (!on) box.checked = false;
+      });
       hasList ||= on;
     });
     servicesLabel.firstChild!.textContent = `${hasList ? servicesLabel.dataset.list : servicesLabel.dataset.free} `;

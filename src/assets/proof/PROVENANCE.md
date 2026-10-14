@@ -43,14 +43,14 @@ Jarvis's own browser screenshots, attached in the T3 thread on 2026-10-12 (creat
 Jarvis's own browser screenshots, attached in the T3 thread on 2026-10-14 (files in
 `~/.ai-powerhouse/userdata/attachments/`, created 21:36–21:37 local time). The crops were
 made by the interrupted r1 run, which left no processing log. GSC keeps the source width (3758 px), so
-it is a crop. For the Web3Forms crops, crop vs crop+resize was **not verified**. The figures
+it is a crop. The 2026-10-14 crops were confirmed crop-only (no resize) on 2026-10-15. The figures
 listed below were read from the crops themselves. Astro converts to WebP at build time. The page
 shows each crop big with caption, date ("Ekrano kopija 2026-10-14") and source.
 
 | File here | Source (size, sha256 prefix) | Processing |
 |---|---|---|
-| arbcut-gsc-3m-2026-10-14.png | `33f44fe4-…-3e4db911-….png` (3758×1614, 861d8a1c) | crop to 3758×1335 (performance tiles + chart); same width as source |
-| arbcut-web3forms-{aug,sep,oct}-2026-10-14.png | `33f44fe4-…-{e4173a7f,cbb77d26,d9681979}-….png` (each 4480×2520; 55669b89, ef7d84c0, a986e7c8) | cropped to 3965×1935 (dashboard + history chart); resize not ruled out. The month of each crop is the one in its own chart tooltip; the source→month mapping was not recorded |
+| arbcut-gsc-3m-2026-10-14.png | `33f44fe4-…-3e4db911-….png` (3758×1614, 861d8a1c) | `-crop 3758x1335+0+0`, crop only, no resize (confirmed by Jarvis's lead 2026-10-15); same width as source |
+| arbcut-web3forms-{aug,sep,oct}-2026-10-14.png | `33f44fe4-…-{e4173a7f,cbb77d26,d9681979}-….png` (each 4480×2520; 55669b89, ef7d84c0, a986e7c8) | `-crop 3965x1935+505+185`, crop only, no resize (confirmed 2026-10-15); removes the browser chrome and the sidebar with the account email. The month of each crop is the one in its own chart tooltip; the source→month mapping was not recorded |
 
 Figures shown on the page, and where each is visible:
 - Search Console, "3 months", chart axis 7/12/26 – 10/10/26 → period **2026-07-12 – 2026-10-10**: Total clicks **595**, Total impressions **11.9K** (shown "11,9 tūkst."; the exact count is not visible), Average CTR **5%**, Average position **8.1**. Search type: Web.

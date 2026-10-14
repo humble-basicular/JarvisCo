@@ -227,7 +227,10 @@ export const steps = {
     contact_time: 'Pasirinkite vieną variantą.',
     prepare: 'nepavyko paruošti nuotraukos. Pabandykite kitą arba mažesnę.',
   },
-  noscriptHint: 'Be JavaScript sritis ir patirtis nebus išsiųstos – įrašykite jas laukelyje „Kuo išsiskiriate?“.',
+  noscriptPromise: 'Jarvis pats paruoš Jūsų svetainės peržiūrą. Nemokamai, be įsipareigojimų.',
+  noscriptCall: 'Skambinti',
+  noscriptSms: 'Parašyti SMS',
+  noscriptLine: 'Formai reikia JavaScript — paskambinkite arba parašykite SMS',
 };
 
 export const footer = {
