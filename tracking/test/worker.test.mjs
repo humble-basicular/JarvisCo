@@ -21,7 +21,7 @@ const test_default = {
   }
 };
 `;
-const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
+const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
 const fixedNow = Date.now();
 let mf;
 let db;
@@ -392,7 +392,7 @@ test('multipart happy path trims answers, stores two files with metadata and exp
     assert.equal(stored.value, descriptor.type === 'image/png' ? 'PNG bytes' : 'PDF bytes');
   }
   const keys = await kv.list();
-  for (const key of keys.keys) assert.ok(Math.abs(key.expiration - (Math.floor(Date.now() / 1000) + 365 * 86400)) < 60);
+  for (const key of keys.keys) assert.ok(Math.abs(key.expiration - (Math.floor(Date.now() / 1000) + 366 * 86400)) < 60);
 });
 
 test('homepage callback requires phone; empty fields become null and lists remain empty', async () => {
@@ -410,9 +410,9 @@ const invalidForms = [
   ['kind', {}], ['kind', { kind: 'other' }], ['code', { code: 'b2345' }], ['code', { code: 'p23o5' }],
   ['phone', { code: '' }], ['phone', { phone: '1234567' }], ['phone', { phone: '12345678x' }],
   ['phone', { phone: '1'.repeat(21) }], ['name', { name: 'x'.repeat(81) }],
-  ['services', { services: ['x'.repeat(61)] }], ['services', { services: Array(13).fill('x') }],
+  ['services', { services: ['x'.repeat(61)] }], ['services', { services: Array.from({ length: 13 }, (_, n) => String(n)) }],
   ['services_other', { services_other: 'x'.repeat(201) }],
-  ['area', { area: ['x'.repeat(61)] }], ['area', { area: Array(13).fill('x') }],
+  ['area', { area: ['x'.repeat(61)] }], ['area', { area: Array.from({ length: 13 }, (_, n) => String(n)) }],
   ['area_other', { area_other: 'x'.repeat(201) }], ['photos_ok', { photos_ok: 'no' }],
   ['standout', { standout: 'x'.repeat(1001) }], ['contact_time', { contact_time: 'night' }],
   ...['kind', 'code', 'name', 'phone', 'services_other', 'area_other', 'photos_ok', 'standout', 'contact_time'].map(field => [field, { [field]: ['x', 'y'] }]),
@@ -477,7 +477,7 @@ test('form permits every specified MIME type and rejects unsupported/spoofed ext
   const types = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/gif', 'application/pdf',
     'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain'];
-  for (const type of types) assert.equal((await submit(undefined, [{ type }])).status, 200, type);
+  for (const [n, type] of types.entries()) assert.equal((await submit({ kind: 'preview_request', code: `p234${'56789abcdefgh'[n]}` }, [{ type }])).status, 200, type);
   for (const type of ['application/octet-stream', 'text/html', 'image/svg+xml', '']) {
     const response = await submit(undefined, [{ type, name: 'looks-safe.png' }]);
     assert.equal(response.status, 415);
@@ -485,18 +485,14 @@ test('form permits every specified MIME type and rejects unsupported/spoofed ext
   }
 });
 
-test('forms share per-code beacon rate limit and homepage has anonymous shared bucket', async () => {
-  const window = Math.floor(fixedNow / 60_000) * 60_000;
-  await db.prepare('INSERT INTO rate_limits(code,window_start,requests) VALUES (?, ?, 59)').bind('p2345', window).run();
-  assert.equal((await post('p2345', 'preview_cta')).status, 204);
+test('forms have separate per-code and anonymous minute budgets', async () => {
+  for (let n = 0; n < 60; n++) assert.equal((await post('p2345')).status, 204);
+  for (let n = 0; n < 5; n++) assert.equal((await submit()).status, 200);
   const denied = await submit();
   assert.equal(denied.status, 429);
-  assert.deepEqual(await denied.json(), { error: 'rate_limited' });
   assert.ok(Number(denied.headers.get('Retry-After')) > 0);
-  await db.prepare('INSERT INTO rate_limits(code,window_start,requests) VALUES (?, ?, 59)').bind('homepage', window).run();
-  assert.equal((await submit({ kind: 'callback_request', phone: '12345678' })).status, 200);
+  for (let n = 0; n < 10; n++) assert.equal((await submit({ kind: 'callback_request', phone: '12345678' })).status, 200);
   assert.equal((await submit({ kind: 'preview_request', phone: '87654321' })).status, 429);
-  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 1);
 });
 
 test('mixed feed shares IDs, stable equal-time paging and snapshot exclusion for new submissions', async () => {
@@ -531,6 +527,7 @@ test('file fetch uses same auth, bytes, stored content type, attachment and no-s
   assert.equal(await response.text(), 'hello');
   assert.equal(response.headers.get('Content-Type'), 'text/plain');
   assert.equal(response.headers.get('Content-Disposition'), 'attachment');
+  assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff');
   assert.equal(response.headers.get('Cache-Control'), 'no-store');
   assert.equal((await request(`/t/files/s/${receipt.id}/1`, { headers: { Authorization: `Bearer ${TOKEN}` } })).status, 404);
   assert.equal((await request('/t/files/missing', { headers: { Authorization: `Bearer ${TOKEN}` } })).status, 404);
@@ -562,31 +559,46 @@ test('submission retention excludes old records before lease cleanup and deletes
 });
 
 test('concurrent forms consume one atomic budget and publish paired payloads without cross-linking', async () => {
-  const responses = await Promise.all(Array.from({ length: 80 }, (_, n) => submit({ kind: 'preview_request', code: 'p2345', name: `Person ${n}` })));
-  assert.equal(responses.filter(r => r.status === 200).length, 60);
-  assert.equal(responses.filter(r => r.status === 429).length, 20);
+  const responses = await Promise.all(Array.from({ length: 20 }, (_, n) => submit({ kind: 'preview_request', code: 'p2345', name: `Person ${n}` })));
+  assert.equal(responses.filter(r => r.status === 200).length, 5);
+  assert.equal(responses.filter(r => r.status === 429).length, 15);
   const accepted = await Promise.all(responses.map(async (r, n) => ({ n, status: r.status, body: await r.json() })));
   const rows = (await db.prepare('SELECT * FROM submissions').all()).results;
-  assert.equal(rows.length, 60);
+  assert.equal(rows.length, 5);
   for (const result of accepted.filter(result => result.status === 200)) {
     assert.equal(JSON.parse(rows.find(row => row.id === result.body.id).payload).name, `Person ${result.n}`);
   }
-  assert.equal((await (await pull()).json()).events.length, 60);
+  assert.equal((await (await pull()).json()).events.length, 5);
 });
 
-test('failed KV write returns 503 and never publishes a submission event', async () => {
-  let published = false;
-  const response = await worker.fetch(new Request('https://jarvisweb.lt/t/form', {
-    method: 'POST', body: formBody(undefined, [{ type: 'image/png' }]),
-  }), {
-    DB: {
-      prepare() { return { bind() { return { async first() { return 1; } }; } }; },
-      async batch() { published = true; },
-    },
-    FILES: { async put() { throw new Error('storage unavailable'); } },
-  }, { waitUntil() {} });
-  assert.equal(response.status, 503);
-  assert.equal(published, false);
+test('failed KV write never publishes and failed D1 publish removes only newly written keys', async () => {
+  for (const failure of ['kv', 'd1']) {
+    const written = [];
+    const deleted = [];
+    let calls = 0;
+    const response = await worker.fetch(new Request('https://jarvisweb.lt/t/form', {
+      method: 'POST', body: formBody(undefined, [{ type: 'image/png' }, { type: 'text/plain' }]),
+    }), {
+      DB: {
+        prepare() { return { bind() { return {}; } }; },
+        async batch() {
+          if (++calls === 1) return [{ results: [{ requests: 1 }] }, { results: [{ submissions: 1 }] }];
+          throw new Error('publish failed');
+        },
+      },
+      FILES: {
+        async put(key, stream) {
+          assert.ok(stream instanceof ReadableStream);
+          if (failure === 'kv' && written.length === 1) throw new Error('KV failed');
+          written.push(key);
+        },
+        async delete(key) { deleted.push(key); },
+      },
+    }, { waitUntil() {} });
+    assert.equal(response.status, 503);
+    assert.deepEqual(deleted, written);
+    assert.equal(calls, failure === 'kv' ? 1 : 2);
+  }
 });
 
 test('migration preserves existing rows and deleted AUTOINCREMENT high-water IDs', async () => {
@@ -604,4 +616,86 @@ test('migration preserves existing rows and deleted AUTOINCREMENT high-water IDs
     assert.equal(await database.prepare('SELECT max(id) AS id FROM events').first('id'), 101);
     await assert.rejects(database.prepare("INSERT INTO events(code,type,ua_class) VALUES (NULL,'view','human')").run(), /CHECK/);
   } finally { await runtime.dispose(); }
+});
+
+
+test('filenames are bounded by code points and stripped of controls and slashes', async () => {
+  const names = ['x'.repeat(1100), '😀š'.repeat(70), '/\u0001\u007f'];
+  const expected = ['x'.repeat(100), '😀š'.repeat(50), 'file'];
+  const response = await submit(undefined, names.map(name => ({ name, type: 'text/plain' })));
+  assert.equal(response.status, 200);
+  const files = (await (await pull()).json()).events[0].submission.files;
+  assert.deepEqual(files.map(file => file.name), expected);
+  const kv = await mf.getKVNamespace('FILES');
+  for (const file of files) assert.equal((await kv.getWithMetadata(file.key)).metadata.name, file.name);
+});
+
+test('no-files browser FormData ignores empty strings and zero-byte nameless inputs', async () => {
+  const data = formBody();
+  data.append('files', new Blob([]), '');
+  data.append('files', '');
+  assert.equal((await request('/t/form', { method: 'POST', body: data })).status, 200);
+  assert.deepEqual((await (await pull()).json()).events[0].submission.files, []);
+});
+
+test('lists trim, remove blanks and deduplicate', async () => {
+  assert.equal((await submit({ kind: 'preview_request', code: 'p2345', services: [' ', ' Heat ', 'Heat'], area: ['', ' Kaunas ', 'Kaunas'] })).status, 200);
+  const payload = (await (await pull()).json()).events[0].submission;
+  assert.deepEqual(payload.services, ['Heat']);
+  assert.deepEqual(payload.area, ['Kaunas']);
+});
+
+
+test('24 MiB multipart happy path stores streams intact', async () => {
+  const response = await submit(undefined, Array.from({ length: 3 }, (_, n) => ({
+    name: `large-${n}.txt`, type: 'text/plain', body: new Uint8Array(8 * 1024 * 1024).fill(65 + n),
+  })));
+  assert.equal(response.status, 200);
+  const files = (await (await pull()).json()).events[0].submission.files;
+  assert.equal(files.reduce((sum, file) => sum + file.size, 0), 24 * 1024 * 1024);
+  const kv = await mf.getKVNamespace('FILES');
+  for (const [n, file] of files.entries()) {
+    const bytes = new Uint8Array(await kv.get(file.key, 'arrayBuffer'));
+    assert.equal(bytes.length, file.size);
+    assert.equal(bytes[0], 65 + n);
+    assert.equal(bytes.at(-1), 65 + n);
+  }
+});
+
+test('chunked multipart without Content-Length cannot bypass raw body cap', async () => {
+  let chunks = 0;
+  let touchedStorage = false;
+  const response = await worker.fetch(new Request('https://jarvisweb.lt/t/form', {
+    method: 'POST', duplex: 'half', headers: { 'Content-Type': 'multipart/form-data; boundary=x' },
+    body: new ReadableStream({ pull(controller) {
+      if (chunks++ < 27) controller.enqueue(new Uint8Array(1024 * 1024));
+      else controller.close();
+    } }),
+  }), { DB: { prepare() { touchedStorage = true; throw new Error('unexpected'); } } }, { waitUntil() {} });
+  assert.equal(response.status, 413);
+  assert.equal(touchedStorage, false);
+});
+
+test('global daily submission cap is atomic across different codes', async () => {
+  const day = Math.floor(fixedNow / 86400000) * 86400000;
+  await db.prepare('INSERT INTO form_daily_budgets VALUES (?,49,0)').bind(day).run();
+  const responses = await Promise.all(Array.from({ length: 10 }, (_, n) =>
+    submit({ kind: 'preview_request', code: `p234${'56789abcde'[n]}` })));
+  assert.equal(responses.filter(r => r.status === 200).length, 1);
+  assert.equal(responses.filter(r => r.status === 429).length, 9);
+  assert.equal(await db.prepare('SELECT submissions FROM form_daily_budgets WHERE day_start = ?').bind(day).first('submissions'), 50);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 1);
+});
+
+test('global daily file cap includes exact boundary, rejects excess and resets next UTC day', async () => {
+  const day = Math.floor(fixedNow / 86400000) * 86400000;
+  const cap = 300 * 1024 * 1024;
+  await db.prepare('INSERT INTO form_daily_budgets VALUES (?,1,?)').bind(day, cap - 1).run();
+  assert.equal((await submit(undefined, [{ type: 'text/plain', body: 'x' }])).status, 200);
+  assert.equal((await submit(undefined, [{ type: 'text/plain', body: 'x' }])).status, 429);
+  assert.equal((await (await mf.getKVNamespace('FILES')).list()).keys.length, 1);
+  // Simulate the stored budget from the previous UTC day; today's budget is new.
+  await db.prepare('UPDATE form_daily_budgets SET day_start = ?').bind(day - 86400000).run();
+  assert.equal((await submit(undefined, [{ type: 'text/plain', body: 'x' }])).status, 200);
+  assert.equal(await db.prepare('SELECT file_bytes FROM form_daily_budgets WHERE day_start = ?').bind(day).first('file_bytes'), 1);
 });

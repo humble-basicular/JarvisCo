@@ -73,6 +73,7 @@ async function cleanup(db: D1Database, now: Date): Promise<void> {
   await db.batch([
     db.prepare('DELETE FROM submissions WHERE at < ?').bind(retentionCutoff(now)),
     db.prepare('DELETE FROM events WHERE at < ?').bind(retentionCutoff(now)),
+    db.prepare('DELETE FROM form_daily_budgets WHERE day_start < ?').bind(Math.floor(ms / 86_400_000) * 86_400_000),
     db.prepare('DELETE FROM rate_limits WHERE window_start < ?').bind(Math.floor(ms / WINDOW_MS) * WINDOW_MS),
   ]);
 }
@@ -181,8 +182,15 @@ async function form(request: Request, env: Env, ctx: ExecutionContext): Promise<
   if (length > MAX_FORM_BODY) return error('too_large', 413);
   let data: FormData;
   try {
-    const bytes = await readBody(request, MAX_FORM_BODY);
-    data = await new Response(bytes, { headers: { 'Content-Type': request.headers.get('Content-Type')! } }).formData();
+    let size = 0;
+    const stream = request.body?.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        size += chunk.byteLength;
+        if (size > MAX_FORM_BODY) throw new BodyTooLarge();
+        controller.enqueue(chunk);
+      },
+    }));
+    data = await new Response(stream, { headers: { 'Content-Type': request.headers.get('Content-Type')! } }).formData();
   } catch (cause) {
     return cause instanceof BodyTooLarge ? error('too_large', 413) : invalid('kind');
   }
@@ -209,51 +217,75 @@ async function form(request: Request, env: Env, ctx: ExecutionContext): Promise<
   for (const field of ['services', 'area']) {
     const entries = data.getAll(field);
     if (entries.length > 12 || entries.some(value => typeof value !== 'string' || [...value.trim()].length > 60)) return invalid(field);
-    lists[field] = (entries as string[]).map(value => value.trim());
+    lists[field] = [...new Set((entries as string[]).map(value => value.trim()).filter(Boolean))];
   }
   const photos = text('photos_ok');
   if (photos === null || !['', 'yes', 'send_other'].includes(photos)) return invalid('photos_ok');
   const time = text('contact_time');
   if (time === null || !['', 'morning', 'day', 'evening', 'sms'].includes(time)) return invalid('contact_time');
-  const uploads = data.getAll('files');
+  const uploads = data.getAll('files').filter(value => value !== ''
+    && !(typeof value !== 'string' && value.size === 0 && value.name === ''));
   if (uploads.some(value => typeof value === 'string')) return invalid('files');
   const files = uploads as File[];
   if (files.length > 8) return invalid('files');
   if (files.some(file => file.size > 10 * MB) || files.reduce((sum, file) => sum + file.size, 0) > 25 * MB) return error('too_large', 413);
   if (files.some(file => !FILE_TYPES.has(file.type))) return error('file_type', 415);
 
-  // Forms share the beacon's per-code budget. Homepage forms share a single
-  // anonymous bucket: never derive/store an IP, UA, cookie or phone identity.
+  // Separate form minute budgets and a global UTC daily budget. Both claims
+  // run in one D1 transaction so concurrent isolates cannot overspend the cap.
   const now = Date.now();
   const window = Math.floor(now / WINDOW_MS) * WINDOW_MS;
-  const bucket = code || 'homepage';
-  const claim = await env.DB.prepare(`INSERT INTO rate_limits(code, window_start, requests) VALUES (?, ?, 1)
-    ON CONFLICT(code, window_start) DO UPDATE SET requests = min(requests + 1, ?)
-    RETURNING requests`).bind(bucket, window, RATE_LIMIT + 1).first<number>('requests');
-  if (claim === null || claim > RATE_LIMIT) return json({ error: 'rate_limited' }, 429,
-    { 'Retry-After': String(Math.ceil((window + WINDOW_MS - now) / 1000)) });
-
-  const id = crypto.randomUUID();
-  const descriptors = files.map((file, n) => ({ key: `s/${id}/${n}`, name: file.name, type: file.type, size: file.size }));
-  // Publish the D1 feed entry only once all KV writes succeed. Failed writes
-  // can leave unreferenced keys, which expire automatically; no file deletion.
-  for (const [n, file] of files.entries()) {
-    await env.FILES.put(descriptors[n]!.key, await file.arrayBuffer(), {
-      expirationTtl: 365 * 24 * 60 * 60, metadata: { name: file.name, type: file.type, size: file.size },
+  const day = Math.floor(now / 86_400_000) * 86_400_000;
+  const bucket = `form:${code || 'homepage'}`;
+  const limit = code ? 5 : 10;
+  const fileBytes = files.reduce((sum, file) => sum + file.size, 0);
+  const claims = await env.DB.batch([
+    env.DB.prepare(`INSERT INTO rate_limits(code, window_start, requests) VALUES (?, ?, 1)
+      ON CONFLICT(code, window_start) DO UPDATE SET requests = min(requests + 1, ?)
+      RETURNING requests`).bind(bucket, window, limit + 1),
+    env.DB.prepare(`INSERT INTO form_daily_budgets(day_start, submissions, file_bytes)
+      SELECT ?, 1, ? WHERE (SELECT requests FROM rate_limits WHERE code = ? AND window_start = ?) <= ?
+      ON CONFLICT(day_start) DO UPDATE SET submissions = submissions + 1, file_bytes = file_bytes + excluded.file_bytes
+      WHERE submissions < 50 AND file_bytes + excluded.file_bytes <= ?
+      RETURNING submissions`).bind(day, fileBytes, bucket, window, limit, 300 * MB),
+  ]);
+  if (claims[1]!.results.length === 0) {
+    const minuteDenied = (claims[0]!.results[0] as { requests: number }).requests > limit;
+    return json({ error: 'rate_limited' }, 429, {
+      'Retry-After': String(Math.ceil(((minuteDenied ? window + WINDOW_MS : day + 86_400_000) - now) / 1000)),
     });
   }
-  const payload: Submission = {
-    name: values.name || null, phone: phone || null,
-    services: lists.services!, services_other: values.services_other || null,
-    area: lists.area!, area_other: values.area_other || null,
-    photos_ok: photos || null, standout: values.standout || null, contact_time: time || null, files: descriptors,
-  };
-  await env.DB.batch([
-    env.DB.prepare('INSERT INTO events(code, type, ua_class) VALUES (?, ?, ?)').bind(code || null, kind, uaClass(request)),
-    env.DB.prepare(`INSERT INTO submissions(id, event_id, code, kind, at, ua_class, payload)
-      SELECT ?, id, code, type, at, ua_class, ? FROM events WHERE id = last_insert_rowid()`)
-      .bind(id, JSON.stringify(payload)),
-  ]);
+
+  const id = crypto.randomUUID();
+  const descriptors = files.map((file, n) => ({ key: `s/${id}/${n}`,
+    name: [...file.name.replace(/[\p{Cc}/]/gu, '')].slice(0, 100).join('') || 'file',
+    type: file.type, size: file.size }));
+  const written: string[] = [];
+  try {
+    for (const [n, file] of files.entries()) {
+      const { key, name, type, size } = descriptors[n]!;
+      await env.FILES.put(key, file.stream(), {
+        expirationTtl: 366 * 24 * 60 * 60, metadata: { name, type, size },
+      });
+      written.push(key);
+    }
+    const payload: Submission = {
+      name: values.name || null, phone: phone || null,
+      services: lists.services!, services_other: values.services_other || null,
+      area: lists.area!, area_other: values.area_other || null,
+      photos_ok: photos || null, standout: values.standout || null, contact_time: time || null, files: descriptors,
+    };
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO events(code, type, ua_class) VALUES (?, ?, ?)').bind(code || null, kind, uaClass(request)),
+      env.DB.prepare(`INSERT INTO submissions(id, event_id, code, kind, at, ua_class, payload)
+        SELECT ?, id, code, type, at, ua_class, ? FROM events WHERE id = last_insert_rowid()`)
+        .bind(id, JSON.stringify(payload)),
+    ]);
+  } catch (cause) {
+    // Only keys written by this failed submission; never delete existing files.
+    await Promise.allSettled(written.map(key => env.FILES.delete(key)));
+    throw cause;
+  }
   scheduleCleanup(env, ctx);
   return json({ ok: true, id });
 }
@@ -262,10 +294,11 @@ async function file(request: Request, env: Env, key: string): Promise<Response> 
   if (!env.EVENTS_TOKEN) return error('unavailable', 503);
   if (!await authorized(request, env.EVENTS_TOKEN)) return json({ error: 'unauthorized' }, 401, { 'WWW-Authenticate': 'Bearer' });
   if (!/^s\/[0-9a-f-]{36}\/[0-7]$/.test(key)) return error('not_found', 404);
-  const stored = await env.FILES.getWithMetadata<{ name: string; type: string; size: number }>(key, 'arrayBuffer');
+  const stored = await env.FILES.getWithMetadata<{ name: string; type: string; size: number }>(key, 'stream');
   if (stored.value === null || !stored.metadata) return error('not_found', 404);
   return new Response(stored.value, { headers: {
     'Content-Type': stored.metadata.type, 'Content-Disposition': 'attachment', 'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
   } });
 }
 
