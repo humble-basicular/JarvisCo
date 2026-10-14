@@ -57,7 +57,7 @@ export function isPhone(value: string) {
 /** "Sritis: Šildymas; Patirtis: 3–10 m." + free text, within the 1000-char limit. */
 export function composeStandout(trade: string, years: string, free: string, words = { trade: 'Sritis', years: 'Patirtis', yearsUnit: 'm.' }) {
   const head = [trade && `${words.trade}: ${trade}`, years && `${words.years}: ${years} ${words.yearsUnit}`].filter(Boolean).join('; ');
-  const head2 = head ? `${head}.` : '';
+  const head2 = head;
   return [head2, free].filter(Boolean).join('\n').slice(0, 1000);
 }
 
