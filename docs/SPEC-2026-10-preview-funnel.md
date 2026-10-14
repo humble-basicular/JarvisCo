@@ -41,8 +41,8 @@ New beacon type **`preview_cta`**: tap on the "Taip, noriu" button on `/noriu`. 
 
 - `callback_request` needs only `code` or `phone`; the other fields are optional and stored when given.
 - Responses: `200 {ok:true,id:"<submission id>"}`; `400 {error:"invalid",field:"<name>"}`; `413 {error:"too_large"}`; `415 {error:"file_type"}`; `429 {error:"rate_limited"}`.
-- Rate limit like the beacon endpoint; no IP, full UA or cookies stored (as today). `ua_class` is stored as for events.
-- Storage: D1 table `submissions` (row id, code nullable, kind, at UTC, ua_class, payload JSON). Files in a **Workers KV** namespace `FILES` (free plan, no card), key `s/<submission id>/<n>`, metadata `{name,type,size}`. Retention: same 12-month window as events (KV `expirationTtl` 365 days).
+- Rate limit (lead decision 2026-10-14, stricter than beacons): 5 forms/min per code, 10/min for the no-code bucket, and a daily cap of 50 submissions and 300 MB of files in total; no IP, full UA or cookies stored (as today). `ua_class` is stored as for events.
+- Storage: D1 table `submissions` (row id, code nullable, kind, at UTC, ua_class, payload JSON). Files in a **Workers KV** namespace `FILES` (free plan, no card), key `s/<submission uuid>/<n>` (opaque; the `/` is not percent-encoded; the form response `id` is this uuid, not the feed event id), metadata `{name,type,size}`. Retention: same 12-month window as events (KV `expirationTtl` 366 days). File names are sanitized (no control chars or `/`, ≤ 100 code points, `file` if empty).
 - Why KV: R2 needs a payment method on the account; KV is on the free Workers plan. Free limits (1 GB stored, 1,000 writes/day) are far above expected volume.
 
 ## 5. `GET /t/events` additions (existing token, paging and cursor rules)
@@ -59,7 +59,7 @@ New beacon type **`preview_cta`**: tap on the "Taip, noriu" button on `/noriu`. 
     "services": ["Katilų montavimas", "Šilumos siurbliai"], "services_other": null,
     "area": ["Kaunas", "Kauno r."], "area_other": null,
     "photos_ok": "yes", "standout": "15 metų patirtis", "contact_time": "evening",
-    "files": [{"key": "s/42/0", "name": "logo.png", "type": "image/png", "size": 48211}]
+    "files": [{"key": "s/0b8e…uuid/0", "name": "logo.png", "type": "image/png", "size": 48211}]
   }
 }
 ```
@@ -68,7 +68,7 @@ Empty strings become `null`; empty lists stay `[]`.
 
 ## 6. `GET /t/files/<key>` (new)
 
-Same Bearer token as `/t/events`. Returns the bytes with the stored `Content-Type`, `Content-Disposition: attachment`, `Cache-Control: no-store`. 404 for unknown keys. The CRM downloads every file once during ingest into the local data dir (`~/Library/Application Support/MultiPurpose CRM/files/<lead id>/`) and serves it to the web UI from there.
+Same Bearer token as `/t/events`. Returns the bytes with the stored `Content-Type`, `Content-Disposition: attachment`, `Cache-Control: no-store`. 404 for unknown keys. KV is eventually consistent: the CRM retries a 404 a few times over ~2 minutes right after ingest before marking the file missing. The CRM downloads every file once during ingest into the local data dir (`~/Library/Application Support/MultiPurpose CRM/files/<lead id>/`) and serves it to the web UI from there.
 
 ## 7. CRM behaviour
 
