@@ -14,7 +14,7 @@ const v = hero[variant];
   <div class="wrap">
     {'stamp' in v && <p class="stamp hero__stamp">{v.stamp}</p>}
     <h1 class="hero__title" id="hero-title">
-      {v.lines.map((line, i) => <span class="reveal-line" style={`--i:${i}`}>{line}</span>)}
+      {v.lines.map((line, i) => <span class="reveal-line" style={`--i:${i}`}>{line} </span>)}
     </h1>
     <div class="hero__row">
       <div class="hero__sub">{hero.sub.map((p) => <p>{p}</p>)}</div>
@@ -49,10 +49,7 @@ const v = hero[variant];
   .hero__object :global(.hero__ph) { --ratio: 4 / 3; }
   .hero__quote { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: 0.25rem 1rem; margin: 2.5rem 0 0; padding-top: 1.5rem; border-top: 1px solid var(--rule); max-width: 34rem; }
   .hero__quote :global(.hero__face) { grid-row: span 2; width: 4rem; }
-  .hero__quote :global(.hero__face .ph__note) { display: none; }
-  .hero__quote :global(.hero__face .ph__text) { padding: 0.25rem; }
-  .hero__quote :global(.hero__face .stamp) { font-size: 0.625rem; }
-  .hero__quote :global(.hero__face .stamp::before) { display: none; }
+  .hero__quote :global(.hero__face .ph__text) { display: none; }
   .hero__quote blockquote { margin: 0; font-size: 1rem; line-height: 1.45; }
   .hero__quote figcaption { font-size: 0.9375rem; color: var(--mute); }
   @media (min-width: 48rem) {
@@ -62,6 +59,5 @@ const v = hero[variant];
   }
   @media (min-width: 64rem) {
     .hero__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; align-items: start; }
-    .hero__object { margin-top: -1rem; }
   }
 </style>

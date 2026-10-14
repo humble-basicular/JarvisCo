@@ -22,10 +22,12 @@ interface Props {
   /** Canonical path when this page duplicates another one (/noriu → /sildymui). */
   canonicalPath?: string;
   ogImage?: string;
+  /** Where "Gauti nemokamą peržiūrą" leads: '#forma' on pages with the form. */
+  formHref?: string;
   /** Kept for older callers; the v4 design has no sticky bar. */
   stickyBar?: boolean;
 }
-const { title, description, nav = headerText.nav.map((i) => ({ ...i, href: `/${i.href}` })), faq = [], noindex = false, canonicalPath, ogImage: ogPath = '/assets/og.png' } = Astro.props;
+const { title, description, nav = headerText.nav.map((i) => ({ ...i, href: `/${i.href}` })), faq = [], noindex = false, canonicalPath, formHref, ogImage: ogPath = '/assets/og.png' } = Astro.props;
 const canonical = new URL(canonicalPath ?? (Astro.url.pathname.replace(/\/$/, '') || '/'), brand.url).href;
 const ogImage = new URL(ogPath, brand.url).href;
 
@@ -115,7 +117,7 @@ const faqSchema = faq.length
   <body>
     <a href="#main" class="skip-link">{utility.skip}</a>
     <div class="progress" aria-hidden="true"><span data-scroll-line></span></div>
-    <Header nav={nav} />
+    <Header nav={nav} formHref={formHref} />
     <main id="main" tabindex="-1">
       <slot />
     </main>

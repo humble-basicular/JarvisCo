@@ -12,7 +12,9 @@ import aug from '@assets/proof/arbcut-web3forms-aug-2026-10-14.png';
 import sep from '@assets/proof/arbcut-web3forms-sep-2026-10-14.png';
 import oct from '@assets/proof/arbcut-web3forms-oct-2026-10-14.png';
 
-const full = { aug: await getImage({ src: aug, width: 2400, format: 'webp' }), oct: await getImage({ src: oct, width: 2400, format: 'webp' }) };
+// Full-size copies: tapping a screenshot opens it (phones cannot read the small text).
+const big = (src: ImageMetadata) => getImage({ src, width: 2400, format: 'webp', quality: 85 });
+const full = { gsc: await big(gsc), sep: await big(sep), aug: await big(aug), oct: await big(oct) };
 const widths = [640, 960, 1400, 2000];
 const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
 ---
@@ -21,14 +23,14 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
     <Head id="rezultatai-title" label={proof.label} title={proof.title} text={proof.text} />
 
     <figure class="shot" data-proof-anchor>
-      <ul class="stats">{proof.gsc.stats.map((s) => <li><strong>{s.value}</strong><span>{s.label}</span></li>)}</ul>
-      <div class="shot__img"><Image src={gsc} alt={proof.gsc.alt} widths={widths} sizes={sizes} format="webp" quality={80} /></div>
+      <ul class="stats">{proof.gsc.stats.map((s) => <li><strong>{s.value}{s.unit && <small> {s.unit}</small>}</strong><span>{s.label}</span></li>)}</ul>
+      <a class="shot__img" href={full.gsc.src}><Image src={gsc} alt={proof.gsc.alt} widths={widths} sizes={sizes} format="webp" quality={80} /></a>
       <figcaption><span>{proof.gsc.caption}</span><span class="stamp stamp--plain shot__meta">{proof.gsc.meta}</span></figcaption>
     </figure>
 
     <figure class="shot">
       <ul class="stats">{proof.forms.stats.map((s) => <li><strong>{s.value}</strong><span>{s.label}</span></li>)}</ul>
-      <div class="shot__img"><Image src={sep} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} /></div>
+      <a class="shot__img" href={full.sep.src}><Image src={sep} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} /></a>
       <figcaption>
         <span>{proof.forms.caption}</span>
         <span class="stamp stamp--plain shot__meta">{proof.forms.meta}</span>
@@ -52,8 +54,9 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
   .stats li:nth-child(even) { padding-left: 1rem; border-left: 1px solid var(--rule); }
   .stats li:nth-child(n + 3) { border-top: 1px solid var(--rule); }
   .stats strong { font-size: clamp(2.25rem, 7vw, 4rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1; }
+  .stats small { font-size: 0.45em; letter-spacing: -0.02em; }
   .stats span { font-size: 0.9375rem; color: var(--ink-2); line-height: 1.35; }
-  .shot__img { border: 1px solid var(--rule); background: #fff; }
+  .shot__img { display: block; border: 1px solid var(--rule); background: #fff; }
   .shot__img :global(img) { width: 100%; }
   .shot figcaption { display: grid; gap: 0.5rem; margin-top: 1rem; max-width: 46rem; }
   .shot__meta { color: var(--mute); font-size: 0.875rem; }

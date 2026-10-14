@@ -5,6 +5,9 @@
    no invented numbers, no testimonial text without Mantas's permission. */
 import { brand } from './content.js';
 
+/** Dates with non-breaking hyphens, so they never wrap mid-date. */
+const d = (date) => date.replace(/-/g, '\u2011');
+
 export const ZERO = '0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn.';
 export const DOMAIN = 'Domeną (~15 € per metus) apmokate Jūs, ir jis registruojamas Jūsų vardu.';
 export const MAIN_CTA = 'Gauti nemokamą peržiūrą';
@@ -58,24 +61,24 @@ export const proof = {
   gsc: {
     stats: [
       { value: '595', label: 'paspaudimai iš Google paieškos' },
-      { value: '11,9 tūkst.', label: 'parodymų Google paieškoje' },
+      { value: '11,9', unit: 'tūkst.', label: 'parodymų Google paieškoje' },
       { value: '5 %', label: 'vidutinis paspaudimų rodiklis' },
       { value: '8,1', label: 'vidutinė pozicija' },
     ],
     alt: 'Google Search Console ataskaita: 595 paspaudimai, 11,9 tūkst. parodymų, 5 % CTR, vidutinė pozicija 8,1, laikotarpis 2026-07-12 – 2026-10-10',
-    caption: 'Google paieška per 3 mėnesius, 2026-07-12 – 2026-10-10.',
-    meta: 'Ekrano kopija 2026-10-14 · Šaltinis: Google Search Console',
+    caption: `Google paieška per 3 mėnesius, ${d('2026-07-12')} – ${d('2026-10-10')}.`,
+    meta: `Ekrano kopija ${d('2026-10-14')} · Šaltinis: Google Search Console`,
   },
   forms: {
     stats: [
       { value: '7', label: 'rugpjūtį' },
       { value: '13', label: 'rugsėjį' },
       { value: '1', label: 'spalį (iki 14 d.)' },
-      { value: '28', label: 'iš viso nuo 2026-04-19' },
+      { value: '28', label: `iš viso nuo ${d('2026-04-19')}` },
     ],
     alt: 'Web3Forms paskyra: forma ArbCut, iš viso 28 pateiktos formos, 0 šlamšto, rugsėjį 13',
-    caption: 'Užklausos per svetainės formą. Web3Forms suskaičiavo 28 pateiktas formas nuo 2026-04-19, kai forma buvo sukurta; šlamšto – 0.',
-    meta: 'Ekrano kopija 2026-10-14 · Šaltinis: Web3Forms',
+    caption: `Užklausos per svetainės formą. Web3Forms suskaičiavo 28 pateiktas formas nuo ${d('2026-04-19')}, kai forma buvo sukurta; šlamšto – 0.`,
+    meta: `Ekrano kopija ${d('2026-10-14')} · Šaltinis: Web3Forms`,
     more: [
       { label: 'Rugpjūčio ekrano kopija', key: 'aug' },
       { label: 'Spalio ekrano kopija', key: 'oct' },

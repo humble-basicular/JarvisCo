@@ -1,24 +1,20 @@
 ---
 import Layout from '@layouts/Layout.astro';
-import { nav, utility, cta } from '@data/content.js';
+import { utility } from '@data/content.js';
+import { MAIN_CTA } from '@data/v4.js';
 ---
-<Layout title={utility.notFound.metaTitle} description={utility.notFound.title} nav={nav.other} noindex stickyBar={false}>
-  <section class="missing t-dark">
-    <div class="aurora" aria-hidden="true"><div class="aurora__grid"></div></div>
-    <div class="wrap wrap--narrow missing__in">
-      <p class="missing__code num grad-text" aria-hidden="true">404</p>
-      <h1 class="sec-title">{utility.notFound.title}</h1>
-      <p class="sec-lead">{utility.notFound.text}</p>
-      <div class="btn-row btn-row--stack">
-        <a class="btn btn--lime" href="/">{utility.home}</a>
-        <a class="btn btn--ghost" href="/rezultatai">{cta.results}</a>
-      </div>
-    </div>
+<Layout title={utility.notFound.metaTitle} description={utility.notFound.title} noindex>
+  <section class="wrap missing">
+    <p class="stamp">404</p>
+    <h1 class="head__title">{utility.notFound.title}</h1>
+    <p class="head__text">{utility.notFound.text}</p>
+    <p class="missing__ctas">
+      <a class="btn btn--ink" href="/">{utility.home}</a>
+      <a class="link" href="/#forma">{MAIN_CTA}</a>
+    </p>
   </section>
 </Layout>
 <style>
-  .missing { position: relative; overflow: clip; padding: calc(var(--hdr-h) + 3rem) 0 5rem; min-height: 75svh; }
-  .missing__in { position: relative; }
-  .missing__code { font-size: clamp(7rem, 26vw, 15rem); line-height: 1; font-weight: 800; width: fit-content; margin: 0 0 1.5rem; }
-  .missing .btn-row { margin-top: 2rem; }
+  .missing { display: grid; gap: 1.5rem; justify-items: start; padding-block: clamp(4rem, 12vw, 9rem); min-height: 60svh; }
+  .missing__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
 </style>

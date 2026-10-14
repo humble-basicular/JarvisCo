@@ -4,6 +4,6 @@ import Layout from '@layouts/Layout.astro';
 import TradeHome from '@components/v4/TradeHome.astro';
 import { header, faq, meta } from '@data/v4.js';
 ---
-<Layout {...meta.heating} nav={header.nav} faq={faq.items}>
+<Layout {...meta.heating} nav={header.nav} faq={faq.items} formHref="#forma">
   <TradeHome variant="heating" />
 </Layout>

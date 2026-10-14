@@ -8,14 +8,13 @@ import { brand, utility } from '@data/content.js';
 import { header } from '@data/v4.js';
 import logoSvg from '../../public/brand/editorial/jarvisco-wordmark-light.svg?raw';
 
-interface Props { nav: { label: string; href: string }[] }
-const { nav } = Astro.props;
+interface Props { nav: { label: string; href: string }[]; formHref?: string }
+// Pages with the form link to it in place; others go to the homepage form.
+const { nav, formHref = '/#forma' } = Astro.props;
 const logo = logoSvg
   .replace(/<title>[\s\S]*?<\/title>/, '')
   .replace(/fill="#[0-9A-Fa-f]{6}"/g, 'fill="currentColor"')
   .replace('role="img" aria-label="JarvisCo"', 'aria-hidden="true" focusable="false" width="132" height="30"');
-// Pages with the form link to it in place; others go to the homepage form.
-const formHref = nav[0]?.href.startsWith('#') ? '#forma' : '/#forma';
 const phoneIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M5 3.5h3.2l1.6 4.2-2.1 1.4a11 11 0 0 0 5.2 5.2l1.4-2.1 4.2 1.6V17a2.5 2.5 0 0 1-2.7 2.5C9.3 19 5 14.7 4.5 6.2A2.5 2.5 0 0 1 5 3.5Z"/></svg>';
 ---
 <header class="hdr">
