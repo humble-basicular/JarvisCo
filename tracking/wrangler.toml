@@ -25,3 +25,8 @@ migrations_dir = "migrations"
 # No cron: retention cleanup runs on requests. No request logs/UA/IP capture.
 [observability]
 enabled = false
+
+[[kv_namespaces]]
+binding = "FILES"
+# Safe placeholder; lead provisions the namespace and adds its ID privately.
+id = "00000000000000000000000000000000"
