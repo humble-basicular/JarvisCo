@@ -5,6 +5,7 @@ import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
 import worker, { retentionCutoff } from '../dist/worker.mjs';
 
 const TOKEN = 'local-test-only-token';
+const SITES = JSON.stringify({ arbcut: { kind: 'client', origins: ['https://arbcut.lt'] }, 'sildymas-kaunas': { kind: 'leadgen', origins: ['https://heat.test'] }, other: { kind: 'client', origins: ['https://other.test'] } });
 const SINCE = '2025-01-01T00:00:00.000Z';
 const productionScript = await readFile(new URL('../dist/worker.mjs', import.meta.url), 'utf8');
 // Deterministically drain waitUntil tasks for SQL assertions; redirect latency has
@@ -21,12 +22,12 @@ const test_default = {
   }
 };
 `;
-const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
+const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql', '0004_sites.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
 const fixedNow = Date.now();
 let mf;
 let db;
 
-async function createRuntime({ schema = true, token = TOKEN } = {}) {
+async function createRuntime({ schema = true, token = TOKEN, sites = SITES } = {}) {
   const runtime = new Miniflare(convertV4MiniflareOptions({
     modules: true,
     // Freeze the fixed-window limiter's clock so tests cannot race a minute boundary.
@@ -34,7 +35,7 @@ async function createRuntime({ schema = true, token = TOKEN } = {}) {
     compatibilityDate: '2026-10-01',
     d1Databases: { DB: 'local-test-database' },
     kvNamespaces: { FILES: 'local-test-files' },
-    bindings: token === null ? {} : { EVENTS_TOKEN: token },
+    bindings: { SITES: sites, ...(token === null ? {} : { EVENTS_TOKEN: token }) },
   }));
   const database = await runtime.getD1Database('DB');
   if (schema) {
@@ -87,7 +88,7 @@ test('apex and www valid links redirect uncached and record human clicks', async
     assert.equal(row.type, 'click');
     assert.equal(row.ua_class, 'human');
     assert.match(row.at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/);
-    assert.deepEqual(Object.keys(row).sort(), ['at', 'code', 'id', 'type', 'ua_class']);
+    assert.deepEqual(Object.keys(row).sort(), ['at', 'code', 'id', 'site', 'type', 'ua_class']);
   }
 });
 
@@ -111,7 +112,7 @@ test('all specified scanners and generic bot patterns are classified, never stor
   assert.equal(rows.length, bots.length + 1);
   assert.ok(rows.every((row) => row.ua_class === 'bot'));
   const columns = (await db.prepare('PRAGMA table_info(events)').all()).results.map((row) => row.name);
-  assert.deepEqual(columns, ['id', 'code', 'type', 'at', 'ua_class']);
+  assert.deepEqual(columns, ['id', 'code', 'site', 'type', 'at', 'ua_class']);
 });
 
 test('all seven types work with sendBeacon JSON Blob and plain-text string bodies', async () => {
@@ -256,7 +257,7 @@ test('events are oldest first by timestamp then numeric ID, even inserted out of
   await seed(older, 11);
   const response = await (await pull({ since: older, limit: '20' })).json();
   assert.deepEqual(response.events.map((e) => e.id), [...Array.from({ length: 11 }, (_, i) => String(i + 2)), '1']);
-  assert.deepEqual(Object.keys(response.events[0]).sort(), ['at', 'code', 'id', 'type', 'ua_class']);
+  assert.deepEqual(Object.keys(response.events[0]).sort(), ['at', 'code', 'id', 'site', 'type', 'ua_class']);
 });
 
 test('request-time cleanup removes expired events and buckets, keeping unexpired data', async () => {
@@ -372,7 +373,7 @@ test('multipart happy path trims answers, stores two files with metadata and exp
   const row = await db.prepare('SELECT * FROM submissions').first();
   assert.equal(row.id, receipt.id);
   assert.equal(row.kind, 'preview_request');
-  assert.deepEqual(Object.keys(row).sort(), ['at', 'code', 'event_id', 'id', 'kind', 'payload', 'ua_class']);
+  assert.deepEqual(Object.keys(row).sort(), ['at', 'code', 'event_id', 'id', 'kind', 'payload', 'site', 'ua_class']);
   const feed = await (await pull()).json();
   const entry = feed.events[0];
   assert.equal(entry.id, String(row.event_id));
@@ -698,4 +699,271 @@ test('global daily file cap includes exact boundary, rejects excess and resets n
   await db.prepare('UPDATE form_daily_budgets SET day_start = ?').bind(day - 86400000).run();
   assert.equal((await submit(undefined, [{ type: 'text/plain', body: 'x' }])).status, 200);
   assert.equal(await db.prepare('SELECT file_bytes FROM form_daily_budgets WHERE day_start = ?').bind(day).first('file_bytes'), 1);
+});
+
+function siteSubmit(fields = {}, files = [], origin = 'https://arbcut.lt', accept = 'application/json') {
+  return request('/t/form', { method: 'POST', body: formBody({ kind: 'site_inquiry', site: 'arbcut', phone: '+37061234567', ...fields }, files),
+    headers: { ...(origin === null ? {} : { Origin: origin }), Accept: accept } });
+}
+function siteBeacon(site = 'arbcut', type = 'cta_call', origin = 'https://arbcut.lt', extra = {}) {
+  return request('/t/e', { method: 'POST', headers: { 'Content-Type': 'text/plain', ...(origin === null ? {} : { Origin: origin }) },
+    body: JSON.stringify({ site, type, ...extra }) });
+}
+const today = () => Math.floor(fixedNow / 86400000) * 86400000;
+
+test('two site kinds publish exact site submissions, attachment descriptors and null code', async () => {
+  assert.equal((await siteSubmit({ name: ' Rasa ', message: ' Medis ', service: ' ', location: ' Garliava ', contact_time: 'day',
+    brand: ['ignored', 'ignored'], consent: ['ignored', 'ignored'], code: ['ignored', 'ignored'] }, [{ type: 'image/jpeg' }])).status, 200);
+  assert.equal((await siteSubmit({ kind: 'job_request', site: 'sildymas-kaunas', consent: 'yes', brand: ' Bosch ', service: ' Katilas ' }, [], 'https://heat.test')).status, 200);
+  const entries = (await (await pull()).json()).events;
+  assert.deepEqual(entries.map(e => [e.code, e.site, e.type]), [[null, 'arbcut', 'site_inquiry'], [null, 'sildymas-kaunas', 'job_request']]);
+  const files = entries[0].submission.files;
+  assert.equal(files[0].type, 'image/jpeg');
+  assert.deepEqual(entries[0].submission, { name: 'Rasa', phone: '+37061234567', message: 'Medis', service: null,
+    location: 'Garliava', brand: null, contact_time: 'day', consent: false, files });
+  assert.deepEqual(entries[1].submission, { name: null, phone: '+37061234567', message: null, service: 'Katilas',
+    location: null, brand: 'Bosch', contact_time: null, consent: true, files: [] });
+  assert.deepEqual(Object.keys(entries[0]).sort(), ['at', 'code', 'id', 'site', 'submission', 'type', 'ua_class']);
+});
+
+test('site form requires exact Origin, configured matching kind, phone and leadgen consent', async () => {
+  for (const origin of [null, 'https://evil.test', 'https://arbcut.lt.evil.test', 'http://arbcut.lt', 'https://arbcut.lt/']) {
+    const response = await siteSubmit({}, [], origin);
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: 'origin' });
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'), null);
+  }
+  for (const fields of [{ site: 'unknown' }, { site: 'ARBcut' }, { site: 'ab' }, { site: 'a'.repeat(33) }, { kind: 'job_request' }, { site: 'sildymas-kaunas' }]) {
+    assert.deepEqual(await (await siteSubmit(fields)).json(), { error: 'invalid', field: 'site' });
+  }
+  for (const consent of ['', 'no', ['yes', 'yes']]) {
+    assert.deepEqual(await (await siteSubmit({ kind: 'job_request', site: 'sildymas-kaunas', consent }, [], 'https://heat.test')).json(), { error: 'invalid', field: 'consent' });
+  }
+  assert.deepEqual(await (await siteSubmit({ phone: '' })).json(), { error: 'invalid', field: 'phone' });
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 0);
+});
+
+test('site scalar validation and shared files rules are enforced', async () => {
+  for (const [field, max] of [['name', 80], ['message', 2000], ['service', 120], ['location', 120], ['brand', 60]]) {
+    for (const value of ['x'.repeat(max + 1), ['x', 'y']]) {
+      const response = await siteSubmit({ kind: 'job_request', site: 'sildymas-kaunas', consent: 'yes', [field]: value }, [], 'https://heat.test');
+      assert.deepEqual(await response.json(), { error: 'invalid', field });
+    }
+  }
+  assert.deepEqual(await (await siteSubmit({ contact_time: 'night' })).json(), { error: 'invalid', field: 'contact_time' });
+  assert.equal((await siteSubmit({}, [{ type: 'text/html' }])).status, 415);
+  assert.deepEqual(await (await siteSubmit({}, Array.from({ length: 9 }, () => ({ type: 'text/plain' })))).json(), { error: 'invalid', field: 'files' });
+});
+
+test('site honeypot returns success without storage or claims, after Origin authorization', async () => {
+  const response = await siteSubmit({ website: 'spam', phone: '', message: 'x'.repeat(2001) });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true });
+  assert.equal(response.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+  for (const table of ['events', 'submissions', 'rate_limits', 'site_daily_budgets']) assert.equal(await db.prepare(`SELECT count(*) AS n FROM ${table}`).first('n'), 0);
+  assert.equal((await siteSubmit({ website: 'spam' }, [], 'https://evil.test')).status, 403);
+});
+
+test('CORS preflight permits only configured exact origins and POST form/beacon headers', async () => {
+  for (const path of ['/t/e', '/t/form']) {
+    const response = await request(path, { method: 'OPTIONS', headers: { Origin: 'https://arbcut.lt',
+      'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type, accept' } });
+    assert.equal(response.status, 204);
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+    assert.equal(response.headers.get('Vary'), 'Origin');
+    assert.equal(response.headers.get('Access-Control-Allow-Methods'), 'POST');
+    assert.equal((await request(path, { method: 'OPTIONS', headers: { Origin: 'https://evil.test', 'Access-Control-Request-Method': 'POST' } })).status, 403);
+    assert.equal((await request(path, { method: 'OPTIONS', headers: { Origin: 'https://arbcut.lt', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'authorization' } })).status, 400);
+  }
+  assert.equal((await siteSubmit()).headers.get('Vary'), 'Origin');
+  const invalid = await siteSubmit({ phone: '' });
+  assert.equal(invalid.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+  assert.equal((await post()).headers.get('Access-Control-Allow-Origin'), null);
+  assert.equal((await post('a2345', 'view', 'application/json', { Origin: 'https://arbcut.lt' })).status, 403);
+  const legacy = await request('/t/form', { method: 'POST', body: formBody(), headers: { Origin: 'https://arbcut.lt', Accept: 'application/json' } });
+  assert.equal(legacy.status, 403);
+  assert.equal(legacy.headers.get('Access-Control-Allow-Origin'), null);
+});
+
+test('no-JS site forms redirect successful, validation, parsing, file and rate-limit responses', async () => {
+  for (const accept of ['', 'text/html', '*/*']) {
+    const response = await siteSubmit({}, [], 'https://arbcut.lt', accept);
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get('Location'), 'https://arbcut.lt/aciu');
+  }
+  for (const response of [await siteSubmit({ phone: '' }, [], 'https://arbcut.lt', 'text/html'),
+    await siteSubmit({ site: 'unknown' }, [], 'https://arbcut.lt', ''),
+    await siteSubmit({}, [{ type: 'text/html' }], 'https://arbcut.lt', ''),
+    await request('/t/form', { method: 'POST', headers: { Origin: 'https://arbcut.lt' }, body: 'broken' })]) {
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get('Location'), 'https://arbcut.lt/aciu?klaida=1');
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+  }
+  await siteSubmit(); await siteSubmit();
+  const denied = await siteSubmit({}, [], 'https://arbcut.lt', 'text/html');
+  assert.equal(denied.status, 303);
+  assert.equal(denied.headers.get('Location'), 'https://arbcut.lt/aciu?klaida=1');
+  assert.ok(Number(denied.headers.get('Retry-After')) > 0);
+  assert.equal((await siteSubmit({ website: 'spam' }, [], 'https://arbcut.lt', '')).headers.get('Location'), 'https://arbcut.lt/aciu');
+});
+
+test('per-site minute budget is atomic, separate between sites, and independent of old daily budget', async () => {
+  await db.prepare('INSERT INTO form_daily_budgets VALUES (?,50,0)').bind(today()).run();
+  const responses = await Promise.all(Array.from({ length: 12 }, () => siteSubmit()));
+  assert.equal(responses.filter(r => r.status === 200).length, 5);
+  assert.equal(responses.filter(r => r.status === 429).length, 7);
+  assert.equal((await siteSubmit({ site: 'other' }, [], 'https://other.test')).status, 200);
+  assert.equal(await db.prepare("SELECT submissions FROM site_daily_budgets WHERE site = '*' AND day_start = ?").bind(today()).first('submissions'), 6);
+  assert.equal(await db.prepare('SELECT submissions FROM form_daily_budgets').first('submissions'), 50);
+});
+
+test('per-site UTC daily cap permits exactly 30 and resets on next UTC day', async () => {
+  await db.prepare("INSERT INTO site_daily_budgets VALUES ('arbcut',?,29,0)").bind(today()).run();
+  await db.prepare("INSERT INTO site_daily_budgets VALUES ('*',?,29,0)").bind(today()).run();
+  const responses = await Promise.all(Array.from({ length: 4 }, () => siteSubmit()));
+  assert.equal(responses.filter(r => r.status === 200).length, 1);
+  assert.equal(responses.filter(r => r.status === 429).length, 3);
+  assert.ok(Number(responses.find(r => r.status === 429).headers.get('Retry-After')) > 60);
+  await db.prepare('UPDATE site_daily_budgets SET day_start = ?').bind(today() - 86400000).run();
+  assert.equal((await siteSubmit()).status, 200);
+  assert.equal(await db.prepare("SELECT submissions FROM site_daily_budgets WHERE site = '*' AND day_start = ?").bind(today()).first('submissions'), 1);
+});
+
+test('all-site daily submission budget is atomic across sites and leaves old forms available', async () => {
+  await db.prepare("INSERT INTO site_daily_budgets VALUES ('*',?,99,0)").bind(today()).run();
+  const responses = await Promise.all([siteSubmit(), siteSubmit({ site: 'other' }, [], 'https://other.test'),
+    siteSubmit({ kind: 'job_request', site: 'sildymas-kaunas', consent: 'yes' }, [], 'https://heat.test')]);
+  assert.equal(responses.filter(r => r.status === 200).length, 1);
+  assert.equal(responses.filter(r => r.status === 429).length, 2);
+  assert.equal(await db.prepare("SELECT submissions FROM site_daily_budgets WHERE site = '*' AND day_start = ?").bind(today()).first('submissions'), 100);
+  assert.equal((await submit()).status, 200);
+});
+
+test('all-site file writes cap permits 300 exactly, rejects before KV and does not block zero-file forms', async () => {
+  await db.prepare("INSERT INTO site_daily_budgets VALUES ('*',?,1,299)").bind(today()).run();
+  const responses = await Promise.all([siteSubmit({}, [{ type: 'text/plain' }]), siteSubmit({ site: 'other' }, [{ type: 'text/plain' }], 'https://other.test')]);
+  assert.equal(responses.filter(r => r.status === 200).length, 1);
+  assert.equal(responses.filter(r => r.status === 429).length, 1);
+  assert.equal((await (await mf.getKVNamespace('FILES')).list()).keys.length, 1);
+  assert.equal((await siteSubmit()).status, 200);
+  assert.equal(await db.prepare("SELECT file_writes FROM site_daily_budgets WHERE site = '*'").first('file_writes'), 300);
+  assert.equal((await submit(undefined, [{ type: 'text/plain' }])).status, 200);
+});
+
+test('site sendBeacon feed, mutual exclusion, Origin and independent 60/minute limit', async () => {
+  assert.equal((await siteBeacon()).status, 204);
+  assert.equal((await siteBeacon('arbcut', 'cta_sms')).status, 204);
+  const entries = (await (await pull()).json()).events;
+  assert.deepEqual(entries.map(e => [e.site, e.code, e.type, e.submission]), [['arbcut', null, 'cta_call', undefined], ['arbcut', null, 'cta_sms', undefined]]);
+  assert.equal((await siteBeacon('arbcut', 'view')).status, 400);
+  assert.equal((await siteBeacon('arbcut', 'cta_call', 'https://arbcut.lt', { code: 'a2345' })).status, 400);
+  for (const origin of [null, 'https://evil.test']) assert.equal((await siteBeacon('arbcut', 'cta_call', origin)).status, 403);
+  for (let n = 0; n < 58; n++) assert.equal((await siteBeacon()).status, 204);
+  const denied = await siteBeacon();
+  assert.equal(denied.status, 429);
+  assert.equal(denied.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+  assert.equal(denied.headers.get('Vary'), 'Origin');
+  assert.equal((await siteBeacon('other', 'cta_call', 'https://other.test')).status, 204);
+  assert.equal((await post()).status, 204);
+  assert.equal((await siteSubmit()).status, 200);
+});
+
+test('malformed SITES rejects site requests safely but leaves legacy endpoints available', async () => {
+  for (const sites of ['{', 'null', '[]', '{"ab":{"kind":"client","origins":["https://arbcut.lt"]}}',
+    '{"arbcut":{"kind":"bad","origins":["https://arbcut.lt"]}}', '{"arbcut":{"kind":"client","origins":["https://arbcut.lt/"]}}']) {
+    const { runtime } = await createRuntime({ sites });
+    try {
+      const response = await runtime.dispatchFetch('https://jarvisweb.lt/t/e', { method: 'POST', headers: { Origin: 'https://arbcut.lt' }, body: JSON.stringify({ site: 'arbcut', type: 'cta_call' }) });
+      assert.equal(response.status, 503);
+      assert.deepEqual(await response.json(), { error: 'unavailable' });
+      assert.equal((await runtime.dispatchFetch('https://jarvisweb.lt/t/e', { method: 'POST', body: JSON.stringify({ code: 'a2345', type: 'view' }) })).status, 204);
+    } finally { await runtime.dispose(); }
+  }
+});
+
+test('old event output retains exact fields and payload with only nullable site added', async () => {
+  await post(); await submit();
+  const entries = (await (await pull()).json()).events;
+  assert.equal(entries[0].site, null);
+  assert.deepEqual(Object.keys(entries[0]).sort(), ['at', 'code', 'id', 'site', 'type', 'ua_class']);
+  assert.equal(entries[1].site, null);
+  assert.deepEqual(Object.keys(entries[1].submission).sort(), ['area', 'area_other', 'contact_time', 'files', 'name', 'phone', 'photos_ok', 'services', 'services_other', 'standout']);
+});
+
+test('site storage failure retains CORS and no-JS fallback without publishing', async () => {
+  for (const accept of ['application/json', 'text/html']) {
+    const response = await worker.fetch(new Request('https://jarvisweb.lt/t/form', { method: 'POST',
+      body: formBody({ kind: 'site_inquiry', site: 'arbcut', phone: '12345678' }), headers: { Origin: 'https://arbcut.lt', Accept: accept } }),
+    { SITES, DB: { prepare() { throw new Error('local failure'); } } }, { waitUntil() {} });
+    assert.equal(response.status, accept === 'application/json' ? 503 : 303);
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+    if (accept === 'text/html') assert.equal(response.headers.get('Location'), 'https://arbcut.lt/aciu?klaida=1');
+  }
+  const beacon = await worker.fetch(new Request('https://jarvisweb.lt/t/e', { method: 'POST', headers: { Origin: 'https://arbcut.lt' },
+    body: JSON.stringify({ site: 'arbcut', type: 'cta_sms' }) }), { SITES, DB: { prepare() { throw new Error('local failure'); } } }, { waitUntil() {} });
+  assert.equal(beacon.status, 503);
+  assert.equal(beacon.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+});
+
+test('offer migration preserves paired old submissions, FK target and deleted ID high-water mark', async () => {
+  const { runtime, database } = await createRuntime({ schema: false });
+  try {
+    for (const name of ['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql']) {
+      const sql = await readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8');
+      await database.batch(sql.split(';').map(s => s.trim()).filter(Boolean).map(s => database.prepare(s)));
+    }
+    await database.prepare("INSERT INTO events(id,code,type,ua_class) VALUES (42,'p2345','preview_request','human')").run();
+    await database.prepare("INSERT INTO submissions(id,event_id,code,kind,at,ua_class,payload) SELECT 'old',id,code,type,at,ua_class,'{\"name\":\"Existing\"}' FROM events").run();
+    await database.prepare("UPDATE sqlite_sequence SET seq = 100 WHERE name = 'events'").run();
+    const sql = await readFile(new URL('../migrations/0004_sites.sql', import.meta.url), 'utf8');
+    await database.batch(sql.split(';').map(s => s.trim()).filter(Boolean).map(s => database.prepare(s)));
+    const row = await database.prepare('SELECT * FROM submissions').first();
+    assert.equal(row.event_id, 42);
+    assert.equal(row.payload, '{"name":"Existing"}');
+    assert.equal(row.site, null);
+    assert.equal((await database.prepare('PRAGMA foreign_key_list(submissions)').first()).table, 'events');
+    assert.deepEqual((await database.prepare('PRAGMA foreign_key_check').all()).results, []);
+    await database.prepare("INSERT INTO events(site,type,ua_class) VALUES ('arbcut','cta_call','human')").run();
+    assert.equal(await database.prepare('SELECT max(id) AS id FROM events').first('id'), 101);
+    for (const sql of ["INSERT INTO events(site,code,type,ua_class) VALUES ('arbcut','p2345','cta_call','human')",
+      "INSERT INTO events(type,ua_class) VALUES ('site_inquiry','human')", "INSERT INTO events(site,type,ua_class) VALUES ('ab','cta_call','human')"]) {
+      await assert.rejects(database.prepare(sql).run(), /CHECK/);
+    }
+  } finally { await runtime.dispose(); }
+});
+
+test('site budgets are atomic across two isolates and minute window resets independently of daily claims', async () => {
+  await mf.dispose();
+  // getWorker's local proxy rejects external Origin headers before dispatch.
+  // Restore the synthetic Origin inside the test wrapper, before invoking production code.
+  const siteScript = script.replace('const pending = [];', `
+    request = new Request(request);
+    request.headers.set('Origin', request.headers.get('X-Test-Origin'));
+    request.headers.delete('X-Test-Origin');
+    const pending = [];
+  `);
+  mf = new Miniflare(convertV4MiniflareOptions({ workers: ['first', 'second', 'next-minute'].map(name => ({
+    name, modules: true, script: `Date.now = () => ${fixedNow + (name === 'next-minute' ? 60000 : 0)};\n${siteScript}`,
+    compatibilityDate: '2026-10-01', d1Databases: { DB: 'shared-sites' }, kvNamespaces: { FILES: 'shared-files' }, bindings: { SITES, EVENTS_TOKEN: TOKEN },
+  })) }));
+  db = await mf.getD1Database('DB', 'first');
+  await db.batch(migration.split(';').map(s => s.trim()).filter(Boolean).map(s => db.prepare(s)));
+  const first = await mf.getWorker('first');
+  const second = await mf.getWorker('second');
+  async function dispatch(target, site = 'arbcut', origin = 'https://arbcut.lt') {
+    const encoded = new Request('https://jarvisweb.lt/t/form', { method: 'POST', body: formBody({ kind: 'site_inquiry', site, phone: '12345678' }),
+      headers: { 'X-Test-Origin': origin, Accept: 'application/json' } });
+    return target.fetch(encoded.url, { method: 'POST', headers: Object.fromEntries(encoded.headers), body: new Uint8Array(await encoded.arrayBuffer()) });
+  }
+  const results = await Promise.all(Array.from({ length: 20 }, (_, n) => dispatch(n % 2 ? first : second)));
+  assert.equal(results.filter(r => r.status === 200).length, 5, JSON.stringify(await Promise.all(results.map(async r => [r.status, await r.clone().text()]))));
+  assert.equal(results.filter(r => r.status === 429).length, 15);
+  assert.equal(await db.prepare("SELECT submissions FROM site_daily_budgets WHERE site = '*'").first('submissions'), 5);
+  assert.equal((await dispatch(await mf.getWorker('next-minute'))).status, 200);
+  await db.prepare("UPDATE site_daily_budgets SET submissions = 99 WHERE site = '*'").run();
+  const capped = await Promise.all(Array.from({ length: 8 }, (_, n) => dispatch(n % 2 ? first : second, 'other', 'https://other.test')));
+  assert.equal(capped.filter(r => r.status === 200).length, 1);
+  assert.equal(capped.filter(r => r.status === 429).length, 7);
+  assert.equal(await db.prepare("SELECT submissions FROM site_daily_budgets WHERE site = '*'").first('submissions'), 100);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 7);
 });
