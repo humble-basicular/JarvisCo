@@ -65,9 +65,19 @@ function cors(response: Response, origin: string): Response {
   response.headers.set('Vary', 'Origin');
   return response;
 }
-function sameOrigin(request: Request): boolean {
+function firstPartyOrigin(request: Request): boolean {
   const origin = request.headers.get('Origin');
-  return origin === null || origin === new URL(request.url).origin;
+  return origin === null || origin === new URL(request.url).origin
+    || origin === 'https://jarvisweb.lt' || origin === 'https://www.jarvisweb.lt';
+}
+
+// Check the union before reading a body; the parsed site still needs its own check.
+function rejectForeignOrigin(request: Request, env: Env): Response | null {
+  if (firstPartyOrigin(request)) return null;
+  const config = sites(env);
+  if (!config) return error('unavailable', 503);
+  const origin = request.headers.get('Origin')!;
+  return Object.values(config).some(site => site.origins.includes(origin)) ? null : error('origin', 403);
 }
 
 function validCode(code: unknown): code is string {
@@ -165,6 +175,8 @@ async function readBody(request: Request, max: number): Promise<Uint8Array> {
 async function beacon(request: Request, env: Env): Promise<Response> {
   const mediaType = (request.headers.get('Content-Type') ?? '').split(';')[0]!.trim().toLowerCase();
   if (!['', 'application/json', 'text/plain'].includes(mediaType)) return error('unsupported_media_type', 415);
+  const denied = rejectForeignOrigin(request, env);
+  if (denied) return denied;
   let payload: unknown;
   try {
     payload = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(await readBody(request, MAX_BODY)));
@@ -184,7 +196,7 @@ async function beacon(request: Request, env: Env): Promise<Response> {
       return cors(error('invalid_event', 400), request.headers.get('Origin')!);
     }
     siteCode = site;
-  } else if (!sameOrigin(request)) return error('origin', 403);
+  } else if (!firstPartyOrigin(request)) return error('origin', 403);
   if (!siteCode && (!validCode(code) || typeof type !== 'string' || !TYPES.includes(type))) return error('invalid_event', 400);
 
   try {
@@ -243,6 +255,8 @@ const FILE_TYPES = new Set([
 async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { isSite?: boolean }): Promise<Response> {
   const invalid = (field: string) => json({ error: 'invalid', field }, 400);
   if ((request.headers.get('Content-Type') ?? '').split(';')[0]!.trim().toLowerCase() !== 'multipart/form-data') return invalid('kind');
+  const denied = rejectForeignOrigin(request, env);
+  if (denied) return denied;
   const length = Number(request.headers.get('Content-Length'));
   if (length > MAX_FORM_BODY) return error('too_large', 413);
   let data: FormData;
@@ -275,7 +289,7 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
     site = text('site');
     if (!site || !SITE.test(site) || !config[site] || config[site]!.kind !== (kind === 'site_inquiry' ? 'client' : 'leadgen')) return invalid('site');
     if (!allowedOrigin(request, config[site]!)) return error('origin', 403);
-  } else if (!sameOrigin(request)) return error('origin', 403);
+  } else if (!firstPartyOrigin(request)) return error('origin', 403);
   if (data.getAll('website').some(value => typeof value !== 'string' || value.trim() !== '')) return json({ ok: true });
   if (!isSite && kind !== 'preview_request' && kind !== 'callback_request') return invalid('kind');
   const code = isSite ? '' : text('code');

@@ -13,6 +13,8 @@ CREATE TABLE events_offer (
 );
 INSERT INTO events_offer(id,code,type,at,ua_class) SELECT id,code,type,at,ua_class FROM events;
 UPDATE sqlite_sequence SET seq = max(seq, COALESCE((SELECT max(seq) FROM offer_sequence_checkpoint),0)) WHERE name = 'events_offer';
+INSERT INTO sqlite_sequence(name,seq) SELECT 'events_offer', seq FROM offer_sequence_checkpoint
+WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = 'events_offer');
 CREATE TABLE submissions_offer (
   id TEXT PRIMARY KEY,
   event_id INTEGER NOT NULL UNIQUE REFERENCES events_offer(id),

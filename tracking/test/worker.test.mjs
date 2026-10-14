@@ -967,3 +967,62 @@ test('site budgets are atomic across two isolates and minute window resets indep
   assert.equal(await db.prepare("SELECT submissions FROM site_daily_budgets WHERE site = '*'").first('submissions'), 100);
   assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 7);
 });
+
+test('foreign origins are denied before reading form or beacon bodies', async () => {
+  for (const [path, contentType] of [['/t/form', 'multipart/form-data; boundary=broken'], ['/t/e', 'text/plain']]) {
+    const incoming = new Request(`https://jarvisweb.lt${path}`, { method: 'POST', body: 'malformed',
+      headers: { Origin: 'https://evil.test', 'Content-Type': contentType, 'Content-Length': String(30 * 1024 * 1024) } });
+    const response = await worker.fetch(incoming, { SITES }, { waitUntil() {} });
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: 'origin' });
+    assert.equal(incoming.bodyUsed, false);
+  }
+});
+
+test('legacy forms and beacons accept both first-party hosts and missing Origin', async () => {
+  for (const host of ['jarvisweb.lt', 'www.jarvisweb.lt']) {
+    for (const origin of [null, 'https://jarvisweb.lt', 'https://www.jarvisweb.lt']) {
+      const headers = origin === null ? {} : { Origin: origin };
+      const beacon = await request('/t/e', { method: 'POST', headers: { ...headers, 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ code: 'a2345', type: 'view' }) }, host);
+      assert.equal(beacon.status, 204);
+      const form = await request('/t/form', { method: 'POST', body: formBody({ kind: 'preview_request', code: host === 'jarvisweb.lt' ? 'p2345' : 'p2346' }), headers: { ...headers, Accept: 'application/json' } }, host);
+      assert.equal(form.status, 200);
+      assert.equal(form.headers.get('Access-Control-Allow-Origin'), null);
+    }
+    for (const path of ['/t/e', '/t/form']) {
+      const response = await request(path, { method: 'POST', headers: { Origin: 'https://evil.test',
+        'Content-Type': path === '/t/e' ? 'text/plain' : 'multipart/form-data; boundary=broken' }, body: 'malformed' }, host);
+      assert.equal(response.status, 403);
+    }
+  }
+});
+
+test('site A origin posting site B returns JSON 403 or no-JS error redirect to A', async () => {
+  for (const accept of ['application/json', null]) {
+    const response = await request('/t/form', { method: 'POST', body: formBody({ kind: 'site_inquiry', site: 'other', phone: '12345678' }),
+      headers: { Origin: 'https://arbcut.lt', ...(accept === null ? {} : { Accept: accept }) } });
+    assert.equal(response.status, accept === null ? 303 : 403);
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+    if (accept === null) assert.equal(response.headers.get('Location'), 'https://arbcut.lt/aciu?klaida=1');
+    else assert.deepEqual(await response.json(), { error: 'origin' });
+  }
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 0);
+});
+
+test('offer migration preserves AUTOINCREMENT high-water when all events were deleted', async () => {
+  const { runtime, database } = await createRuntime({ schema: false });
+  try {
+    for (const name of ['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql']) {
+      const sql = await readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8');
+      await database.batch(sql.split(';').map(s => s.trim()).filter(Boolean).map(s => database.prepare(s)));
+    }
+    await database.prepare("INSERT INTO events(id,code,type,ua_class) VALUES (100,'p2345','view','human')").run();
+    await database.prepare('DELETE FROM events').run();
+    assert.equal(await database.prepare("SELECT seq FROM sqlite_sequence WHERE name = 'events'").first('seq'), 100);
+    const sql = await readFile(new URL('../migrations/0004_sites.sql', import.meta.url), 'utf8');
+    await database.batch(sql.split(';').map(s => s.trim()).filter(Boolean).map(s => database.prepare(s)));
+    await database.prepare("INSERT INTO events(site,type,ua_class) VALUES ('arbcut','cta_call','human')").run();
+    assert.equal(await database.prepare('SELECT id FROM events').first('id'), 101);
+  } finally { await runtime.dispose(); }
+});
