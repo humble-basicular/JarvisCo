@@ -37,17 +37,41 @@
     rate_limited: 'Per daug bandymų. Pabandykite vėliau.',
   };
 
+  var MAX_FILES = 8, MAX_FILE = 10 * 1024 * 1024, MAX_TOTAL = 25 * 1024 * 1024;
+  var TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/gif', 'application/pdf',
+    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain'];
+  /* Same limits as the Worker; returns a message or ''. */
+  function checkFiles() {
+    var input = form.querySelector('input[type="file"]');
+    var files = input && input.files ? Array.prototype.slice.call(input.files).filter(function (f) { return f.size || f.name; }) : [];
+    var total = 0;
+    if (files.length > MAX_FILES) return 'Per daug failų: daugiausia 8.';
+    for (var i = 0; i < files.length; i++) {
+      if (TYPES.indexOf(files[i].type) < 0) return 'Šio tipo failų priimti negalime: ' + files[i].name + '.';
+      if (files[i].size > MAX_FILE) return 'Failas per didelis (daugiausia 10 MB): ' + files[i].name + '.';
+      total += files[i].size;
+    }
+    return total > MAX_TOTAL ? 'Failai per dideli (iš viso daugiausia 25 MB).' : '';
+  }
+
+  var inFlight = false;
   form.addEventListener('submit', function (event) {
     event.preventDefault();
-    errorBox.hidden = true;
-    button.disabled = true;
-    button.textContent = 'Siunčiama…';
+    if (inFlight) return;
     var fail = function (text) {
+      inFlight = false;
       errorText.textContent = text || 'Nepavyko išsiųsti.';
       errorBox.hidden = false;
       button.disabled = false;
       button.textContent = label;
     };
+    errorBox.hidden = true;
+    var problem = checkFiles();
+    if (problem) { fail(problem); return; }
+    inFlight = true;
+    button.disabled = true;
+    button.textContent = 'Siunčiama…';
     fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
       .then(function (res) {
         return res.json().catch(function () { return {}; }).then(function (json) { return { res: res, json: json }; });

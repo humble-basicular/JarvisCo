@@ -4,7 +4,8 @@
    2) node scripts/preview-form-stub.mjs 4330 client-sites/<slug> &
    3) node scripts/client-site-form-test.mjs [http://localhost:4330]
    Checks: JS submit → thanks + site_inquiry received; error → business tel: link;
-   call/SMS click → beacon; no-JS 303 target /aciu and /aciu?klaida=1. Never touches the real Worker. */
+   call/SMS click → beacon; no-JS 303 target /aciu and /aciu?klaida=1 (also with script execution disabled);
+   double submit → one request; disallowed file refused client-side. Never touches the real Worker. */
 import { spawn } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -59,6 +60,28 @@ try {
   // 4. no-JS targets
   await go('/aciu'); ok(await evaluate(`!document.querySelector('[data-aciu-ok]').hidden`), '/aciu shows thanks');
   await go('/aciu?klaida=1'); ok(await evaluate(`!document.querySelector('[data-aciu-error]').hidden && /tel:/.test(document.querySelector('[data-aciu-error] a').href)`), '/aciu?klaida=1 shows error with tel:');
+  // 5. JavaScript disabled: static /aciu must not claim success (also with ?klaida=1), and must offer the tel: link
+  await cdp('Emulation.setScriptExecutionDisabled', { value: true });
+  for (const path of ['/aciu', '/aciu?klaida=1']) {
+    await go(path);
+    ok(await evaluate(`!document.querySelector('[data-aciu-neutral]').hidden && document.querySelector('[data-aciu-ok]').hidden && document.querySelector('[data-aciu-error]').hidden`), `no-JS ${path}: only the neutral text is visible`);
+    ok(await evaluate(`/^tel:\\+370/.test(document.querySelector('[data-aciu-neutral] a').getAttribute('href')) && !/gauta/i.test(document.body.innerText)`), `no-JS ${path}: tel: link, no "gauta"`);
+  }
+  await cdp('Emulation.setScriptExecutionDisabled', { value: false });
+
+  // 6. double submit → one request (the stub counts form posts)
+  await logStatus(200); await go('/');
+  await fill('hs-phone', '860000000');
+  const before = Number((await (await fetch(`${BASE}/__stub/count`)).text()).trim());
+  await evaluate(`(() => { const f = document.querySelector('[data-callback-form]'); f.requestSubmit(); f.requestSubmit(); })()`); await sleep(800);
+  const after = Number((await (await fetch(`${BASE}/__stub/count`)).text()).trim());
+  ok(after - before === 1, 'two rapid submits → one request');
+
+  // 7. file validation happens before fetch
+  await go('/');
+  await fill('hs-phone', '860000000');
+  const rejected = await evaluate(`(() => { const i = document.getElementById('hs-files'); const dt = new DataTransfer(); dt.items.add(new File(['x'], 'a.exe', { type: 'application/x-msdownload' })); i.files = dt.files; document.querySelector('[data-callback-form]').requestSubmit(); return new Promise(r => setTimeout(() => r(!document.querySelector('[data-form-error]').hidden && /priimti/.test(document.querySelector('[data-form-error-text]').textContent)), 300)); })()`);
+  ok(rejected, 'disallowed file type is rejected before sending');
   ws.close();
 } finally {
   chrome.kill();

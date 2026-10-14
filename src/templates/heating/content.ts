@@ -37,7 +37,7 @@ export const t = {
   phoneField: 'Telefono numeris',
   message: 'Kas atsitiko arba ką norite įrengti?',
   files: 'Nuotraukos arba failai (nebūtina)',
-  filesHint: 'Iki 8 failų, kiekvienas iki 10 MB.',
+  filesHint: 'Iki 8 failų, kiekvienas iki 10 MB, iš viso iki 25 MB. Nuotraukos, PDF, Word, Excel, TXT.',
   submit: 'Palikti numerį',
   sending: 'Siunčiama…',
   thanksTitle: 'Ačiū, užklausa gauta',
@@ -142,14 +142,14 @@ export function faqList(data: SiteData, sms: boolean): { q: string; a: string }[
   ];
 }
 
-/** +370 600 00000 / 8 600 00000 / 860000000 / 037 000000 → +37060000000. null if not a phone. */
+/** +370 600 00000 / 8 600 00000 / 860000000 / 060000000 / 60000000 → +37060000000. null if not a phone. */
 export function toE164(phone: string): string | null {
   const p = phone.trim();
   const digits = p.replace(/\D/g, '');
   if (p.startsWith('+')) return digits.length >= 8 && digits.length <= 15 ? `+${digits}` : null;
   if (digits.startsWith('00')) return digits.length >= 10 ? `+${digits.slice(2)}` : null;
   if (digits.startsWith('370') && digits.length === 11) return `+${digits}`;
-  if (digits.startsWith('8') && digits.length === 9) return `+370${digits.slice(1)}`;
+  if (/^[08]\d{8}$/.test(digits)) return `+370${digits.slice(1)}`;
   if (/^[3-9]\d{7}$/.test(digits)) return `+370${digits}`;
   return null;
 }

@@ -113,7 +113,7 @@ const call = (cls: string, label: string) => ({ cls, label });
             <label for="hs-message">{t.message}</label>
             <textarea id="hs-message" name="message" rows="3" maxlength="2000"></textarea>
             <label for="hs-files">{t.files}</label>
-            <input id="hs-files" name="files" type="file" multiple accept="image/*,application/pdf" />
+            <input id="hs-files" name="files" type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/gif,application/pdf,.doc,.docx,.xls,.xlsx,.txt,text/plain" />
             <p class="hs-form__hint">{t.filesHint}</p>
             <button class="hs-btn hs-btn--block" type="submit">{t.submit}</button>
             <p class="hs-form__legal">

@@ -17,6 +17,7 @@ const PORT = Number(process.argv[2] ?? 4330);
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2', '.pdf': 'application/pdf', '.xml': 'application/xml', '.txt': 'text/plain' };
 const ERRORS = { 400: { error: 'invalid', field: 'phone' }, 413: { error: 'too_large' }, 415: { error: 'file_type' }, 429: { error: 'rate_limited' }, 500: { error: 'server' } };
 let id = 0;
+let posts = 0; // /t/form requests seen (test helper: /__stub/count)
 let forced = Number(process.env.STUB_STATUS ?? 200);
 
 const json = (res, status, body, extra = {}) => {
@@ -31,6 +32,7 @@ createServer(async (req, res) => {
     forced = Number(url.pathname.split('/').pop()) || 200;
     return json(res, 200, { status: forced });
   }
+  if (url.pathname === '/__stub/count') { res.writeHead(200, { 'content-type': 'text/plain' }); return res.end(String(posts)); }
   const cors = origin ? { 'access-control-allow-origin': origin, vary: 'Origin' } : {};
   if (req.method === 'OPTIONS' && url.pathname.startsWith('/t/')) {
     res.writeHead(204, { ...cors, 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-allow-headers': 'content-type, accept', 'access-control-max-age': '600' }).end();
@@ -46,6 +48,7 @@ createServer(async (req, res) => {
       return;
     }
     if (url.pathname === '/t/form') {
+      posts++;
       const request = new Request(url, { method: 'POST', headers: { 'content-type': req.headers['content-type'] ?? '' }, body });
       console.log(`[form] content-type: ${req.headers['content-type']} · ${body.length} bytes`);
       try {
