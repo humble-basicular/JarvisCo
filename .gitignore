@@ -23,3 +23,8 @@ Thumbs.db
 .claude/
 .vercel
 .env*
+
+# offer v2: real lead previews, client sites (inputs, photos, builds)
+/previews/*.json
+/public/previews/
+/client-sites/

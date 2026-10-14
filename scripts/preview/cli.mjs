@@ -57,6 +57,37 @@ function validateSubmission(sub) {
   };
 }
 
+/** #rrggbb whose white-text contrast is at least 4.5:1 (buttons are white on accent). */
+function accent(value) {
+  const v = text(value, 'accent', 7);
+  if (!v) return undefined;
+  if (!/^#[0-9a-f]{6}$/i.test(v)) throw new Error('accent must be #rrggbb');
+  const lin = (i) => { const c = parseInt(v.slice(i, i + 2), 16) / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  const l = 0.2126 * lin(1) + 0.7152 * lin(3) + 0.0722 * lin(5);
+  if (1.05 / (l + 0.05) < 4.5) throw new Error(`accent ${v} is too light for white text (needs 4.5:1)`);
+  return v.toLowerCase();
+}
+
+function legal(value) {
+  if (value == null) return undefined;
+  if (typeof value !== 'object' || Array.isArray(value)) throw new Error('legal must be {name, code, address}');
+  const out = { name: text(value.name, 'legal.name', 120), code: text(value.code, 'legal.code', 20), address: text(value.address, 'legal.address', 160) };
+  return Object.values(out).some(Boolean) ? Object.fromEntries(Object.entries(out).filter(([, v]) => v)) : undefined;
+}
+
+/** Real client quotes only; the generator never writes any itself. */
+function reviews(value) {
+  if (value == null) return undefined;
+  if (!Array.isArray(value) || value.length > 6) throw new Error('reviews must be a list of at most 6 {text, name, place}');
+  return value.map((r, i) => ({ text: text(r?.text, `reviews[${i}].text`, 400, { required: true }), name: text(r?.name, `reviews[${i}].name`, 60, { required: true }), place: text(r?.place, `reviews[${i}].place`, 60) }));
+}
+
+function faq(value) {
+  if (value == null) return undefined;
+  if (!Array.isArray(value) || value.length > 8) throw new Error('faq must be a list of at most 8 {q, a}');
+  return value.map((f, i) => ({ q: text(f?.q, `faq[${i}].q`, 160, { required: true }), a: text(f?.a, `faq[${i}].a`, 600, { required: true }) }));
+}
+
 function isPhone(value) {
   return value.length <= 20 && /^[0-9 +\-()]+$/.test(value) && (value.match(/\d/g)?.length ?? 0) >= 8;
 }
@@ -78,6 +109,12 @@ export function normalize(raw) {
     tagline: text(raw.tagline, 'tagline', 120),
     about: text(raw.about, 'about', 1000),
     email: text(raw.email, 'email', 120),
+    hours: text(raw.hours, 'hours', 120),
+    brands: list(raw.brands, 'brands', 10, 40),
+    accent: accent(raw.accent),
+    legal: legal(raw.legal),
+    reviews: reviews(raw.reviews),
+    faq: faq(raw.faq),
   };
   if (!isPhone(data.phone)) throw new Error(`phone "${data.phone}" is not a phone number (digits, spaces, + - ( ), at least 8 digits)`);
   if (!data.city && !data.areas.length) throw new Error('city or areas is required');
@@ -138,6 +175,12 @@ async function generate(file) {
     ...(data.tagline ? { tagline: data.tagline } : {}),
     ...(data.about ? { about: data.about } : {}),
     ...(data.email ? { email: data.email } : {}),
+    ...(data.hours ? { hours: data.hours } : {}),
+    ...(data.brands.length ? { brands: data.brands } : {}),
+    ...(data.accent ? { accent: data.accent } : {}),
+    ...(data.legal ? { legal: data.legal } : {}),
+    ...(data.reviews?.length ? { reviews: data.reviews } : {}),
+    ...(data.faq?.length ? { faq: data.faq } : {}),
     photos,
     ...(submission ? { submission } : {}),
   };
