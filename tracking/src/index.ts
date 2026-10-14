@@ -1,13 +1,15 @@
 interface Env {
   DB: D1Database;
+  FILES: KVNamespace;
   EVENTS_TOKEN?: string;
 }
 
-type BeaconType = 'view' | 'scroll_proof' | 'cta_sms' | 'cta_call' | 'pdf' | 'arbcut';
+type BeaconType = 'view' | 'scroll_proof' | 'cta_sms' | 'cta_call' | 'pdf' | 'arbcut' | 'preview_cta';
 interface Event {
   id: string;
-  code: string;
-  type: BeaconType | 'click';
+  code: string | null;
+  type: BeaconType | 'click' | 'preview_request' | 'callback_request';
+  submission?: Submission;
   at: string;
   ua_class: 'bot' | 'human';
 }
@@ -19,9 +21,9 @@ interface Cursor {
   high: string;
 }
 
-const PREFIXES: Readonly<Record<string, string>> = { a: '/rezultatai' };
+const PREFIXES: Readonly<Record<string, string>> = { a: '/rezultatai', p: '/noriu' };
 const CODE = /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/;
-const TYPES: readonly string[] = ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut'];
+const TYPES: readonly string[] = ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut', 'preview_cta'];
 const BOT = /facebookexternalhit|whatsapp|telegrambot|slackbot|twitterbot|skypeuripreview|googlebot|bingbot|google-pagerenderer|bot|crawler|spider|preview/i;
 const MAX_BODY = 1024;
 const WINDOW_MS = 60_000;
@@ -69,7 +71,9 @@ async function cleanup(db: D1Database, now: Date): Promise<void> {
   `).bind(ms + CLEANUP_INTERVAL_MS, ms).first();
   if (!lease) return;
   await db.batch([
+    db.prepare('DELETE FROM submissions WHERE at < ?').bind(retentionCutoff(now)),
     db.prepare('DELETE FROM events WHERE at < ?').bind(retentionCutoff(now)),
+    db.prepare('DELETE FROM form_daily_budgets WHERE day_start < ?').bind(Math.floor(ms / 86_400_000) * 86_400_000),
     db.prepare('DELETE FROM rate_limits WHERE window_start < ?').bind(Math.floor(ms / WINDOW_MS) * WINDOW_MS),
   ]);
 }
@@ -90,8 +94,8 @@ async function click(request: Request, env: Env, ctx: ExecutionContext, code: st
 }
 
 class BodyTooLarge extends Error {}
-async function readBeacon(request: Request): Promise<unknown> {
-  if (!request.body) return null;
+async function readBody(request: Request, max: number): Promise<Uint8Array> {
+  if (!request.body) return new Uint8Array();
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
@@ -100,7 +104,7 @@ async function readBeacon(request: Request): Promise<unknown> {
       const { done, value } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > MAX_BODY) {
+      if (size > max) {
         await reader.cancel();
         throw new BodyTooLarge();
       }
@@ -115,7 +119,7 @@ async function readBeacon(request: Request): Promise<unknown> {
     bytes.set(chunk, offset);
     offset += chunk.length;
   }
-  return JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(bytes));
+  return bytes;
 }
 
 async function beacon(request: Request, env: Env): Promise<Response> {
@@ -123,7 +127,7 @@ async function beacon(request: Request, env: Env): Promise<Response> {
   if (!['', 'application/json', 'text/plain'].includes(mediaType)) return error('unsupported_media_type', 415);
   let payload: unknown;
   try {
-    payload = await readBeacon(request);
+    payload = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(await readBody(request, MAX_BODY)));
   } catch (cause) {
     return error(cause instanceof BodyTooLarge ? 'body_too_large' : 'invalid_json', cause instanceof BodyTooLarge ? 413 : 400);
   }
@@ -146,6 +150,156 @@ async function beacon(request: Request, env: Env): Promise<Response> {
     return json({ error: 'rate_limited' }, 429, { 'Retry-After': String(Math.ceil((window + WINDOW_MS - now) / 1000)) });
   }
   return new Response(null, { status: 204, headers: { 'Cache-Control': 'no-store' } });
+}
+
+interface StoredFile { key: string; name: string; type: string; size: number }
+interface Submission {
+  name: string | null;
+  phone: string | null;
+  services: string[];
+  services_other: string | null;
+  area: string[];
+  area_other: string | null;
+  photos_ok: string | null;
+  standout: string | null;
+  contact_time: string | null;
+  files: StoredFile[];
+}
+const MB = 1024 * 1024;
+// Bound the stream before parsing multipart; allow bounded multipart overhead.
+const MAX_FORM_BODY = 25 * MB + 64 * 1024;
+const FILE_TYPES = new Set([
+  'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/gif',
+  'application/pdf', 'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain',
+]);
+
+async function form(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  const invalid = (field: string) => json({ error: 'invalid', field }, 400);
+  if ((request.headers.get('Content-Type') ?? '').split(';')[0]!.trim().toLowerCase() !== 'multipart/form-data') return invalid('kind');
+  const length = Number(request.headers.get('Content-Length'));
+  if (length > MAX_FORM_BODY) return error('too_large', 413);
+  let data: FormData;
+  try {
+    let size = 0;
+    const stream = request.body?.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        size += chunk.byteLength;
+        if (size > MAX_FORM_BODY) throw new BodyTooLarge();
+        controller.enqueue(chunk);
+      },
+    }));
+    data = await new Response(stream, { headers: { 'Content-Type': request.headers.get('Content-Type')! } }).formData();
+  } catch (cause) {
+    return cause instanceof BodyTooLarge ? error('too_large', 413) : invalid('kind');
+  }
+  // A populated trap is a successful no-op, before validation/storage/limiting.
+  if (data.getAll('website').some(value => typeof value !== 'string' || value.trim() !== '')) return json({ ok: true });
+  const text = (field: string): string | null => {
+    const values = data.getAll(field);
+    if (values.length > 1 || values.some(value => typeof value !== 'string')) return null;
+    return typeof values[0] === 'string' ? values[0].trim() : '';
+  };
+  const kind = text('kind');
+  if (kind !== 'preview_request' && kind !== 'callback_request') return invalid('kind');
+  const code = text('code');
+  if (code === null || (code !== '' && !validCode(code))) return invalid('code');
+  const values: Record<string, string> = {};
+  for (const [field, max] of Object.entries({ name: 80, phone: 20, services_other: 200, area_other: 200, standout: 1000 })) {
+    const value = text(field);
+    if (value === null || [...value].length > max) return invalid(field);
+    values[field] = value;
+  }
+  const phone = values.phone!;
+  if ((!code && !phone) || (phone && (!/^[0-9 +()\-]+$/.test(phone) || phone.replace(/\D/g, '').length < 8))) return invalid('phone');
+  const lists: Record<string, string[]> = {};
+  for (const field of ['services', 'area']) {
+    const entries = data.getAll(field);
+    if (entries.length > 12 || entries.some(value => typeof value !== 'string' || [...value.trim()].length > 60)) return invalid(field);
+    lists[field] = [...new Set((entries as string[]).map(value => value.trim()).filter(Boolean))];
+  }
+  const photos = text('photos_ok');
+  if (photos === null || !['', 'yes', 'send_other'].includes(photos)) return invalid('photos_ok');
+  const time = text('contact_time');
+  if (time === null || !['', 'morning', 'day', 'evening', 'sms'].includes(time)) return invalid('contact_time');
+  const uploads = data.getAll('files').filter(value => value !== ''
+    && !(typeof value !== 'string' && value.size === 0 && value.name === ''));
+  if (uploads.some(value => typeof value === 'string')) return invalid('files');
+  const files = uploads as File[];
+  if (files.length > 8) return invalid('files');
+  if (files.some(file => file.size > 10 * MB) || files.reduce((sum, file) => sum + file.size, 0) > 25 * MB) return error('too_large', 413);
+  if (files.some(file => !FILE_TYPES.has(file.type))) return error('file_type', 415);
+
+  // Separate form minute budgets and a global UTC daily budget. Both claims
+  // run in one D1 transaction so concurrent isolates cannot overspend the cap.
+  const now = Date.now();
+  const window = Math.floor(now / WINDOW_MS) * WINDOW_MS;
+  const day = Math.floor(now / 86_400_000) * 86_400_000;
+  const bucket = `form:${code || 'homepage'}`;
+  const limit = code ? 5 : 10;
+  const fileBytes = files.reduce((sum, file) => sum + file.size, 0);
+  const claims = await env.DB.batch([
+    env.DB.prepare(`INSERT INTO rate_limits(code, window_start, requests) VALUES (?, ?, 1)
+      ON CONFLICT(code, window_start) DO UPDATE SET requests = min(requests + 1, ?)
+      RETURNING requests`).bind(bucket, window, limit + 1),
+    env.DB.prepare(`INSERT INTO form_daily_budgets(day_start, submissions, file_bytes)
+      SELECT ?, 1, ? WHERE (SELECT requests FROM rate_limits WHERE code = ? AND window_start = ?) <= ?
+      ON CONFLICT(day_start) DO UPDATE SET submissions = submissions + 1, file_bytes = file_bytes + excluded.file_bytes
+      WHERE submissions < 50 AND file_bytes + excluded.file_bytes <= ?
+      RETURNING submissions`).bind(day, fileBytes, bucket, window, limit, 300 * MB),
+  ]);
+  if (claims[1]!.results.length === 0) {
+    const minuteDenied = (claims[0]!.results[0] as { requests: number }).requests > limit;
+    return json({ error: 'rate_limited' }, 429, {
+      'Retry-After': String(Math.ceil(((minuteDenied ? window + WINDOW_MS : day + 86_400_000) - now) / 1000)),
+    });
+  }
+
+  const id = crypto.randomUUID();
+  const descriptors = files.map((file, n) => ({ key: `s/${id}/${n}`,
+    name: [...file.name.replace(/[\p{Cc}/]/gu, '')].slice(0, 100).join('') || 'file',
+    type: file.type, size: file.size }));
+  const written: string[] = [];
+  try {
+    for (const [n, file] of files.entries()) {
+      const { key, name, type, size } = descriptors[n]!;
+      await env.FILES.put(key, file.stream(), {
+        expirationTtl: 366 * 24 * 60 * 60, metadata: { name, type, size },
+      });
+      written.push(key);
+    }
+    const payload: Submission = {
+      name: values.name || null, phone: phone || null,
+      services: lists.services!, services_other: values.services_other || null,
+      area: lists.area!, area_other: values.area_other || null,
+      photos_ok: photos || null, standout: values.standout || null, contact_time: time || null, files: descriptors,
+    };
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO events(code, type, ua_class) VALUES (?, ?, ?)').bind(code || null, kind, uaClass(request)),
+      env.DB.prepare(`INSERT INTO submissions(id, event_id, code, kind, at, ua_class, payload)
+        SELECT ?, id, code, type, at, ua_class, ? FROM events WHERE id = last_insert_rowid()`)
+        .bind(id, JSON.stringify(payload)),
+    ]);
+  } catch (cause) {
+    // Only keys written by this failed submission; never delete existing files.
+    await Promise.allSettled(written.map(key => env.FILES.delete(key)));
+    throw cause;
+  }
+  scheduleCleanup(env, ctx);
+  return json({ ok: true, id });
+}
+
+async function file(request: Request, env: Env, key: string): Promise<Response> {
+  if (!env.EVENTS_TOKEN) return error('unavailable', 503);
+  if (!await authorized(request, env.EVENTS_TOKEN)) return json({ error: 'unauthorized' }, 401, { 'WWW-Authenticate': 'Bearer' });
+  if (!/^s\/[0-9a-f-]{36}\/[0-7]$/.test(key)) return error('not_found', 404);
+  const stored = await env.FILES.getWithMetadata<{ name: string; type: string; size: number }>(key, 'stream');
+  if (stored.value === null || !stored.metadata) return error('not_found', 404);
+  return new Response(stored.value, { headers: {
+    'Content-Type': stored.metadata.type, 'Content-Disposition': 'attachment', 'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+  } });
 }
 
 function normalizeISO(value: string | null): string | null {
@@ -208,12 +362,14 @@ async function events(request: Request, env: Env, url: URL): Promise<Response> {
   const afterAt = cursor?.at ?? since;
   const afterId = cursor?.id ?? '0';
   const result = await env.DB.prepare(`
-    SELECT CAST(id AS TEXT) AS id, code, type, at, ua_class FROM events
-    WHERE at >= ? AND at >= ? AND id <= ? AND (at > ? OR (at = ? AND id > ?))
+    SELECT CAST(events.id AS TEXT) AS id, events.code, events.type, events.at, events.ua_class, submissions.payload
+    FROM events LEFT JOIN submissions ON submissions.event_id = events.id
+    WHERE events.at >= ? AND events.at >= ? AND events.id <= ? AND (events.at > ? OR (events.at = ? AND events.id > ?))
     ORDER BY events.at ASC, events.id ASC LIMIT ?
-  `).bind(since, retentionCutoff(new Date(Date.now())), high ?? '0', afterAt, afterAt, afterId, limit + 1).all<Event>();
+  `).bind(since, retentionCutoff(new Date(Date.now())), high ?? '0', afterAt, afterAt, afterId, limit + 1).all<Event & { payload: string | null }>();
   const hasMore = result.results.length > limit;
-  const page = result.results.slice(0, limit);
+  const page = result.results.slice(0, limit).map(({ payload, ...event }) =>
+    payload === null ? event : { ...event, submission: JSON.parse(payload) as Submission });
   const last = page.at(-1);
   return json({
     events: page,
@@ -237,13 +393,16 @@ export default {
         return redirect(`${PREFIXES[code[0]!]!}?r=${code}`);
       }
     }
-    if (url.pathname !== '/t/e' && url.pathname !== '/t/events') return error('not_found', 404);
-    const method = url.pathname === '/t/e' ? 'POST' : 'GET';
+    if (!['/t/e', '/t/form', '/t/events'].includes(url.pathname) && !url.pathname.startsWith('/t/files/')) return error('not_found', 404);
+    const method = ['/t/e', '/t/form'].includes(url.pathname) ? 'POST' : 'GET';
     if (request.method !== method) return json({ error: 'method_not_allowed' }, 405, { Allow: method });
     try {
-      const response = url.pathname === '/t/e' ? await beacon(request, env) : await events(request, env, url);
+      const response = url.pathname === '/t/e' ? await beacon(request, env)
+        : url.pathname === '/t/form' ? await form(request, env, ctx)
+        : url.pathname.startsWith('/t/files/') ? await file(request, env, url.pathname.slice(9))
+        : await events(request, env, url);
       // Invalid events/unauthenticated requests do not trigger database work.
-      if (response.ok) scheduleCleanup(env, ctx);
+      if (response.ok && url.pathname !== '/t/form') scheduleCleanup(env, ctx);
       return response;
     } catch {
       return error('unavailable', 503);

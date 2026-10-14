@@ -118,3 +118,12 @@ Codex session 100% until 13:06; Claude session 45%. Logo branch was based on pre
 
 ## 2026-10-12 09:15 — Google screenshots replaced (Claude parent)
 Jarvis: old Google captures looked fake (Kaunas = mostly empty page, result at the bottom). Replaced with his 4 browser screenshots (arboristas kaunas, medziu pjovimas kaunas/jonava/kazlu ruda): cards = arbcut.lt result crop, zoom + PDF = full screenshot. PDF reprinted (4 pages) as arbcut-irodymai-2026-10-12.pdf (old URL is immutably cached at Cloudflare; old path overwritten with the same new PDF). Commits e380e9b, e9c68f2, 2af7c09; production dpl_4QACFQWE3MX8tZqVTsj4Jwk6tKCe. Checks: npm run check pass, no overflow 1440/390, live PDF byte-identical. Not done: Codex review (session limit).
+
+## Preview funnel — 2026-10-14 (lead Claude Opus 5.5, autonomous)
+Spec: `docs/SPEC-2026-10-preview-funnel.md` @ 2e3c062. CRM board has the full table (`~/MultiPurpose CRM/.agents/BOARD.md`).
+
+| Stage | Owner / branch | Owned files | Status |
+|---|---|---|---|
+| S2 Worker form/files/prefix p | Codex GPT-6.1-Sol / `funnel-worker` (`../JarvisCo-worktrees/funnel-worker`) | `tracking/**` | ACTIVE |
+| S3+S6 landing, form, preview template | Claude Opus 5.5 / `funnel-site` (`../JarvisCo-worktrees/funnel-site`) | `src/**`, `public/**`, `scripts/preview*`, `previews/**`, root package*.json | ACTIVE |
+| Deploys | lead | — | Worker after review; site production waits for Jarvis (privacy + LT copy) |
