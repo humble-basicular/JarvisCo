@@ -1,13 +1,12 @@
 ---
-/* Demo heating site shown as the example on /noriu (funnel spec §8). */
-import PreviewLayout from '@layouts/PreviewLayout.astro';
-import PreviewSite from '@components/preview/PreviewSite.astro';
-import { demo } from '@data/preview';
+/* Demo heating site shown as the example on /noriu (funnel spec §8). noindex. */
+import HeatingLayout from '../../templates/heating/HeatingLayout.astro';
+import HeatingSite from '../../templates/heating/HeatingSite.astro';
+import { demo } from '../../templates/heating/demo';
+import { pageDescription } from '../../templates/heating/content';
+
+const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: '/noriu', label: '← Grįžti' };
 ---
-<PreviewLayout
-  title={`${demo.business} – šildymo sistemos | pavyzdys`}
-  description="Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti."
-  back={{ href: '/noriu', label: '← Grįžti' }}
->
-  <PreviewSite data={demo} />
-</PreviewLayout>
+<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} banner={banner}>
+  <HeatingSite data={demo} mode="preview" />
+</HeatingLayout>
