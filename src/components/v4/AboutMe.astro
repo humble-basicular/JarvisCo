@@ -1,0 +1,30 @@
+---
+/* About Jarvis (plan §4.2 item 10): real photo, name, town, phone. */
+import { Image } from 'astro:assets';
+import { brand } from '@data/content.js';
+import { about } from '@data/v4.js';
+import photo from '@assets/people/matas.webp';
+---
+<section class="sec" id="apie" aria-labelledby="apie-title">
+  <div class="wrap me">
+    <Image class="me__photo" src={photo} alt={about.photoAlt} widths={[400, 700, 1000]} sizes="(min-width: 64rem) 36rem, calc(100vw - 2.5rem)" format="webp" quality={78} />
+    <div class="me__text">
+      <p class="label">{about.label}</p>
+      <h2 class="head__title" id="apie-title"><span class="reveal-line" data-reveal>{about.title}</span></h2>
+      <p class="me__lead">{about.lead}</p>
+      <p class="mute">{about.text}</p>
+      <a class="btn btn--line" href={brand.telHref} data-track="cta_call">{about.call}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .me { display: grid; gap: 2.5rem; }
+  .me :global(.me__photo) { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+  .me__text { display: grid; justify-items: start; gap: 1.25rem; align-content: end; }
+  .me__lead { font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.15; letter-spacing: -0.03em; font-weight: 500; max-width: 18ch; margin: 0; }
+  @media (min-width: 64rem) {
+    .me { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; }
+    .me :global(.me__photo) { max-width: 34rem; }
+  }
+</style>

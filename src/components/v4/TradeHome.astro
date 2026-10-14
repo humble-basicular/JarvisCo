@@ -1,0 +1,29 @@
+---
+/* The v4 page body (plan §4.2 items 2–12). The homepage and the heating trade
+   page (/sildymui, /noriu) share it; the trade page puts the example first. */
+import Hero from './Hero.astro';
+import OfferRow from './OfferRow.astro';
+import Proof from './Proof.astro';
+import Compare from './Compare.astro';
+import How from './How.astro';
+import Examples from './Examples.astro';
+import Price from './Price.astro';
+import AboutMe from './AboutMe.astro';
+import FaqList from './FaqList.astro';
+import FormSection from './FormSection.astro';
+
+interface Props { variant?: 'home' | 'heating' }
+const { variant = 'home' } = Astro.props;
+const heating = variant === 'heating';
+---
+<Hero variant={variant} />
+<OfferRow />
+{heating && <Examples />}
+<Proof />
+<Compare />
+<How />
+{!heating && <Examples />}
+<Price />
+<AboutMe />
+<FaqList />
+<FormSection trade={heating ? 'Šildymas' : undefined} />

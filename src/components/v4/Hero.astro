@@ -1,0 +1,67 @@
+---
+/* Hero (plan §4.2 item 2, Fervor): huge tight headline, two lines of honest
+   offer text, orange CTA + SMS link, one big object crossing the page (photo
+   slot until Jarvis supplies it), and Mantas's quote slot below the fold line. */
+import { brand } from '@data/content.js';
+import { hero, MAIN_CTA } from '@data/v4.js';
+import Placeholder from './Placeholder.astro';
+
+interface Props { variant?: 'home' | 'heating' }
+const { variant = 'home' } = Astro.props;
+const v = hero[variant];
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap">
+    {'stamp' in v && <p class="stamp hero__stamp">{v.stamp}</p>}
+    <h1 class="hero__title" id="hero-title">
+      {v.lines.map((line, i) => <span class="reveal-line" style={`--i:${i}`}>{line}</span>)}
+    </h1>
+    <div class="hero__row">
+      <div class="hero__sub">{hero.sub.map((p) => <p>{p}</p>)}</div>
+      <div class="hero__ctas">
+        <a class="btn btn--accent btn--big" href="#forma" data-track="preview_cta">{MAIN_CTA}</a>
+        <a class="link" href={brand.smsHref} data-track="cta_sms">{hero.sms}</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero__object" data-drift>
+    <Placeholder text={v.photo} ratio="21 / 8" class="hero__ph" />
+  </div>
+  <div class="wrap">
+    <figure class="hero__quote">
+      <Placeholder text={hero.quote.photo} ratio="1 / 1" class="hero__face" />
+      <blockquote><p>{hero.quote.text}</p></blockquote>
+      <figcaption>{hero.quote.who}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero { padding-top: clamp(2.5rem, 7vw, 5.5rem); overflow: clip; }
+  .hero__stamp { margin-bottom: 1.25rem; }
+  .hero__title { font-size: clamp(2.75rem, 8.6vw, 7.5rem); font-weight: 600; line-height: 0.95; letter-spacing: -0.05em; max-width: 15ch; }
+  .hero__row { display: grid; gap: 2rem; margin-top: clamp(1.75rem, 4vw, 3rem); }
+  .hero__sub { max-width: 34rem; color: var(--ink-2); font-size: clamp(1.0625rem, 0.6vw + 0.95rem, 1.25rem); }
+  .hero__sub p { margin-bottom: 0.5rem; }
+  .hero__ctas { display: grid; gap: 0.5rem; justify-items: start; align-content: start; }
+  .hero__ctas .btn { width: 100%; }
+  .hero__object { margin-top: clamp(2.5rem, 6vw, 4rem); padding-left: var(--gutter); }
+  .hero__object :global(.hero__ph) { --ratio: 4 / 3; }
+  .hero__quote { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: 0.25rem 1rem; margin: 2.5rem 0 0; padding-top: 1.5rem; border-top: 1px solid var(--rule); max-width: 34rem; }
+  .hero__quote :global(.hero__face) { grid-row: span 2; width: 4rem; }
+  .hero__quote :global(.hero__face .ph__note) { display: none; }
+  .hero__quote :global(.hero__face .ph__text) { padding: 0.25rem; }
+  .hero__quote :global(.hero__face .stamp) { font-size: 0.625rem; }
+  .hero__quote :global(.hero__face .stamp::before) { display: none; }
+  .hero__quote blockquote { margin: 0; font-size: 1rem; line-height: 1.45; }
+  .hero__quote figcaption { font-size: 0.9375rem; color: var(--mute); }
+  @media (min-width: 48rem) {
+    .hero__ctas .btn { width: auto; }
+    .hero__object { margin-left: 18%; padding-left: 0; }
+    .hero__object :global(.hero__ph) { --ratio: 21 / 8; }
+  }
+  @media (min-width: 64rem) {
+    .hero__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; align-items: start; }
+    .hero__object { margin-top: -1rem; }
+  }
+</style>

@@ -1,0 +1,32 @@
+---
+/* "Kaip atrodytų Jūsų" (plan §4.2 item 7): staged phone-in-hand photos (slots
+   until supplied) with caption and a link to the live demo. Heating first. */
+import { examples } from '@data/v4.js';
+import Head from './Head.astro';
+import Placeholder from './Placeholder.astro';
+---
+<section class="sec" id="pavyzdys" aria-labelledby="pavyzdys-title">
+  <div class="wrap">
+    <Head id="pavyzdys-title" label={examples.label} title={examples.title} text={examples.text} />
+    <ul class="ex">
+      {examples.items.map((it) => (
+        <li>
+          <Placeholder text={it.photo} ratio="4 / 5" />
+          <p class="stamp ex__note">{it.note}</p>
+          <h3>{it.title}</h3>
+          <a class="link" href={it.href} {...(it.href.startsWith('http') ? { rel: 'noopener', 'data-track': 'arbcut' } : {})}>{it.link} <span aria-hidden="true">→</span></a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .ex { display: grid; gap: 3.5rem; }
+  .ex__note { margin: 1.25rem 0 0.5rem; }
+  .ex h3 { font-size: clamp(1.5rem, 3vw, 2rem); letter-spacing: -0.03em; line-height: 1.1; }
+  @media (min-width: 48rem) {
+    .ex { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(1.5rem, 4vw, 4rem); }
+    .ex li:nth-child(2) { margin-top: 6rem; }
+  }
+</style>

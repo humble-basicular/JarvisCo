@@ -44,8 +44,10 @@ function captureCode(): string | null {
 export const code = captureCode();
 const sent = new Set<EventType>();
 
+/** Sends one beacon. Every type counts once per page, except `preview_cta`:
+    each tap on "Gauti nemokamą peržiūrą" is its own beacon. */
 export function send(type: EventType) {
-  if (!code || sent.has(type)) return;
+  if (!code || (type !== 'preview_cta' && sent.has(type))) return;
   sent.add(type);
   const body = JSON.stringify({ code, type });
   const queued =

@@ -1,0 +1,29 @@
+---
+/* FAQ (plan §4.2 item 11, Fervor): two columns split by thin rules, all
+   answers visible (no accordion, no JS). */
+import { faq } from '@data/v4.js';
+import Head from './Head.astro';
+---
+<section class="sec" id="duk" aria-labelledby="duk-title">
+  <div class="wrap">
+    <Head id="duk-title" label={faq.label} title={faq.title} />
+    <div class="faq">
+      {faq.items.map((it) => (
+        <div class="faq__row">
+          <h3>{it.q}</h3>
+          <p>{it.a}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq { border-bottom: 1px solid var(--rule); }
+  .faq__row { display: grid; gap: 0.75rem; padding-block: 1.75rem; border-top: 1px solid var(--rule); }
+  .faq h3 { font-size: clamp(1.25rem, 2.4vw, 1.625rem); letter-spacing: -0.025em; line-height: 1.15; }
+  .faq p { color: var(--ink-2); max-width: 38rem; }
+  @media (min-width: 64rem) {
+    .faq__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; padding-block: 2.25rem; }
+  }
+</style>
