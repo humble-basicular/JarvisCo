@@ -1,0 +1,71 @@
+---
+/* HTML shell for the heating template. Preview: noindex,nofollow, fixed
+   "PERŽIŪRA" banner, no tracking. Live: indexable, canonical on the client's
+   domain, LocalBusiness schema. System fonts, no cookies, no analytics. */
+import './heating.css';
+import { DEFAULT_ACCENT } from './content';
+import type { Banner, Mode } from './types';
+
+interface Props {
+  mode: Mode;
+  title: string;
+  description: string;
+  business: string;
+  accent?: string;
+  banner?: Banner;
+  /** Live only. */
+  canonical?: string;
+  image?: string;
+  jsonLd?: object;
+  robots?: string;
+  /** Live only: shown as data attributes the page script reads. */
+  live?: { code: string; beacon: string; tel: string | null };
+}
+const { mode, title, description, business, banner, canonical, image, jsonLd, live } = Astro.props;
+const accent = /^#[0-9a-f]{6}$/i.test(Astro.props.accent ?? '') ? Astro.props.accent! : DEFAULT_ACCENT;
+const robots = Astro.props.robots ?? (mode === 'preview' ? 'noindex,nofollow' : 'index,follow');
+const initials = business.split(/\s+/u).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="${accent}"/><text x="32" y="43" font-family="Arial,sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="#fff">${initials.replace(/[<>&]/g, '')}</text></svg>`)}`;
+---
+<!doctype html>
+<html lang="lt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="robots" content={robots} />
+    {mode === 'preview' && <meta name="referrer" content="no-referrer" />}
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={accent} />
+    <link rel="icon" href={favicon} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {mode === 'live' && canonical && (
+      <>
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="lt_LT" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        {image && <meta property="og:image" content={image} />}
+      </>
+    )}
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
+    <style set:html={`:root{--hs-accent:${accent}}`}></style>
+  </head>
+  <body
+    class={mode === 'preview' ? 'hs hs--preview' : 'hs'}
+    data-site={live?.code}
+    data-beacon={live?.beacon}
+    data-tel={live?.tel ?? undefined}
+  >
+    {banner && (
+      <div class="hs-banner" role="note">
+        <span class="hs-banner__tag">{banner.tag}</span>
+        <span class="hs-banner__note">{banner.note}</span>
+        <a class="hs-banner__link" href={banner.href}>{banner.label}</a>
+      </div>
+    )}
+    <slot />
+  </body>
+</html>
