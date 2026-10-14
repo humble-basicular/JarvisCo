@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "node scripts/preview/cli.mjs",
     "check:copy": "node src/checks/copy-check.mjs",
     "check:js": "node src/checks/js-budget.mjs",
     "check": "astro build && npm run check:copy && npm run check:js && npm run check:static",

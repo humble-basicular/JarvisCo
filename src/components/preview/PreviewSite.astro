@@ -1,0 +1,262 @@
+---
+/* A small heating business site, filled from PreviewData. Phone buttons jump
+   to the contact block instead of dialling, and the contact form never posts
+   anywhere: a preview must not call or message anyone. */
+import { serviceInfo, standoutPoints, TRADE_DEFAULTS, previewText as t, type PreviewData } from '@data/preview';
+import Icon from './Icon.astro';
+
+interface Props { data: PreviewData }
+const { data } = Astro.props;
+const tagline = data.tagline || TRADE_DEFAULTS.tagline;
+const about = data.about || TRADE_DEFAULTS.about;
+const points = standoutPoints(data.standout);
+const areas = data.areas.length ? data.areas : [data.city];
+const [hero, ...gallery] = data.photos;
+const initials = data.business.split(/\s+/u).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const placeholders: ('flame' | 'radiator' | 'fan')[] = ['flame', 'radiator', 'fan'];
+---
+<header class="pv-hdr">
+  <div class="pv-wrap pv-hdr__bar">
+    <a class="pv-logo" href="#pradzia"><span class="pv-logo__mark" aria-hidden="true">{initials}</span><span>{data.business}</span></a>
+    <a class="pv-btn pv-btn--sm" href="#kontaktai"><Icon name="phone" />{t.call}</a>
+  </div>
+</header>
+
+<main id="pradzia">
+  <section class="pv-hero">
+    <div class="pv-wrap pv-hero__grid">
+      <div>
+        <p class="pv-hero__where"><Icon name="pin" />{areas.slice(0, 3).join(', ')}{areas.length > 3 ? ' ir apylinkės' : ''}</p>
+        <h1>{tagline}</h1>
+        <p class="pv-hero__sub">{data.business}. {data.services.slice(0, 3).map((s, i) => (i ? s[0].toLocaleLowerCase('lt') + s.slice(1) : s)).join(', ')}.</p>
+        <div class="pv-hero__ctas">
+          <a class="pv-btn" href="#kontaktai"><Icon name="phone" />{data.phone}</a>
+          <a class="pv-btn pv-btn--ghost" href="#kontaktai">{t.ask}</a>
+        </div>
+      </div>
+      {hero ? (
+        <img class="pv-hero__img" src={hero.src} width={hero.width} height={hero.height} alt={hero.alt ?? `${data.business} darbas`} fetchpriority="high" decoding="async" />
+      ) : points.length > 0 && (
+        <ul class="pv-hero__card" aria-label={t.whyTitle}>
+          {points.map((p) => <li><Icon name="check" />{p}</li>)}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  {hero && points.length > 0 && (
+    <section class="pv-strip" aria-label={t.whyTitle}>
+      <ul class="pv-wrap pv-strip__list">
+        {points.map((p) => <li><Icon name="check" />{p}</li>)}
+      </ul>
+    </section>
+  )}
+
+  <section class="pv-sec" id="paslaugos" aria-labelledby="pv-services">
+    <div class="pv-wrap">
+      <h2 id="pv-services">{t.servicesTitle}</h2>
+      <ul class="pv-services">
+        {data.services.map((name) => {
+          const info = serviceInfo(name);
+          return (
+            <li class="pv-card">
+              <span class="pv-card__icon"><Icon name={info.icon} /></span>
+              <h3>{name}</h3>
+              {info.text && <p>{info.text}</p>}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+
+  <section class="pv-sec pv-sec--sand" id="darbai" aria-labelledby="pv-gallery">
+    <div class="pv-wrap">
+      <h2 id="pv-gallery">{t.galleryTitle}</h2>
+      {gallery.length > 0 || hero ? (
+        <ul class="pv-gallery">
+          {(gallery.length ? gallery : [hero!]).map((photo) => (
+            <li><img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt ?? `${data.business} darbas`} loading="lazy" decoding="async" /></li>
+          ))}
+        </ul>
+      ) : (
+        <ul class="pv-gallery">
+          {placeholders.map((icon) => (
+            <li class="pv-ph"><Icon name={icon} /><span>{t.galleryEmpty}</span></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  <section class="pv-sec" aria-labelledby="pv-steps">
+    <div class="pv-wrap">
+      <h2 id="pv-steps">{t.stepsTitle}</h2>
+      <ol class="pv-steps">
+        {TRADE_DEFAULTS.steps.map((s) => <li><h3>{s.title}</h3><p>{s.text}</p></li>)}
+      </ol>
+    </div>
+  </section>
+
+  <section class="pv-sec pv-sec--ink" id="vietoves" aria-labelledby="pv-areas">
+    <div class="pv-wrap pv-areas">
+      <div>
+        <h2 id="pv-areas">{t.areasTitle}</h2>
+        <p>{t.areasText}</p>
+      </div>
+      <ul class="pv-chips">{areas.map((a) => <li><Icon name="pin" />{a}</li>)}</ul>
+    </div>
+  </section>
+
+  <section class="pv-sec" aria-labelledby="pv-about">
+    <div class="pv-wrap pv-about">
+      <h2 id="pv-about">{t.aboutTitle}</h2>
+      <p>{about}</p>
+    </div>
+  </section>
+
+  <section class="pv-sec pv-sec--sand" id="kontaktai" aria-labelledby="pv-contact">
+    <div class="pv-wrap pv-contact">
+      <div>
+        <h2 id="pv-contact">{t.contactTitle}</h2>
+        <p>{t.contactText}</p>
+        <p class="pv-contact__phone"><Icon name="phone" />{data.phone}</p>
+        {data.email && <p>{data.email}</p>}
+      </div>
+      <form class="pv-form" action="#kontaktai" method="get" data-inert-form>
+        <label for="pv-f-name">{t.form.name}</label>
+        <input id="pv-f-name" type="text" autocomplete="off" />
+        <label for="pv-f-phone">{t.form.phone}</label>
+        <input id="pv-f-phone" type="tel" autocomplete="off" />
+        <label for="pv-f-msg">{t.form.message}</label>
+        <textarea id="pv-f-msg" rows="3"></textarea>
+        <button class="pv-btn" type="submit">{t.form.submit}</button>
+        <p class="pv-form__note" role="status" data-inert-status>{t.inert}</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="pv-foot">
+  <div class="pv-wrap">
+    <p><strong>{data.business}</strong> · {data.phone}</p>
+    <p>{areas.join(' · ')}</p>
+    <p class="pv-foot__by">© {new Date().getFullYear()} {data.business}. {t.footer}</p>
+  </div>
+</footer>
+
+<script is:inline>
+  // Inputs have no name, so nothing leaves the page even without this script.
+  document.querySelector('[data-inert-form]')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var s = this.querySelector('[data-inert-status]');
+    var text = s.textContent;
+    s.textContent = '';
+    setTimeout(function () { s.textContent = text; }, 50); // re-announce the note
+  });
+</script>
+
+<style>
+  .pv-wrap { width: min(100% - 2.25rem, 70rem); margin-inline: auto; }
+  .pv-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 3.25rem; padding: 0.75rem 1.375rem; border: 2px solid transparent; border-radius: 12px;
+    background: var(--pv-flame); color: #fff; font-family: inherit; font-size: 1.0625rem; font-weight: 700; line-height: 1.2; text-decoration: none; cursor: pointer;
+    box-shadow: 0 10px 24px -12px rgba(217, 72, 15, 0.8);
+  }
+  .pv-btn:hover { background: #9a3412; }
+  .pv-btn :global(svg) { width: 1.25rem; height: 1.25rem; flex: none; }
+  .pv-btn--sm { min-height: 2.75rem; padding: 0.5rem 1rem; font-size: 0.9375rem; }
+  .pv-btn--ghost { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.45); box-shadow: none; }
+  .pv-btn--ghost:hover { background: rgba(255, 255, 255, 0.1); }
+
+  .pv-hdr { background: #fff; border-bottom: 1px solid var(--pv-line); }
+  .pv-hdr__bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 4rem; }
+  .pv-logo { display: inline-flex; align-items: center; gap: 0.625rem; min-height: 3rem; font-weight: 800; font-size: 1.125rem; text-decoration: none; min-width: 0; }
+  .pv-logo > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pv-logo__mark {
+    display: grid; place-items: center; flex: none; width: 2.5rem; height: 2.5rem; border-radius: 10px;
+    background: linear-gradient(135deg, var(--pv-flame-2), var(--pv-flame)); color: #fff; font-size: 0.9375rem; letter-spacing: 0;
+  }
+
+  .pv-hero {
+    position: relative; overflow: hidden; color: #fff; padding: 3rem 0 3.5rem;
+    background: radial-gradient(60% 80% at 100% 0%, rgba(240, 140, 0, 0.35), transparent 70%), radial-gradient(50% 60% at 0% 100%, rgba(217, 72, 15, 0.3), transparent 70%), var(--pv-ink);
+  }
+  .pv-hero__grid { display: grid; gap: 2rem; align-items: center; }
+  .pv-hero__where { display: inline-flex; align-items: center; gap: 0.375rem; color: #ffd8a8; font-weight: 600; font-size: 0.9375rem; }
+  .pv-hero__where :global(svg) { width: 1.125rem; height: 1.125rem; flex: none; }
+  .pv-hero h1 { font-size: clamp(2rem, 7vw, 3.5rem); font-weight: 800; }
+  .pv-hero__sub { margin: 1rem 0 1.75rem; color: #d5dcea; max-width: 34rem; }
+  .pv-hero__ctas { display: grid; gap: 0.75rem; }
+  .pv-hero__img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 18px; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8); }
+  .pv-hero__card, .pv-strip__list { display: grid; gap: 0.875rem; }
+  .pv-hero__card { padding: 1.5rem; border-radius: 18px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.14); }
+  .pv-hero__card li, .pv-strip__list li { display: flex; gap: 0.625rem; align-items: flex-start; font-weight: 600; }
+  .pv-hero__card :global(svg), .pv-strip__list :global(svg) { width: 1.375rem; height: 1.375rem; flex: none; color: var(--pv-flame-2); margin-top: 0.125rem; }
+  .pv-strip { background: #fff; border-bottom: 1px solid var(--pv-line); padding: 1.5rem 0; }
+
+  .pv-sec { padding: 3.5rem 0; }
+  .pv-sec--sand { background: var(--pv-sand); }
+  .pv-sec--ink { background: var(--pv-ink); color: #fff; }
+  .pv-sec h2 { font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 800; margin-bottom: 1.5rem; }
+
+  .pv-services { display: grid; gap: 1rem; }
+  .pv-card { padding: 1.375rem; border-radius: 16px; background: #fff; border: 1px solid var(--pv-line); }
+  .pv-card__icon { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 12px; background: #ffe8d6; color: var(--pv-flame); margin-bottom: 0.875rem; }
+  .pv-card__icon :global(svg) { width: 1.625rem; height: 1.625rem; }
+  .pv-card h3 { font-size: 1.1875rem; margin-bottom: 0.5rem; }
+  .pv-card p { margin: 0; color: var(--pv-mute); font-size: 0.96875rem; }
+
+  .pv-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: 0.75rem; }
+  .pv-gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; }
+  .pv-ph {
+    display: grid; place-items: center; align-content: center; gap: 0.5rem; aspect-ratio: 4 / 3; padding: 1rem; border-radius: 14px; text-align: center;
+    background: linear-gradient(135deg, #fff, #ffe8d6); border: 2px dashed #e0b58f; color: #8a4b1f; font-weight: 600; font-size: 0.9375rem;
+  }
+  .pv-ph :global(svg) { width: 2.5rem; height: 2.5rem; color: var(--pv-flame); }
+
+  .pv-steps { display: grid; gap: 1rem; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  .pv-steps li { position: relative; padding: 1.25rem 1.25rem 1.25rem 4rem; border-radius: 16px; background: #fff; border: 1px solid var(--pv-line); counter-increment: s; }
+  .pv-steps li::before {
+    content: counter(s); position: absolute; left: 1.125rem; top: 1.125rem; display: grid; place-items: center;
+    width: 2.125rem; height: 2.125rem; border-radius: 50%; background: var(--pv-ink); color: #fff; font-weight: 800;
+  }
+  .pv-steps h3 { font-size: 1.125rem; margin-bottom: 0.375rem; }
+  .pv-steps p { margin: 0; color: var(--pv-mute); }
+
+  .pv-areas { display: grid; gap: 1.5rem; }
+  .pv-areas p { color: #d5dcea; margin: 0; }
+  .pv-areas h2 { margin-bottom: 0.75rem; }
+  .pv-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .pv-chips li { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 0.875rem; border-radius: 999px; background: rgba(255, 255, 255, 0.1); font-weight: 600; }
+  .pv-chips :global(svg) { width: 1rem; height: 1rem; color: var(--pv-flame-2); }
+
+  .pv-about p { max-width: 44rem; font-size: 1.125rem; }
+
+  .pv-contact { display: grid; gap: 2rem; }
+  .pv-contact__phone { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.375rem; font-weight: 800; }
+  .pv-contact__phone :global(svg) { width: 1.5rem; height: 1.5rem; color: var(--pv-flame); }
+  .pv-form { display: grid; gap: 0.375rem; padding: 1.5rem; border-radius: 18px; background: #fff; border: 1px solid var(--pv-line); }
+  .pv-form label { font-weight: 600; margin-top: 0.5rem; }
+  .pv-form input, .pv-form textarea { width: 100%; min-height: 3rem; padding: 0.625rem 0.75rem; font: inherit; border: 2px solid #9aa3b5; border-radius: 10px; background: #fff; }
+  .pv-form .pv-btn { margin-top: 1rem; }
+  .pv-form__note { margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--pv-mute); }
+
+  .pv-foot { background: #0b1222; color: #c9d2e3; padding: 2rem 0 2.5rem; font-size: 0.9375rem; }
+  .pv-foot p { margin: 0 0 0.375rem; }
+  .pv-foot strong { color: #fff; }
+  .pv-foot__by { margin-top: 1rem !important; color: #8d99b3; }
+
+  @media (min-width: 40rem) {
+    .pv-hero__ctas { display: flex; flex-wrap: wrap; }
+    .pv-services { grid-template-columns: repeat(2, 1fr); }
+    .pv-steps { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 60rem) {
+    .pv-hero { padding: 5rem 0; }
+    .pv-hero__grid { grid-template-columns: 1.2fr 1fr; gap: 4rem; }
+    .pv-services { grid-template-columns: repeat(3, 1fr); }
+    .pv-areas, .pv-contact { grid-template-columns: 1fr 1fr; align-items: start; }
+  }
+</style>

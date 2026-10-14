@@ -1,0 +1,52 @@
+---
+/* Small phone-sized picture of the demo preview for /noriu: plain HTML/CSS
+   (no iframe, no screenshot), so it stays sharp and costs no requests. */
+import { demo, serviceInfo, standoutPoints, TRADE_DEFAULTS, previewText } from '@data/preview';
+import Icon from './Icon.astro';
+interface Props { href: string; label: string }
+const { href, label } = Astro.props;
+const points = standoutPoints(demo.standout).slice(0, 3);
+---
+<a class="thumb" href={href}>
+  <span class="visually-hidden">{label}: {demo.business}</span>
+  <div class="thumb__phone" aria-hidden="true">
+    <div class="thumb__banner"><b>{previewText.banner}</b></div>
+    <div class="thumb__hdr"><span class="thumb__mark">ŠR</span>{demo.business}</div>
+    <div class="thumb__hero">
+      <span class="thumb__where">{demo.areas.slice(0, 3).join(', ')}</span>
+      <span class="thumb__h">{TRADE_DEFAULTS.tagline}</span>
+      <span class="thumb__btn"><Icon name="phone" />{demo.phone}</span>
+      <ul>{points.map((p) => <li><Icon name="check" />{p}</li>)}</ul>
+    </div>
+    <div class="thumb__cards">
+      {demo.services.slice(0, 4).map((s) => (
+        <span class="thumb__card"><Icon name={serviceInfo(s).icon} />{s}</span>
+      ))}
+    </div>
+  </div>
+</a>
+<style>
+  .thumb { display: block; width: min(100%, 17.5rem); margin-inline: auto; text-decoration: none; border-radius: 34px; }
+  .thumb__phone {
+    overflow: hidden; border: 9px solid #0a0f0c; border-radius: 34px; background: #fff8f1; color: #14213d;
+    font: 400 0.6875rem/1.35 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    transition: transform 0.35s var(--ease);
+  }
+  .thumb:hover .thumb__phone { transform: translateY(-4px); }
+  .thumb :global(svg) { width: 0.8125rem; height: 0.8125rem; flex: none; }
+  .thumb__banner { padding: 0.375rem 0.625rem; background: #0b1222; }
+  .thumb__banner b { padding: 0.0625rem 0.375rem; border-radius: 4px; background: #ffd43b; color: #0b1222; font-size: 0.5625rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .thumb__hdr { display: flex; align-items: center; gap: 0.375rem; padding: 0.5rem 0.625rem; background: #fff; font-weight: 800; font-size: 0.75rem; border-bottom: 1px solid #ead9c6; }
+  .thumb__mark { display: grid; place-items: center; width: 1.375rem; height: 1.375rem; border-radius: 6px; background: linear-gradient(135deg, #f08c00, #c2410c); color: #fff; font-size: 0.5625rem; }
+  .thumb__hero { display: grid; gap: 0.5rem; padding: 0.875rem 0.75rem 1rem; color: #fff; background: radial-gradient(60% 80% at 100% 0%, rgba(240,140,0,.35), transparent 70%), #14213d; }
+  .thumb__where { color: #ffd8a8; font-weight: 600; font-size: 0.625rem; }
+  .thumb__h { font-weight: 800; font-size: 1.0625rem; line-height: 1.12; }
+  .thumb__btn { display: inline-flex; align-items: center; gap: 0.375rem; width: fit-content; padding: 0.375rem 0.625rem; border-radius: 7px; background: #c2410c; font-weight: 700; }
+  .thumb__hero ul { display: grid; gap: 0.25rem; margin: 0.125rem 0 0; padding: 0; list-style: none; font-weight: 600; }
+  .thumb__hero li { display: flex; gap: 0.375rem; align-items: center; }
+  .thumb__hero li :global(svg) { color: #f08c00; }
+  .thumb__cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.375rem; padding: 0.625rem; }
+  .thumb__card { display: grid; gap: 0.25rem; padding: 0.5rem; border-radius: 8px; background: #fff; border: 1px solid #ead9c6; font-weight: 700; font-size: 0.625rem; }
+  .thumb__card :global(svg) { width: 1rem; height: 1rem; color: #c2410c; }
+</style>

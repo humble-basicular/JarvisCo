@@ -1,0 +1,203 @@
+---
+/* Free-preview form (funnel spec §4, plan §2.3). Posts multipart to /t/form.
+   Without JS it posts natively: the phone field is shown and required, files
+   go as picked. preview-form.ts adds the code from the SMS link (and then
+   hides the phone field), image downsizing, limits, errors and the thank-you. */
+import { funnel, footer } from '@data/content.js';
+import { FORM_ENDPOINT, FORM_LIMITS } from '@data/tracking.js';
+
+const f = funnel.form;
+const messages = JSON.stringify({ errors: f.errors, thanks: f.thanks, sending: f.sending, preparing: f.preparing });
+const accept = ['image/*', ...FORM_LIMITS.extensions.filter((e) => !['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'gif'].includes(e)).map((e) => `.${e}`)].join(',');
+---
+<form
+  class="pf"
+  action={FORM_ENDPOINT}
+  method="post"
+  enctype="multipart/form-data"
+  data-preview-form
+  data-messages={messages}
+  aria-labelledby="forma-title"
+>
+  <h2 class="pf__title" id="forma-title" tabindex="-1">{f.title}</h2>
+  <p class="pf__lead">{f.lead}</p>
+
+  <input type="hidden" name="code" value="" data-code />
+
+  {Object.entries(funnel.services).map(([prefix, list]) => (
+    <fieldset class="pf__group" data-services-for={prefix} hidden>
+      <legend>{f.services}</legend>
+      <div class="pf__checks">
+        {list.map((s, i) => (
+          <span class="pf__check">
+            <input type="checkbox" name="services" value={s} id={`pf-svc-${prefix}-${i}`} />
+            <label for={`pf-svc-${prefix}-${i}`}>{s}</label>
+          </span>
+        ))}
+      </div>
+    </fieldset>
+  ))}
+  <div class="pf__field">
+    <label for="pf-services-other" data-services-label data-other={f.other}>{f.servicesFree} <span class="pf__opt">{f.optional}</span></label>
+    <input id="pf-services-other" type="text" name="services_other" maxlength="200" placeholder={f.servicesFreeHint} data-other-hint={f.otherHint} />
+  </div>
+
+  <fieldset class="pf__group">
+    <legend>{f.areas}</legend>
+    <div class="pf__chips">
+      {funnel.areas.map((a, i) => (
+        <span class="pf__chip">
+          <input type="checkbox" name="area" value={a} id={`pf-area-${i}`} />
+          <label for={`pf-area-${i}`}>{a}</label>
+        </span>
+      ))}
+    </div>
+    <label class="pf__sub" for="pf-area-other">{f.areasOther} <span class="pf__opt">{f.optional}</span></label>
+    <input id="pf-area-other" type="text" name="area_other" maxlength="200" />
+  </fieldset>
+
+  <fieldset class="pf__group">
+    <legend>{f.photos}</legend>
+    <div class="pf__radios">
+      <span class="pf__radio"><input type="radio" name="photos_ok" value="yes" id="pf-photos-yes" /><label for="pf-photos-yes">{f.photosYes}</label></span>
+      <span class="pf__radio"><input type="radio" name="photos_ok" value="send_other" id="pf-photos-other" /><label for="pf-photos-other">{f.photosOther}</label></span>
+    </div>
+  </fieldset>
+
+  <div class="pf__field">
+    <label for="pf-standout">{f.standout} <span class="pf__opt">{f.optional}</span></label>
+    <textarea id="pf-standout" name="standout" rows="3" maxlength="1000" placeholder={f.standoutHint}></textarea>
+  </div>
+
+  <fieldset class="pf__group">
+    <legend>{f.time}</legend>
+    <div class="pf__radios">
+      {f.times.map((t) => (
+        <span class="pf__radio"><input type="radio" name="contact_time" value={t.value} id={`pf-time-${t.value}`} /><label for={`pf-time-${t.value}`}>{t.label}</label></span>
+      ))}
+    </div>
+  </fieldset>
+
+  <div class="pf__field">
+    <label for="pf-files">{f.files} <span class="pf__opt">{f.optional}</span></label>
+    <p class="pf__hint" id="pf-files-hint">{f.filesHint}</p>
+    <input id="pf-files" class="pf__file" type="file" name="files" multiple accept={accept} aria-describedby="pf-files-hint pf-files-err" />
+    <ul class="pf__list" data-file-list aria-live="polite"></ul>
+    <p class="pf__err" id="pf-files-err" data-error="files" hidden></p>
+  </div>
+
+  <div class="pf__field">
+    <label for="pf-name">{f.name} <span class="pf__opt">{f.optional}</span></label>
+    <input id="pf-name" type="text" name="name" maxlength="80" autocomplete="given-name" aria-describedby="pf-name-err" />
+    <p class="pf__err" id="pf-name-err" data-error="name" hidden></p>
+  </div>
+
+  <div class="pf__field" data-phone-field>
+    <label for="pf-phone">{f.phone} <span class="pf__opt" data-phone-req>{f.required}</span></label>
+    <p class="pf__hint" id="pf-phone-hint">{f.phoneHint}</p>
+    <input
+      id="pf-phone"
+      type="tel"
+      name="phone"
+      required
+      maxlength="20"
+      inputmode="tel"
+      autocomplete="tel"
+      pattern={String.raw`[0-9 +\-\(\)]{8,20}`}
+      placeholder="+370 6xx xxxxx"
+      aria-describedby="pf-phone-hint pf-phone-err"
+    />
+    <p class="pf__err" id="pf-phone-err" data-error="phone" hidden></p>
+  </div>
+
+  <div class="pf__hp" aria-hidden="true">
+    <label for="pf-website">Svetainė</label>
+    <input id="pf-website" type="text" name="website" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <button class="btn btn--ink pf__submit" type="submit" name="kind" value="preview_request">{f.submit}</button>
+  <button class="pf__callback" type="submit" name="kind" value="callback_request" formnovalidate>{f.callback}</button>
+
+  <p class="pf__status" data-status role="status" aria-live="polite"></p>
+  <noscript><p class="pf__hint">{f.noscript}</p></noscript>
+  <p class="small pf__privacy">{f.privacy} <a href={footer.privacy.href}>{footer.privacy.label}</a>.</p>
+</form>
+
+<div class="pf-thanks" data-thanks hidden tabindex="-1">
+  <p class="pf-thanks__text" data-thanks-text></p>
+  <p class="pf-thanks__sign">{f.thanks.sign}</p>
+</div>
+
+<script>
+  import '../../scripts/preview-form';
+</script>
+
+<style>
+  .pf { background: #fff; color-scheme: light; border: 1px solid var(--line-light); border-radius: var(--r-l); padding: clamp(1.25rem, 3vw, 2.5rem); box-shadow: 0 30px 70px -50px rgba(6,17,12,.3); }
+  .pf__title { font-size: clamp(1.625rem, 4vw, 2.25rem); margin-bottom: 0.5rem; }
+  .pf__title:focus { outline: none; }
+  .pf__lead { color: var(--mute-light); }
+  .pf__group { border: 0; padding: 0; margin: 0 0 1.5rem; min-width: 0; }
+  .pf__group legend, .pf__field > label { display: block; padding: 0; font-weight: 700; margin-bottom: 0.625rem; }
+  .pf__field { margin-bottom: 1.5rem; }
+  .pf__opt { font-weight: 400; color: var(--mute-light); font-size: 0.9375rem; }
+  .pf__sub { display: block; font-weight: 600; margin: 1rem 0 0.375rem; }
+  .pf input[type='text'], .pf input[type='tel'], .pf textarea {
+    width: 100%; min-height: 3.25rem; padding: 0.75rem 0.875rem;
+    font: inherit; color: var(--ink); background: #fff;
+    border: 2px solid #8a8f96; border-radius: 10px;
+  }
+  .pf textarea { resize: vertical; }
+  .pf input:focus-visible, .pf textarea:focus-visible { outline: 3px solid var(--em-ink); outline-offset: 1px; border-color: var(--em-ink); }
+  .pf [aria-invalid='true'] { border-color: var(--err) !important; }
+  .pf__hint { color: var(--mute-light); font-size: 0.9375rem; margin: -0.25rem 0 0.625rem; }
+
+  /* Checkboxes, chips and radios: the whole pill is the tap target (≥ 48 px). */
+  .pf__checks { display: grid; gap: 0.5rem; }
+  .pf__chips, .pf__radios { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .pf__chip, .pf__radio, .pf__check { position: relative; display: inline-flex; }
+  .pf__check { display: flex; }
+  .pf__chip input, .pf__radio input, .pf__check input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .pf__chip label, .pf__radio label, .pf__check label {
+    display: inline-flex; align-items: center; gap: 0.5rem; width: 100%; min-height: 3rem; padding: 0.5rem 1rem;
+    border: 2px solid #c5c2b8; border-radius: 999px; background: #fff; font-weight: 600; cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  .pf__check label { border-radius: 12px; }
+  .pf__check label::before, .pf__chip label::before {
+    content: ''; flex: none; width: 1.125rem; height: 1.125rem; border: 2px solid #8a8f96; border-radius: 5px; background: #fff center / 0.875rem no-repeat;
+  }
+  .pf__radio label::before { content: ''; flex: none; width: 1.125rem; height: 1.125rem; border: 2px solid #8a8f96; border-radius: 50%; background: #fff; }
+  .pf input:checked + label { border-color: var(--em-ink); background: #e6f4ec; }
+  .pf input:checked + label::before {
+    border-color: var(--em-ink); background-color: var(--em-ink);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E");
+  }
+  .pf__radio input:checked + label::before { background-image: none; box-shadow: inset 0 0 0 3px #fff; }
+  .pf input:focus-visible + label { outline: 3px solid #0b5cd5; outline-offset: 2px; }
+
+  .pf__file { width: 100%; min-height: 3.25rem; padding: 0.625rem; border: 2px dashed #8a8f96; border-radius: 12px; background: var(--paper); font: inherit; }
+  .pf__file::file-selector-button { margin-right: 0.75rem; min-height: 2.5rem; padding: 0.375rem 0.875rem; border: 0; border-radius: 8px; background: var(--ink); color: #fff; font: 600 0.9375rem/1 var(--font-b); cursor: pointer; }
+  .pf__list { display: grid; gap: 0.25rem; margin-top: 0.625rem; font-size: 0.9375rem; color: var(--mute-light); }
+  .pf__list li { overflow-wrap: anywhere; }
+  .pf__list:empty { display: none; }
+  .pf__err { color: var(--err); font-weight: 600; font-size: 0.9375rem; margin: 0.375rem 0 0; }
+
+  .pf__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .pf__submit { width: 100%; font-size: 1.125rem; min-height: 3.75rem; }
+  .pf__submit:disabled { opacity: 0.65; cursor: wait; }
+  .pf__callback {
+    display: block; width: 100%; min-height: 3rem; margin-top: 0.5rem; padding: 0.5rem; border: 0; background: none;
+    color: var(--em-ink); font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer;
+  }
+  .pf__status { margin: 0.75rem 0 0; font-weight: 600; }
+  .pf__status:empty { display: none; }
+  .pf__status.is-err { color: var(--err); }
+  .pf__privacy { margin: 1rem 0 0; }
+  .pf__privacy a { display: inline-flex; align-items: center; min-height: 3rem; margin-block: -0.875rem; }
+
+  .pf-thanks { background: #fff; border: 2px solid var(--em-ink); border-radius: var(--r-l); padding: clamp(1.5rem, 4vw, 3rem); }
+  .pf-thanks:focus { outline: none; }
+  .pf-thanks__text { font: 700 clamp(1.375rem, 4vw, 1.875rem)/1.3 var(--font-d); letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .pf-thanks__sign { margin: 0; font-weight: 600; color: var(--mute-light); }
+</style>

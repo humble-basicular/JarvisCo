@@ -402,3 +402,121 @@ export const utility = {
     text: 'Galbūt nuoroda pasenusi.',
   },
 };
+
+/* ---------- Free-preview funnel (docs/SPEC-2026-10-preview-funnel.md) ----------
+   /noriu: SMS links with prefix `p` land here; the homepage links here without
+   a code. Jarvis checks this copy before the form goes live. */
+
+export const funnel = {
+  meta: {
+    title: 'Nemokama Jūsų svetainės peržiūra | jarvisweb.lt',
+    description:
+      'Atsakykite į kelis klausimus apie savo darbą, ir per 48 valandas atsiųsiu nuorodą į Jūsų svetainės peržiūrą. Nemokamai, be įsipareigojimų.',
+  },
+  nav: [
+    { label: 'Pavyzdys', href: '#pavyzdys' },
+    { label: 'Rezultatai', href: '#rezultatai' },
+    { label: 'Peržiūra', href: '#kontaktai' },
+  ],
+  hero: {
+    eyebrow: 'Nemokama svetainės peržiūra',
+    h1: 'Nemokamai parodysiu, kaip atrodytų Jūsų svetainė.',
+    sub: 'Atsakykite į kelis klausimus apie savo darbą. Per 48 valandas paruošiu Jūsų svetainės peržiūrą ir nuorodą atsiųsiu SMS žinute. Nieko nemokate ir niekuo neįsipareigojate.',
+    jump: 'Noriu peržiūros',
+    by: 'Matas Bašinskas, svetainių kūrėjas, Kaunas',
+  },
+  example: {
+    eyebrow: 'Pavyzdys',
+    title: 'Šildymo meistro svetainė',
+    text: 'Taip galėtų atrodyti ir Jūsų svetainė: su Jūsų paslaugomis, vietovėmis ir darbų nuotraukomis. Vardas ir duomenys pavyzdyje išgalvoti.',
+    open: 'Atidaryti pavyzdį',
+    href: '/pavyzdys/sildymas',
+  },
+  cta: {
+    title: 'Norite tokios peržiūros?',
+    text: 'Tai nemokama. Jei peržiūra nepatiks, tiesiog neatsakykite.',
+    button: 'Taip, noriu nemokamos peržiūros',
+  },
+  // Service checkboxes by proof-code prefix (spec §2). No list = free text.
+  services: {
+    p: [
+      'Katilų montavimas',
+      'Katilų remontas',
+      'Katilų aptarnavimas',
+      'Šilumos siurbliai',
+      'Grindinis šildymas',
+      'Radiatoriai ir vamzdynai',
+      'Katilinių įrengimas',
+      'Kaminai ir dūmtraukiai',
+      'Židiniai ir krosnelės',
+    ],
+  },
+  areas: ['Kaunas', 'Kauno r.', 'Vilnius', 'Vilniaus r.', 'Klaipėda', 'Šiauliai', 'Panevėžys', 'Alytus', 'Marijampolė', 'Jonava', 'Kėdainiai', 'Visa Lietuva'],
+  form: {
+    title: 'Keli klausimai apie Jūsų darbą',
+    lead: 'Užtruks apie 2 minutes. Visi laukai nebūtini, išskyrus pažymėtus.',
+    services: 'Kokias paslaugas parodyti?',
+    servicesFree: 'Kokias paslaugas teikiate?',
+    servicesFreeHint: 'Pvz. katilų montavimas, santechnika, stogų dengimas.',
+    other: 'Kita',
+    otherHint: 'Įrašykite, ko nėra sąraše.',
+    areas: 'Kur dirbate?',
+    areasOther: 'Kitos vietovės',
+    photos: 'Ar galiu naudoti Jūsų darbų nuotraukas iš Paslaugos.lt profilio?',
+    photosYes: 'Taip, naudokite',
+    photosOther: 'Atsiųsiu kitas',
+    standout: 'Kuo išsiskiriate?',
+    standoutHint: 'Pvz. garantija, darbo patirtis metais, skubūs iškvietimai, sertifikatai.',
+    time: 'Kada patogu pakalbėti?',
+    times: [
+      { value: 'morning', label: 'Rytas' },
+      { value: 'day', label: 'Diena' },
+      { value: 'evening', label: 'Vakaras' },
+      { value: 'sms', label: 'Parašykite SMS' },
+    ],
+    files: 'Pridėkite failų',
+    filesHint: 'Darbų nuotraukos, logotipas, kainoraštis. Iki 8 failų, iš viso iki 25 MB. Nuotraukas prieš siųsdamas sumažinu.',
+    name: 'Vardas',
+    phone: 'Telefono numeris',
+    phoneHint: 'Čia atsiųsiu peržiūros nuorodą.',
+    optional: '(nebūtina)',
+    required: '(būtina)',
+    submit: 'Gauti nemokamą peržiūrą',
+    callback: 'Nenoriu pildyti – paskambinkite man',
+    sending: 'Siunčiama…',
+    preparing: 'Ruošiamos nuotraukos…',
+    privacy: 'Duomenis ir failus naudoju tik Jūsų peržiūrai paruošti ir susisiekti dėl jos.',
+    noscript: 'Naršyklėje išjungtas JavaScript: forma vis tiek išsiųs atsakymus, bet nuotraukos nebus sumažintos, o po išsiuntimo matysite tik trumpą techninį atsakymą. Jei kas nepavyks, skambinkite +370 676 99395.',
+    errors: {
+      phone: 'Įveskite telefono numerį, pvz. +370 612 34567.',
+      phoneCallback: 'Įrašykite telefono numerį, kad galėčiau paskambinti.',
+      files: 'Iki 8 failų, kiekvienas iki 10 MB, iš viso iki 25 MB.',
+      fileType: 'Šio failo tipo priimti negaliu. Tinka nuotraukos, PDF, Word, Excel ir tekstiniai failai.',
+      invalid: 'Patikrinkite pažymėtą laukelį.',
+      tooLarge: 'Failai per dideli. Iš viso iki 25 MB.',
+      rateLimited: 'Per daug bandymų iš eilės. Pabandykite po kelių minučių.',
+      failure: `Nepavyko išsiųsti. Pabandykite dar kartą arba skambinkite ${PHONE}.`,
+    },
+    // {name} = vocative first name, {date} = +48 h in Europe/Vilnius.
+    thanks: {
+      preview: 'Ačiū{name}. Peržiūrą atsiųsiu SMS iki {date}.',
+      callback: 'Ačiū{name}. {time}',
+      times: {
+        morning: 'Paskambinsiu rytą.',
+        day: 'Paskambinsiu dieną.',
+        evening: 'Paskambinsiu vakare.',
+        sms: 'Parašysiu Jums SMS.',
+        '': 'Paskambinsiu artimiausiu metu.',
+      },
+      sign: '– Matas',
+    },
+  },
+};
+
+/* Homepage button to the same form without a code (phone field shown). */
+export const previewOffer = {
+  title: 'Norite pamatyti savo svetainę prieš mokėdami?',
+  text: 'Atsakykite į kelis klausimus, ir per 48 valandas atsiųsiu nemokamą Jūsų svetainės peržiūrą.',
+  button: 'Gauti nemokamą peržiūrą',
+  href: '/noriu#forma',
+};

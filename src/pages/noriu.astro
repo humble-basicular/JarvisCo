@@ -1,0 +1,82 @@
+---
+/* Free-preview landing (funnel spec §1): SMS links with prefix `p` land here as
+   /noriu?r=<code>; track.ts keeps the code for the tab and strips it from the
+   address bar. The homepage links to /noriu#forma without a code. Order: the
+   example site, the results, one big button, then the form. */
+import { Image } from 'astro:assets';
+import Layout from '@layouts/Layout.astro';
+import ResultsBento from '@components/home/ResultsBento.astro';
+import ZoomDialog from '@components/ZoomDialog.astro';
+import PreviewThumb from '@components/preview/PreviewThumb.astro';
+import PreviewForm from '@components/funnel/PreviewForm.astro';
+import { funnel } from '@data/content.js';
+import face from '@assets/people/matas-face.webp';
+const { hero, example, cta } = funnel;
+---
+<Layout {...funnel.meta} nav={funnel.nav} stickyBar={false}>
+  <section class="nh t-dark" aria-labelledby="nh-title">
+    <div class="aurora" aria-hidden="true"><div class="aurora__grid"></div><div class="aurora__grain"></div></div>
+    <div class="wrap nh__grid">
+      <div class="nh__copy">
+        <p class="eyebrow eyebrow--pill">{hero.eyebrow}</p>
+        <h1 id="nh-title">{hero.h1}</h1>
+        <p class="nh__sub">{hero.sub}</p>
+        <a class="text-link nh__jump" href="#kontaktai">{hero.jump}<span aria-hidden="true">↓</span></a>
+        <p class="nh__by">
+          <Image src={face} alt="" width={44} height={44} densities={[1, 2]} quality={75} loading="eager" />
+          <span>{hero.by}</span>
+        </p>
+      </div>
+      <div class="nh__example" id="pavyzdys">
+        <PreviewThumb href={example.href} label={example.open} />
+        <div class="nh__example-copy">
+          <p class="nh__example-title">{example.eyebrow}: {example.title}</p>
+          <p class="small">{example.text}</p>
+          <a class="text-link" href={example.href}>{example.open}<span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ResultsBento fullPage />
+
+  <section class="sec t-dark nc" id="kontaktai" aria-labelledby="nc-title">
+    <div class="wrap wrap--narrow nc__inner">
+      <h2 class="sec-title" id="nc-title">{cta.title}</h2>
+      <p class="sec-lead">{cta.text}</p>
+      <a class="btn btn--lime nc__btn" href="#forma" data-track="preview_cta" data-open-form>{cta.button}</a>
+    </div>
+  </section>
+
+  <section class="t-paper nf" id="forma" data-form-gate aria-labelledby="forma-title">
+    <div class="wrap wrap--narrow">
+      <PreviewForm />
+    </div>
+  </section>
+
+  <ZoomDialog />
+</Layout>
+
+<style>
+  .nh { position: relative; isolation: isolate; overflow: clip; padding: calc(var(--hdr-h) + 2.5rem) 0 clamp(3rem, 7vw, 5.5rem); }
+  .nh__grid { position: relative; display: grid; gap: 2.75rem; align-items: center; }
+  .nh h1 { font-size: clamp(2.25rem, 7vw, 4rem); max-width: 16ch; }
+  .nh__sub { margin: 1.5rem 0 0.5rem; max-width: 36rem; color: #c3d6cb; font-size: clamp(1.0625rem, 0.6vw + 0.95rem, 1.25rem); }
+  .nh__jump { color: var(--lime); }
+  .nh__by { display: flex; align-items: center; gap: 0.75rem; margin: 1rem 0 0; font-size: 0.9375rem; color: #c3d6cb; }
+  .nh__by :global(img) { width: 2.75rem; height: 2.75rem; flex: none; object-fit: cover; border-radius: 50%; }
+  .nh__example { display: grid; gap: 1.5rem; justify-items: center; }
+  .nh__example-copy { max-width: 22rem; text-align: center; }
+  .nh__example-copy .text-link { color: #fff; }
+  .nh__example-title { font-weight: 700; margin-bottom: 0.375rem; }
+  .nc { text-align: center; background: radial-gradient(ellipse at 50% 0%, rgba(31,191,117,.22), transparent 60%), var(--ink-2); }
+  .nc__inner { display: grid; justify-items: center; }
+  .nc .sec-lead { margin-inline: auto; }
+  .nc__btn { width: min(100%, 26rem); min-height: 4.25rem; margin-top: 2rem; font-size: 1.1875rem; }
+  .nf { padding-block: clamp(2.5rem, 7vw, 5rem); }
+  :global(html.js) .nf:not(.is-open) { display: none; }
+  @media (min-width: 64rem) {
+    .nh__grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 5rem; }
+    .nh__example { grid-template-columns: auto; }
+  }
+</style>

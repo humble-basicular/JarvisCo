@@ -3,8 +3,8 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { brand, form, arbcutProof, steps } from '../data/content.js';
-import { BEACON_ENDPOINT, EVENT_TYPES, STORAGE_KEY, TRACKING_PREFIXES } from '../data/tracking.js';
+import { brand, form, arbcutProof, steps, funnel, previewOffer } from '../data/content.js';
+import { BEACON_ENDPOINT, EVENT_TYPES, FORM_ENDPOINT, STORAGE_KEY, TRACKING_PREFIXES } from '../data/tracking.js';
 import { pages, attr, text, normalized } from './html.mjs';
 
 const built = pages();
@@ -70,9 +70,51 @@ for (const route of ['/', '/rezultatai']) {
   }
   steps.items.forEach((step) => check(body.includes(step), `${route}: missing step ${step}`));
 }
+// Preview funnel (docs/SPEC-2026-10-preview-funnel.md §2–§4, §8).
+{
+  const page = routes.get('/noriu');
+  check(Boolean(page), 'Missing /noriu');
+  if (page) {
+    const el = page.nodes;
+    const forms = el.filter((node) => attr(node, 'data-preview-form') !== undefined);
+    const f = forms[0];
+    check(forms.length === 1 && attr(f, 'action') === FORM_ENDPOINT && attr(f, 'method') === 'post' && attr(f, 'enctype') === 'multipart/form-data', '/noriu: preview form must POST multipart to /t/form');
+    const named = (name) => el.filter((node) => attr(node, 'name') === name);
+    for (const name of ['code', 'name', 'phone', 'services', 'services_other', 'area', 'area_other', 'photos_ok', 'standout', 'contact_time', 'files', 'website']) {
+      check(named(name).length > 0, `/noriu: missing form field ${name}`);
+    }
+    check(attr(named('name')[0], 'value') === undefined, '/noriu: name must not be prefilled');
+    check(attr(named('phone')[0], 'required') !== undefined, '/noriu: phone must be required without JS (no code)');
+    check(attr(named('files')[0], 'multiple') !== undefined && attr(named('files')[0], 'capture') === undefined, '/noriu: files must be multiple and not camera-only');
+    const kinds = named('kind').map((node) => attr(node, 'value'));
+    check(kinds.join() === 'preview_request,callback_request', `/noriu: submit buttons kind ${kinds}`);
+    check(named('contact_time').map((n) => attr(n, 'value')).join() === 'morning,day,evening,sms', '/noriu: contact_time values');
+    check(named('photos_ok').map((n) => attr(n, 'value')).join() === 'yes,send_other', '/noriu: photos_ok values');
+    check(named('services').length <= 12 * Object.keys(funnel.services).length && named('area').length <= 12, '/noriu: max 12 options');
+    const ctas = el.filter((node) => attr(node, 'data-track') === 'preview_cta');
+    check(ctas.length === 1 && normalized(text(ctas[0])) === funnel.cta.button, '/noriu: exactly one preview_cta button');
+    check(el.some((node) => attr(node, 'data-proof-anchor') !== undefined), '/noriu: proof beacon anchor missing');
+    check(el.some((node) => attr(node, 'href') === funnel.example.href), '/noriu: example link missing');
+  }
+  const home = routes.get('/');
+  check(Boolean(home?.nodes.some((node) => node.tagName === 'a' && attr(node, 'href') === previewOffer.href)), '/: preview form button missing');
+}
+for (const [route, page] of routes) {
+  const robots = page.nodes.find((node) => node.tagName === 'meta' && attr(node, 'name') === 'robots');
+  const isPreview = /^\/(perziura|pavyzdys)\//.test(route);
+  if (isPreview) {
+    check(attr(robots, 'content') === 'noindex,nofollow', `${route}: preview must be noindex,nofollow`);
+    check(!page.nodes.some((node) => node.tagName === 'form' && (attr(node, 'method') ?? 'get').toLowerCase() === 'post'), `${route}: preview form must not post`);
+    const dial = page.nodes.filter((node) => /^(tel|sms):/.test(attr(node, 'href') ?? ''));
+    check(dial.every((node) => attr(node, 'href') === brand.smsHref), `${route}: preview may only link to Matas's SMS, never dial the business`);
+  }
+}
+check(routes.has('/pavyzdys/sildymas'), 'Missing /pavyzdys/sildymas');
+assert.equal(FORM_ENDPOINT, '/t/form');
+assert.equal(TRACKING_PREFIXES.p, '/noriu');
 assert.equal(BEACON_ENDPOINT, '/t/e');
 assert.equal(STORAGE_KEY, 'jw_proof_code');
-assert.deepEqual(EVENT_TYPES, ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut']);
+assert.deepEqual(EVENT_TYPES, ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut', 'preview_cta']);
 assert.equal(TRACKING_PREFIXES.a, '/rezultatai');
 const redirects = JSON.parse(readFileSync('vercel.json', 'utf8')).redirects;
 for (const source of ['/arboristams', '/arboristams/']) {
@@ -80,6 +122,7 @@ for (const source of ['/arboristams', '/arboristams/']) {
 }
 const sitemap = readFileSync('dist/sitemap-0.xml', 'utf8');
 check(sitemap.includes(`${origin}/rezultatai`) && !sitemap.includes('/arboristams'), 'Sitemap routes incorrect');
+check(!/\/(perziura|pavyzdys)\//.test(sitemap), 'Sitemap lists a preview page');
 errors.forEach((error) => console.error(error));
 console.log(`static-check: ${built.length} pages, local links/assets, evidence, forms, tracking and redirect configuration: ${errors.length ? 'FAILED' : 'ok'}`);
 console.log('Browser layout, interaction, performance and live redirects remain unverified.');
