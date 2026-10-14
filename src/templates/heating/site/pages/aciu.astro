@@ -1,0 +1,38 @@
+---
+/* No-JS target of the callback form: the Worker answers 303 to /aciu or /aciu?klaida=1. */
+import HeatingLayout from '../../HeatingLayout.astro';
+import { t, toE164 } from '../../content';
+import { loadBuild } from '../load';
+
+const { data, site } = loadBuild();
+const tel = toE164(data.phone);
+---
+<HeatingLayout
+  mode="live"
+  title={`Ačiū – ${data.business}`}
+  description={`${data.business}: užklausa.`}
+  business={data.business}
+  accent={data.accent}
+  canonical={`https://${site.domain}/aciu`}
+  robots="noindex,follow"
+  live={{ code: site.code, beacon: site.beaconEndpoint, tel }}
+>
+  <main class="hs-wrap hs-page">
+    <div data-aciu-ok>
+      <h1>{t.thanksTitle}</h1>
+      <p>{t.thanksText}</p>
+      <p>Jei reikia greičiau, paskambinkite: <a href={tel ? `tel:${tel}` : undefined} data-cta="cta_call">{data.phone}</a>.</p>
+    </div>
+    <div data-aciu-error hidden>
+      <h1>Nepavyko išsiųsti</h1>
+      <p>Užklausos išsiųsti nepavyko. Paskambinkite tiesiai: <a href={tel ? `tel:${tel}` : undefined} data-cta="cta_call">{data.phone}</a>.</p>
+    </div>
+    <p><a href="/">← Į pradžią</a></p>
+  </main>
+  <script is:inline>
+    if (/[?&]klaida=1/.test(location.search)) {
+      document.querySelector('[data-aciu-ok]').hidden = true;
+      document.querySelector('[data-aciu-error]').hidden = false;
+    }
+  </script>
+</HeatingLayout>
