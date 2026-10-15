@@ -8,6 +8,7 @@
    - the spec's limits, inline + announced errors, server error codes and the
      thank-you. Exactly the spec's wire fields are posted. */
 import { code } from './track';
+import { fileSize } from './image-size';
 import { FORM_LIMITS } from '../data/tracking.js';
 
 type Messages = {
@@ -71,30 +72,14 @@ function withType(file: File): File | null {
   return null;
 }
 
-/** Natural size from the image header: an <img> load reports it without the explicit full decode. */
-function readSize(file: File): Promise<{ width: number; height: number } | null> {
-  return new Promise((resolve) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    const done = (size: { width: number; height: number } | null) => {
-      URL.revokeObjectURL(url);
-      img.src = '';
-      resolve(size);
-    };
-    img.onload = () => done(img.naturalWidth && img.naturalHeight ? { width: img.naturalWidth, height: img.naturalHeight } : null);
-    img.onerror = () => done(null);
-    img.src = url;
-  });
-}
-
 /** Downsizes one image. Throws when the browser decoded it but could not redraw it. */
 async function shrink(file: File): Promise<File> {
   if (!SHRINKABLE.test(file.type) || typeof createImageBitmap !== 'function') return file;
   let bitmap: ImageBitmap | null = null;
   let canvas: HTMLCanvasElement | null = null;
   try {
-    const size = await readSize(file);
-    if (!size || size.width * size.height > MAX_DECODED_PIXELS) return file; // unreadable (e.g. HEIC) or too large to redraw: sent as is, the size limit still applies
+    const size = await fileSize(file); // header bytes only: nothing is decoded to learn the size
+    if (!size || size.width * size.height > MAX_DECODED_PIXELS) return file; // unknown format/size (e.g. HEIC) or too large to redraw: sent as is, the size limit still applies
     const scale = Math.min(1, FORM_LIMITS.maxImageSide / Math.max(size.width, size.height));
     try {
       // Bounded decode: the browser scales while decoding, so a big photo is never held at full size.

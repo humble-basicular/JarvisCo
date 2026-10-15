@@ -62,7 +62,7 @@ export const t = {
   by: 'Svetainę sukūrė',
 };
 
-/* One neutral line per known service: what the work is, not what is included. */
+/* Demo only: one neutral line per known service. Real previews and client sites show supplied wording only. */
 const SERVICE_TEXT: { match: RegExp; text: string }[] = [
   { match: /katil\p{L}* (?:montav|keitim|įrengim)|montav\p{L}* katil|katil\p{L}* įrengim/iu, text: 'Naujo katilo parinkimas, įrengimas ir pajungimas prie šildymo sistemos.' },
   { match: /remont/iu, text: 'Gedimo paieška ir remontas.' },
@@ -78,7 +78,7 @@ const SERVICE_TEXT: { match: RegExp; text: string }[] = [
 export function serviceList(data: SiteData): { name: string; text: string }[] {
   return data.services.map((s): { name: string; text: string } => {
     const item: SiteService = typeof s === 'string' ? { name: s } : s;
-    return { name: item.name, text: item.text ?? SERVICE_TEXT.find((r) => r.match.test(item.name))?.text ?? '' };
+    return { name: item.name, text: item.text ?? (data.demo ? SERVICE_TEXT.find((r) => r.match.test(item.name))?.text : undefined) ?? '' };
   });
 }
 

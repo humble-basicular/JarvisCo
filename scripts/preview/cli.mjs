@@ -5,8 +5,8 @@
    `npm run preview` without a file still serves dist/ (astro preview). */
 import { spawn } from 'node:child_process';
 import { randomInt } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, extname, join, relative, resolve } from 'node:path';
+import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -33,6 +33,11 @@ async function generate(file) {
   for (const p of data.photos) {
     const src = resolve(base, p.path);
     if (!existsSync(src)) throw new Error(`photo not found: ${p.path}`);
+    // Photos must live inside the input JSON's directory and must not be symlinks.
+    if (lstatSync(src).isSymbolicLink()) throw new Error(`photo is a symlink: ${p.path}`);
+    const real = realpathSync(src);
+    const rel = relative(realpathSync(base), real);
+    if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) throw new Error(`photo outside the input folder: ${p.path}`);
     if (!PHOTO_EXT.has(extname(src).toLowerCase())) throw new Error(`not a photo: ${p.path}`);
     p.file = src;
   }

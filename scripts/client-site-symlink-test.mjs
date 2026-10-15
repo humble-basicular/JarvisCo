@@ -12,8 +12,12 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SLUG = 'tstsymk222';
 const outside = mkdtempSync(join(tmpdir(), 'cs-symlink-'));
-const sample = readdirSync(join(ROOT, 'previews')).find((f) => f.endsWith('.json') && !f.startsWith(SLUG));
-const base = JSON.parse(readFileSync(join(ROOT, 'previews', sample), 'utf8'));
+const sample = existsSync(join(ROOT, 'previews')) ? readdirSync(join(ROOT, 'previews')).find((f) => f.endsWith('.json') && !f.startsWith(SLUG)) : undefined;
+const base = sample
+  ? JSON.parse(readFileSync(join(ROOT, 'previews', sample), 'utf8'))
+  : { created: '2026-01-01T00:00:00.000Z', business: 'Testas', phone: '+370 600 00000', city: 'Kaunas', areas: ['Kaunas'], services: ['Katilų remontas'], standout: '' };
+// Top-level dirs a clean checkout may lack: created here, removed again only if still empty.
+const madeDirs = ['previews', 'public/previews', 'client-sites'].map((d) => join(ROOT, d)).filter((d) => !existsSync(d));
 const preview = join(ROOT, 'previews', `${SLUG}.json`);
 const photoDir = join(ROOT, 'public', 'previews', SLUG);
 const siteDir = join(ROOT, 'client-sites', SLUG);
@@ -23,9 +27,11 @@ const gone = (p) => rmSync(p, { recursive: true, force: true });
 const run = (file) => spawnSync('node', ['scripts/client-site.mjs', file, '--site', 'testsite', '--domain', 'example.lt', '--test', 'http://localhost:4330'], { cwd: ROOT, encoding: 'utf8' });
 const refused = (r, label) => ok(r.status === 1 && /symlink|outside/.test(r.stderr), `${label}: refused (${r.stderr.trim().slice(0, 90)})`);
 const cleanup = () => { for (const p of [preview, photoDir, siteDir, join(ROOT, 'client-sites', `.build-${SLUG}`)]) gone(p); };
+const removeMade = () => { for (const d of madeDirs.reverse()) { try { if (!readdirSync(d).length) rmSync(d, { recursive: true }); } catch {} } };
 
 try {
   cleanup();
+  mkdirSync(join(ROOT, 'previews'), { recursive: true });
   const data = { ...base, slug: SLUG, photos: [{ src: `/previews/${SLUG}/1.jpg`, width: 10, height: 10 }] };
   const jpg = join(outside, 'secret.jpg');
   writeFileSync(jpg, 'not really a jpeg');
@@ -66,6 +72,7 @@ try {
   ok(existsSync(marker), 'target of the stage symlink untouched');
 } finally {
   cleanup();
+  removeMade();
   rmSync(outside, { recursive: true, force: true });
 }
 console.log(failures ? `${failures} check(s) failed` : 'all symlink checks passed');
