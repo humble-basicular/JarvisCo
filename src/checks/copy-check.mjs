@@ -17,11 +17,13 @@ const banned = [
   /(?<!\b39\s?)€\s?\/\s?mėn/u, /mėnesin\w*\s+plan/iu,
   // No rank guarantees (plan §1).
   /garantuo\w*\s+(?:pirm|TOP|viet)/iu,
+  // 1551.lt is a business directory, not an inquiry portal (hero plan D7).
+  /1551/u,
   // The 20 form inquiries are not attributed to Google (proof spec §9).
   /20\s+(?:formos\s+)?užklausų[^.\d]{0,40}(?:iš|per)\s+Google/iu,
 ];
 const allowed = [`${v4.price.amount} ${v4.price.unit}`, offer.comparison, offer.year.lead, `${offer.year.rows[0].value} ${offer.year.rows[0].detail}`];
-const mustBlock = ['NUOTRAUKA: trūksta', 'CITATA: trūksta', '47 €/mėn.', '49 € / mėn.', 'garantuojame pirmą vietą', '20 užklausų iš Google', 'mėnesinis planas'];
+const mustBlock = ['NUOTRAUKA: trūksta', 'CITATA: trūksta', '47 €/mėn.', '49 € / mėn.', 'garantuojame pirmą vietą', '20 užklausų iš Google', 'mėnesinis planas', 'Paslaugos.lt, 1551.lt'];
 for (const value of allowed) {
   const re = banned.find((pattern) => pattern.test(value));
   if (re) throw new Error(`copy-check: ${re} blocks allowed copy ${JSON.stringify(value)}`);

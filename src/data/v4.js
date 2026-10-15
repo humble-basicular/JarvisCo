@@ -88,13 +88,13 @@ export const proof = {
 
 export const compare = {
   label: 'Palyginimas',
-  title: 'Katalogai ar sava svetainė',
-  text: 'Katalogai ir svetainė gali veikti kartu. Štai kuo jie skiriasi.',
-  cols: ['Katalogai (Paslaugos.lt, 1551.lt…)', 'Jūsų svetainė'],
+  title: 'Portalai ar sava svetainė',
+  text: 'Portalai ir svetainė gali veikti kartu. Štai kuo jie skiriasi.',
+  cols: ['Paslaugos.lt ir panašūs užklausų portalai', 'Jūsų svetainė'],
   rows: [
     { q: 'Kur Jus randa', a: 'Tarp kitų paslaugų teikėjų.', b: 'Atskirame Jūsų paslaugų puslapyje.' },
-    { q: 'Kaip prisistatote', a: 'Profilis pagal katalogo struktūrą ir taisykles.', b: 'Jūsų paslaugos, darbų nuotraukos ir kontaktai vienoje vietoje.' },
-    { q: 'Kas lieka, jei sustojate', a: 'Profilį tvarkote pagal katalogo taisykles.', b: 'Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums.' },
+    { q: 'Kaip prisistatote', a: 'Profilis pagal portalo struktūrą ir taisykles.', b: 'Jūsų paslaugos, darbų nuotraukos ir kontaktai vienoje vietoje.' },
+    { q: 'Kas lieka, jei sustojate', a: 'Profilį tvarkote pagal portalo taisykles.', b: 'Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums.' },
   ],
 };
 
@@ -171,7 +171,7 @@ export const faq = {
     { q: 'Ar būsiu pirmas Google?', a: 'To pažadėti negaliu, ir niekas sąžiningai negali. Padarau tai, kas priklauso nuo manęs: greita svetainė, puslapiai pagal paslaugas ir miestus, Google verslo profilis. Kaip sekasi, matysite mėnesio ataskaitoje.' },
     { q: 'Kas, jei atsisakysiu?', a: 'Parašote SMS arba paskambinate. Per bandomąjį laikotarpį tai nieko nekainuoja. Vėliau svetainė veikia iki apmokėto mėnesio pabaigos ir tada išjungiama. Domenas, Google profilis, Jūsų nuotraukos ir tekstai lieka Jums.' },
     { q: 'Kodėl nemokamai pradžiai?', a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Rizikuoju savo laiku: jei svetainė neatneša užklausų, nieko neuždirbu. Jūs mokate tik už domeną, ir jis lieka Jūsų vardu.' },
-    { q: 'Neturiu nuotraukų ar logotipo', a: 'Nieko tokio. Su Jūsų leidimu paimsiu darbų nuotraukas iš Jūsų profilio internete (Paslaugos.lt, 1551.lt ar kt.), o vietoj logotipo bus tvarkingai užrašytas pavadinimas. Vėliau viską galima pakeisti.' },
+    { q: 'Neturiu nuotraukų ar logotipo', a: 'Nieko tokio. Su Jūsų leidimu paimsiu darbų nuotraukas iš Jūsų profilio internete (pvz., Paslaugos.lt), o vietoj logotipo bus tvarkingai užrašytas pavadinimas. Vėliau viską galima pakeisti.' },
   ],
 };
 
@@ -205,7 +205,7 @@ export const steps = {
   },
   photos: {
     q: 'Nuotraukos ir logotipas',
-    yes: 'Paimkite nuotraukas iš mano profilio internete (Paslaugos.lt, 1551.lt ar kt.)',
+    yes: 'Paimkite nuotraukas iš mano profilio internete (pvz., Paslaugos.lt)',
     profile: 'Profilio nuoroda',
     own: 'Įkelsiu savo',
     files: 'Įkelkite nuotraukas ar logotipą',
