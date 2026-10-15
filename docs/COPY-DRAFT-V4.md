@@ -56,3 +56,10 @@ Unchanged from the funnel stage (`src/data/content.js` → `funnel.form`): field
 - Example image alts: „Šildymo meistro svetainės mobilioji ekrano kopija“ / „arbcut.lt mobilioji ekrano kopija“.
 - Both example links: „Žiūrėti pavyzdį“. Captions stay „Šildymo meistro svetainė“ / „Pavyzdys“ and „arbcut.lt – arboristas, Kaunas“ / „Veikianti svetainė“.
 - Removed all photo placeholder labels; kept Jarvis's existing photo.
+
+## Jarvis review 2026-10-15 — contact email
+
+- `brand.email` / `emailHref`: „jarvisworks.co@gmail.com“ / `mailto:jarvisworks.co@gmail.com` (corrected spelling).
+- Email appears next to the phone in the header (envelope icon with email as accessible name on small screens, full address on wide screens; full address also in the menu), „Apie“, final CTA, footer, and no-JS fallback.
+- Final CTA phone text: „+370 676 99395“; email text in every contact block: „jarvisworks.co@gmail.com“.
+- No-JS help: „Formai reikia JavaScript — paskambinkite, parašykite SMS arba el. paštu“.

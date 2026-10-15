@@ -234,7 +234,7 @@ export const steps = {
   noscriptPromise: 'Jarvis pats paruoš Jūsų svetainės peržiūrą. Nemokamai, be įsipareigojimų.',
   noscriptCall: 'Skambinti',
   noscriptSms: 'Parašyti SMS',
-  noscriptLine: 'Formai reikia JavaScript — paskambinkite arba parašykite SMS',
+  noscriptLine: 'Formai reikia JavaScript — paskambinkite, parašykite SMS arba el. paštu',
 };
 
 export const footer = {

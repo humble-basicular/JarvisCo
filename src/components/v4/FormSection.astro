@@ -1,5 +1,6 @@
 ---
 /* Final CTA + the step-by-step form (plan §4.2 item 12). */
+import { brand } from '@data/content.js';
 import { cta } from '@data/v4.js';
 import PreviewForm from '@components/funnel/PreviewForm.astro';
 
@@ -12,6 +13,10 @@ const { trade } = Astro.props;
       <p class="label">{cta.label}</p>
       <h2 class="head__title" id="forma-title" tabindex="-1"><span class="reveal-line" data-reveal>{cta.title}</span></h2>
       <p class="head__text">{cta.text}</p>
+      <div class="fs__contacts">
+        <a class="link" href={brand.telHref} data-track="cta_call">{brand.phone}</a>
+        <a class="link" href={brand.emailHref}>{brand.email}</a>
+      </div>
     </div>
     <div class="fs__form"><PreviewForm trade={trade} /></div>
   </div>
@@ -21,6 +26,8 @@ const { trade } = Astro.props;
   .fs { border-top: 1px solid var(--ink); }
   .fs__grid { display: grid; gap: 2.5rem; }
   .fs__head { display: grid; gap: 1.25rem; align-content: start; }
+  .fs__contacts { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; }
+  .fs__contacts a { min-height: 3rem; display: inline-flex; align-items: center; overflow-wrap: anywhere; }
   .fs__head h2:focus { outline: none; }
   @media (min-width: 64rem) {
     .fs__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; }

@@ -24,6 +24,10 @@ const phoneIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" strok
       <ul>{nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}</ul>
     </nav>
     <a class="hdr__icon" href={brand.telHref} data-track="cta_call" aria-label={header.call}><Fragment set:html={phoneIcon} /></a>
+    <a class="hdr__email" href={brand.emailHref} aria-label={brand.email}>
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1" /><path d="m3 6 9 7 9-7" /></svg>
+      <span>{brand.email}</span>
+    </a>
     <a class="btn btn--ink hdr__cta" href={formHref} data-track="preview_cta">{header.cta}</a>
     <button class="hdr__icon hdr__menu" type="button" aria-haspopup="dialog" aria-controls="menu-sheet" data-menu-open>
       <span class="visually-hidden">{header.menu}</span>
@@ -47,6 +51,7 @@ const phoneIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" strok
     <div class="sheet__ctas">
       <a class="btn btn--accent" href={formHref} data-menu-link data-track="preview_cta">{header.cta}</a>
       <a class="link" href={brand.telHref} data-track="cta_call">{header.call}</a>
+      <a class="link" href={brand.emailHref}>{brand.email}</a>
     </div>
   </dialog>
 </header>
@@ -77,6 +82,10 @@ const phoneIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" strok
   }
   .hdr__icon:hover { background: var(--paper-2); }
   .hdr__icon :global(svg), .hdr__icon svg { width: 1.375rem; height: 1.375rem; }
+  .hdr__email { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-width: 3rem; min-height: 3rem; color: var(--ink); }
+  .hdr__email svg { width: 1.375rem; height: 1.375rem; flex: none; }
+  .hdr__email span { display: none; }
+  @media (min-width: 80rem) { .hdr__email span { display: inline; font-size: 0.875rem; } }
   .hdr__cta { display: none; min-height: 3rem; padding: 0 1.25rem; font-size: 1rem; }
   @media (min-width: 64rem) {
     .hdr__nav { display: block; margin-right: 1rem; }
