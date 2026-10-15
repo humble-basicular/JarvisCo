@@ -305,20 +305,22 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
   const code = isSite ? '' : text('code');
   if (code === null || (code !== '' && !validCode(code))) return invalid('code');
   const values: Record<string, string> = {};
-  for (const [field, max] of Object.entries(isSite ? { name: 80, phone: 20, message: 2000, service: 120, location: 120, ...(kind === 'job_request' ? { brand: 60 } : {}) } : { name: 80, phone: 20, email: 254, services_other: 200, area_other: 200, standout: 1000 })) {
+  for (const [field, max] of Object.entries(isSite ? { name: 80, phone: 20, message: 2000, service: 120, location: 120, ...(kind === 'job_request' ? { brand: 60 } : {}) } : { name: 80, phone: 20, services_other: 200, area_other: 200, standout: 1000 })) {
     const value = text(field);
     if (value === null || [...value].length > max) return invalid(field);
     values[field] = value;
   }
   const phone = values.phone!;
   // Optional on the two funnel kinds (spec offer-v2 §2.4); stored lower-case.
-  const email = (values.email ?? '').toLowerCase();
-  if (email && !EMAIL.test(email)) return invalid('email');
+  const rawEmail = isSite ? '' : text('email');
+  if (rawEmail === null) return invalid('email');
+  const email = rawEmail.toLowerCase();
+  if (email.length > 254 || (email && !EMAIL.test(email))) return invalid('email');
   const via = isSite ? '' : text('preview_via');
   if (via === null || !['', 'sms', 'email'].includes(via)) return invalid('preview_via');
   if (via === 'email' && !email) return invalid('email');
   // A homepage preview with only an email is reachable; every other no-code case still needs a phone.
-  const emailOnly = kind === 'preview_request' && !code && !phone && !!email && via !== 'sms';
+  const emailOnly = kind === 'preview_request' && !code && !phone && !!email && via === 'email';
   if ((!code && !phone && !emailOnly) || (phone && (!/^[0-9 +()\-]+$/.test(phone) || phone.replace(/\D/g, '').length < 8))) return invalid('phone');
   const lists: Record<string, string[]> = {};
   for (const field of isSite ? [] : ['services', 'area']) {

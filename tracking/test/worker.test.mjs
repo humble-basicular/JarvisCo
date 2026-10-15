@@ -420,14 +420,25 @@ test('homepage preview with only an email and preview_via=email is accepted, low
     'photos_ok', 'preview_via', 'services', 'services_other', 'standout']);
 });
 
-test('homepage preview with email but empty preview_via is reachable; sms without phone is not', async () => {
-  assert.equal((await submit({ kind: 'preview_request', email: 'a@b.lt' })).status, 200);
-  const entry = (await (await pull()).json()).events[0];
-  assert.equal(entry.submission.email, 'a@b.lt');
-  assert.equal(entry.submission.preview_via, null);
-  const denied = await submit({ kind: 'preview_request', email: 'a@b.lt', preview_via: 'sms' });
+test('homepage email-only preview requires an explicit email channel', async () => {
+  for (const preview_via of ['', 'sms']) {
+    const denied = await submit({ kind: 'preview_request', email: 'a@b.lt', preview_via });
+    assert.equal(denied.status, 400);
+    assert.deepEqual(await denied.json(), { error: 'invalid', field: 'phone' });
+  }
+});
+
+test('email is validated after Unicode lower-casing and stored within the CRM contract limits', async () => {
+  const denied = await submit({ kind: 'preview_request', email: `${'İ'.repeat(125)}@a.lt`, preview_via: 'email' });
   assert.equal(denied.status, 400);
-  assert.deepEqual(await denied.json(), { error: 'invalid', field: 'phone' });
+  assert.deepEqual(await denied.json(), { error: 'invalid', field: 'email' });
+  assert.equal((await submit({ kind: 'preview_request', email: `  ${'İ'.repeat(124)}X@a.lt  `, preview_via: 'email' })).status, 200);
+  const events = (await (await pull()).json()).events;
+  assert.equal(events.length, 1);
+  const stored = events[0].submission.email;
+  assert.equal(stored, `${'İ'.repeat(124)}X@a.lt`.toLowerCase());
+  assert.equal(stored.length, 254);
+  assert.match(stored, /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
 });
 
 test('sms path is unchanged and may carry both channels; email never replaces the phone rule for callbacks', async () => {
