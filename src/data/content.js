@@ -490,6 +490,7 @@ export const funnel = {
     errors: {
       phone: 'Įveskite telefono numerį, pvz. +370 612 34567.',
       phoneCallback: 'Įrašykite telefono numerį, kad galėčiau paskambinti.',
+      email: 'Įveskite teisingą el. pašto adresą, pvz. vardas@pastas.lt.',
       files: 'Iki 8 failų, kiekvienas iki 10 MB, iš viso iki 25 MB.',
       fileType: 'Šio failo tipo priimti negaliu. Tinka nuotraukos, PDF, Word, Excel ir tekstiniai failai.',
       invalid: 'Patikrinkite pažymėtą laukelį.',
@@ -499,7 +500,7 @@ export const funnel = {
     },
     // {name} = vocative first name, {date} = +48 h in Europe/Vilnius.
     thanks: {
-      preview: 'Ačiū{name}. Peržiūrą atsiųsiu SMS iki {date}.',
+      preview: 'Ačiū{name}. Peržiūros nuorodą atsiųsiu {via} per 48 val., iki {date}.',
       callback: 'Ačiū{name}. {time}',
       times: {
         morning: 'Paskambinsiu rytą.',

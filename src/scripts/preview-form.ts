@@ -18,6 +18,8 @@ type Messages = {
   preparing: string;
   progress: string;
   composed: { trade: string; years: string; yearsUnit: string };
+  channel: { sms: string; email: string };
+  labels: { required: string; optional: string };
 };
 
 const MIME_BY_EXT: Record<string, string> = {
@@ -31,7 +33,7 @@ const KEEP_BELOW = 1.5 * 1024 * 1024; // small images within 2000 px are sent un
 const MAX_DECODED_PIXELS = 50e6; // ~200 MB of RGBA: larger decodes are not drawn (phones run out of memory)
 /** Trade answer → services list key (the code prefix of that trade, spec §2). */
 const SERVICES_BY_TRADE: Record<string, string> = { Šildymas: 'p' };
-const WIRE_FIELDS = new Set(['code', 'name', 'phone', 'services', 'services_other', 'area', 'area_other', 'photos_ok', 'standout', 'contact_time', 'website']);
+const WIRE_FIELDS = new Set(['code', 'name', 'phone', 'services', 'services_other', 'area', 'area_other', 'photos_ok', 'standout', 'contact_time', 'website', 'email', 'preview_via']);
 
 /* "Tomas" → "Tomai": Lithuanian vocative for the thank-you. First word only;
    anything that is not a plain name is used as typed. */
@@ -53,6 +55,11 @@ export function dueLabel(now = Date.now()) {
 /** A valid phone per spec §4: ≤ 20 chars of digits, spaces, + - ( ), at least 8 digits. */
 export function isPhone(value: string) {
   return value.length <= 20 && /^[0-9 +\-()]+$/.test(value) && (value.match(/\d/g)?.length ?? 0) >= 8;
+}
+
+/** A valid email per offer-v2 spec §2.4: ≤ 254 chars, `^[^\s@]+@[^\s@]+\.[^\s@]+$`. */
+export function isEmail(value: string) {
+  return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 /** "Sritis: Šildymas; Patirtis: 3–10 m." + free text, within the 1000-char limit. */
@@ -121,6 +128,13 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
   const fileInput = form.querySelector<HTMLInputElement>('input[type="file"]')!;
   const fileList = form.querySelector<HTMLElement>('[data-file-list]')!;
   const phone = form.elements.namedItem('phone') as HTMLInputElement;
+  const email = form.elements.namedItem('email') as HTMLInputElement;
+  const viaInputs = [...form.querySelectorAll<HTMLInputElement>('input[name="preview_via"]')];
+  const emailField = form.querySelector<HTMLElement>('[data-email-field]')!;
+  const phoneField = form.querySelector<HTMLElement>('[data-phone-field]')!;
+  const phoneOpt = form.querySelector<HTMLElement>('[data-phone-opt]')!;
+  const phoneHint = form.querySelector<HTMLElement>('[data-phone-hint]')!;
+  const codeNote = form.querySelector<HTMLElement>('[data-code-note]')!;
   const thanks = form.parentElement!.querySelector<HTMLElement>('[data-thanks]')!;
   const tradeInputs = [...form.querySelectorAll<HTMLInputElement>('[data-trade-input]')];
   const yearsInputs = [...form.querySelectorAll<HTMLInputElement>('[data-years-input]')];
@@ -154,11 +168,6 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
   progress.hidden = false;
   back.addEventListener('click', () => showStep(current - 1));
   next.addEventListener('click', () => showStep(current + 1));
-  form.querySelectorAll<HTMLAnchorElement>('[data-goto-last]').forEach((a) => a.addEventListener('click', (event) => {
-    event.preventDefault();
-    showStep(steps.length - 1, false);
-    (code ? callback : phone).focus();
-  }));
   // Enter in a one-line field moves on instead of submitting the whole form early.
   form.addEventListener('keydown', (event) => {
     const el = event.target as HTMLElement;
@@ -198,13 +207,27 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
   tradeInputs.forEach((i) => i.addEventListener('change', syncTrade));
   syncTrade();
 
-  // With a code the CRM already has the number: the phone field goes away.
-  if (code) {
-    (form.elements.namedItem('code') as HTMLInputElement).value = code;
-    phone.required = false;
-    form.querySelector<HTMLElement>('[data-phone-field]')!.hidden = true;
-    form.querySelector<HTMLElement>('[data-code-note]')!.hidden = false;
-  }
+  if (code) (form.elements.namedItem('code') as HTMLInputElement).value = code;
+
+  // Where the preview link goes (default SMS). SMS: phone (not with a code: the CRM already has the number).
+  // Email: email field required, phone optional (a callback request still needs it).
+  const via = () => (viaInputs.find((i) => i.checked)?.value === 'email' ? 'email' : 'sms');
+  const syncVia = () => {
+    const byEmail = via() === 'email';
+    emailField.hidden = !byEmail;
+    email.disabled = !byEmail; // FormData skips disabled fields: no email is posted in SMS mode
+    email.required = byEmail;
+    phoneField.hidden = Boolean(code) && !byEmail; // with a code the CRM already has the number
+    phone.required = !byEmail && !code;
+    phoneOpt.textContent = phone.required ? messages.labels.required : messages.labels.optional;
+    phoneHint.textContent = (byEmail ? phoneHint.dataset.email : phoneHint.dataset.sms) ?? '';
+    codeNote.hidden = !code || byEmail;
+  };
+  viaInputs.forEach((i) => i.addEventListener('change', () => {
+    syncVia();
+    setError('phone', '');
+    setError('email', '');
+  }));
 
   const showStatus = (text: string, error = true) => {
     status.className = text && error ? 'pf__status is-err' : 'pf__status';
@@ -240,6 +263,10 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
     el.focus();
   };
 
+  syncVia();
+  email.addEventListener('input', () => {
+    if (email.getAttribute('aria-invalid') === 'true' && isEmail(email.value.trim())) setError('email', '');
+  });
   phone.addEventListener('input', () => {
     if (phone.getAttribute('aria-invalid') === 'true' && isPhone(phone.value.trim())) setError('phone', '');
   });
@@ -291,12 +318,12 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
     }
   }
 
-  function showThanks(kind: string, name: string, time: string) {
+  function showThanks(kind: string, name: string, time: string, channel: 'sms' | 'email') {
     const t = messages.thanks;
     const who = name ? `, ${vocative(name)}` : '';
     thanks.querySelector('[data-thanks-text]')!.textContent = kind === 'callback_request'
       ? t.callback.replace('{name}', who).replace('{time}', t.times[time] ?? t.times[''])
-      : t.preview.replace('{name}', who).replace('{date}', dueLabel());
+      : t.preview.replace('{name}', who).replace('{via}', messages.channel[channel]).replace('{date}', dueLabel());
     form.hidden = true;
     thanks.hidden = false;
     thanks.focus();
@@ -309,14 +336,24 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
     const submitter = ((event as SubmitEvent).submitter as HTMLButtonElement | null) ?? lastSubmitter ?? submit;
     const kind = submitter.value === 'callback_request' ? 'callback_request' : 'preview_request';
     showStatus('');
-    ['files', 'photos_ok', 'contact_time', 'services_other', 'area_other', 'standout', 'name'].forEach((n) => setError(n, ''));
+    ['files', 'photos_ok', 'contact_time', 'services_other', 'area_other', 'standout', 'name', 'email'].forEach((n) => setError(n, ''));
 
+    // Phone: required for SMS and for a callback (unless a code already identifies the lead); if given, it must be valid.
+    const channel = via();
     const phoneValue = phone.value.trim();
-    if ((!code && !phoneValue) || (phoneValue && !isPhone(phoneValue))) {
+    const phoneNeeded = !code && (channel === 'sms' || kind === 'callback_request');
+    if ((phoneNeeded && !phoneValue) || (phoneValue && !isPhone(phoneValue))) {
       reveal(setError('phone', kind === 'callback_request' && !phoneValue ? messages.errors.phoneCallback : messages.errors.phone));
       return;
     }
     setError('phone', '');
+    // Email: required for a preview by email; if given (also for a callback), it must be valid.
+    const emailValue = channel === 'email' ? email.value.trim() : '';
+    if ((channel === 'email' && kind === 'preview_request' && !emailValue) || (emailValue && !isEmail(emailValue))) {
+      reveal(setError('email', messages.errors.email));
+      return;
+    }
+    setError('email', '');
 
     busy = true;
     const label = submit.textContent;
@@ -344,7 +381,7 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
       }
       const json = (await res.json().catch(() => ({}))) as { ok?: boolean; field?: string };
       if (res.ok && json.ok) {
-        showThanks(kind, String(body.get('name') ?? ''), String(body.get('contact_time') ?? ''));
+        showThanks(kind, String(body.get('name') ?? ''), String(body.get('contact_time') ?? ''), channel);
       } else if (res.status === 400 && json.field) {
         const field = json.field === 'area' || json.field === 'services' ? `${json.field}_other` : json.field;
         reveal(setError(field, messages.errors[field] ?? messages.errors.invalid));

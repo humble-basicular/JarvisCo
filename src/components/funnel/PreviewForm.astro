@@ -19,6 +19,8 @@ const messages = JSON.stringify({
   preparing: f.preparing,
   progress: s.progress,
   composed: s.composed,
+  channel: s.contact.channel,
+  labels: { required: f.required, optional: f.optional },
 });
 const accept = ['image/*', ...FORM_LIMITS.extensions.filter((e) => !['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'gif'].includes(e)).map((e) => `.${e}`)].join(',');
 const NONE = 'pf-none'; // no such form: these inputs are never submitted
@@ -146,9 +148,16 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
       <input id="pf-name" type="text" name="name" maxlength="80" autocomplete="given-name" aria-describedby="pf-name-err" />
       <p class="pf__err" id="pf-name-err" data-error="name" hidden></p>
     </div>
+    <fieldset class="pf__group" data-via-group>
+      <legend class="visually-hidden">{s.contact.via}</legend>
+      <div class="pf__radios">
+        <span class="pf__radio"><input type="radio" name="preview_via" value="sms" id="pf-via-sms" checked /><label for="pf-via-sms">{s.contact.sms}</label></span>
+        <span class="pf__radio"><input type="radio" name="preview_via" value="email" id="pf-via-email" /><label for="pf-via-email">{s.contact.email}</label></span>
+      </div>
+    </fieldset>
     <div class="pf__field" data-phone-field>
-      <label for="pf-phone">{f.phone} <span class="pf__opt">{f.required}</span></label>
-      <p class="pf__hint" id="pf-phone-hint">{f.phoneHint}</p>
+      <label for="pf-phone">{f.phone} <span class="pf__opt" data-phone-opt>{f.required}</span></label>
+      <p class="pf__hint" id="pf-phone-hint" data-phone-hint data-sms={f.phoneHint} data-email={s.contact.phoneOptionalHint}>{f.phoneHint}</p>
       <input
         id="pf-phone"
         type="tel"
@@ -162,6 +171,24 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
         aria-describedby="pf-phone-hint pf-phone-err"
       />
       <p class="pf__err" id="pf-phone-err" data-error="phone" hidden></p>
+    </div>
+    <div class="pf__field" data-email-field hidden>
+      <label for="pf-email">{s.contact.emailLabel} <span class="pf__opt">{f.required}</span></label>
+      <p class="pf__hint" id="pf-email-hint">{s.contact.emailHint}</p>
+      <input
+        id="pf-email"
+        type="email"
+        name="email"
+        maxlength="254"
+        inputmode="email"
+        autocomplete="email"
+        autocapitalize="none"
+        spellcheck="false"
+        placeholder="vardas@pastas.lt"
+        disabled
+        aria-describedby="pf-email-hint pf-email-err"
+      />
+      <p class="pf__err" id="pf-email-err" data-error="email" hidden></p>
     </div>
     <fieldset class="pf__group" aria-describedby="pf-contact_time-err">
       <legend>{f.time} <span class="pf__opt">{f.optional}</span></legend>
@@ -222,7 +249,7 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
   .pf__field { margin-bottom: 1.5rem; }
   .pf__field--sub { margin-top: 1.5rem; }
   .pf__opt { font-weight: 400; color: var(--mute); font-size: 0.9375rem; }
-  .pf input[type='text'], .pf input[type='tel'], .pf textarea {
+  .pf input[type='text'], .pf input[type='tel'], .pf input[type='email'], .pf textarea {
     width: 100%; min-height: 3.5rem; padding: 0.75rem 0.875rem;
     color: var(--ink); background: #fff; border: 1px solid var(--ink); border-radius: 4px;
   }
