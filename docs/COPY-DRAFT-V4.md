@@ -35,7 +35,7 @@ Rules applied: every "0 €" is followed by "iki pirmos užklausos, ne ilgiau ka
 | about | Matas, Kaunas · Svetaines kuriu pats ir atsakau pats. · Individuali veikla. Rašote ar skambinate – atsiliepiu aš, ne skambučių centras. · Skambinti +370 676 99395 | §4.2 line + drafted |
 | faq (7) | Darbo per valias, kam man? · Turėjau svetainę, nieko nedavė · Kas, jei neatneš užklausų? · Ar būsiu pirmas Google? · Kas, jei atsisakysiu? · Kodėl nemokamai pradžiai? · Neturiu nuotraukų ar logotipo — all answers drafted (see v4.js) | questions §4.2/§4.3 |
 | cta | Pažiūrėkite, kaip atrodytų Jūsų svetainė · Keli trumpi klausimai, apie 2 minutes. Peržiūrą atsiųsiu per 48 val. Nepatiks – tiesiog neatsakykite. | drafted |
-| steps (form) | Kokia Jūsų sritis? (Šildymas, Santechnika, Medžių darbai, Stogai, Elektra, Statyba ir remontas, Aplinkos tvarkymas, Kita) · Kokias paslaugas teikiate? · Kur dirbate? · Kiek metų dirbate šioje srityje? (Iki 3 / 3–10 / 10–20 / Daugiau nei 20 m.) · Kuo išsiskiriate? · Nuotraukos ir logotipas: Paimkite nuotraukas iš mano profilio internete (Paslaugos.lt, 1551.lt ar kt.) / Įkelsiu savo · Profilio nuoroda (nebūtina) · Kur atsiųsti peržiūrą? · Paskambinkite man · Nenorite pildyti? Paskambinkite man · Klausimas N iš 6 · Toliau / Atgal | §4.3 order, drafted wording |
+| steps (form) | Kokia Jūsų sritis? (Šildymas, Santechnika, Medžių darbai, Stogai, Elektra, Statyba ir remontas, Aplinkos tvarkymas, Kita) · Kokias paslaugas teikiate? · Kur dirbate? · Kiek metų dirbate šioje srityje? (Iki 3 / 3–10 / 10–20 / Daugiau nei 20 m.) · Kuo išsiskiriate? · Nuotraukos ir logotipas: Paimkite nuotraukas iš mano profilio internete (Paslaugos.lt, 1551.lt ar kt.) / Įkelsiu savo · Profilio nuoroda (nebūtina) · Kur atsiųsti peržiūrą? · Paskambinkite man · Klausimas N iš 6 · Toliau / Atgal | §4.3 order, drafted wording |
 | steps.consent | Spausdami mygtuką sutinkate, kad šiuos duomenis ir failus naudočiau tik Jūsų peržiūrai paruošti ir susisiekti dėl jos. Privatumo politika. | drafted |
 | steps.extraErrors | Pasirinkite vieną variantą. · …: nepavyko paruošti nuotraukos. Pabandykite kitą arba mažesnę. | drafted |
 | footer.line | Svetainės paslaugų meistrams. Kaunas, visa Lietuva. | drafted |
@@ -63,3 +63,15 @@ Unchanged from the funnel stage (`src/data/content.js` → `funnel.form`): field
 - Email appears next to the phone in the header (envelope icon with email as accessible name on small screens, full address on wide screens; full address also in the menu), „Apie“, final CTA, footer, and no-JS fallback.
 - Final CTA phone text: „+370 676 99395“; email text in every contact block: „jarvisworks.co@gmail.com“.
 - No-JS help: „Formai reikia JavaScript — paskambinkite, parašykite SMS arba el. paštu“.
+
+## Form changes already implemented in items 1–2 (included in this copy review)
+
+- Contact step: „Kur atsiųsti peržiūrą?“; group: „Pasirinkite, kaip gauti peržiūros nuorodą“; choices: „SMS“ / „El. paštu“.
+- Email: „El. paštas“; hint: „Čia atsiųsiu peržiūros nuorodą.“
+- Optional phone hint in email mode: „Nebūtina. Numerio prireiks, jei paspausite „Paskambinkite man“.“
+- With an SMS code: „Peržiūrą atsiųsiu SMS į numerį, iš kurio gavote mano žinutę.“
+- Callback note (last step only): „Arba paskambinsiu aš: įrašykite telefono numerį. Visus atsakymus matysiu.“ Removed the early callback shortcut and its text.
+- Preview thank-you (`funnel.form.thanks.preview`): „Ačiū{name}. Peržiūros nuorodą atsiųsiu {via} per 48 val., iki {date}.“ (`{via}` = „SMS“ / „el. paštu“).
+- Email error (`funnel.form.errors.email`): „Įveskite teisingą el. pašto adresą, pvz. vardas@pastas.lt.“
+
+Build checks reject unfinished photo/quote labels and retain the honest-offer checks. Static checks require the email and preview channel wire fields.

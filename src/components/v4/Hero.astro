@@ -26,9 +26,11 @@ const v = hero[variant];
   </div>
   <div class={`hero__object ${variant === 'heating' ? 'hero__object--screen' : ''}`}>
     <Image src={variant === 'home' ? crown : heating} alt={v.photoAlt}
-      widths={variant === 'home' ? [390, 640, 900] : [320, 390]}
+      width={variant === 'home' ? 900 : 390} height={variant === 'home' ? 675 : 844}
+      fit="cover" position="centre"
+      widths={variant === 'home' ? [390, 640, 780, 900] : [320, 390]}
       sizes={variant === 'home' ? '(min-width: 48rem) 82vw, calc(100vw - 1.25rem)' : '(min-width: 28rem) 390px, calc(100vw - 2.5rem)'}
-      format="webp" quality={82} loading="eager" />
+      format="webp" quality={75} loading="eager" fetchpriority="high" />
   </div>
 </section>
 

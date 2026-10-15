@@ -6,14 +6,15 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "astro build && npm run check:copy",
     "preview": "node scripts/preview/cli.mjs",
     "check:copy": "node src/checks/copy-check.mjs",
     "check:js": "node src/checks/js-budget.mjs",
-    "check": "astro build && npm run check:copy && npm run check:js && npm run check:static",
+    "check": "npm run build && npm run check:js && npm run check:static",
     "astro": "astro",
     "check:static": "node src/checks/static-check.mjs",
-    "client-site": "node scripts/client-site.mjs"
+    "client-site": "node scripts/client-site.mjs",
+    "check:browser": "node src/checks/browser-check.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.3.0",

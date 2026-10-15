@@ -73,7 +73,7 @@ for (const route of ['/rezultatai']) {
   steps.items.forEach((step) => check(body.includes(step), `${route}: missing step ${step}`));
 }
 // v4 pages with the step-by-step preview form (funnel spec §2–§4, plan §4.2–§4.3).
-const WIRE = ['code', 'name', 'phone', 'services', 'services_other', 'area', 'area_other', 'photos_ok', 'standout', 'contact_time', 'files', 'website'];
+const WIRE = ['code', 'name', 'phone', 'services', 'services_other', 'area', 'area_other', 'photos_ok', 'standout', 'contact_time', 'files', 'website', 'email', 'preview_via'];
 for (const route of ['/', '/sildymui', '/noriu']) {
   const page = routes.get(route);
   check(Boolean(page), `Missing ${route}`);
@@ -89,6 +89,18 @@ for (const route of ['/', '/sildymui', '/noriu']) {
   // Exactly the spec's wire fields: anything else that has a name must belong to no form.
   const extra = inForm.filter((node) => ['input', 'select', 'textarea', 'button'].includes(node.tagName) && attr(node, 'name') && attr(node, 'form') === undefined && ![...WIRE, 'kind'].includes(attr(node, 'name')));
   check(extra.length === 0, `${route}: non-wire form fields ${extra.map((n) => attr(n, 'name'))}`);
+  check(named('email').length === 1 && attr(named('email')[0], 'type') === 'email', `${route}: expected name="email" input`);
+  check(named('preview_via').map((n) => attr(n, 'value')).join() === 'sms,email', `${route}: expected name="preview_via" SMS/email choices`);
+  check(inForm.some((node) => attr(node, 'data-profile') !== undefined && attr(node, 'form') === 'pf-none'), `${route}: profile URL must be composed into standout, never a wire field`);
+  const lastStep = inForm.filter((node) => attr(node, 'data-step') !== undefined).at(-1);
+  check(nodes(lastStep).filter((node) => attr(node, 'name') === 'kind').length === 2, `${route}: both submit buttons must be in the last step`);
+  check(!el.some((node) => node.tagName === 'blockquote'), `${route}: no testimonial quotes`);
+  for (const container of ['header', '#apie', '#forma', 'footer']) {
+    const block = el.find((node) => container.startsWith('#') ? attr(node, 'id') === container.slice(1) : node.tagName === container);
+    check(block && nodes(block).some((node) => attr(node, 'href') === brand.emailHref), `${route}: missing email in ${container}`);
+  }
+  check(el.some((node) => attr(node, 'href') === brand.emailHref && normalized(text(node)) === brand.email), `${route}: email address must be readable`);
+  check(/<noscript>(?:(?!<\/noscript>)[\s\S])*mailto:jarvisworks\.co@gmail\.com/.test(page.html), `${route}: noscript email fallback`);
   check(attr(named('name')[0], 'value') === undefined, `${route}: name must not be prefilled`);
   check(attr(named('phone')[0], 'required') !== undefined, `${route}: phone must be required without JS (no code)`);
   check(attr(named('files')[0], 'multiple') !== undefined && attr(named('files')[0], 'capture') === undefined, `${route}: files must be multiple and not camera-only`);

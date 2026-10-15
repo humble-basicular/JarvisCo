@@ -5,6 +5,7 @@ import * as v4 from '../data/v4.js';
 import { pages, text, textContent, normalized } from './html.mjs';
 
 const banned = [
+  /NUOTRAUKA\s*:|CITATA\s*:/iu,
   /500\s*€|47\s*€/u, /11[\s,.]*362/u, /prenumerat|mėnesiniai planai/iu,
   /atsiliepim|\/atsiliepimas/iu, /Kazlausk|Vaitkut|Petrausk|Stankevič|Jankausk/u,
   /TOP pozicij|5[,.]0\s*★|100\+|<\s*1\s*s/iu,
@@ -20,7 +21,7 @@ const banned = [
   /20\s+(?:formos\s+)?užklausų[^.\d]{0,40}(?:iš|per)\s+Google/iu,
 ];
 const allowed = [`${v4.price.amount} ${v4.price.unit}`, offer.comparison, offer.year.lead, `${offer.year.rows[0].value} ${offer.year.rows[0].detail}`];
-const mustBlock = ['47 €/mėn.', '49 € / mėn.', 'garantuojame pirmą vietą', '20 užklausų iš Google', 'mėnesinis planas'];
+const mustBlock = ['NUOTRAUKA: trūksta', 'CITATA: trūksta', '47 €/mėn.', '49 € / mėn.', 'garantuojame pirmą vietą', '20 užklausų iš Google', 'mėnesinis planas'];
 for (const value of allowed) {
   const re = banned.find((pattern) => pattern.test(value));
   if (re) throw new Error(`copy-check: ${re} blocks allowed copy ${JSON.stringify(value)}`);
