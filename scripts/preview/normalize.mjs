@@ -19,6 +19,17 @@ function list(value, field, max = 12, each = 60) {
   return [...new Set(out)];
 }
 
+/** Accept supplied service descriptions without inventing any for real businesses. */
+function servicesList(value) {
+  if (value == null) return [];
+  if (!Array.isArray(value) || value.length > 12) throw new Error('services must be a list of at most 12');
+  return value.map((item, i) => {
+    if (typeof item === 'string') return text(item, `services[${i}]`, 60, { required: true });
+    return { name: text(item?.name, `services[${i}].name`, 60, { required: true }),
+      ...(item?.text ? { text: text(item.text, `services[${i}].text`, 400) } : {}) };
+  });
+}
+
 /** Free-text "Kita" answers: comma, semicolon or new line separated. */
 const splitOther = (value) => (typeof value === 'string' ? value.split(/[,;\n]/u).map((s) => s.trim()).filter(Boolean) : []);
 
@@ -61,7 +72,29 @@ function legal(value) {
 function reviews(value) {
   if (value == null) return undefined;
   if (!Array.isArray(value) || value.length > 6) throw new Error('reviews must be a list of at most 6 {text, name, place}');
-  return value.map((r, i) => ({ text: text(r?.text, `reviews[${i}].text`, 400, { required: true }), name: text(r?.name, `reviews[${i}].name`, 60, { required: true }), place: text(r?.place, `reviews[${i}].place`, 60) }));
+  return value.map((r, i) => {
+    const url = text(r?.url, `reviews[${i}].url`, 300);
+    if (url && !/^https:\/\/[^\s"'<>]+$/u.test(url)) throw new Error(`reviews[${i}].url must be an https:// link`);
+    const out = {
+      text: text(r?.text, `reviews[${i}].text`, 400, { required: true }),
+      name: text(r?.name, `reviews[${i}].name`, 60, { required: true }),
+      place: text(r?.place, `reviews[${i}].place`, 60),
+      source: text(r?.source, `reviews[${i}].source`, 60),
+      url,
+      date: text(r?.date, `reviews[${i}].date`, 30),
+    };
+    return Object.fromEntries(Object.entries(out).filter(([, v]) => v));
+  });
+}
+
+/** Prices the client gave: [{name, price, note?}]. */
+function prices(value) {
+  if (value == null) return undefined;
+  if (!Array.isArray(value) || value.length > 10) throw new Error('prices must be a list of at most 10 {name, price, note}');
+  return value.map((p, i) => {
+    const out = { name: text(p?.name, `prices[${i}].name`, 80, { required: true }), price: text(p?.price, `prices[${i}].price`, 40, { required: true }), note: text(p?.note, `prices[${i}].note`, 160) };
+    return Object.fromEntries(Object.entries(out).filter(([, v]) => v));
+  });
 }
 
 function faq(value) {
@@ -91,7 +124,7 @@ export function normalize(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('input must be a JSON object');
   const submission = validateSubmission(raw.submission);
   const sub = submission ?? {};
-  const services = list(raw.services, 'services');
+  const services = servicesList(raw.services);
   const areas = list(raw.areas, 'areas');
   const data = {
     business: text(raw.business, 'business', 80, { required: true }),
@@ -109,6 +142,9 @@ export function normalize(raw) {
     legal: legal(raw.legal),
     reviews: reviews(raw.reviews),
     faq: faq(raw.faq),
+    qualifications: list(raw.qualifications, 'qualifications', 6, 160),
+    prices: prices(raw.prices),
+    priceNote: text(raw.priceNote, 'priceNote', 300),
   };
   if (!isPhone(data.phone)) throw new Error(`phone "${data.phone}" is not a phone number (digits, spaces, + - ( ), at least 8 digits)`);
   if (!toE164(data.phone)) throw new Error(`phone "${data.phone}" cannot be converted to +370… (use 8 6xx xxxxx, 06xx xxxxx, 6xx xxxxx or +370 6xx xxxxx)`);

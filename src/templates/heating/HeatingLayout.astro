@@ -1,9 +1,16 @@
 ---
-/* HTML shell for the heating template. Preview: noindex,nofollow, fixed
-   "PERŽIŪRA" banner, no tracking. Live: indexable, canonical on the client's
-   domain, LocalBusiness schema. System fonts, no cookies, no analytics. */
+/* HTML shell for the heating template. Preview: noindex,nofollow,
+   "PERŽIŪRA"/"PAVYZDYS" banner, no tracking. Live: indexable, canonical on the
+   client's domain, HVACBusiness schema. Self-hosted fonts, no cookies, no analytics. */
 import './heating.css';
-import { DEFAULT_ACCENT } from './content';
+// Self-hosted fonts (fontsource, OFL), latin + latin-ext subsets only: the
+// Lithuanian letters (ąčęėįšųūž) live in latin-ext. The grotesk is preloaded;
+// the condensed label face (one weight) swaps in without preload.
+import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
+import condLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-600-normal.woff2?url';
+import condExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-600-normal.woff2?url';
+import { DEFAULT_ACCENT, initials } from './content';
 import type { Banner, Mode } from './types';
 
 interface Props {
@@ -24,8 +31,22 @@ interface Props {
 const { mode, title, description, business, banner, canonical, image, jsonLd, live } = Astro.props;
 const accent = /^#[0-9a-f]{6}$/i.test(Astro.props.accent ?? '') ? Astro.props.accent! : DEFAULT_ACCENT;
 const robots = Astro.props.robots ?? (mode === 'preview' ? 'noindex,nofollow' : 'index,follow');
-const initials = business.split(/\s+/u).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
-const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="${accent}"/><text x="32" y="43" font-family="Arial,sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="#fff">${initials.replace(/[<>&]/g, '')}</text></svg>`)}`;
+const mark = initials(business).replace(/[<>&"']/g, '');
+const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="8" fill="${accent}"/><text x="32" y="43" font-family="Arial,sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="#fff">${mark}</text></svg>`)}`;
+
+const LATIN = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
+const EXT = 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
+const face = (family: string, src: string, range: string, weight: string) =>
+  `@font-face{font-family:'${family}';font-style:normal;font-display:swap;font-weight:${weight};src:url(${src}) format('woff2');unicode-range:${range}}`;
+const fontCss = [
+  face('HS Sans', sansLatin, LATIN, '400 700'),
+  face('HS Sans', sansExt, EXT, '400 700'),
+  face('HS Cond', condLatin, LATIN, '600'),
+  face('HS Cond', condExt, EXT, '600'),
+  // Metric-matched local fallbacks so text does not re-wrap when the web fonts swap in.
+  "@font-face{font-family:'HS Sans Fallback';src:local('Arial'),local('ArialMT'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:25%;line-gap-override:0%}",
+  "@font-face{font-family:'HS Cond Fallback';src:local('Arial Narrow'),local('ArialNarrow'),local('Roboto Condensed'),local('Arial');size-adjust:82%}",
+].join('');
 ---
 <!doctype html>
 <html lang="lt">
@@ -37,8 +58,10 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     {mode === 'preview' && <meta name="referrer" content="no-referrer" />}
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content={accent} />
+    <meta name="theme-color" content="#172126" />
     <link rel="icon" href={favicon} />
+    <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansExt} as="font" type="font/woff2" crossorigin />
     {canonical && <link rel="canonical" href={canonical} />}
     {mode === 'live' && canonical && (
       <>
@@ -51,7 +74,7 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
       </>
     )}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
-    <style set:html={`:root{--hs-accent:${accent}}`}></style>
+    <style set:html={`${fontCss}:root{--hs-accent:${accent}}`}></style>
   </head>
   <body
     class={mode === 'preview' ? 'hs hs--preview' : 'hs'}

@@ -50,6 +50,8 @@ const input = argv.find((a) => a.endsWith('.json'));
 const code = flag('site');
 const domain = flag('domain')?.toLowerCase();
 const test = flag('test');
+// Opt-in audit mode retains all staging artifacts and refuses existing output.
+const retainBuild = argv.includes('--retain-build');
 
 if (!input || !code || !domain) fail('usage: node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain> [--test http://localhost:4330]');
 if (!SITE_CODE.test(code)) fail(`--site "${code}" must match ${SITE_CODE}`);
@@ -79,7 +81,9 @@ for (const p of [OUT, target, stage]) noSymlinks(p); // existing output dirs mus
 
 // Photos: previews/<slug> photos (public/previews/<slug>/N.jpg) → /foto/N.jpg, same files as the preview.
 const removeStage = () => { noSymlinks(stage); if (inside(OUT, stage) && stage !== OUT) rmSync(stage, { recursive: true, force: true }); };
-removeStage();
+if (retainBuild) {
+  if (existsSync(stage) || existsSync(target)) fail('--retain-build requires fresh stage and output paths');
+} else removeStage();
 mkdirSync(join(stage, 'public', 'foto'), { recursive: true });
 noSymlinks(join(stage, 'public', 'foto'));
 const photos = data.photos.map((p, i) => {
@@ -118,7 +122,7 @@ try {
     logLevel: 'warn',
   });
 } finally {
-  removeStage();
+  if (!retainBuild) removeStage();
 }
 
 const index = readFileSync(join(target, 'index.html'), 'utf8');

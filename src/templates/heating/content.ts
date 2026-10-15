@@ -1,8 +1,9 @@
 /* Lithuanian copy and derived content for the heating template.
    Rule for real leads (lead decision 8): nothing is claimed that is not in the
-   answers. Years, certificates, warranties, reviews and numbers come only from
-   `standout`, `about`, `reviews` etc.; everything below is neutral wording
-   about how to reach the business or what a service is. */
+   answers. Years, certificates, warranties, reviews, prices and numbers come
+   only from `standout`, `about`, `qualifications`, `prices`, `reviews` etc.;
+   everything below is neutral wording about how to reach the business, what a
+   service is, or what the visitor can send. */
 import type { LiveSite, SiteData, SiteService } from './types';
 
 export const DEFAULT_ACCENT = '#b93c0b';
@@ -16,43 +17,83 @@ export const PROCESSOR = {
   city: 'Kaunas',
   site: 'jarvisweb.lt',
   siteUrl: 'https://jarvisweb.lt',
-  email: 'jarviswork.co@gmail.com',
+  email: 'jarvisworks.co@gmail.com',
   retention: 'Cloudflare serveriuose užklausos ir failai ištrinami automatiškai po 12 mėnesių.',
 };
 export const FORM_ENDPOINT = 'https://www.jarvisweb.lt/t/form';
 export const BEACON_ENDPOINT = 'https://www.jarvisweb.lt/t/e';
 
+/** Same limits as the Worker (funnel spec §4): 8 files, 10 MiB each, 25 MiB together. */
+export const FILE_LIMITS = { count: 8, each: 10 * 1024 * 1024, total: 25 * 1024 * 1024 };
+export const FILE_ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif,image/gif,.heic,.heif,application/pdf,.doc,.docx,.xls,.xlsx,.txt,text/plain';
+export const CONTACT_TIMES = [
+  { value: 'morning', label: 'Ryte' },
+  { value: 'day', label: 'Dieną' },
+  { value: 'evening', label: 'Vakare' },
+  { value: 'sms', label: 'Geriau SMS' },
+];
+
 export const t = {
   call: 'Skambinti',
   sms: 'Parašyti SMS',
-  leave: 'Palikti numerį',
+  leave: 'Palikti užklausą',
+  leaveLong: 'Palikite numerį – perskambinsime',
   navServices: 'Paslaugos',
+  navWorks: 'Darbai',
+  navAreas: 'Kur dirbame',
   navContact: 'Kontaktai',
+  routerLabel: 'Nuo ko pradėti',
+  routerTitle: 'Kuo galime padėti?',
+  routerAsk: 'Palikti užklausą',
   servicesLabel: 'Paslaugos',
   servicesTitle: 'Ką atliekame',
-  formLabel: 'Užklausa',
-  formTitle: 'Palikite numerį, perskambinsiu',
-  formLead: 'Įrašykite telefono numerį ir, jei norite, trumpai aprašykite problemą. Katilo ekrano ar gedimo nuotrauką galite pridėti žemiau.',
-  name: 'Vardas',
-  phoneField: 'Telefono numeris',
-  message: 'Kas atsitiko arba ką norite įrengti?',
-  files: 'Nuotraukos arba failai (nebūtina)',
-  filesHint: 'Iki 8 failų, kiekvienas iki 10 MB, iš viso iki 25 MB. Nuotraukos, PDF, Word, Excel, TXT.',
-  submit: 'Palikti numerį',
-  sending: 'Siunčiama…',
-  thanksTitle: 'Ačiū, užklausa gauta',
-  thanksText: 'Susisieksime Jūsų nurodytu numeriu.',
-  errorLead: 'Paskambinkite tiesiai:',
+  serviceAsk: 'Užklausti',
+  brandsLead: 'Dirbame su markėmis:',
+  processLabel: 'Kaip vyksta darbas',
+  processTitle: 'Nuo skambučio iki atlikto darbo',
   worksLabel: 'Darbai',
   worksTitle: 'Atlikti darbai',
-  aboutLabel: 'Apie mus',
-  areasLabel: 'Vietovės',
-  areasTitle: 'Kur dirbame',
+  aboutLabel: 'Apie',
+  qualificationsTitle: 'Kvalifikacija',
+  pricesLabel: 'Kainos',
+  pricesTitle: 'Kainos ir sąlygos',
+  areasLabel: 'Kur dirbame',
+  areasTitle: 'Vietovės ir darbo laikas',
+  areasUnsure: 'Nerandate savo vietovės? Paskambinkite arba palikite užklausą – pasakysime, ar atvyksime.',
   reviewsLabel: 'Klientų žodis',
-  faqLabel: 'D.U.K.',
+  reviewsTitle: 'Ką sako klientai',
+  faqLabel: 'D. U. K.',
   faqTitle: 'Dažniausi klausimai',
+  formLabel: 'Užklausa',
+  formTitle: 'Palikite numerį – perskambinsime',
+  formOrCall: 'Arba skambinkite:',
+  service: 'Ko reikia?',
+  servicePick: 'Pasirinkite paslaugą',
+  serviceOther: 'Kita / nežinau',
+  location: 'Vietovė',
+  locationHint: 'Miestas, rajonas ar kaimas. Tikslaus adreso nereikia.',
+  name: 'Vardas',
+  optional: 'nebūtina',
+  phoneField: 'Telefono numeris',
+  phoneHint: 'Pvz. 0 612 34567 arba +370 612 34567',
+  message: 'Kas atsitiko?',
+  messageHint: 'Trumpai aprašykite gedimą arba darbą.',
+  more: 'Katilo duomenys ir patogus laikas skambinti',
+  brand: 'Katilo markė ir modelis',
+  code: 'Klaidos kodas ekrane',
+  contactTime: 'Kada patogu skambinti?',
+  files: 'Nuotraukos ar failai',
+  filesText: 'Pridėkite katilo, duomenų lentelės ir klaidos ekrano nuotraukas. Fotografuokite saugiai: neatidarykite katilo korpuso. Neįtraukite asmens dokumentų.',
+  filesButton: 'Pridėti nuotraukų ar failų',
+  filesHint: 'Iki 8 failų: kiekvienas iki 10 MiB, kartu iki 25 MiB (1 MiB = 1 048 576 baitai). Nuotraukos (taip pat HEIC), PDF, Word, Excel, TXT.',
+  submit: 'Siųsti užklausą',
+  sending: 'Siunčiama…',
+  thanksTitle: 'Užklausa gauta',
+  thanksText: 'Tai dar nėra patvirtintas atvykimo laikas. Susisieksime Jūsų nurodytu numeriu.',
+  errorLead: 'Paskambinkite tiesiai:',
+  gasTitle: 'Užuodžiate dujas?',
+  gasText: 'Tai ne remonto užklausa. Nejunkite elektros prietaisų, išeikite į lauką ir skambinkite',
   contactLabel: 'Kontaktai',
-  contactTitle: 'Skambinkite arba parašykite',
   hours: 'Darbo laikas',
   email: 'El. paštas',
   areas: 'Vietovės',
@@ -62,18 +103,23 @@ export const t = {
   by: 'Svetainę sukūrė',
 };
 
-/* Demo only: one neutral line per known service. Real previews and client sites show supplied wording only. */
+/* Demo only: one line per demo service. Real previews and client sites show supplied wording only. */
 const SERVICE_TEXT: { match: RegExp; text: string }[] = [
-  { match: /katil\p{L}* (?:montav|keitim|įrengim)|montav\p{L}* katil|katil\p{L}* įrengim/iu, text: 'Naujo katilo parinkimas, įrengimas ir pajungimas prie šildymo sistemos.' },
-  { match: /remont/iu, text: 'Gedimo paieška ir remontas.' },
-  { match: /aptarnav|profilakt|priežiūr/iu, text: 'Planinė apžiūra ir priežiūra.' },
-  { match: /šilumos siurbl|siurbl/iu, text: 'Šilumos siurblių parinkimas, įrengimas ir priežiūra.' },
-  { match: /grindin/iu, text: 'Vandeninio grindinio šildymo įrengimas.' },
-  { match: /radiator|vamzd/iu, text: 'Radiatorių keitimas, pajungimas ir vamzdynų darbai.' },
-  { match: /katilin/iu, text: 'Katilinės įrengimas ir atnaujinimas.' },
-  { match: /kamin|dūmtrauk|kaminkrėt/iu, text: 'Kaminų ir dūmtraukių valymas bei patikra.' },
-  { match: /židin|krosn/iu, text: 'Židinių ir krosnelių įrengimas.' },
+  { match: /remont/iu, text: 'Gedimo paieška pagal klaidos kodą, degiklio, siurblio, šilumokaičio ir valdymo plokštės remontas.' },
+  { match: /priežiūr|aptarnav|profilakt/iu, text: 'Metinė apžiūra: degimo patikra, valymas, slėgio ir saugos įtaisų patikra, įrašas į aptarnavimo knygelę.' },
+  { match: /keitim|montav|įrengim/iu, text: 'Katilo parinkimas pagal namą, senojo išmontavimas, aprišimas, paleidimas ir derinimas.' },
+  { match: /šilumos siurbl/iu, text: 'Oras–vanduo šilumos siurblių įrengimas ir priežiūra, derinimas su esamais radiatoriais.' },
+  { match: /grindin/iu, text: 'Vandeninio grindinio šildymo kontūrai, kolektoriai, balansavimas ir sandarumo bandymas.' },
+  { match: /radiator|vamzd/iu, text: 'Radiatorių keitimas ir pajungimas, sistemos plovimas, nuorinimas ir balansavimas.' },
 ];
+
+/** Service names without bracketed notes: "Katilų priežiūra (profilaktika)" → "Katilų priežiūra". */
+const bare = (name: string) => name.replace(/\s*\([^)]*\)/gu, '').replace(/\s+/gu, ' ').trim();
+const lowerFirst = (s: string) => s.charAt(0).toLocaleLowerCase('lt') + s.slice(1);
+const upperFirst = (s: string) => s.charAt(0).toLocaleUpperCase('lt') + s.slice(1);
+export const joinList = (items: string[]) => items.join(', ');
+/** "a, b ir c" */
+export const andList = (items: string[]) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} ir ${items.at(-1)}`);
 
 export function serviceList(data: SiteData): { name: string; text: string }[] {
   return data.services.map((s): { name: string; text: string } => {
@@ -82,9 +128,11 @@ export function serviceList(data: SiteData): { name: string; text: string }[] {
   });
 }
 
-/** Kaunas → Kaune. null when the form is not a single known-pattern word. */
+/** Kaunas → Kaune, "Kauno r." → "Kauno rajone". null when the form is not a known pattern. */
 export function inCity(city: string): string | null {
   const w = city.trim();
+  const district = /^(\p{L}+o)\s+(?:r\.|raj\.|rajonas|rajono savivaldybė|r\. sav\.)$/iu.exec(w);
+  if (district) return `${district[1]} rajone`;
   if (!/^\p{L}+$/u.test(w)) return null;
   const rules: [RegExp, string][] = [
     [/ius$/iu, 'iuje'], [/ys$/iu, 'yje'], [/iai$/iu, 'iuose'], [/ai$/iu, 'uose'], [/us$/iu, 'uje'],
@@ -96,51 +144,124 @@ export function inCity(city: string): string | null {
 
 /** Standout text → short facts (one per line, `;` or sentence). */
 export function standoutPoints(text = ''): string[] {
-  return text.split(/\n|;|(?<=\.)\s+/u).map((s) => s.trim().replace(/\.$/u, '')).filter(Boolean).slice(0, 4);
+  // A trailing full stop goes, unless it ends an abbreviation ("nuo 2014 m.", "Kauno r.").
+  return text.split(/\n|;|(?<=[\p{L}\d)]\.)(?<!(?:^|[\s(])(?:m|val|min|r|raj|g|tel|pvz|nr|kt|t|d|mėn|vnt)\.)\s+(?=\p{Lu})/u).map((s) => s.trim().replace(/(?<!(?:^|[\s\d])\p{L}{1,3})\.$/u, '')).filter(Boolean).slice(0, 4);
 }
 
-const lowerFirst = (s: string) => s.charAt(0).toLocaleLowerCase('lt') + s.slice(1);
-export const joinList = (items: string[]) => items.join(', ');
+/** Two services as one phrase, shared leading words said once
+ *  ("Dujinių katilų remontas" + "Dujinių katilų priežiūra" → "Dujinių katilų remontas ir priežiūra").
+ *  null when they share no leading words or either already contains "ir". */
+function merge(a: string, b: string): string | null {
+  if (/ ir /u.test(a) || / ir /u.test(b)) return null;
+  const wa = a.split(' ');
+  const wb = b.split(' ');
+  let i = 0;
+  while (i < wa.length - 1 && i < wb.length - 1 && wa[i].toLocaleLowerCase('lt') === wb[i].toLocaleLowerCase('lt')) i++;
+  return i > 0 ? `${a} ir ${wb.slice(i).join(' ')}` : null;
+}
+/** Services with neighbours that share leading words merged. */
+function serviceGroups(data: SiteData): string[] {
+  const out: string[] = [];
+  for (const name of serviceList(data).map((s) => bare(s.name))) {
+    const merged = out.length ? merge(out[out.length - 1], name) : null;
+    if (merged) out[out.length - 1] = merged;
+    else out.push(name);
+  }
+  return out;
+}
+function servicePhrase(data: SiteData): string {
+  const groups = serviceGroups(data);
+  const [a, b] = groups;
+  if (/ ir /u.test(a) || !b || / ir /u.test(b)) return a;
+  const phrase = `${a} ir ${lowerFirst(b)}`;
+  return phrase.length <= 64 ? phrase : a;
+}
 
+/** H1: the client's tagline, else their first services + city ("… Kaune"). */
 export function headline(data: SiteData): string {
   if (data.tagline) return data.tagline;
+  const phrase = servicePhrase(data);
   const loc = inCity(data.city);
-  return loc ? `Šildymo sistemos ${loc}` : 'Šildymo sistemų paslaugos';
+  return loc ? `${phrase} ${loc}` : phrase;
+}
+
+/** Where the business works, as one sentence ("Dirbame Kaune, Kauno rajone ir dar 4 vietovėse."). */
+export function coverage(data: SiteData, short = false): string {
+  const areas = data.areas.length ? data.areas : [data.city];
+  const shown = short && areas.length > 3 ? areas.slice(0, 2) : areas;
+  const locs = shown.map(inCity);
+  if (locs.some((l) => !l)) return `Dirbame: ${andList(areas)}.`;
+  const rest = areas.length - shown.length;
+  const more = rest ? ` ir dar ${rest} ${rest === 1 ? 'vietovėje' : rest < 10 ? 'vietovėse' : 'vietovių'}` : '';
+  return `Dirbame ${more ? (locs as string[]).join(', ') : andList(locs as string[])}${more}.`;
 }
 
 export function lead(data: SiteData): string {
-  const names = serviceList(data).map((s) => s.name).slice(0, 3);
-  return `${data.business}. ${names.map((n, i) => (i ? lowerFirst(n) : n)).join(', ')}.`;
-}
-
-export function aboutText(data: SiteData): string {
-  return data.about || `${data.business} atlieka šildymo darbus: ${joinList(data.areas)}. Skambinkite arba palikite numerį formoje, ir susisieksime.`;
+  if (data.demo) return 'Katilų remontas, priežiūra ir naujos šildymo sistemos – nuo katilinės iki radiatorių.';
+  const groups = serviceGroups(data).map(lowerFirst).slice(0, 4);
+  return `${data.business} – ${andList(groups)}. ${coverage(data, true)}`;
 }
 
 export function pageTitle(data: SiteData): string {
-  const loc = inCity(data.city);
-  return `${data.business} – šildymo sistemos${loc ? ` ${loc}` : ''}`;
+  return `${headline(data)} | ${data.business}`.slice(0, 90);
 }
 
 export function pageDescription(data: SiteData): string {
-  const names = serviceList(data).map((s) => lowerFirst(s.name)).slice(0, 4);
-  return `${data.business}: ${joinList(names)}. ${joinList(data.areas.slice(0, 3))}. Tel. ${data.phone}.`.slice(0, 300);
+  return `${lead(data)} Tel. ${data.phone}.`.slice(0, 300);
 }
 
-export function faqList(data: SiteData, sms: boolean): { q: string; a: string }[] {
+/** Symptom-first entry points (report §4 wireframe 4). Only for services the site really lists. */
+const ROUTES: { match: RegExp; title: string; text: string }[] = [
+  { match: /remont|gedim|klaid/iu, title: 'Katilas neveikia ar rodo klaidą', text: 'Nurodykite katilo markę, modelį ir klaidos kodą. Galite pridėti ekrano ar duomenų lentelės nuotrauką.' },
+  { match: /priežiūr|aptarnav|profilakt/iu, title: 'Reikia metinės priežiūros', text: 'Planinę katilo apžiūrą patogiausia suderinti prieš šildymo sezoną.' },
+  { match: /keitim|montav|įreng|šilumos siurbl/iu, title: 'Planuojate keisti ar įrengti šildymą', text: 'Pasakykite, kokį šildymą turite dabar ir kokį namą ar butą reikia šildyti.' },
+];
+export function routes(data: SiteData): { title: string; text: string; service: string }[] {
   const names = serviceList(data).map((s) => s.name);
+  return ROUTES.flatMap((r) => {
+    const service = names.find((n) => r.match.test(n));
+    return service ? [{ title: r.title, text: r.text, service }] : [];
+  });
+}
+
+/** How a request goes. Contact flow only, no promise about timing or guarantees. */
+const DEMO_PROCESS = [
+  { title: 'Paskambinate arba paliekate užklausą', text: 'Trumpai aprašykite, kas atsitiko ir kur esate. Galite pridėti katilo ar klaidos ekrano nuotrauką.' },
+  { title: 'Aptariame telefonu', text: 'Išsiaiškiname gedimą ar darbą, suderiname atvykimo laiką ir kainos sąlygas.' },
+  { title: 'Atvykstame ir atliekame darbą', text: 'Jei prireikia papildomų darbų ar detalių, pirmiausia suderiname su Jumis.' },
+];
+
+/** Real inputs do not establish a visit/price/parts policy: use visitor guidance. */
+export function processSteps(data: SiteData) {
+  return data.demo ? DEMO_PROCESS : [
+    { title: 'Papasakokite, ko reikia', text: 'Nurodykite paslaugą ir vietovę. Jei galite, pridėkite įrenginio ar klaidos ekrano nuotrauką.' },
+    { title: 'Aptarkite sąlygas', text: 'Susisiekę pasitikslinkite darbų apimtį, galimą atvykimo laiką ir iškvietimo kainą.' },
+    { title: 'Suderinkite darbus', text: 'Prieš darbus aptarkite pasiūlymą, detales ir papildomų darbų sąlygas.' },
+  ];
+}
+
+/** Proof line under the hero: the client's own standout facts, then hours and brands. */
+export function proofItems(data: SiteData): { label?: string; text: string }[] {
+  const items: { label?: string; text: string }[] = standoutPoints(data.standout).map((text) => ({ text }));
+  if (data.hours) items.push({ label: t.hours, text: data.hours });
+  if (data.brands?.length) items.push({ label: 'Markės', text: joinList(data.brands) });
+  return items.slice(0, 4);
+}
+
+export function faqList(data: SiteData): { q: string; a: string }[] {
+  const names = serviceList(data).map((s) => bare(s.name));
   const brands = data.brands?.length ? ` Dirbame su markėmis: ${joinList(data.brands)}.` : '';
-  const channels = sms ? `paskambinkite ${data.phone}, parašykite SMS` : `paskambinkite ${data.phone}`;
   return [
-    { q: 'Kokias paslaugas teikiate?', a: `${joinList(names)}.${brands}` },
-    { q: 'Kur dirbate?', a: `${joinList(data.areas)}. Nesate tikri, ar atvykstame pas Jus? Paskambinkite arba palikite numerį.` },
-    { q: 'Ką pasakyti skambinant dėl gedimo?', a: 'Pasakykite, kur esate, kokia katilo markė ir modelis, ką rodo ekranas (klaidos kodas) ir ar veikia karštas vanduo. Formoje galite pridėti nuotrauką.' },
-    { q: 'Kaip palikti užklausą?', a: `${channels[0].toLocaleUpperCase('lt')}${channels.slice(1)} arba palikite numerį formoje, ir perskambinsime.` },
-    { q: 'Ką daryti, jei užuodžiu dujas?', a: 'Neįjunkite ir neišjunkite elektros prietaisų, atidarykite langus, išeikite į lauką ir skambinkite bendruoju pagalbos numeriu 112.' },
-    { q: 'Kiek kainuos darbas?', a: 'Kaina priklauso nuo sistemos ir darbo apimties. Paskambinkite arba palikite numerį, ir aptarsime Jūsų atvejį.' },
+    { q: 'Kokias paslaugas teikiate?', a: `${andList(names.map((n, i) => (i ? lowerFirst(n) : upperFirst(n))))}.${brands}` },
+    { q: 'Kur dirbate?', a: `${coverage(data)} Nesate tikri, ar atvykstame pas Jus? Paskambinkite arba palikite užklausą.` },
+    { q: 'Ką pasakyti skambinant dėl gedimo?', a: 'Kur esate, kokia katilo markė ir modelis, ką rodo ekranas (klaidos kodas) ir ar veikia karštas vanduo. Formoje galite pridėti nuotraukų.' },
+    { q: 'Kiek kainuos darbas?', a: data.prices?.length ? 'Pagrindines kainas rasite skyriuje „Kainos ir sąlygos“. Tikslią kainą aptariame telefonu, kai žinome gedimą ar darbo apimtį.' : 'Kaina priklauso nuo sistemos ir darbo apimties. Paskambinkite arba palikite užklausą, ir aptarsime Jūsų atvejį.' },
+    { q: 'Ką daryti, jei užuodžiu dujas?', a: 'Nejunkite ir neišjunkite elektros prietaisų, neuždekite ugnies, atidarykite langus, išeikite į lauką ir iš ten skambinkite ESO dujų avarinei tarnybai 1804 arba bendruoju pagalbos numeriu 112.' },
     ...(data.faq ?? []),
   ];
 }
+
+export const initials = (business: string) => business.split(/\s+/u).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toLocaleUpperCase('lt');
 
 /** +370 600 00000 / 8 600 00000 / 860000000 / 060000000 / 60000000 → +37060000000. null if not a phone. */
 export function toE164(phone: string): string | null {
@@ -155,7 +276,8 @@ export function toE164(phone: string): string | null {
 }
 export const isMobile = (e164: string | null) => !!e164 && /^\+3706\d{7}$/.test(e164);
 
-/** schema.org LocalBusiness JSON-LD (live sites only). Facts from the data, nothing else. */
+/** schema.org HVACBusiness JSON-LD (live sites only). Facts from the data, nothing else:
+ *  no street address unless the client gave one, no ratings. */
 export function jsonLd(data: SiteData, site: LiveSite) {
   const url = `https://${site.domain}/`;
   const photo = data.photos[0];
@@ -168,9 +290,10 @@ export function jsonLd(data: SiteData, site: LiveSite) {
     telephone: toE164(data.phone) ?? data.phone,
     ...(data.email ? { email: data.email } : {}),
     ...(photo ? { image: `${url}${photo.src.replace(/^\//, '')}` } : {}),
+    ...(data.legal?.name && data.legal.name !== data.business ? { legalName: data.legal.name } : {}),
     description: pageDescription(data),
     address: { '@type': 'PostalAddress', addressLocality: data.city, addressCountry: 'LT', ...(data.legal?.address ? { streetAddress: data.legal.address } : {}) },
-    areaServed: data.areas.map((name) => ({ '@type': 'City', name })),
+    areaServed: data.areas.map((name) => ({ '@type': 'Place', name })),
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Paslaugos',

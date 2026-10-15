@@ -1,0 +1,16 @@
+---
+/* Header for the client site's simple pages (/aciu, /privatumo-politika): name back to the home page + phone. */
+import { initials, t } from './content';
+
+interface Props { business: string; phone: string; tel: string | null }
+const { business, phone, tel } = Astro.props;
+---
+<header class="hs-top">
+  <div class="hs-wrap hs-top__bar">
+    <a class="hs-logo" href="/"><span class="hs-logo__mark" aria-hidden="true">{initials(business)}</span><span class="hs-logo__name">{business}</span></a>
+    <a class="hs-top__call" href={tel ? `tel:${tel}` : undefined} data-cta="cta_call">
+      <span class="hs-top__label">{t.call}</span>
+      <span class="hs-top__num">{phone}</span>
+    </a>
+  </div>
+</header>

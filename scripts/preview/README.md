@@ -29,18 +29,21 @@ Then edit the texts in `previews/<slug>.json` if needed (they are plain JSON) an
 | `phone` | string | Required (or `submission.phone`). ≤ 20 chars, digits/spaces/`+ - ( )`, ≥ 8 digits. Shown, never dialled |
 | `city` | string | ≤ 60 chars. Required when `areas` is empty; defaults to the first area |
 | `areas` | string[] | ≤ 12 items, each ≤ 60 chars. Falls back to `submission.area` + `submission.area_other` (comma-separated) |
-| `services` | string[] | ≤ 12 items, each ≤ 60 chars. Falls back to `submission.services` + `submission.services_other`. At least one is required |
+| `services` | (string \| `{name, text?}`)[] | ≤ 12 items, names ≤ 60 chars, supplied descriptions ≤ 400 chars. Falls back to `submission.services` + `submission.services_other`. At least one is required |
 | `standout` | string | Optional, ≤ 1000 chars. One bullet per line, `;` or sentence. Falls back to `submission.standout` |
 | `photos` | (string \| `{path, alt}`)[] | Optional, ≤ 12. Paths are relative to the input JSON. The first photo is the hero image |
-| `tagline` | string | Optional, ≤ 120 chars. The H1; default "Šildymo sistemų montavimas, remontas ir priežiūra" |
-| `about` | string | Optional, ≤ 1000 chars. "Apie mus" text; a plain default is used otherwise |
+| `tagline` | string | Optional, ≤ 120 chars. The H1; otherwise derived from supplied services + city |
+| `about` | string | Optional, ≤ 1000 chars. "Apie" text; omitted when not supplied |
 | `email` | string | Optional, shown in the contact block |
 | `hours` | string | Optional, ≤ 120 chars |
 | `brands` | string[] | Optional, ≤ 10. Only brands the client named |
 | `accent` | `#rrggbb` | Optional brand colour; refused when white text on it is below 4.5:1 |
 | `legal` | `{name, code, address}` | Optional, shown in footer, privacy page and schema |
-| `reviews` | `{text, name, place?}[]` | Optional, ≤ 6. Real quotes only; the section is hidden without them |
+| `reviews` | `{text, name, place?, source?, url?, date?}[]` | Optional, ≤ 6. Real quotes only; the section is hidden without them |
 | `faq` | `{q, a}[]` | Optional, ≤ 8, appended to the standard questions |
+| `qualifications` | string[] | Optional, ≤ 6, each ≤ 160 chars; supplied facts only |
+| `prices` | `{name, price, note?}[]` | Optional, ≤ 10; names ≤ 80, prices ≤ 40, notes ≤ 160 chars |
+| `priceNote` | string | Optional price conditions, ≤ 300 chars |
 | `submission` | object | Optional: the `submission` object from `GET /t/events` (spec §5), copied into the output as is |
 
 Top-level fields win; missing ones are filled from `submission`. Photos from the form (`submission.files`) are KV keys, not paths: download them through the CRM first and list the local paths in `photos`.
@@ -76,12 +79,12 @@ node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain
 node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain> --test http://localhost:4330
 ```
 
-(`npm run client-site -- ...` needs one line in the root `package.json`: `"client-site": "node scripts/client-site.mjs"`; root package files belong to V4, so it is not added here.)
+`npm run client-site -- ...` is the package alias. Add `--retain-build` when deletion is forbidden: this requires fresh output/stage paths, leaves staging artifacts for inspection, and never runs cleanup. Ordinary mode retains its existing replacement/cleanup behavior.
 
 - `<code>`: site code, `^[a-z][a-z0-9-]{2,31}$` (offer-v2 spec §1). `<domain>`: bare host, e.g. `kauno-silumas.lt`.
 - Input must be a `previews/<slug>.json` with a generated slug; photos come from `public/previews/<slug>/`. The lead's `submission` is dropped, so form answers never reach the published HTML.
 - Output `client-sites/<slug>/`: `index.html`, `aciu/`, `privatumo-politika/`, `robots.txt`, `sitemap.xml`, `foto/`. Indexable, canonical `https://<domain>/`, `HVACBusiness` JSON-LD, no banner, no cookies, one small inline script.
-- The form posts `kind=site_inquiry`, `site=<code>` to `https://www.jarvisweb.lt/t/form` with `Accept: application/json`; the thanks box replaces it, any error shows "Paskambinkite tiesiai" + the business `tel:`. Without JS the Worker's 303 lands on `/aciu` or `/aciu?klaida=1`. Call/SMS links send `{site,type}` beacons (text/plain) to `/t/e`. SMS only shows for +3706… numbers.
+- The form posts `kind=site_inquiry`, `site=<code>` to `https://www.jarvisweb.lt/t/form` with `Accept: application/json`; a verified JSON receipt redirects to `/aciu`; explicit rejection shows "Paskambinkite tiesiai" + the business `tel:`. Without JS the Worker's 303 lands on `/aciu` or `/aciu?klaida=1`. Call/SMS links send `{site,type}` beacons (text/plain) to `/t/e`. SMS only shows for +3706… numbers.
 - **Before going live** the code and origins must be in the Worker `SITES` var (spec §1), and Jarvis must approve the privacy text (`privatumo-politika.astro`, `PROCESSOR` in `content.ts`). Deploying is Jarvis's call; the script never deploys or posts.
 - Test: `node scripts/preview-form-stub.mjs 4330 client-sites/<slug> &` then `node scripts/client-site-form-test.mjs` (headless Chrome: success, 500 error, beacons, `/aciu`). Screenshots: `node scripts/screenshot.mjs http://localhost:4330/ out/prefix` (390 and 1440 px, full page).
 
@@ -96,3 +99,26 @@ The GitHub repo is **public**. A real `previews/<slug>.json` holds the lead's bu
 ## Testing forms locally
 
 `node scripts/preview-form-stub.mjs [port] [root-dir]` (after `npm run build`; root-dir defaults to `dist/`) serves it and answers `POST /t/form` and `POST /t/e`, logging each field and file it receives. `STUB_STATUS=400|413|415|429|500` makes `/t/form` fail with that status to check the error messages. It stores nothing and sends nothing anywhere.
+
+
+## H1 design and form behavior (2026-10-15)
+
+One editorial template: service/location headline, contact actions, problem-first service links, supplied service descriptions, process, captioned images, optional facts/prices/reviews, areas, FAQ, upload-enabled callback form. With zero photos the hero becomes a business identity panel; with one it shows that image once; additional photos create a gallery. Empty credentials, reviews, prices and about sections are omitted. Fonts are local Instrument Sans (latin + latin-ext) and Barlow Condensed 600; existing dependencies/licences remain in use.
+
+`demo.ts` alone imports the five object illustrations. Each is visibly labelled as AI-generated, never a real job; see `src/templates/heating/assets/PROVENANCE.md` for source hashes, derivatives and fictional demo facts. Demo/preview phone/email links do not dial/send, forms have no outgoing field names, no beacons run and pages stay noindex and out of the sitemap. Do not set `demo` on real client input; the generator does not accept it.
+
+The upload list adds new picks, supports per-file removal, and preserves files after errors. Counts/types and 8 / 10 MiB / 25 MiB limits block sending before fetch. Optional brand/model and error-code fields compose into the existing `message` field (2,000 characters total); they do not invent new wire fields. At least eight phone digits are required. A send in progress ignores a second submit. Explicit 4xx rejection is retryable. Network failure, 5xx or malformed success is **uncertain**: retain the form, block a blind repeat, and offer the business phone. This is not server idempotency; reloading can still retry, and no cross-page retry guarantee is claimed. A session receipt gates the thank-you message; direct/no-JS visits stay neutral rather than pretending receipt.
+
+### Future leadgen configuration boundary (not implemented or deployed)
+
+`Mode` remains `preview | live` for this client-site task. The future matching site must use the same visual components, not a separate design: its brand/operator and partner disclosures replace business claims, no telephone/SMS number or CTA is rendered, all action links lead to intake, the wire changes to `kind=job_request`, `site` maps to a configured leadgen site, and required `consent=yes` names the one real partner. Operator `Organization`/matching `Service` replaces `HVACBusiness`; privacy/receipt text describes forwarding to that partner. No public leadgen route, dummy partner, hidden consent or automatic fallback is provided now. These are configuration requirements for V7 after Jarvis supplies the partner, not an available `--leadgen` flag.
+
+### Safe acceptance entrypoints
+
+- `npm run check`: production build, copy, JS budget and static checks. Under a no-delete constraint, rename an existing `dist/` into an ignored audit folder before rebuilding (Astro normally replaces output).
+- `node scripts/heating-contract-test.mjs`: validates optional data, demo honesty/indexing, and five symlink attack cases. Retains fixtures and moves adversarial preview/photo inputs into the printed ignored evidence folder; never deletes them.
+- `node scripts/image-size-test.mjs`: header parser cases, in memory.
+- `scripts/heating-browser-check.js`: evaluate its complete expression through T3 `preview_evaluate` on a local `--test` client build served by `preview-form-stub.mjs`. Checks submission, upload, error, uncertainty, receipt and beacon behavior against the local stub only; no browser launch or filesystem cleanup. Synthetic iframe state is removed afterward.
+- Legacy `client-site-symlink-test.mjs` and `client-site-form-test.mjs` delete their temporary filesystem fixtures/profile; skip those under a no-delete instruction. The latter also launches standalone Chrome. Use the retained-fixture and T3 alternatives above; do not relax the checks.
+
+Browser screenshots and checks cannot establish real iPhone/Android HEIC or screen-reader behavior. Lighthouse, production delivery and final legal/business facts require separate evidence before launch. Demo's deliberate `noindex` must not be removed to improve its SEO score.

@@ -7,7 +7,9 @@
    (built with --test http://localhost:<port>). Like the Worker (offer-v2 spec §2.1)
    it answers CORS preflight, and when Accept lacks application/json it answers
    303 to <Origin>/aciu (or /aciu?klaida=1 on error) instead of JSON.
-   STUB_STATUS=400|413|415|429|500 makes /t/form fail with that status. */
+   STUB_STATUS=400|413|415|429|500 makes /t/form fail with that status.
+   Test helpers: /__stub/status/<code>, /__stub/count (form posts), /__stub/last
+   (fields of the last form post as JSON), /__stub/beacons (beacon bodies). */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
@@ -18,6 +20,8 @@ const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '
 const ERRORS = { 400: { error: 'invalid', field: 'phone' }, 413: { error: 'too_large' }, 415: { error: 'file_type' }, 429: { error: 'rate_limited' }, 500: { error: 'server' } };
 let id = 0;
 let posts = 0; // /t/form requests seen (test helper: /__stub/count)
+let last = null; // fields of the last /t/form post (test helper: /__stub/last)
+const beacons = []; // beacon bodies (test helper: /__stub/beacons)
 let forced = Number(process.env.STUB_STATUS ?? 200);
 
 const json = (res, status, body, extra = {}) => {
@@ -33,6 +37,8 @@ createServer(async (req, res) => {
     return json(res, 200, { status: forced });
   }
   if (url.pathname === '/__stub/count') { res.writeHead(200, { 'content-type': 'text/plain' }); return res.end(String(posts)); }
+  if (url.pathname === '/__stub/last') return json(res, 200, last);
+  if (url.pathname === '/__stub/beacons') return json(res, 200, beacons);
   const cors = origin ? { 'access-control-allow-origin': origin, vary: 'Origin' } : {};
   if (req.method === 'OPTIONS' && url.pathname.startsWith('/t/')) {
     res.writeHead(204, { ...cors, 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-allow-headers': 'content-type, accept', 'access-control-max-age': '600' }).end();
@@ -44,6 +50,7 @@ createServer(async (req, res) => {
     const body = Buffer.concat(chunks);
     if (url.pathname === '/t/e') {
       console.log('[beacon]', body.toString());
+      beacons.push(body.toString());
       res.writeHead(204, cors).end();
       return;
     }
@@ -53,6 +60,7 @@ createServer(async (req, res) => {
       console.log(`[form] content-type: ${req.headers['content-type']} · ${body.length} bytes`);
       try {
         const data = await request.formData();
+        last = [...data].map(([key, value]) => [key, typeof value === 'string' ? value : { name: value.name, type: value.type, size: value.size }]);
         for (const [key, value] of data) {
           console.log(typeof value === 'string' ? `  ${key} = ${JSON.stringify(value)}` : `  ${key} = File(${JSON.stringify(value.name)}, ${value.type || '(no type)'}, ${value.size} B)`);
         }

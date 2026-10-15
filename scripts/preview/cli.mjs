@@ -74,6 +74,9 @@ async function generate(file) {
     ...(data.legal ? { legal: data.legal } : {}),
     ...(data.reviews?.length ? { reviews: data.reviews } : {}),
     ...(data.faq?.length ? { faq: data.faq } : {}),
+    ...(data.qualifications.length ? { qualifications: data.qualifications } : {}),
+    ...(data.prices?.length ? { prices: data.prices } : {}),
+    ...(data.priceNote ? { priceNote: data.priceNote } : {}),
     photos,
     ...(submission ? { submission } : {}),
   };

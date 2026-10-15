@@ -1,11 +1,14 @@
 /* Data and runtime types for the heating template. One SiteData object (the
    previews/<slug>.json shape, see scripts/preview/README.md) fills both the
-   preview page and the live client site. */
+   preview page and the live client site. Every optional field drives one
+   section: absent data → the section is not rendered (nothing is invented). */
 
-export interface SitePhoto { src: string; width: number; height: number; alt?: string }
+export interface SitePhoto { src: string; width: number; height: number; alt?: string; srcset?: string }
 export interface SiteService { name: string; text?: string }
 /** Only rendered when real quotes are in the input (never invented). */
-export interface SiteReview { text: string; name: string; place?: string }
+export interface SiteReview { text: string; name: string; place?: string; source?: string; url?: string; date?: string }
+/** One row of the price/terms table, e.g. {name: 'Iškvietimas Kaune', price: 'nuo 40 €'}. */
+export interface SitePrice { name: string; price: string; note?: string }
 
 export interface SiteData {
   slug: string;
@@ -21,6 +24,12 @@ export interface SiteData {
   email?: string;
   hours?: string;
   brands?: string[];
+  /** Permissions, attestations, manufacturer training: exactly as the client states them. */
+  qualifications?: string[];
+  /** Visit / diagnostic / service prices the client gave. */
+  prices?: SitePrice[];
+  /** One line under the price table, e.g. what is agreed separately. */
+  priceNote?: string;
   /** #rrggbb, white text on it must reach 4.5:1 (checked by the generator). */
   accent?: string;
   reviews?: SiteReview[];

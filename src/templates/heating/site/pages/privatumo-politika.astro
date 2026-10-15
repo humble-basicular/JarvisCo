@@ -1,6 +1,8 @@
 ---
 /* Privacy policy of the client site: the business is the controller, JarvisCo processes the form for it (spec §3). */
 import HeatingLayout from '../../HeatingLayout.astro';
+import SimpleTop from '../../SimpleTop.astro';
+import clientScript from '../../client.js?raw';
 import { PROCESSOR, toE164 } from '../../content';
 import { loadBuild } from '../load';
 
@@ -17,6 +19,7 @@ const tel = toE164(data.phone);
   canonical={`https://${site.domain}/privatumo-politika`}
   live={{ code: site.code, beacon: site.beaconEndpoint, tel }}
 >
+  <SimpleTop business={data.business} phone={data.phone} tel={tel} />
   <main class="hs-wrap hs-page">
     <h1>Privatumo politika</h1>
     <h2>Kas tvarko duomenis</h2>
@@ -30,7 +33,7 @@ const tel = toE164(data.phone);
     </p>
     <h2>Kokius duomenis renkame ir kodėl</h2>
     <ul>
-      <li>Formoje: vardas (nebūtinas), telefono numeris, žinutė ir pridėti failai. Naudojame tik tam, kad atsakytume į Jūsų užklausą.</li>
+      <li>Formoje: telefono numeris, o jei patys nurodote – vardas, paslauga, vietovė, žinutė, patogus skambučio laikas ir pridėti failai. Naudojame tik tam, kad atsakytume į Jūsų užklausą.</li>
       <li>Skambučio ar SMS mygtuko paspaudimas užfiksuojamas kaip anoniminis skaičius, be asmens duomenų.</li>
       <li>Svetainė nenaudoja slapukų ir reklaminės ar analitinės stebėsenos.</li>
     </ul>
@@ -43,4 +46,5 @@ const tel = toE164(data.phone);
     </p>
     <p><a href="/">← Į pradžią</a></p>
   </main>
+  <script is:inline set:html={clientScript}></script>
 </HeatingLayout>

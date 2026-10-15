@@ -1,10 +1,15 @@
 ---
-/* The heating business site, filled from SiteData. `mode="preview"`: call
-   buttons jump to the form and the form posts nowhere (no tel:/sms: links, no
-   named inputs). `mode="live"`: tel:/sms: buttons send cta beacons and the
-   callback form posts to the Worker (offer-v2 spec §3); see client.js. */
+/* The heating business site, filled from SiteData (design report §4 wireframe).
+   A section renders only when its facts are in the data: photos, standout,
+   qualifications, prices, reviews and hours are never invented.
+   `mode="preview"`: call buttons jump to the form, nothing dials, and the form
+   is inert (no names, method get). `mode="live"`: tel:/sms: links send cta
+   beacons and the inquiry form posts to the Worker (offer-v2 spec §3); see client.js. */
 import clientScript from './client.js?raw';
-import { aboutText, faqList, headline, isMobile, lead, serviceList, standoutPoints, t, toE164 } from './content';
+import {
+  CONTACT_TIMES, FILE_ACCEPT, faqList, headline, initials, isMobile, lead, processSteps,
+  proofItems, routes, serviceList, t, toE164,
+} from './content';
 import type { LiveSite, Mode, SiteData } from './types';
 
 interface Props { data: SiteData; mode: Mode; site?: LiveSite }
@@ -12,60 +17,101 @@ const { data, mode, site } = Astro.props;
 const live = mode === 'live' && site ? site : undefined;
 const e164 = toE164(data.phone);
 const telHref = live && e164 ? `tel:${e164}` : '#uzklausa';
+const callCta = live ? 'cta_call' : undefined;
 const smsHref = live && isMobile(e164) ? `sms:${e164}` : undefined;
-const points = standoutPoints(data.standout);
-const [hero, ...gallery] = data.photos;
+const [hero, ...works] = data.photos;
 const services = serviceList(data);
-const faq = faqList(data, Boolean(smsHref));
-const initials = data.business.split(/\s+/u).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const router = routes(data);
+const proof = proofItems(data).filter((p) => hero || p.label !== t.hours); // without a photo the identity card shows the hours
+const faq = faqList(data);
 const areas = data.areas.length ? data.areas : [data.city];
-const call = (cls: string, label: string) => ({ cls, label });
+const mark = initials(data.business);
+const pad = (n: number) => String(n).padStart(2, '0');
+/** Preview inputs carry no name, so nothing could leave the page even if it were submitted. */
+const n = (name: string) => (live ? name : undefined);
+const nav = [
+  { href: '#paslaugos', label: t.navServices },
+  ...(works.length ? [{ href: '#darbai', label: data.demo ? 'Iliustracijos' : t.navWorks }] : []),
+  { href: '#vietoves', label: t.navAreas },
+  { href: '#kontaktai', label: t.navContact },
+];
+const year = new Date().getFullYear();
 ---
+<a class="hs-skip" href="#uzklausa">Pereiti prie užklausos formos</a>
 <header class="hs-top">
   <div class="hs-wrap hs-top__bar">
-    <a class="hs-logo" href="#pradzia"><span class="hs-logo__mark" aria-hidden="true">{initials}</span><span class="hs-logo__name">{data.business}</span></a>
+    <a class="hs-logo" href="#pradzia"><span class="hs-logo__mark" aria-hidden="true">{mark}</span><span class="hs-logo__name">{data.business}</span></a>
     <nav class="hs-nav" aria-label="Svetainės skyriai">
-      <a href="#paslaugos">{t.navServices}</a>
-      <a href="#vietoves">{t.areasLabel}</a>
-      <a href="#duk">{t.faqLabel}</a>
-      <a href="#kontaktai">{t.navContact}</a>
+      {nav.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
-    <a class="hs-btn hs-btn--sm" href={telHref} data-cta={live ? 'cta_call' : undefined}>{t.call}<span class="hs-btn__num"> {data.phone}</span></a>
+    <a class="hs-top__call" href={telHref} data-cta={callCta}>
+      <span class="hs-top__label">{t.call}</span>
+      <span class="hs-top__num">{data.phone}</span>
+    </a>
   </div>
 </header>
 
 <main id="pradzia">
-  <section class="hs-hero">
+  <section class:list={['hs-hero', hero ? 'hs-hero--photo' : 'hs-hero--card']} aria-labelledby="hs-h1">
     <div class="hs-wrap hs-hero__grid">
       <div class="hs-hero__copy">
-        <p class="hs-eyebrow">{areas.slice(0, 4).join(' · ')}</p>
-        <h1>{headline(data)}</h1>
+        <p class="hs-label">{areas.slice(0, 3).join(' · ')}</p>
+        <h1 id="hs-h1">{headline(data)}</h1>
         <p class="hs-hero__lead">{lead(data)}</p>
         <div class="hs-hero__ctas">
-          <a class="hs-btn" href={telHref} data-cta={live ? 'cta_call' : undefined}>{t.call} {data.phone}</a>
-          <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leave}</a>
-          {smsHref && <a class="hs-link" href={smsHref} data-cta="cta_sms">{t.sms}</a>}
+          <a class="hs-btn hs-btn--call" href={telHref} data-cta={callCta}>{t.call}<span class="hs-btn__num">{data.phone}</span></a>
+          <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leaveLong}</a>
         </div>
+        {smsHref && <p class="hs-hero__sms">Patogiau rašyti? <a href={smsHref} data-cta="cta_sms">{t.sms}</a></p>}
       </div>
-      <dl class="hs-panel">
-        <div><dt>{t.phone}</dt><dd>{data.phone}</dd></div>
-        <div><dt>{t.areas}</dt><dd>{areas.join(', ')}</dd></div>
-        {data.hours && <div><dt>{t.hours}</dt><dd>{data.hours}</dd></div>}
-        {data.email && <div><dt>{t.email}</dt><dd>{data.email}</dd></div>}
-      </dl>
+
+      {proof.length > 0 && (
+        <ul class="hs-proof" aria-label="Svarbiausia">
+          {proof.map((p) => <li>{p.label && <span class="hs-proof__label">{p.label}</span>}<span class="hs-proof__text">{p.text}</span></li>)}
+        </ul>
+      )}
+
+      {hero ? (
+        <figure class="hs-hero__media">
+          <img src={hero.src} srcset={hero.srcset} sizes="(min-width: 896px) 42vw, calc(100vw - 40px)" width={hero.width} height={hero.height} alt={hero.alt ?? `${data.business}: atliktas darbas`} fetchpriority="high" decoding="async" />
+          {data.demo && <figcaption class="hs-caption">Pavyzdys · DI sukurta iliustracija. Tai nėra atlikto darbo nuotrauka.</figcaption>}
+        </figure>
+      ) : (
+        <aside class="hs-card" aria-label="Kontaktai">
+          <div class="hs-card__head">
+            <span class="hs-card__mark" aria-hidden="true">{mark}</span>
+            <p class="hs-card__name">{data.business}</p>
+          </div>
+          <dl class="hs-card__rows">
+            <div>
+              <dt>{t.phone}</dt>
+              <dd class="hs-card__phone">{live ? <a href={telHref} data-cta="cta_call">{data.phone}</a> : data.phone}</dd>
+            </div>
+            <div><dt>{t.areas}</dt><dd>{areas.join(', ')}</dd></div>
+            {data.hours && <div><dt>{t.hours}</dt><dd>{data.hours}</dd></div>}
+          </dl>
+        </aside>
+      )}
     </div>
-    {hero && (
-      <div class="hs-wrap hs-hero__photo">
-        <img src={hero.src} width={hero.width} height={hero.height} alt={hero.alt ?? `${data.business} darbas`} fetchpriority="high" decoding="async" />
-      </div>
-    )}
   </section>
 
-  {points.length > 0 && (
-    <section class="hs-facts" aria-label="Svarbiausia">
-      <ul class="hs-wrap hs-facts__list">
-        {points.map((p) => <li>{p}</li>)}
-      </ul>
+  {router.length >= 2 && (
+    <section class="hs-sec hs-sec--paper" id="pagalba" aria-labelledby="hs-router">
+      <div class="hs-wrap">
+        <header class="hs-head">
+          <p class="hs-label">{t.routerLabel}</p>
+          <h2 id="hs-router">{t.routerTitle}</h2>
+        </header>
+        <ul class="hs-routes">
+          {router.map((r) => (
+            <li>
+              <h3>{r.title}</h3>
+              <p>{r.text}</p>
+              <a class="hs-arrow" href="#uzklausa" data-service={r.service}>{t.routerAsk}<span class="hs-vh">: {r.title.toLocaleLowerCase('lt')}</span></a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   )}
 
@@ -75,112 +121,121 @@ const call = (cls: string, label: string) => ({ cls, label });
         <p class="hs-label">{t.servicesLabel}</p>
         <h2 id="hs-services">{t.servicesTitle}</h2>
       </header>
-      <ol class="hs-services">
-        {services.map((s) => (
+      <ol class:list={['hs-svc', services.some((s) => s.text) && 'hs-svc--text']}>
+        {services.map((s, i) => (
           <li>
-            <h3>{s.name}</h3>
-            {s.text && <p>{s.text}</p>}
+            <span class="hs-svc__n" aria-hidden="true">{pad(i + 1)}</span>
+            <div class="hs-svc__body">
+              <h3>{s.name}</h3>
+              {s.text && <p>{s.text}</p>}
+            </div>
+            <a class="hs-svc__ask" href="#uzklausa" data-service={s.name}>{t.serviceAsk}<span class="hs-vh">: {s.name}</span></a>
           </li>
         ))}
       </ol>
-      {data.brands && data.brands.length > 0 && <p class="hs-brands"><strong>Dirbame su:</strong> {data.brands.join(', ')}</p>}
+      {data.brands && data.brands.length > 0 && (
+        <div class="hs-brands">
+          <p><strong>{t.brandsLead}</strong> {data.brands.join(', ')}.</p>
+          <p>Nerandate savo katilo gamintojo? Parašykite modelį arba pridėkite duomenų lentelės nuotrauką.</p>
+        </div>
+      )}
     </div>
   </section>
 
-  <section class="hs-sec hs-sec--band" id="uzklausa" aria-labelledby="hs-form-title">
-    <div class="hs-wrap hs-callback">
-      <div class="hs-callback__copy">
-        <p class="hs-label">{t.formLabel}</p>
-        <h2 id="hs-form-title">{t.formTitle}</h2>
-        <p>{t.formLead}</p>
-        {live ? (
-          <p class="hs-callback__tel">Arba skambinkite: <a href={telHref} data-cta="cta_call">{data.phone}</a></p>
-        ) : (
-          <p class="hs-callback__tel">Arba skambinkite: <strong>{data.phone}</strong></p>
-        )}
-      </div>
-
-      <div class="hs-formbox">
-        {live ? (
-          <form class="hs-form" action={live.formEndpoint} method="post" enctype="multipart/form-data" data-callback-form>
-            <input type="hidden" name="kind" value="site_inquiry" />
-            <input type="hidden" name="site" value={live.code} />
-            <div class="hs-hp" aria-hidden="true"><label for="hs-website">Svetainė</label><input id="hs-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
-            <label for="hs-name">{t.name}</label>
-            <input id="hs-name" name="name" type="text" maxlength="80" autocomplete="name" />
-            <label for="hs-phone">{t.phoneField}</label>
-            <input id="hs-phone" name="phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" required pattern="[0-9 +\-\(\)]{8,20}" />
-            <label for="hs-message">{t.message}</label>
-            <textarea id="hs-message" name="message" rows="3" maxlength="2000"></textarea>
-            <label for="hs-files">{t.files}</label>
-            <input id="hs-files" name="files" type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/gif,application/pdf,.doc,.docx,.xls,.xlsx,.txt,text/plain" />
-            <p class="hs-form__hint">{t.filesHint}</p>
-            <button class="hs-btn hs-btn--block" type="submit">{t.submit}</button>
-            <p class="hs-form__legal">
-              Siųsdami formą, perduodate vardą, telefoną, žinutę ir pridėtus failus įmonei {data.business}. Duomenis jos vardu tvarko {`JarvisCo`}.
-              Plačiau: <a href="/privatumo-politika">{t.privacy.toLocaleLowerCase('lt')}</a>.
-            </p>
-            <div class="hs-form__error" data-form-error hidden role="alert">
-              <p data-form-error-text></p>
-              <p>{t.errorLead} <a href={telHref} data-cta="cta_call">{data.phone}</a></p>
-            </div>
-          </form>
-          <div class="hs-thanks" data-form-thanks hidden role="status">
-            <h3>{t.thanksTitle}</h3>
-            <p>{t.thanksText}</p>
-          </div>
-        ) : (
-          <form class="hs-form" action="#uzklausa" method="get" data-inert-form>
-            <label for="hs-name">{t.name}</label>
-            <input id="hs-name" type="text" autocomplete="off" />
-            <label for="hs-phone">{t.phoneField}</label>
-            <input id="hs-phone" type="tel" autocomplete="off" />
-            <label for="hs-message">{t.message}</label>
-            <textarea id="hs-message" rows="3"></textarea>
-            <label for="hs-files">{t.files}</label>
-            <input id="hs-files" type="file" disabled />
-            <p class="hs-form__hint">{t.filesHint}</p>
-            <button class="hs-btn hs-btn--block" type="submit">{t.submit}</button>
-            <p class="hs-form__legal" role="status" data-inert-status>{t.inert}</p>
-          </form>
-        )}
-      </div>
+  <section class="hs-sec hs-sec--ink" id="eiga" aria-labelledby="hs-process">
+    <div class="hs-wrap">
+      <header class="hs-head">
+        <p class="hs-label hs-label--inv">{t.processLabel}</p>
+        <h2 id="hs-process">{t.processTitle}</h2>
+      </header>
+      <ol class="hs-steps">
+        {processSteps(data).map((s, i) => (
+          <li>
+            <span class="hs-steps__n" aria-hidden="true">{pad(i + 1)}</span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))}
+      </ol>
     </div>
   </section>
 
-  {gallery.length > 0 && (
+  {works.length > 0 && (
     <section class="hs-sec" id="darbai" aria-labelledby="hs-works">
-      <div class="hs-wrap">
+      <div class:list={['hs-wrap', works.length === 1 && 'hs-split']}>
         <header class="hs-head">
-          <p class="hs-label">{t.worksLabel}</p>
-          <h2 id="hs-works">{t.worksTitle}</h2>
+          <p class="hs-label">{data.demo ? 'Pavyzdinės iliustracijos' : t.worksLabel}</p>
+          <h2 id="hs-works">{data.demo ? 'Šildymas iš arčiau' : t.worksTitle}</h2>
         </header>
-        <ul class="hs-gallery">
-          {gallery.map((photo) => (
-            <li><img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt ?? `${data.business} darbas`} loading="lazy" decoding="async" /></li>
+        <ul class:list={['hs-works', `hs-works--${works.length === 4 ? 2 : Math.min(works.length, 3)}`]}>
+          {works.map((photo) => (
+            <li>
+              <figure>
+                <img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt ?? `${data.business}: atliktas darbas`} loading="lazy" decoding="async" />
+                {photo.alt && <figcaption>{photo.alt}</figcaption>}
+              </figure>
+            </li>
           ))}
         </ul>
       </div>
     </section>
   )}
 
-  <section class="hs-sec" id="apie" aria-labelledby="hs-about">
-    <div class="hs-wrap hs-split">
-      <header class="hs-head">
-        <p class="hs-label">{t.aboutLabel}</p>
-        <h2 id="hs-about">{data.business}</h2>
-      </header>
-      <div class="hs-prose"><p>{aboutText(data)}</p></div>
-    </div>
-  </section>
+  {(Boolean(data.about) || (data.qualifications?.length ?? 0) > 0) && (
+    <section class="hs-sec hs-sec--rule" id="apie" aria-labelledby="hs-about">
+      <div class="hs-wrap hs-split">
+        <header class="hs-head">
+          <p class="hs-label">{t.aboutLabel}</p>
+          <h2 id="hs-about">{data.business}</h2>
+        </header>
+        <div class="hs-split__body">
+          {data.about && <p class="hs-prose">{data.about}</p>}
+          {data.qualifications && data.qualifications.length > 0 && (
+            <div class="hs-quals">
+              <h3>{t.qualificationsTitle}</h3>
+              <ul class="hs-ticks">{data.qualifications.map((q) => <li>{q}</li>)}</ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {data.prices && data.prices.length > 0 && (
+    <section class="hs-sec hs-sec--rule" id="kainos" aria-labelledby="hs-prices">
+      <div class="hs-wrap hs-split">
+        <header class="hs-head">
+          <p class="hs-label">{t.pricesLabel}</p>
+          <h2 id="hs-prices">{data.demo ? 'Pavyzdinės kainos ir sąlygos' : t.pricesTitle}</h2>
+        </header>
+        <div class="hs-split__body">
+          <table class="hs-prices">
+            <tbody>
+              {data.prices.map((p) => (
+                <tr>
+                  <th scope="row">{p.name}{p.note && <span class="hs-prices__note">{p.note}</span>}</th>
+                  <td>{p.price}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {data.priceNote && <p class="hs-prices__foot">{data.priceNote}</p>}
+        </div>
+      </div>
+    </section>
+  )}
 
   <section class="hs-sec hs-sec--rule" id="vietoves" aria-labelledby="hs-areas">
     <div class="hs-wrap hs-split">
       <header class="hs-head">
         <p class="hs-label">{t.areasLabel}</p>
-        <h2 id="hs-areas">{t.areasTitle}</h2>
+        <h2 id="hs-areas">{data.hours ? t.areasTitle : t.areasLabel}</h2>
       </header>
-      <ul class="hs-areas">{areas.map((a) => <li>{a}</li>)}</ul>
+      <div class="hs-split__body">
+        <ul class="hs-areas">{areas.map((a) => <li>{a}</li>)}</ul>
+        {data.hours && <p class="hs-areas__hours"><span class="hs-proof__label">{t.hours}</span>{data.hours}</p>}
+        <p class="hs-areas__note">{t.areasUnsure}</p>
+      </div>
     </div>
   </section>
 
@@ -189,11 +244,17 @@ const call = (cls: string, label: string) => ({ cls, label });
       <div class="hs-wrap">
         <header class="hs-head">
           <p class="hs-label">{t.reviewsLabel}</p>
-          <h2 id="hs-reviews">{t.reviewsLabel}</h2>
+          <h2 id="hs-reviews">{t.reviewsTitle}</h2>
         </header>
         <ul class="hs-quotes">
           {data.reviews.map((r) => (
-            <li><blockquote><p>{r.text}</p></blockquote><p class="hs-quotes__by">{r.name}{r.place ? `, ${r.place}` : ''}</p></li>
+            <li>
+              <blockquote><p>{r.text}</p></blockquote>
+              <p class="hs-quotes__by">
+                {r.name}{r.place ? `, ${r.place}` : ''}
+                {(r.source || r.date) && <span class="hs-quotes__src"> · {r.url && live ? <a href={r.url} rel="noopener">{r.source ?? r.url}</a> : r.source}{r.date ? ` ${r.date}` : ''}</span>}
+              </p>
+            </li>
           ))}
         </ul>
       </div>
@@ -201,12 +262,12 @@ const call = (cls: string, label: string) => ({ cls, label });
   )}
 
   <section class="hs-sec hs-sec--rule" id="duk" aria-labelledby="hs-faq">
-    <div class="hs-wrap">
+    <div class="hs-wrap hs-split">
       <header class="hs-head">
         <p class="hs-label">{t.faqLabel}</p>
         <h2 id="hs-faq">{t.faqTitle}</h2>
       </header>
-      <div class="hs-faq">
+      <div class="hs-faq hs-split__body">
         {faq.map((item) => (
           <details>
             <summary>{item.q}</summary>
@@ -217,53 +278,168 @@ const call = (cls: string, label: string) => ({ cls, label });
     </div>
   </section>
 
-  <section class="hs-contact" id="kontaktai" aria-labelledby="hs-contact">
-    <div class="hs-wrap hs-contact__inner">
-      <div>
-        <p class="hs-label hs-label--inv">{t.contactLabel}</p>
-        <h2 id="hs-contact">{t.contactTitle}</h2>
+  <section class="hs-sec hs-sec--band" id="uzklausa" tabindex="-1" aria-labelledby="hs-form-title">
+    <div class="hs-wrap hs-inquiry">
+      <div class="hs-inquiry__copy">
+        <p class="hs-label">{t.formLabel}</p>
+        <h2 id="hs-form-title">{t.formTitle}</h2>
+        <ol class="hs-next">
+          <li>{live ? `Užklausą gauna ${data.business}.` : `Tikroje svetainėje užklausą gautų ${data.business}.`}</li>
+          <li>Perskambiname Jūsų nurodytu numeriu{data.hours ? ' darbo metu' : ''}.</li>
+          <li>Atvykimo laiką ir kainos sąlygas suderiname telefonu.</li>
+        </ol>
       </div>
-      <div class="hs-contact__body">
-        {live ? <a class="hs-contact__phone" href={telHref} data-cta="cta_call">{data.phone}</a> : <p class="hs-contact__phone">{data.phone}</p>}
-        <div class="hs-contact__ctas">
-          <a class="hs-btn" href={telHref} data-cta={live ? 'cta_call' : undefined}>{t.call}</a>
-          {smsHref && <a class="hs-btn hs-btn--inv" href={smsHref} data-cta="cta_sms">{t.sms}</a>}
-          <a class="hs-btn hs-btn--inv" href="#uzklausa">{t.leave}</a>
+      <div class="hs-inquiry__aside">
+        <p class="hs-inquiry__call">{t.formOrCall} {live ? <a href={telHref} data-cta="cta_call">{data.phone}</a> : <strong>{data.phone}</strong>}</p>
+        <div class="hs-gas" role="note">
+          <p><strong>{t.gasTitle}</strong> {t.gasText} {live ? <a href="tel:1804">1804</a> : '1804'} (ESO dujų avarinė tarnyba) arba {live ? <a href="tel:112">112</a> : '112'}.</p>
         </div>
-        <ul class="hs-contact__rows">
-          <li><span>{t.areas}</span>{areas.join(', ')}</li>
-          {data.hours && <li><span>{t.hours}</span>{data.hours}</li>}
-          {data.email && <li><span>{t.email}</span>{live ? <a href={`mailto:${data.email}`}>{data.email}</a> : data.email}</li>}
-        </ul>
+      </div>
+
+      <div class="hs-formbox">
+        <form
+          class="hs-form"
+          action={live ? live.formEndpoint : '#uzklausa'}
+          method={live ? 'post' : 'get'}
+          enctype={live ? 'multipart/form-data' : undefined}
+          data-callback-form={live ? '' : undefined}
+          data-inert-form={live ? undefined : ''}
+        >
+          {live && (
+            <>
+              <input type="hidden" name="kind" value="site_inquiry" />
+              <input type="hidden" name="site" value={live.code} />
+              <div class="hs-hp" aria-hidden="true"><label for="hs-website">Svetainė</label><input id="hs-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+            </>
+          )}
+          <p class="hs-form__note">{live ? 'Būtinas tik telefono numeris.' : 'Pavyzdinė forma – niekas nebus išsiųsta. Neįrašykite tikrų asmens duomenų.'}</p>
+
+          <div class="hs-field">
+            <label for="hs-service">{t.service}</label>
+            <select id="hs-service" name={n('service')}>
+              <option value="">{t.servicePick}</option>
+              {services.map((s) => <option value={s.name}>{s.name}</option>)}
+              <option value={t.serviceOther}>{t.serviceOther}</option>
+            </select>
+          </div>
+
+          <div class="hs-field">
+            <label for="hs-location">{t.location}</label>
+            <input id="hs-location" name={n('location')} type="text" maxlength="120" list="hs-area-list" autocomplete={live ? 'address-level2' : 'off'} aria-describedby="hs-location-hint" />
+            <datalist id="hs-area-list">{areas.map((a) => <option value={a} />)}</datalist>
+            <p class="hs-hint" id="hs-location-hint">{t.locationHint}</p>
+          </div>
+
+          <div class="hs-field">
+            <label for="hs-name">{t.name}</label>
+            <input id="hs-name" name={n('name')} type="text" maxlength="80" autocomplete={live ? 'name' : 'off'} />
+          </div>
+
+          <div class="hs-field">
+            <label for="hs-phone">{t.phoneField} <span class="hs-req">būtina</span></label>
+            <input id="hs-phone" name={n('phone')} type="tel" inputmode="tel" maxlength="20" autocomplete={live ? 'tel' : 'off'} required={live ? true : undefined} pattern={live ? '[0-9 +\\-\\(\\)]{8,20}' : undefined} aria-describedby="hs-phone-hint" />
+            <p class="hs-hint" id="hs-phone-hint">{t.phoneHint}</p>
+          </div>
+
+          <div class="hs-field">
+            <label for="hs-message">{t.message}</label>
+            <textarea id="hs-message" name={n('message')} rows="4" maxlength="2000" aria-describedby="hs-message-hint"></textarea>
+            <p class="hs-hint" id="hs-message-hint">{t.messageHint}</p>
+          </div>
+
+          <details class="hs-more">
+            <summary>{t.more}</summary>
+            <div class="hs-more__body">
+              {/* Brand and error code have no wire field: client.js writes them into `message`. Shown only with JS. */}
+              <div class="hs-field" data-js-only hidden>
+                <label for="hs-brand">{t.brand}</label>
+                <input id="hs-brand" type="text" maxlength="60" autocomplete="off" data-compose="Katilo markė ir modelis" />
+              </div>
+              <div class="hs-field" data-js-only hidden>
+                <label for="hs-code">{t.code}</label>
+                <input id="hs-code" type="text" maxlength="40" autocomplete="off" data-compose="Klaidos kodas" />
+              </div>
+              <fieldset class="hs-times">
+                <legend>{t.contactTime}</legend>
+                <div class="hs-times__opts">
+                  {CONTACT_TIMES.map((c) => (
+                    <label class="hs-choice" for={`hs-time-${c.value}`}>
+                      {live
+                        ? <input type="radio" id={`hs-time-${c.value}`} name="contact_time" value={c.value} />
+                        : <input type="radio" id={`hs-time-${c.value}`} name="hs-time" form="hs-none" />}
+                      <span>{c.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
+          </details>
+
+          <div class="hs-upload" data-upload>
+            <p class="hs-upload__title" id="hs-files-title">{t.files} <span class="hs-opt">{t.optional}</span></p>
+            <p class="hs-hint">{t.filesText}</p>
+            <input class="hs-upload__input" id="hs-files" name={n('files')} type="file" multiple accept={FILE_ACCEPT} aria-describedby="hs-files-hint" />
+            <label class="hs-btn hs-btn--ghost hs-upload__btn" for="hs-files">{t.filesButton}</label>
+            <p class="hs-hint" id="hs-files-hint">{t.filesHint}</p>
+            <ul class="hs-files" data-file-list hidden></ul>
+            <p class="hs-files__sum" data-file-sum aria-live="polite"></p>
+          </div>
+
+          <button class="hs-btn hs-btn--block" type="submit">{t.submit}</button>
+
+          {live ? (
+            <>
+              <p class="hs-form__legal">
+                Siųsdami formą, perduodate įrašytus duomenis ir failus įmonei {data.business}. Duomenis jos vardu tvarko JarvisCo.
+                Plačiau: <a href="/privatumo-politika">{t.privacy.toLocaleLowerCase('lt')}</a>.
+              </p>
+              <div class="hs-form__error" data-form-error hidden role="alert" tabindex="-1">
+                <p data-form-error-text></p>
+                <p>{t.errorLead} <a href={telHref} data-cta="cta_call">{data.phone}</a></p>
+              </div>
+            </>
+          ) : (
+            <p class="hs-form__legal" role="status" data-inert-status>{t.inert}</p>
+          )}
+        </form>
       </div>
     </div>
   </section>
 </main>
 
-<footer class="hs-foot">
-  <div class="hs-wrap hs-foot__inner">
-    <p><strong>{data.business}</strong> · {data.phone}{data.legal?.code ? ` · įm. k. ${data.legal.code}` : ''}</p>
-    <p>
-      {live ? <a href="/privatumo-politika">{t.privacy}</a> : <span>{t.privacy}</span>}
-      · © {new Date().getFullYear()} {data.legal?.name ?? data.business} · {t.by} <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a>
-    </p>
+<footer class="hs-foot" id="kontaktai" aria-labelledby="hs-contact">
+  <div class="hs-wrap">
+    <div class="hs-foot__main">
+      <div>
+        <p class="hs-label hs-label--inv">{t.contactLabel}</p>
+        <h2 id="hs-contact" class="hs-foot__name">{data.business}</h2>
+        {live ? <a class="hs-foot__phone" href={telHref} data-cta="cta_call">{data.phone}</a> : <p class="hs-foot__phone">{data.phone}</p>}
+        <div class="hs-foot__ctas">
+          <a class="hs-btn hs-btn--light" href={telHref} data-cta={callCta}>{t.call}</a>
+          {smsHref && <a class="hs-btn hs-btn--inv" href={smsHref} data-cta="cta_sms">{t.sms}</a>}
+          <a class="hs-btn hs-btn--inv" href="#uzklausa">{t.leave}</a>
+        </div>
+      </div>
+      <dl class="hs-foot__rows">
+        <div><dt>{t.areas}</dt><dd>{areas.join(', ')}</dd></div>
+        {data.hours && <div><dt>{t.hours}</dt><dd>{data.hours}</dd></div>}
+        {data.email && <div><dt>{t.email}</dt><dd>{live ? <a href={`mailto:${data.email}`}>{data.email}</a> : data.email}</dd></div>}
+        {data.legal?.address && <div><dt>Adresas</dt><dd>{data.legal.address}</dd></div>}
+      </dl>
+    </div>
+    <div class="hs-foot__legal">
+      <p>© {year} {data.legal?.name ?? data.business}{data.legal?.code ? ` · įm. k. ${data.legal.code}` : ''}</p>
+      <p>
+        {live ? <a href="/privatumo-politika">{t.privacy}</a> : <span>{t.privacy}</span>}
+        <span aria-hidden="true"> · </span>{t.by} <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a>
+      </p>
+    </div>
   </div>
 </footer>
 
-<div class="hs-dock" role="group" aria-label="Greiti veiksmai">
-  <a class="hs-btn" href={telHref} data-cta={live ? 'cta_call' : undefined}>{t.call}</a>
+<div class="hs-dock" data-dock role="group" aria-label="Greiti veiksmai">
+  <a class="hs-btn" href={telHref} data-cta={callCta}>{t.call}</a>
   <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leave}</a>
 </div>
 
-{live ? <script is:inline set:html={clientScript}></script> : (
-  <script is:inline>
-    // Inputs have no name, so nothing leaves the page even without this script.
-    document.querySelector('[data-inert-form]')?.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var s = this.querySelector('[data-inert-status]');
-      var text = s.textContent;
-      s.textContent = '';
-      setTimeout(function () { s.textContent = text; }, 50);
-    });
-  </script>
-)}
+<script is:inline set:html={clientScript}></script>
