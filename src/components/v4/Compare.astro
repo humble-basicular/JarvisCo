@@ -1,0 +1,30 @@
+---
+/* Exclusive vs shared (plan §4.2 item 5): Paslaugos.lt vs own site, no prices. */
+import { compare } from '@data/v4.js';
+import Head from './Head.astro';
+---
+<section class="sec" aria-labelledby="palyginimas-title">
+  <div class="wrap">
+    <Head id="palyginimas-title" label={compare.label} title={compare.title} text={compare.text} />
+    <div class="cmp">
+      <div class="cmp__cols" aria-hidden="true"><span>{compare.cols[0]}</span><span>{compare.cols[1]}</span></div>
+      {compare.rows.map((r) => (
+        <div class="cmp__row">
+          <h3 class="stamp cmp__q">{r.q}</h3>
+          <p class="cmp__a"><span class="visually-hidden">{compare.cols[0]}: </span>{r.a}</p>
+          <p class="cmp__b"><span class="visually-hidden">{compare.cols[1]}: </span>{r.b}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cmp__cols, .cmp__row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(1rem, 4vw, 4rem); }
+  .cmp__cols { padding-bottom: 0.75rem; border-bottom: 1px solid var(--ink); font-weight: 600; font-size: clamp(1.125rem, 2.5vw, 1.5rem); letter-spacing: -0.02em; }
+  .cmp__cols span:first-child { color: var(--mute); }
+  .cmp__row { padding-block: 1.5rem; border-bottom: 1px solid var(--rule); }
+  .cmp__q { grid-column: 1 / -1; margin-bottom: 0.75rem; font-size: 0.9375rem; }
+  .cmp__a { color: var(--mute); margin: 0; }
+  .cmp__b { margin: 0; font-weight: 600; }
+</style>

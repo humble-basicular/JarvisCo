@@ -1,0 +1,11 @@
+---
+/* Section head (Fervor): small outline label, big headline left, short text right. */
+interface Props { id: string; label: string; title: string; text?: string }
+const { id, label, title, text } = Astro.props;
+---
+<div class="head">
+  <p class="label">{label}</p>
+  <h2 class="head__title" id={id}><span class="reveal-line" data-reveal>{title}</span></h2>
+  {text && <p class="head__text">{text}</p>}
+  <slot />
+</div>

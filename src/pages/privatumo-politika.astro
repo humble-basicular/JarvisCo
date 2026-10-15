@@ -25,7 +25,7 @@ import { brand } from '@data/content.js';
   <ul>
     <li>kodą ir laiką (UTC), kada nuoroda atidaryta;</li>
     <li>ar atidarė žmogus, ar automatinė nuorodų peržiūros programa (vien šis požymis, ne visas naršyklės aprašas);</li>
-    <li>kuriuos veiksmus atlikote puslapyje: ar puslapis buvo parodytas, ar peržiūrėjote rezultatus, ar spaudėte „Parašyti SMS“, „Skambinti“, PDF atsisiuntimą ar nuorodą į arbcut.lt.</li>
+    <li>kuriuos veiksmus atlikote puslapyje: ar puslapis buvo parodytas, ar peržiūrėjote rezultatus, ar spaudėte „Parašyti SMS“, „Skambinti“, „Taip, noriu nemokamos peržiūros“, PDF atsisiuntimą ar nuorodą į arbcut.lt.</li>
   </ul>
   <p>
     IP adreso ir viso naršyklės aprašo nesaugau. Slapukų nenaudoju. Kodas apsilankymo metu laikomas tik Jūsų
@@ -37,6 +37,32 @@ import { brand } from '@data/content.js';
     numeriu {brand.phone} – įrašus ištrinsiu.
   </p>
 
+  <!-- DRAFT 2026-10-14 (funnel spec §9): needs Jarvis's approval before the
+       preview form goes live in production. Update `updated` above on approval. -->
+  <h2>Nemokamos peržiūros forma ir failai</h2>
+  <p>
+    Kai pateikiate nemokamos peržiūros formą, gaunu tai, ką joje įrašote ar pasirenkate: vardą, telefono numerį
+    (jei jį nurodote), paslaugas, vietoves, ar galiu naudoti Jūsų darbų nuotraukas, kuo išsiskiriate, kada
+    patogu susisiekti, ir pridėtus failus (pvz. darbų nuotraukas, logotipą, kainoraštį). Jei atėjote per
+    asmeninę nuorodą iš SMS, prie formos pridedamas ir tos nuorodos kodas. Jei paspaudžiate „Nenoriu pildyti –
+    paskambinkite man“, gaunu prašymą paskambinti ir tai, ką spėjote įrašyti.
+  </p>
+  <p>
+    Šiuos duomenis ir failus naudoju tik tam, kad paruoščiau Jūsų svetainės peržiūrą, ją Jums atsiųsčiau ir
+    susisiekčiau dėl jos. Jūsų darbų nuotraukas peržiūroje naudoju tik tada, jei formoje tam pritarėte arba
+    jas atsiuntėte patys. Pagrindas – Jūsų prašymas prieš sudarant sutartį.
+  </p>
+  <p>
+    Forma ir failai saugomi Cloudflare serveriuose (Cloudflare Workers). Ten jie ištrinami automatiškai po
+    12 mėnesių. Iš ten juos nukopijuoju į savo kompiuteryje veikiančią klientų apskaitos programą (CRM) ir saugau
+    tiek, kiek reikia bendrauti dėl svetainės. Kartu įrašomas tik požymis, ar formą pateikė žmogus, ar
+    automatinė programa. IP adreso, viso naršyklės aprašo ir slapukų forma nesaugo.
+  </p>
+  <p>
+    Jei norite, kad duomenis ar failus ištrinčiau anksčiau, parašykite <a href={brand.emailHref}>{brand.email}</a>
+    arba SMS numeriu {brand.phone}.
+  </p>
+
   <h2>Lankomumo statistika</h2>
   <p>
     Bendram lankomumui matuoti naudoju Cloudflare Web Analytics. Ji nenaudoja slapukų ir neseka atskirų
@@ -45,7 +71,7 @@ import { brand } from '@data/content.js';
 
   <h2>Kas dar gali matyti duomenis</h2>
   <p>
-    Svetainę talpina Vercel, nuorodų įrašus tvarko Cloudflare, formą – Web3Forms. Jie duomenis tvarko tik
+    Svetainę talpina Vercel, nuorodų įrašus, peržiūros formą ir failus tvarko Cloudflare, užklausos formą – Web3Forms. Jie duomenis tvarko tik
     tam, kad šios paslaugos veiktų.
   </p>
 

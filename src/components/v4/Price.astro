@@ -1,0 +1,40 @@
+---
+/* Price (plan §4.2 item 8): one plain block. Offer and cancel terms: plan §1. */
+import { price, MAIN_CTA } from '@data/v4.js';
+---
+<section class="sec" id="kaina" aria-labelledby="kaina-title">
+  <div class="wrap price">
+    <div class="price__main">
+      <p class="label">{price.label}</p>
+      <h2 class="price__amount" id="kaina-title"><span class="reveal-line" data-reveal>{price.amount} <span class="price__unit">{price.unit}</span></span></h2>
+      <p class="price__when">{price.when}</p>
+      <p class="price__before">{price.before}</p>
+      <a class="btn btn--accent btn--big" href="#forma" data-track="preview_cta">{MAIN_CTA}</a>
+    </div>
+    <div class="price__terms">
+      <h3 class="stamp">{price.includesTitle}</h3>
+      <ul class="rule-list price__list">{price.includes.map((i) => <li>{i}</li>)}</ul>
+      <h3 class="stamp">{price.inquiryTitle}</h3>
+      <p>{price.inquiry}</p>
+      <h3 class="stamp">{price.cancelTitle}</h3>
+      <p>{price.cancel}</p>
+      <p class="small">{price.billing}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .price { display: grid; gap: 3rem; }
+  .price__main { display: grid; justify-items: start; gap: 1.25rem; align-content: start; }
+  .price__amount { font-size: clamp(4.5rem, 16vw, 10rem); letter-spacing: -0.06em; line-height: 0.9; }
+  .price__unit { font-size: 0.3em; letter-spacing: -0.02em; }
+  .price__when { font-size: clamp(1.1875rem, 1vw + 1rem, 1.5rem); line-height: 1.35; max-width: 26rem; letter-spacing: -0.01em; }
+  .price__before { color: var(--ink-2); max-width: 30rem; }
+  .price__main .btn { margin-top: 0.75rem; }
+  .price__terms h3 { margin: 2rem 0 0.75rem; }
+  .price__terms h3:first-child { margin-top: 0; }
+  .price__list li { padding-block: 0.875rem; }
+  @media (min-width: 64rem) {
+    .price { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; }
+  }
+</style>

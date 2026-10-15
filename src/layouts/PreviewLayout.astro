@@ -1,0 +1,89 @@
+---
+/* Layout for preview sites (/perziura/<slug>, /pavyzdys/sildymas).
+   Looks like the client's own site, not jarvisweb.lt: system fonts, no
+   tracking, no analytics. Always noindex,nofollow (also kept out of the
+   sitemap in astro.config.mjs). A fixed banner says it is a preview. */
+import { brand } from '@data/content.js';
+import { previewText } from '@data/preview';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Banner link: back to /noriu on the demo, SMS to Matas on a lead's preview. */
+  back?: { href: string; label: string };
+}
+const { title, description, back } = Astro.props;
+const link = back ?? { href: brand.smsHref, label: previewText.bannerCta };
+---
+<!doctype html>
+<html lang="lt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#14213d" />
+    <link rel="icon" type="image/svg+xml" href="/brand/editorial/jarvisco-favicon.svg" />
+  </head>
+  <body>
+    <div class="pv-banner" role="note">
+      <span class="pv-banner__tag">{previewText.banner}</span>
+      <span class="pv-banner__note">{previewText.bannerNote}</span>
+      <a class="pv-banner__link" href={link.href}>{link.label}</a>
+    </div>
+    <slot />
+  </body>
+</html>
+<style is:global>
+  :root {
+    --pv-ink: #14213d;
+    --pv-ink-2: #1f3157;
+    --pv-flame: #c2410c;
+    --pv-flame-2: #f08c00;
+    --pv-warm: #fff8f1;
+    --pv-sand: #f6eadc;
+    --pv-line: #ead9c6;
+    --pv-mute: #55607a;
+    --pv-banner: 2.75rem;
+    color-scheme: light;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--pv-banner) + 1rem); overflow-x: clip; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  body {
+    margin: 0;
+    padding-top: var(--pv-banner);
+    background: var(--pv-warm);
+    color: var(--pv-ink);
+    font: 400 1.0625rem/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    overflow-wrap: break-word;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+  }
+  img, svg { display: block; max-width: 100%; height: auto; }
+  h1, h2, h3 { margin: 0; line-height: 1.1; letter-spacing: -0.02em; text-wrap: balance; }
+  p { margin: 0 0 1rem; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid #0b5cd5; outline-offset: 3px; border-radius: 4px; }
+  .visually-hidden { position: absolute !important; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  .pv-banner {
+    position: fixed; inset: 0 0 auto; z-index: 100;
+    display: flex; align-items: center; gap: 0.75rem;
+    height: var(--pv-banner); padding: 0 max(0.75rem, env(safe-area-inset-left));
+    background: #0b1222; color: #fff; font-size: 0.875rem;
+    box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.6);
+  }
+  .pv-banner__tag {
+    flex: none; padding: 0.25rem 0.625rem; border-radius: 6px;
+    background: #ffd43b; color: #0b1222;
+    font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8125rem;
+  }
+  .pv-banner__note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c9d2e3; }
+  .pv-banner__link { flex: none; display: inline-flex; align-items: center; min-height: 2.75rem; font-weight: 700; color: #ffd43b; text-underline-offset: 0.2em; }
+  .pv-banner :focus-visible { outline-color: #ffd43b; }
+</style>

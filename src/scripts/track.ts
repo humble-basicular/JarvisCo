@@ -9,7 +9,7 @@ import {
   TRACKING_PREFIXES,
 } from '../data/tracking.js';
 
-type EventType = 'view' | 'scroll_proof' | 'cta_sms' | 'cta_call' | 'pdf' | 'arbcut';
+type EventType = 'view' | 'scroll_proof' | 'cta_sms' | 'cta_call' | 'pdf' | 'arbcut' | 'preview_cta';
 
 function isValidCode(value: string | null): value is string {
   return !!value && CODE_PATTERN.test(value) && value[0] in TRACKING_PREFIXES;
@@ -40,11 +40,14 @@ function captureCode(): string | null {
   return isValidCode(stored) ? stored : null;
 }
 
-const code = captureCode();
+/** The visitor's proof code for this tab, or null (no link, invalid or blocked storage). */
+export const code = captureCode();
 const sent = new Set<EventType>();
 
-function send(type: EventType) {
-  if (!code || sent.has(type)) return;
+/** Sends one beacon. Every type counts once per page, except `preview_cta`:
+    each tap on "Gauti nemokamą peržiūrą" is its own beacon. */
+export function send(type: EventType) {
+  if (!code || (type !== 'preview_cta' && sent.has(type))) return;
   sent.add(type);
   const body = JSON.stringify({ code, type });
   const queued =

@@ -1,215 +1,99 @@
 ---
-/* Sticky glass pill header. Desktop: anchors + CTA. Mobile: a menu sheet in
-   a native modal <dialog> (focus trap, Esc, focus return for free). */
-import { brand, cta, nav as navText, utility } from '@data/content.js';
-import logoSvg from '../../public/brand/editorial/jarvisco-wordmark-dark.svg?raw';
+/* v4 header (plan §4.2 item 1): wordmark · anchors · phone icon · black
+   "Gauti nemokamą peržiūrą". Mobile: wordmark, phone icon and a menu sheet in a
+   native modal <dialog> (focus trap, Esc and focus return come free).
+   The wordmark is the editorial light SVG, inlined in one ink colour: the
+   page has a single accent (orange), so the logo's lime square is ink here. */
+import { brand, utility } from '@data/content.js';
+import { header } from '@data/v4.js';
+import logoSvg from '../../public/brand/editorial/jarvisco-wordmark-light.svg?raw';
 
-interface Props { nav: { label: string; href: string }[] }
-const { nav } = Astro.props;
-// Editorial wordmark (dark variant: header and sheet are always on ink).
-// 1010 × 228 viewBox → 160 × 36; README: never narrower than 120 px.
-const LOGO = '/brand/editorial/jarvisco-wordmark-dark.svg';
-// Header copy is inlined: as an <img> it was the mobile LCP element (extra request).
-const logoInline = logoSvg
+interface Props { nav: { label: string; href: string }[]; formHref?: string }
+// Pages with the form link to it in place; others go to the homepage form.
+const { nav, formHref = '/#forma' } = Astro.props;
+const logo = logoSvg
   .replace(/<title>[\s\S]*?<\/title>/, '')
-  .replace('role="img" aria-label="JarvisCo"', 'aria-hidden="true" focusable="false" width="160" height="36"');
-const contactHref = nav[0]?.href.startsWith('#') ? '#kontaktai' : '/#kontaktai';
+  .replace(/fill="#[0-9A-Fa-f]{6}"/g, 'fill="currentColor"')
+  .replace('role="img" aria-label="JarvisCo"', 'aria-hidden="true" focusable="false" width="132" height="30"');
+const phoneIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M5 3.5h3.2l1.6 4.2-2.1 1.4a11 11 0 0 0 5.2 5.2l1.4-2.1 4.2 1.6V17a2.5 2.5 0 0 1-2.7 2.5C9.3 19 5 14.7 4.5 6.2A2.5 2.5 0 0 1 5 3.5Z"/></svg>';
 ---
-<header class="hdr" data-header>
-  <div class="hdr__bar glass">
-    <a class="logo" href="/" aria-label={`${brand.name}, pradžia`}><Fragment set:html={logoInline} /></a>
+<header class="hdr">
+  <div class="hdr__bar wrap">
+    <a class="hdr__logo" href="/" aria-label={`${brand.name}, pradžia`}><Fragment set:html={logo} /></a>
     <nav class="hdr__nav" aria-label={utility.mainNav}>
-      <ul>
-        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
-      </ul>
+      <ul>{nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}</ul>
     </nav>
-    <a class="btn btn--lime btn--sm hdr__cta" href={contactHref}>{cta.contact}</a>
-    <button class="hdr__burger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu-sheet" data-menu-open>
-      <span class="visually-hidden">{navText.menuLabel}</span>
-      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
+    <a class="hdr__icon" href={brand.telHref} data-track="cta_call" aria-label={header.call}><Fragment set:html={phoneIcon} /></a>
+    <a class="btn btn--ink hdr__cta" href={formHref} data-track="preview_cta">{header.cta}</a>
+    <button class="hdr__icon hdr__menu" type="button" aria-haspopup="dialog" aria-controls="menu-sheet" data-menu-open>
+      <span class="visually-hidden">{header.menu}</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 9h16M4 15h16"/></svg>
     </button>
   </div>
 
-  <dialog class="sheet t-dark" id="menu-sheet" aria-label={navText.menuLabel} data-menu>
+  <dialog class="sheet" id="menu-sheet" aria-label={header.menu} data-menu>
     <div class="sheet__top">
-      <a class="logo" href="/"><img src={LOGO} width="160" height="36" alt={brand.name} /></a>
-      <button class="sheet__close" type="button" data-menu-close autofocus>
-        <span class="visually-hidden">{navText.closeLabel}</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      <span class="stamp">{header.menu}</span>
+      <button class="hdr__icon" type="button" data-menu-close autofocus>
+        <span class="visually-hidden">{header.close}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </div>
     <nav aria-label={utility.menuNav}>
       <ul class="sheet__list">
-        {nav.map((item, i) => (
-          <li style={`--i:${i}`}><a href={item.href} data-menu-link><span class="sheet__n">0{i + 1}</span>{item.label}</a></li>
-        ))}
+        {nav.map((item, i) => <li><a href={item.href} data-menu-link><span class="stamp stamp--plain">0{i + 1}</span>{item.label}</a></li>)}
       </ul>
     </nav>
     <div class="sheet__ctas">
-      <a class="btn btn--lime" href={brand.smsHref} data-track="cta_sms">{cta.sms}</a>
-      <a class="btn btn--ghost" href={brand.telHref} data-track="cta_call">{cta.call} {brand.phone}</a>
+      <a class="btn btn--accent" href={formHref} data-menu-link data-track="preview_cta">{header.cta}</a>
+      <a class="link" href={brand.telHref} data-track="cta_call">{header.call}</a>
     </div>
   </dialog>
 </header>
 
 <script>
   const sheet = document.querySelector<HTMLDialogElement>('[data-menu]');
-  const header = document.querySelector<HTMLElement>('[data-header]');
-  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
-  if (sheet && openBtn && typeof sheet.showModal === 'function') {
-    openBtn.addEventListener('click', () => {
-      sheet.showModal();
-      openBtn.setAttribute('aria-expanded', 'true');
-    });
-    sheet.addEventListener('close', () => openBtn.setAttribute('aria-expanded', 'false'));
-    matchMedia('(min-width: 64rem)').addEventListener('change', (event) => {
-      if (event.matches && sheet.open) sheet.close();
-    });
+  const open = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  if (sheet && open && typeof sheet.showModal === 'function') {
+    open.addEventListener('click', () => sheet.showModal());
     sheet.querySelector('[data-menu-close]')?.addEventListener('click', () => sheet.close());
-    sheet.addEventListener('click', (e) => {
-      const t = e.target as Element;
-      if (t === sheet || t.closest('[data-menu-link]')) sheet.close();
-    });
-  }
-  // Header gets denser once the page scrolls.
-  if (header) {
-    const onScroll = () => header.classList.toggle('is-scrolled', scrollY > 24);
-    onScroll();
-    addEventListener('scroll', onScroll, { passive: true });
+    sheet.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => sheet.close()));
+    sheet.addEventListener('click', (e) => e.target === sheet && sheet.close());
   }
 </script>
 
 <style>
-  .hdr {
-    position: fixed;
-    inset: 0 0 auto;
-    z-index: 60;
-    padding: 0.625rem var(--gutter) 0;
-    pointer-events: none;
-    view-transition-name: site-header;
-  }
-  .hdr__bar {
-    pointer-events: auto;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: min(100%, 75rem);
-    margin-inline: auto;
-    min-height: 3.75rem;
-    padding: 0.375rem 0.375rem 0.375rem 1.125rem;
-    border-radius: 999px;
-    background: rgba(6, 17, 12, 0.5);
-    box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8);
-    transition: background-color 0.3s, box-shadow 0.3s;
-  }
-  .hdr.is-scrolled .hdr__bar { background: rgba(6, 17, 12, 0.82); box-shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.9); }
-
-  .logo {
-    margin-right: auto;
-    display: inline-flex;
-    align-items: center;
-    flex: none;
-    min-height: 3rem;
-    border-radius: 0.5rem;
-  }
-  .logo img, .logo :global(svg) { display: block; width: 10rem; height: auto; aspect-ratio: 1010 / 228; }
-
+  .hdr { position: sticky; top: 0; z-index: 50; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .hdr__bar { display: flex; align-items: center; gap: 0.25rem; min-height: var(--hdr-h); }
+  .hdr__logo { display: inline-flex; align-items: center; min-height: 3rem; margin-right: auto; color: var(--ink); }
+  .hdr__logo :global(svg) { width: 132px; height: 30px; }
   .hdr__nav { display: none; }
-  .hdr__nav ul { display: flex; list-style: none; gap: 0.125rem; }
-  .hdr__nav a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 3rem;
-    padding: 0 0.875rem;
-    border-radius: 999px;
-    color: #d3e3d9;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background-color 0.2s, color 0.2s;
+  .hdr__nav ul { display: flex; gap: 0.25rem; }
+  .hdr__nav a { display: inline-flex; align-items: center; min-height: 3rem; padding: 0 0.875rem; font-size: 1rem; text-decoration: none; }
+  .hdr__nav a:hover { text-decoration: underline; }
+  .hdr__icon {
+    display: inline-grid; place-items: center; width: 3rem; height: 3rem; flex: none;
+    border: 0; border-radius: 4px; background: none; color: var(--ink); cursor: pointer;
   }
-  .hdr__nav a:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
-  .hdr__cta { display: none; }
-
-  .hdr__burger {
-    display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
-    color: #fff;
-    cursor: pointer;
-  }
-  .hdr__burger svg { width: 1.375rem; }
-
+  .hdr__icon:hover { background: var(--paper-2); }
+  .hdr__icon :global(svg), .hdr__icon svg { width: 1.375rem; height: 1.375rem; }
+  .hdr__cta { display: none; min-height: 3rem; padding: 0 1.25rem; font-size: 1rem; }
   @media (min-width: 64rem) {
-    .hdr__nav { display: block; }
-    .hdr__cta { display: inline-flex; }
-    .hdr__burger { display: none; }
+    .hdr__nav { display: block; margin-right: 1rem; }
+    .hdr__cta { display: inline-flex; margin-left: 0.5rem; }
+    .hdr__menu { display: none; }
   }
-  /* No JS: the sheet cannot open, so hide the button and show the CTA. */
-  :global(html:not(.js)) .hdr__burger { display: none; }
-  :global(html:not(.js)) .hdr__cta { display: inline-flex; }
 
-  /* Mobile menu sheet */
   .sheet {
-    width: 100%;
-    max-width: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    margin: 0;
-    padding: 0.625rem var(--gutter) calc(1.5rem + env(safe-area-inset-bottom));
-    border: 0;
-    overflow-y: auto;
-    background:
-      radial-gradient(60% 40% at 90% 0%, rgba(31, 191, 117, 0.28), transparent 70%),
-      radial-gradient(50% 30% at 0% 100%, rgba(200, 245, 96, 0.12), transparent 70%),
-      var(--ink);
-    color: #fff;
+    width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 0 var(--gutter) 2rem;
+    border: 0; background: var(--paper); color: var(--ink);
   }
-  .sheet[open] { display: flex; flex-direction: column; }
-  .sheet::backdrop { background: rgba(6, 17, 12, 0.6); }
-  .sheet__top {
-    display: flex;
-    align-items: center;
-    min-height: 3.75rem;
-    padding: 0.375rem 0.375rem 0.375rem 1.125rem;
-    border: 1px solid var(--line-dark);
-    border-radius: 999px;
-  }
-  .sheet__close {
-    display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
-    cursor: pointer;
-  }
-  .sheet__close svg { width: 1.25rem; }
-  .sheet__list { list-style: none; margin: 2rem 0 auto; }
+  .sheet::backdrop { background: rgb(20 20 18 / 0.4); }
+  .sheet__top { display: flex; align-items: center; justify-content: space-between; min-height: var(--hdr-h); border-bottom: 1px solid var(--rule); }
   .sheet__list a {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    padding: 0.875rem 0.25rem;
-    border-bottom: 1px solid var(--line-dark);
-    font: 700 clamp(1.75rem, 8vw, 2.5rem)/1.1 var(--font-d);
-    letter-spacing: -0.03em;
-    color: #fff;
-    text-decoration: none;
+    display: flex; align-items: baseline; gap: 1rem; min-height: 4rem; padding-block: 0.75rem;
+    border-bottom: 1px solid var(--rule); font-size: 2rem; font-weight: 600; letter-spacing: -0.03em; text-decoration: none;
   }
-  .sheet__n { font: 600 0.8125rem/1 var(--font-b); letter-spacing: 0.1em; color: var(--lime); }
-  .sheet__ctas { display: grid; gap: 0.75rem; margin-top: 2rem; }
-  .sheet__ctas .btn { width: 100%; }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .sheet[open] .sheet__list li { animation: sheet-in 0.5s var(--ease) both; animation-delay: calc(var(--i) * 45ms + 60ms); }
-    .sheet[open] { animation: sheet-fade 0.3s ease both; }
-  }
-  @keyframes sheet-in { from { opacity: 0; transform: translateY(14px); } }
-  @keyframes sheet-fade { from { opacity: 0; } }
+  .sheet__list .stamp { color: var(--mute); font-size: 0.9375rem; }
+  .sheet__ctas { display: grid; gap: 0.5rem; margin-top: 2rem; }
 </style>

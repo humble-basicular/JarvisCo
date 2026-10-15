@@ -1,16 +1,16 @@
 ---
 import '../styles/global.css';
-import { brand, offer, nav as navigation, utility } from '@data/content.js';
+import { brand, utility } from '@data/content.js';
+import { header as headerText, price } from '@data/v4.js';
 import Header from '@components/Header.astro';
 import Footer from '@components/Footer.astro';
-import StickyBar from '@components/StickyBar.astro';
 // Self-hosted fonts (fontsource, OFL): latin + latin-ext only. Lithuanian
-// letters (ąčęėįšųūž) are in latin-ext. Bricolage uses the opsz+wght file so
-// large headings get the display cut.
-import bricoLatin from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-opsz-normal.woff2?url';
-import bricoExt from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-ext-opsz-normal.woff2?url';
-import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
-import interExt from '@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2?url';
+// letters (ąčęėįšųūž) live in latin-ext, so both subsets are preloaded for the
+// grotesk. The condensed stamp face is small text: swap without preload.
+import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
+import stampLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2?url';
+import stampExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-800-normal.woff2?url';
 
 interface NavItem { label: string; href: string }
 interface Props {
@@ -19,11 +19,16 @@ interface Props {
   nav?: NavItem[];
   faq?: { q: string; a: string }[];
   noindex?: boolean;
-  stickyBar?: boolean;
+  /** Canonical path when this page duplicates another one (/noriu → /sildymui). */
+  canonicalPath?: string;
   ogImage?: string;
+  /** Where "Gauti nemokamą peržiūrą" leads: '#forma' on pages with the form. */
+  formHref?: string;
+  /** Kept for older callers; the v4 design has no sticky bar. */
+  stickyBar?: boolean;
 }
-const { title, description, nav = navigation.other, faq = [], noindex = false, stickyBar = true, ogImage: ogPath = '/assets/og.png' } = Astro.props;
-const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', brand.url).href;
+const { title, description, nav = headerText.nav.map((i) => ({ ...i, href: `/${i.href}` })), faq = [], noindex = false, canonicalPath, formHref, ogImage: ogPath = '/assets/og.png' } = Astro.props;
+const canonical = new URL(canonicalPath ?? (Astro.url.pathname.replace(/\/$/, '') || '/'), brand.url).href;
 const ogImage = new URL(ogPath, brand.url).href;
 
 // Cloudflare Web Analytics (cookieless). Set PUBLIC_CF_ANALYTICS_TOKEN at build
@@ -32,20 +37,15 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 
 const LATIN = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
 const EXT = 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
-const face = (family: string, src: string, range: string, weight: string, display = 'swap') =>
-  `@font-face{font-family:'${family}';font-style:normal;font-display:${display};font-weight:${weight};src:url(${src}) format('woff2');unicode-range:${range}}`;
-// Metric-matched local fallbacks keep text from shifting when the fonts swap in.
+const face = (family: string, src: string, range: string, weight: string) =>
+  `@font-face{font-family:'${family}';font-style:normal;font-display:swap;font-weight:${weight};src:url(${src}) format('woff2');unicode-range:${range}}`;
 const fontCss = [
-  face('Bricolage Grotesque Variable', bricoLatin, LATIN, '200 800'),
-  face('Bricolage Grotesque Variable', bricoExt, EXT, '200 800'),
-  face('Inter Variable', interLatin, LATIN, '100 900'),
-  face('Inter Variable', interExt, EXT, '100 900'),
-  // Bricolage fallback widths measured in Chrome against Arial at 100 px (2026-10-12):
-// regular 5663/6175 → 91.7 %, weights 600–800 6001/6625 → 90.6 %. Without the
-// bold face the hero H1 re-wrapped on swap (live CLS 0.28).
-  "@font-face{font-family:'Bricolage Fallback';font-weight:100 550;src:local('Arial'),local('ArialMT'),local('Helvetica Neue'),local('Roboto');size-adjust:91.7%;ascent-override:101.4%;descent-override:29.4%;line-gap-override:0%}",
-  "@font-face{font-family:'Bricolage Fallback';font-weight:551 900;src:local('Arial Bold'),local('Arial-BoldMT'),local('Helvetica Neue Bold'),local('Roboto Bold');size-adjust:90.6%;ascent-override:102.6%;descent-override:29.8%;line-gap-override:0%}",
-  "@font-face{font-family:'Inter Fallback';src:local('Arial'),local('Helvetica Neue'),local('Roboto');size-adjust:107.1%;ascent-override:90.4%;descent-override:22.5%;line-gap-override:0%}",
+  face('Instrument Sans Variable', sansLatin, LATIN, '400 700'),
+  face('Instrument Sans Variable', sansExt, EXT, '400 700'),
+  face('Barlow Condensed', stampLatin, LATIN, '800'),
+  face('Barlow Condensed', stampExt, EXT, '800'),
+  // Metric-matched local fallback so text does not re-wrap when the grotesk swaps in.
+  "@font-face{font-family:'Instrument Fallback';src:local('Arial'),local('ArialMT'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:25%;line-gap-override:0%}",
 ].join('');
 
 const business = {
@@ -62,10 +62,9 @@ const business = {
   sameAs: [brand.gbp, brand.facebook, brand.instagram],
   makesOffer: {
     '@type': 'Offer',
-    name: 'Svetainė paslaugų verslui',
-    price: '199',
-    priceCurrency: 'EUR',
-    description: offer.includes.join('; '),
+    name: 'Svetainė paslaugų meistrui',
+    priceSpecification: { '@type': 'UnitPriceSpecification', price: '39', priceCurrency: 'EUR', unitCode: 'MON' },
+    description: price.includes.join('; '),
   },
 };
 const faqSchema = faq.length
@@ -86,10 +85,10 @@ const faqSchema = faq.length
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#06110c" />
+    <meta name="theme-color" content="#faf9f6" />
 
-    <link rel="preload" href={bricoLatin} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={bricoExt} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansExt} as="font" type="font/woff2" crossorigin />
     <style is:inline set:html={fontCss}></style>
 
     <meta property="og:site_name" content="jarvisweb.lt" />
@@ -117,15 +116,15 @@ const faqSchema = faq.length
   </head>
   <body>
     <a href="#main" class="skip-link">{utility.skip}</a>
-    <Header nav={nav} />
+    <div class="progress" aria-hidden="true"><span data-scroll-line></span></div>
+    <Header nav={nav} formHref={formHref} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />
-    {stickyBar && <StickyBar />}
     <script>
       import '../scripts/track';
-      import '../scripts/effects';
+      import '../scripts/motion';
     </script>
   </body>
 </html>

@@ -1,0 +1,13 @@
+---
+/* Demo heating site shown as the example on /noriu (funnel spec §8). */
+import PreviewLayout from '@layouts/PreviewLayout.astro';
+import PreviewSite from '@components/preview/PreviewSite.astro';
+import { demo } from '@data/preview';
+---
+<PreviewLayout
+  title={`${demo.business} – šildymo sistemos | pavyzdys`}
+  description="Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti."
+  back={{ href: '/noriu', label: '← Grįžti' }}
+>
+  <PreviewSite data={demo} />
+</PreviewLayout>

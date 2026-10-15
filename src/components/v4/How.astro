@@ -1,0 +1,34 @@
+---
+/* How it works (plan §4.2 item 6): 4 steps, big condensed stamp numbers. */
+import { how } from '@data/v4.js';
+import Head from './Head.astro';
+---
+<section class="sec" id="kaip" aria-labelledby="kaip-title">
+  <div class="wrap">
+    <Head id="kaip-title" label={how.label} title={how.title} text={how.text} />
+    <ol class="how">
+      {how.steps.map((s, i) => (
+        <li>
+          <span class="how__n" aria-hidden="true">0{i + 1}</span>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .how { display: grid; counter-reset: none; }
+  .how li { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); column-gap: 1rem; padding-block: 1.75rem; border-top: 1px solid var(--rule); }
+  .how li:last-child { border-bottom: 1px solid var(--rule); }
+  .how__n { grid-row: span 2; font-family: var(--font-stamp); font-weight: 800; font-size: 3.5rem; line-height: 0.85; letter-spacing: -0.01em; }
+  .how h3 { font-size: clamp(1.375rem, 3vw, 1.875rem); letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.625rem; }
+  .how p { color: var(--ink-2); max-width: 30rem; }
+  @media (min-width: 64rem) {
+    .how { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 4rem; }
+    .how li { grid-template-columns: 7rem minmax(0, 1fr); padding-block: 2.5rem; }
+    .how li:nth-last-child(2) { border-bottom: 1px solid var(--rule); }
+    .how__n { font-size: 5.5rem; }
+  }
+</style>
