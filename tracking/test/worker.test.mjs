@@ -381,7 +381,7 @@ test('multipart happy path trims answers, stores two files with metadata and exp
   assert.equal(entry.type, 'preview_request');
   assert.equal(entry.ua_class, 'human');
   assert.deepEqual(entry.submission, {
-    name: 'Tomas', phone: null, services: ['Katilai', 'Siurbliai'], services_other: null,
+    name: 'Tomas', phone: null, email: null, preview_via: null, services: ['Katilai', 'Siurbliai'], services_other: null,
     area: ['Kaunas'], area_other: 'rajonas', photos_ok: 'yes', standout: '15 metų', contact_time: 'evening',
     files: [{ key: `s/${receipt.id}/0`, name: 'logo.png', type: 'image/png', size: 9 },
       { key: `s/${receipt.id}/1`, name: 'info.pdf', type: 'application/pdf', size: 9 }],
@@ -402,9 +402,66 @@ test('homepage callback requires phone; empty fields become null and lists remai
   const entry = (await (await pull()).json()).events[0];
   assert.equal(entry.code, null);
   assert.equal(entry.type, 'callback_request');
-  assert.deepEqual(entry.submission, { name: null, phone: '+370 (612) 34567', services: [], services_other: null,
+  assert.deepEqual(entry.submission, { name: null, phone: '+370 (612) 34567', email: null, preview_via: null, services: [], services_other: null,
     area: [], area_other: null, photos_ok: null, standout: null, contact_time: null, files: [] });
   assert.equal((await submit({ kind: 'callback_request', code: 'a2345' })).status, 200);
+});
+
+test('homepage preview with only an email and preview_via=email is accepted, lower-cased and published', async () => {
+  const response = await submit({ kind: 'preview_request', email: '  Rasa.Test@Example.LT ', preview_via: 'email' });
+  assert.equal(response.status, 200);
+  const entry = (await (await pull()).json()).events[0];
+  assert.equal(entry.code, null);
+  assert.equal(entry.type, 'preview_request');
+  assert.equal(entry.submission.phone, null);
+  assert.equal(entry.submission.email, 'rasa.test@example.lt');
+  assert.equal(entry.submission.preview_via, 'email');
+  assert.deepEqual(Object.keys(entry.submission).sort(), ['area', 'area_other', 'contact_time', 'email', 'files', 'name', 'phone',
+    'photos_ok', 'preview_via', 'services', 'services_other', 'standout']);
+});
+
+test('homepage email-only preview requires an explicit email channel', async () => {
+  for (const preview_via of ['', 'sms']) {
+    const denied = await submit({ kind: 'preview_request', email: 'a@b.lt', preview_via });
+    assert.equal(denied.status, 400);
+    assert.deepEqual(await denied.json(), { error: 'invalid', field: 'phone' });
+  }
+});
+
+test('email is validated after Unicode lower-casing and stored within the CRM contract limits', async () => {
+  const denied = await submit({ kind: 'preview_request', email: `${'İ'.repeat(125)}@a.lt`, preview_via: 'email' });
+  assert.equal(denied.status, 400);
+  assert.deepEqual(await denied.json(), { error: 'invalid', field: 'email' });
+  assert.equal((await submit({ kind: 'preview_request', email: `  ${'İ'.repeat(124)}X@a.lt  `, preview_via: 'email' })).status, 200);
+  const events = (await (await pull()).json()).events;
+  assert.equal(events.length, 1);
+  const stored = events[0].submission.email;
+  assert.equal(stored, `${'İ'.repeat(124)}X@a.lt`.toLowerCase());
+  assert.equal(stored.length, 254);
+  assert.match(stored, /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+});
+
+test('sms path is unchanged and may carry both channels; email never replaces the phone rule for callbacks', async () => {
+  assert.equal((await submit({ kind: 'preview_request', phone: '+37061234567', preview_via: 'sms' })).status, 200);
+  assert.equal((await submit({ kind: 'preview_request', code: 'p2345', phone: '+37061234567', email: 'a@b.lt', preview_via: 'sms' })).status, 200);
+  assert.equal((await submit({ kind: 'preview_request', code: 'p2345' })).status, 200);
+  const events = (await (await pull()).json()).events;
+  assert.deepEqual(events.map(e => [e.submission.email, e.submission.preview_via]), [[null, 'sms'], ['a@b.lt', 'sms'], [null, null]]);
+  const denied = await submit({ kind: 'callback_request', email: 'a@b.lt' });
+  assert.deepEqual(await denied.json(), { error: 'invalid', field: 'phone' });
+  assert.equal((await submit({ kind: 'callback_request', code: 'p2345', email: 'A@B.lt' })).status, 200);
+  assert.equal((await (await pull()).json()).events.at(-1).submission.email, 'a@b.lt');
+});
+
+test('rows stored before email/preview_via existed read as null for funnel kinds and untouched for site kinds', async () => {
+  const old = JSON.stringify({ name: 'Senas', phone: '12345678', services: [], services_other: null, area: [], area_other: null,
+    photos_ok: null, standout: null, contact_time: null, files: [] });
+  await db.batch([
+    db.prepare("INSERT INTO events(code, site, type, ua_class) VALUES ('p2345', NULL, 'preview_request', 'human')"),
+    db.prepare('INSERT INTO submissions(id, event_id, code, site, kind, at, ua_class, payload) SELECT ?, id, code, site, type, at, ua_class, ? FROM events WHERE id = last_insert_rowid()').bind('old-1', old),
+  ]);
+  const entry = (await (await pull()).json()).events[0];
+  assert.deepEqual(entry.submission, { ...JSON.parse(old), email: null, preview_via: null });
 });
 
 const invalidForms = [
@@ -416,7 +473,10 @@ const invalidForms = [
   ['area', { area: ['x'.repeat(61)] }], ['area', { area: Array.from({ length: 13 }, (_, n) => String(n)) }],
   ['area_other', { area_other: 'x'.repeat(201) }], ['photos_ok', { photos_ok: 'no' }],
   ['standout', { standout: 'x'.repeat(1001) }], ['contact_time', { contact_time: 'night' }],
-  ...['kind', 'code', 'name', 'phone', 'services_other', 'area_other', 'photos_ok', 'standout', 'contact_time'].map(field => [field, { [field]: ['x', 'y'] }]),
+  ['email', { email: 'nera-eta' }], ['email', { email: 'a@b' }], ['email', { email: 'a b@c.lt' }],
+  ['email', { email: `${'x'.repeat(250)}@a.lt` }], ['email', { preview_via: 'email' }],
+  ['preview_via', { preview_via: 'post' }], ['preview_via', { preview_via: 'SMS' }],
+  ...['kind', 'code', 'name', 'phone', 'email', 'preview_via', 'services_other', 'area_other', 'photos_ok', 'standout', 'contact_time'].map(field => [field, { [field]: ['x', 'y'] }]),
   ['files', { files: 'not a file' }],
 ];
 for (const [field, patch] of invalidForms) {
@@ -887,7 +947,7 @@ test('old event output retains exact fields and payload with only nullable site 
   assert.equal(entries[0].site, null);
   assert.deepEqual(Object.keys(entries[0]).sort(), ['at', 'code', 'id', 'site', 'type', 'ua_class']);
   assert.equal(entries[1].site, null);
-  assert.deepEqual(Object.keys(entries[1].submission).sort(), ['area', 'area_other', 'contact_time', 'files', 'name', 'phone', 'photos_ok', 'services', 'services_other', 'standout']);
+  assert.deepEqual(Object.keys(entries[1].submission).sort(), ['area', 'area_other', 'contact_time', 'email', 'files', 'name', 'phone', 'photos_ok', 'preview_via', 'services', 'services_other', 'standout']);
 });
 
 test('site storage failure retains CORS and no-JS fallback without publishing', async () => {
