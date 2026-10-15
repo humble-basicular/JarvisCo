@@ -1,0 +1,269 @@
+---
+/* The heating business site, filled from SiteData. `mode="preview"`: call
+   buttons jump to the form and the form posts nowhere (no tel:/sms: links, no
+   named inputs). `mode="live"`: tel:/sms: buttons send cta beacons and the
+   callback form posts to the Worker (offer-v2 spec §3); see client.js. */
+import clientScript from './client.js?raw';
+import { aboutText, faqList, headline, isMobile, lead, serviceList, standoutPoints, t, toE164 } from './content';
+import type { LiveSite, Mode, SiteData } from './types';
+
+interface Props { data: SiteData; mode: Mode; site?: LiveSite }
+const { data, mode, site } = Astro.props;
+const live = mode === 'live' && site ? site : undefined;
+const e164 = toE164(data.phone);
+const telHref = live && e164 ? `tel:${e164}` : '#uzklausa';
+const smsHref = live && isMobile(e164) ? `sms:${e164}` : undefined;
+const points = standoutPoints(data.standout);
+const [hero, ...gallery] = data.photos;
+const services = serviceList(data);
+const faq = faqList(data, Boolean(smsHref));
+const initials = data.business.split(/\s+/u).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const areas = data.areas.length ? data.areas : [data.city];
+const call = (cls: string, label: string) => ({ cls, label });
+---
+<header class="hs-top">
+  <div class="hs-wrap hs-top__bar">
+    <a class="hs-logo" href="#pradzia"><span class="hs-logo__mark" aria-hidden="true">{initials}</span><span class="hs-logo__name">{data.business}</span></a>
+    <nav class="hs-nav" aria-label="Svetainės skyriai">
+      <a href="#paslaugos">{t.navServices}</a>
+      <a href="#vietoves">{t.areasLabel}</a>
+      <a href="#duk">{t.faqLabel}</a>
+      <a href="#kontaktai">{t.navContact}</a>
+    </nav>
+    <a class="hs-btn hs-btn--sm" href={telHref} data-cta={live ? 'cta_call' : undefined}>{t.call}<span class="hs-btn__num"> {data.phone}</span></a>
+  </div>
+</header>
+
+<main id="pradzia">
+  <section class="hs-hero">
+    <div class="hs-wrap hs-hero__grid">
+      <div class="hs-hero__copy">
+        <p class="hs-eyebrow">{areas.slice(0, 4).join(' · ')}</p>
+        <h1>{headline(data)}</h1>
+        <p class="hs-hero__lead">{lead(data)}</p>
+        <div class="hs-hero__ctas">
+          <a class="hs-btn" href={telHref} data-cta={live ? 'cta_call' : undefined}>{t.call} {data.phone}</a>
+          <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leave}</a>
+          {smsHref && <a class="hs-link" href={smsHref} data-cta="cta_sms">{t.sms}</a>}
+        </div>
+      </div>
+      <dl class="hs-panel">
+        <div><dt>{t.phone}</dt><dd>{data.phone}</dd></div>
+        <div><dt>{t.areas}</dt><dd>{areas.join(', ')}</dd></div>
+        {data.hours && <div><dt>{t.hours}</dt><dd>{data.hours}</dd></div>}
+        {data.email && <div><dt>{t.email}</dt><dd>{data.email}</dd></div>}
+      </dl>
+    </div>
+    {hero && (
+      <div class="hs-wrap hs-hero__photo">
+        <img src={hero.src} width={hero.width} height={hero.height} alt={hero.alt ?? `${data.business} darbas`} fetchpriority="high" decoding="async" />
+      </div>
+    )}
+  </section>
+
+  {points.length > 0 && (
+    <section class="hs-facts" aria-label="Svarbiausia">
+      <ul class="hs-wrap hs-facts__list">
+        {points.map((p) => <li>{p}</li>)}
+      </ul>
+    </section>
+  )}
+
+  <section class="hs-sec" id="paslaugos" aria-labelledby="hs-services">
+    <div class="hs-wrap">
+      <header class="hs-head">
+        <p class="hs-label">{t.servicesLabel}</p>
+        <h2 id="hs-services">{t.servicesTitle}</h2>
+      </header>
+      <ol class="hs-services">
+        {services.map((s) => (
+          <li>
+            <h3>{s.name}</h3>
+            {s.text && <p>{s.text}</p>}
+          </li>
+        ))}
+      </ol>
+      {data.brands && data.brands.length > 0 && <p class="hs-brands"><strong>Dirbame su:</strong> {data.brands.join(', ')}</p>}
+    </div>
+  </section>
+
+  <section class="hs-sec hs-sec--band" id="uzklausa" aria-labelledby="hs-form-title">
+    <div class="hs-wrap hs-callback">
+      <div class="hs-callback__copy">
+        <p class="hs-label">{t.formLabel}</p>
+        <h2 id="hs-form-title">{t.formTitle}</h2>
+        <p>{t.formLead}</p>
+        {live ? (
+          <p class="hs-callback__tel">Arba skambinkite: <a href={telHref} data-cta="cta_call">{data.phone}</a></p>
+        ) : (
+          <p class="hs-callback__tel">Arba skambinkite: <strong>{data.phone}</strong></p>
+        )}
+      </div>
+
+      <div class="hs-formbox">
+        {live ? (
+          <form class="hs-form" action={live.formEndpoint} method="post" enctype="multipart/form-data" data-callback-form>
+            <input type="hidden" name="kind" value="site_inquiry" />
+            <input type="hidden" name="site" value={live.code} />
+            <div class="hs-hp" aria-hidden="true"><label for="hs-website">Svetainė</label><input id="hs-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+            <label for="hs-name">{t.name}</label>
+            <input id="hs-name" name="name" type="text" maxlength="80" autocomplete="name" />
+            <label for="hs-phone">{t.phoneField}</label>
+            <input id="hs-phone" name="phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" required pattern="[0-9 +\-\(\)]{8,20}" />
+            <label for="hs-message">{t.message}</label>
+            <textarea id="hs-message" name="message" rows="3" maxlength="2000"></textarea>
+            <label for="hs-files">{t.files}</label>
+            <input id="hs-files" name="files" type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/gif,application/pdf,.doc,.docx,.xls,.xlsx,.txt,text/plain" />
+            <p class="hs-form__hint">{t.filesHint}</p>
+            <button class="hs-btn hs-btn--block" type="submit">{t.submit}</button>
+            <p class="hs-form__legal">
+              Siųsdami formą, perduodate vardą, telefoną, žinutę ir pridėtus failus įmonei {data.business}. Duomenis jos vardu tvarko {`JarvisCo`}.
+              Plačiau: <a href="/privatumo-politika">{t.privacy.toLocaleLowerCase('lt')}</a>.
+            </p>
+            <div class="hs-form__error" data-form-error hidden role="alert">
+              <p data-form-error-text></p>
+              <p>{t.errorLead} <a href={telHref} data-cta="cta_call">{data.phone}</a></p>
+            </div>
+          </form>
+          <div class="hs-thanks" data-form-thanks hidden role="status">
+            <h3>{t.thanksTitle}</h3>
+            <p>{t.thanksText}</p>
+          </div>
+        ) : (
+          <form class="hs-form" action="#uzklausa" method="get" data-inert-form>
+            <label for="hs-name">{t.name}</label>
+            <input id="hs-name" type="text" autocomplete="off" />
+            <label for="hs-phone">{t.phoneField}</label>
+            <input id="hs-phone" type="tel" autocomplete="off" />
+            <label for="hs-message">{t.message}</label>
+            <textarea id="hs-message" rows="3"></textarea>
+            <label for="hs-files">{t.files}</label>
+            <input id="hs-files" type="file" disabled />
+            <p class="hs-form__hint">{t.filesHint}</p>
+            <button class="hs-btn hs-btn--block" type="submit">{t.submit}</button>
+            <p class="hs-form__legal" role="status" data-inert-status>{t.inert}</p>
+          </form>
+        )}
+      </div>
+    </div>
+  </section>
+
+  {gallery.length > 0 && (
+    <section class="hs-sec" id="darbai" aria-labelledby="hs-works">
+      <div class="hs-wrap">
+        <header class="hs-head">
+          <p class="hs-label">{t.worksLabel}</p>
+          <h2 id="hs-works">{t.worksTitle}</h2>
+        </header>
+        <ul class="hs-gallery">
+          {gallery.map((photo) => (
+            <li><img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt ?? `${data.business} darbas`} loading="lazy" decoding="async" /></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="hs-sec" id="apie" aria-labelledby="hs-about">
+    <div class="hs-wrap hs-split">
+      <header class="hs-head">
+        <p class="hs-label">{t.aboutLabel}</p>
+        <h2 id="hs-about">{data.business}</h2>
+      </header>
+      <div class="hs-prose"><p>{aboutText(data)}</p></div>
+    </div>
+  </section>
+
+  <section class="hs-sec hs-sec--rule" id="vietoves" aria-labelledby="hs-areas">
+    <div class="hs-wrap hs-split">
+      <header class="hs-head">
+        <p class="hs-label">{t.areasLabel}</p>
+        <h2 id="hs-areas">{t.areasTitle}</h2>
+      </header>
+      <ul class="hs-areas">{areas.map((a) => <li>{a}</li>)}</ul>
+    </div>
+  </section>
+
+  {data.reviews && data.reviews.length > 0 && (
+    <section class="hs-sec hs-sec--rule" id="zodis" aria-labelledby="hs-reviews">
+      <div class="hs-wrap">
+        <header class="hs-head">
+          <p class="hs-label">{t.reviewsLabel}</p>
+          <h2 id="hs-reviews">{t.reviewsLabel}</h2>
+        </header>
+        <ul class="hs-quotes">
+          {data.reviews.map((r) => (
+            <li><blockquote><p>{r.text}</p></blockquote><p class="hs-quotes__by">{r.name}{r.place ? `, ${r.place}` : ''}</p></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="hs-sec hs-sec--rule" id="duk" aria-labelledby="hs-faq">
+    <div class="hs-wrap">
+      <header class="hs-head">
+        <p class="hs-label">{t.faqLabel}</p>
+        <h2 id="hs-faq">{t.faqTitle}</h2>
+      </header>
+      <div class="hs-faq">
+        {faq.map((item) => (
+          <details>
+            <summary>{item.q}</summary>
+            <p>{item.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="hs-contact" id="kontaktai" aria-labelledby="hs-contact">
+    <div class="hs-wrap hs-contact__inner">
+      <div>
+        <p class="hs-label hs-label--inv">{t.contactLabel}</p>
+        <h2 id="hs-contact">{t.contactTitle}</h2>
+      </div>
+      <div class="hs-contact__body">
+        {live ? <a class="hs-contact__phone" href={telHref} data-cta="cta_call">{data.phone}</a> : <p class="hs-contact__phone">{data.phone}</p>}
+        <div class="hs-contact__ctas">
+          <a class="hs-btn" href={telHref} data-cta={live ? 'cta_call' : undefined}>{t.call}</a>
+          {smsHref && <a class="hs-btn hs-btn--inv" href={smsHref} data-cta="cta_sms">{t.sms}</a>}
+          <a class="hs-btn hs-btn--inv" href="#uzklausa">{t.leave}</a>
+        </div>
+        <ul class="hs-contact__rows">
+          <li><span>{t.areas}</span>{areas.join(', ')}</li>
+          {data.hours && <li><span>{t.hours}</span>{data.hours}</li>}
+          {data.email && <li><span>{t.email}</span>{live ? <a href={`mailto:${data.email}`}>{data.email}</a> : data.email}</li>}
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="hs-foot">
+  <div class="hs-wrap hs-foot__inner">
+    <p><strong>{data.business}</strong> · {data.phone}{data.legal?.code ? ` · įm. k. ${data.legal.code}` : ''}</p>
+    <p>
+      {live ? <a href="/privatumo-politika">{t.privacy}</a> : <span>{t.privacy}</span>}
+      · © {new Date().getFullYear()} {data.legal?.name ?? data.business} · {t.by} <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a>
+    </p>
+  </div>
+</footer>
+
+<div class="hs-dock" role="group" aria-label="Greiti veiksmai">
+  <a class="hs-btn" href={telHref} data-cta={live ? 'cta_call' : undefined}>{t.call}</a>
+  <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leave}</a>
+</div>
+
+{live ? <script is:inline set:html={clientScript}></script> : (
+  <script is:inline>
+    // Inputs have no name, so nothing leaves the page even without this script.
+    document.querySelector('[data-inert-form]')?.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var s = this.querySelector('[data-inert-status]');
+      var text = s.textContent;
+      s.textContent = '';
+      setTimeout(function () { s.textContent = text; }, 50);
+    });
+  </script>
+)}
