@@ -87,6 +87,15 @@
     ok(value('message')?.replace(/\r\n/g, '\n') === 'Katilo markė ir modelis: Vaillant ecoTEC\nKlaidos kodas: F28\n\nNeveikia katilas' && !last.brand && !last.code, 'brand/code composed into existing message contract');
     ok(last.files?.map(([, f]) => f.name).join() === 'katilas.jpg,lentele.heic' && last.files[1][1].type === 'image/heic', 'repeated file parts reach local stub with normalized HEIC MIME');
     ok(w.location.pathname.replace(/\/$/, '') === '/aciu' && !w.document.querySelector('[data-aciu-ok]').hidden, 'durable fake receipt navigates to thanks');
+    const receiptPath = w.location.pathname + w.location.search;
+    await go(receiptPath);
+    ok(!d.querySelector('[data-aciu-neutral]').hidden && d.querySelector('[data-aciu-ok]').hidden, 'consumed receipt cannot be replayed');
+    w.sessionStorage.setItem('hs-receipt:demo-silumos', 'received');
+    await go();
+    ok(!w.sessionStorage.getItem('hs-receipt:demo-silumos'), 'new inquiry clears earlier receipt');
+    await stub('status/500'); fill('phone', '060000000'); submit(); await wait(150);
+    await go('/aciu');
+    ok(!d.querySelector('[data-aciu-neutral]').hidden && d.querySelector('[data-aciu-ok]').hidden, 'later uncertain inquiry cannot reuse earlier success');
     w.sessionStorage.clear(); await go('/aciu');
     ok(!d.querySelector('[data-aciu-neutral]').hidden && d.querySelector('[data-aciu-ok]').hidden, 'direct thanks visit without receipt remains neutral');
     await go('/aciu?klaida=1');

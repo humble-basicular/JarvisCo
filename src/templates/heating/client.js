@@ -164,6 +164,11 @@
   }
   if (!liveSite || !beacon) return;
 
+  // A new inquiry must never inherit an earlier submission's confirmation.
+  var receiptKey = 'hs-receipt:' + liveSite;
+  function clearReceipt() { try { sessionStorage.removeItem(receiptKey); } catch (e) {} }
+  clearReceipt();
+
   /* ---- Submit ---- */
   var errorBox = form.querySelector('[data-form-error]');
   var errorText = form.querySelector('[data-form-error-text]');
@@ -195,6 +200,7 @@
   form.addEventListener('submit', function (event) {
     event.preventDefault();
     if (inFlight || uncertain) return;
+    clearReceipt();
     var fail = function (text, unknown) {
       uncertain = !!unknown;
       inFlight = false;
@@ -230,8 +236,10 @@
       })
       .then(function (r) {
         if (r.res.ok && r.json && r.json.ok) {
-          try { sessionStorage.setItem('hs-receipt:' + liveSite, 'received'); } catch (e) {}
-          location.assign('/aciu');
+          // Local navigation receipt, not server-side proof or an idempotency key.
+          var receipt = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+          try { sessionStorage.setItem(receiptKey, receipt); } catch (e) {}
+          location.assign('/aciu?receipt=' + encodeURIComponent(receipt));
         } else if (r.res.status >= 400 && r.res.status < 500) {
           fail(messages[r.json && r.json.error] ? messages[r.json.error] + ' ' + FAILED : FAILED);
         } else fail(UNKNOWN, true);

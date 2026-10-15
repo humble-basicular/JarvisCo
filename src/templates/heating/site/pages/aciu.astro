@@ -44,10 +44,15 @@ const telHref = tel ? `tel:${tel}` : undefined;
   </main>
   <script is:inline>
     (function () {
-      // Show success only with a local receipt; an explicit error query takes precedence.
+      // Match this navigation's local receipt and consume it; old visits cannot confirm new inquiries.
       var error = /[?&]klaida=1/.test(location.search);
       var received = false;
-      try { received = sessionStorage.getItem('hs-receipt:' + document.body.getAttribute('data-site')) === 'received'; } catch (e) {}
+      var receipt = new URLSearchParams(location.search).get('receipt');
+      try {
+        var key = 'hs-receipt:' + document.body.getAttribute('data-site');
+        received = !!receipt && receipt !== 'received' && sessionStorage.getItem(key) === receipt;
+        sessionStorage.removeItem(key);
+      } catch (e) {}
       // Direct visits and native redirects have no verifiable receipt: stay neutral.
       if (error || received) {
         document.querySelector('[data-aciu-neutral]').hidden = true;
