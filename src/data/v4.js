@@ -2,7 +2,7 @@
    copy is Jarvis's; every drafted line is listed in docs/COPY-DRAFT-V4.md.
    Honest wording rule (§1): every "0 €" claim says "iki pirmos užklausos, ne
    ilgiau kaip 3 mėn." and mentions the domain fee nearby. No rank guarantees,
-   no invented numbers, no testimonial text without Mantas's permission. */
+   no invented numbers, no testimonial text. */
 import { brand } from './content.js';
 
 /** Dates with non-breaking hyphens, so they never wrap mid-date. */
@@ -28,23 +28,19 @@ export const header = {
 export const hero = {
   home: {
     lines: ['Svetainė, kuri', 'nieko nekainuoja,', 'kol neatneša užklausos.'],
-    photo: 'NUOTRAUKA: telefonas su arbcut.lt ant nupjauto rąsto, baltame fone',
+    photoAlt: 'Mantas Gerulis dirba medžio lajoje',
   },
   heating: {
     stamp: 'Šildymo meistrams',
     lines: ['Svetainė šildymo meistrui,', 'kuri nieko nekainuoja,', 'kol neatneša užklausos.'],
-    photo: 'NUOTRAUKA: telefonas su šildymo pavyzdžiu šalia katilo ar radiatoriaus',
+    photoAlt: 'Šildymo meistro svetainės pavyzdys, mobilioji versija',
   },
   sub: [
     'Nemokama Jūsų svetainės peržiūra per 48 val. Paleidus svetainę mėnesio mokesčio nėra iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
     'Mokate tik už domeną (~15 € per metus), ir jis registruojamas Jūsų vardu.',
   ],
   sms: 'Parašyti SMS',
-  quote: {
-    photo: 'NUOTRAUKA: Mantas',
-    text: 'CITATA: vienas Manto sakinys jo paties žodžiais – tik gavus jo sutikimą.',
-    who: 'Mantas Gerulis, arboristas, Kaunas',
-  },
+
 };
 
 export const offerRow = [
@@ -57,6 +53,8 @@ export const offerRow = [
 export const proof = {
   label: 'Rezultatai',
   title: 'Kas vyksta arbcut.lt',
+  portraitAlt: 'Mantas Gerulis su grandininiu pjūklu',
+  portraitCaption: 'Mantas Gerulis, arboristas, Kaunas · arbcut.lt',
   text: 'arbcut.lt – arboristo svetainė Kaune, kurią sukūriau. Žemiau – tikros ekrano kopijos iš jos paskyrų: tik apkirptos, skaičiai nepakeisti.',
   gsc: {
     stats: [
@@ -83,11 +81,6 @@ export const proof = {
       { label: 'Rugpjūčio ekrano kopija', key: 'aug' },
       { label: 'Spalio ekrano kopija', key: 'oct' },
     ],
-  },
-  analytics: {
-    photo: 'EKRANO KOPIJA: Cloudflare Web Analytics, lankytojai per 3 mėn. (dar nepateikta)',
-    caption: 'Lankytojai svetainėje.',
-    meta: 'Šaltinis: Cloudflare Web Analytics · laukiama ekrano kopijos',
   },
   honest: 'Paspaudimai iš Google nėra užklausos: ne kiekvienas lankytojas parašo. Todėl rodau abu skaičius atskirai.',
   site: 'Atidaryti arbcut.lt',
@@ -123,17 +116,17 @@ export const examples = {
   text: 'Tikros svetainės, ne maketai. Šildymo pavyzdyje vardas ir duomenys išgalvoti.',
   items: [
     {
-      photo: 'NUOTRAUKA: ranka laiko telefoną su šildymo pavyzdžiu šalia katilo',
+      photoAlt: 'Šildymo meistro svetainės mobilioji ekrano kopija',
       title: 'Šildymo meistro svetainė',
       note: 'Pavyzdys',
       link: 'Žiūrėti pavyzdį',
       href: '/pavyzdys/sildymas',
     },
     {
-      photo: 'NUOTRAUKA: ranka laiko telefoną su arbcut.lt prie medžio',
+      photoAlt: 'arbcut.lt mobilioji ekrano kopija',
       title: 'arbcut.lt – arboristas, Kaunas',
       note: 'Veikianti svetainė',
-      link: 'Žiūrėti arbcut.lt',
+      link: 'Žiūrėti pavyzdį',
       href: 'https://arbcut.lt',
     },
   ],

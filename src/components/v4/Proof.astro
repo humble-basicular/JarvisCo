@@ -1,12 +1,8 @@
 ---
-/* "Kas vyksta arbcut.lt" (plan §4.2 item 4). Real dated screenshots, big and
-   straight, each with caption, date and source. Numbers and crops: see
-   src/assets/proof/PROVENANCE.md. Cloudflare Analytics is a marked slot until
-   Jarvis supplies the screenshot (no invented numbers). */
+/* Real dated screenshots and Mantas's approved portrait. Provenance below. */
 import { Image, getImage } from 'astro:assets';
 import { proof } from '@data/v4.js';
-import Head from './Head.astro';
-import Placeholder from './Placeholder.astro';
+import portrait from '@assets/arbcut/mantas-portretas.jpg';
 import gsc from '@assets/proof/arbcut-gsc-3m-2026-10-14.png';
 import aug from '@assets/proof/arbcut-web3forms-aug-2026-10-14.png';
 import sep from '@assets/proof/arbcut-web3forms-sep-2026-10-14.png';
@@ -20,17 +16,27 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
 ---
 <section class="sec proof" id="rezultatai" aria-labelledby="rezultatai-title">
   <div class="wrap">
-    <Head id="rezultatai-title" label={proof.label} title={proof.title} text={proof.text} />
+    <div class="proof__intro">
+      <div class="proof__text">
+        <p class="label">{proof.label}</p>
+        <h2 class="head__title" id="rezultatai-title"><span class="reveal-line" data-reveal>{proof.title}</span></h2>
+        <p class="head__text">{proof.text}</p>
+      </div>
+      <figure class="proof__person">
+        <Image src={portrait} alt={proof.portraitAlt} widths={[390, 640, 900]} sizes="(min-width: 64rem) 28rem, calc(100vw - 2.5rem)" format="webp" quality={82} loading="lazy" />
+        <figcaption>{proof.portraitCaption}</figcaption>
+      </figure>
+    </div>
 
     <figure class="shot" data-proof-anchor>
       <ul class="stats">{proof.gsc.stats.map((s) => <li><strong>{s.value}{s.unit && <small> {s.unit}</small>}</strong><span>{s.label}</span></li>)}</ul>
-      <a class="shot__img" href={full.gsc.src}><Image src={gsc} alt={proof.gsc.alt} widths={widths} sizes={sizes} format="webp" quality={80} /></a>
+      <a class="shot__img" href={full.gsc.src}><Image src={gsc} alt={proof.gsc.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
       <figcaption><span>{proof.gsc.caption}</span><span class="stamp stamp--plain shot__meta">{proof.gsc.meta}</span></figcaption>
     </figure>
 
     <figure class="shot">
       <ul class="stats">{proof.forms.stats.map((s) => <li><strong>{s.value}</strong><span>{s.label}</span></li>)}</ul>
-      <a class="shot__img" href={full.sep.src}><Image src={sep} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} /></a>
+      <a class="shot__img" href={full.sep.src}><Image src={sep} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
       <figcaption>
         <span>{proof.forms.caption}</span>
         <span class="stamp stamp--plain shot__meta">{proof.forms.meta}</span>
@@ -38,16 +44,18 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
       </figcaption>
     </figure>
 
-    <figure class="shot">
-      <Placeholder text={proof.analytics.photo} ratio="3758 / 1335" />
-      <figcaption><span>{proof.analytics.caption}</span><span class="stamp stamp--plain shot__meta">{proof.analytics.meta}</span></figcaption>
-    </figure>
-
     <p class="proof__honest">{proof.honest}</p>
   </div>
 </section>
 
 <style>
+  .proof__intro { display: grid; gap: 2.5rem; margin-bottom: clamp(3.5rem, 8vw, 6rem); }
+  .proof__text { display: grid; gap: 1.25rem; align-content: start; justify-items: start; }
+  .proof__person { margin: 0; max-width: 28rem; }
+  .proof__person :global(img) { width: 100%; height: auto; border: 1px solid var(--rule); }
+  .proof__person figcaption { margin-top: 0.75rem; color: var(--mute); font-size: 0.9375rem; }
+  @media (min-width: 64rem) { .proof__intro { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4rem; align-items: center; } }
+
   .shot { margin: 0 0 clamp(3.5rem, 8vw, 6rem); }
   .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 1.5rem; border-top: 1px solid var(--ink); }
   .stats li { display: grid; gap: 0.25rem; padding: 1rem 1rem 1rem 0; }

@@ -56,5 +56,18 @@ Figures shown on the page, and where each is visible:
 - Search Console, "3 months", chart axis 7/12/26 – 10/10/26 → period **2026-07-12 – 2026-10-10**: Total clicks **595**, Total impressions **11.9K** (shown "11,9 tūkst."; the exact count is not visible), Average CTR **5%**, Average position **8.1**. Search type: Web.
 - **The property name is not visible in the crop.** That this is arbcut.lt comes from Jarvis (he took it from his own login); **Jarvis to confirm before production.**
 - Web3Forms: form "ArbCut", "Created Apr 19, 2026" → **2026-04-19**; "Total Submissions" **28**; "Total Spam Blocked" **0**; chart tooltips "August 2026 · Submissions **7**", "September 2026 · Submissions **13**", "October 2026 · Submissions **1**" (October as of 2026-10-14, "Submissions this month 1 out of 250"). The 28 is Web3Forms's own total; it was not checked by hand for test submissions, so the page says "Web3Forms suskaičiavo 28 pateiktas formas".
-- Cloudflare Web Analytics: **not supplied**. The page shows a marked empty slot, no numbers.
+- Cloudflare Web Analytics: **not supplied**. The placeholder was removed on 2026-10-15; no analytics claim or numbers are shown.
 - Google clicks are not inquiries: the page states this and never adds the two figures together.
+
+
+## Jarvis review images (2026-10-15)
+Only crop/resize and Astro WebP encoding; no retouching, composites, AI images or pixel edits.
+
+| Asset | Source / capture | Permission / use |
+|---|---|---|
+| `../arbcut/mantas-portretas.jpg` (1705×2048) | Public `https://github.com/humble-basicular/ArbCutBetter/blob/main/public/assets/images/2b536cb7-4a17-4d5d-9cad-8733ba243b27.jpg`; staged by lead 2026-10-15, unchanged; see `../arbcut/SOURCE.md` | Mantas agrees, confirmed by Jarvis in T3 on 2026-10-15 ("jis sutinka"). Portrait beside ArbCut results; caption only, no quote. |
+| `../arbcut/mantas-lajoje.jpg` (900×1600) | Same repository, `public/assets/images/ed0b837c-a2f6-4e1b-bb5a-8f083686e565.jpg`; staged by lead 2026-10-15, unchanged | Same permission. Homepage hero, responsive crop with subject in frame. Real work makes the ArbCut example concrete. |
+| `arbcut-mobile-2026-10-15.png` (390×844) | `https://arbcut.lt/`, 2026-10-15; Google Chrome `--headless=new --hide-scrollbars`; CDP `Emulation.setDeviceMetricsOverride` (width 390, height 844, mobile true, DPR 1), `Page.captureScreenshot` (PNG, viewport only) after loading and `document.fonts.ready`; top viewport, no DOM edits, no form interaction | Jarvis's client; capture/use explicitly requested by Jarvis 2026-10-15. ArbCut example. |
+| `sildymas-mobile-2026-10-15.png` (390×844) | Local `/pavyzdys/sildymas` on `http://127.0.0.1:4335`, 2026-10-15; `npm run build` then `npx astro preview`; same headless Chrome/CDP mobile capture as above; top viewport, no DOM edits | Jarvis's own demo; capture/use explicitly requested by Jarvis. Heating example and heating hero (avoids implying the arborist is a heating client). |
+
+Jarvis's existing `../people/matas.webp` remains in “Apie”; unchanged, no new source copy.

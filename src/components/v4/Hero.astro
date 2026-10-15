@@ -1,10 +1,10 @@
 ---
-/* Hero (plan §4.2 item 2, Fervor): huge tight headline, two lines of honest
-   offer text, orange CTA + SMS link, one big object crossing the page (photo
-   slot until Jarvis supplies it), and Mantas's quote slot below the fold line. */
+/* Real client work on home; the actual heating demo on the trade page. */
+import { Image } from 'astro:assets';
 import { brand } from '@data/content.js';
 import { hero, MAIN_CTA } from '@data/v4.js';
-import Placeholder from './Placeholder.astro';
+import crown from '@assets/arbcut/mantas-lajoje.jpg';
+import heating from '@assets/proof/sildymas-mobile-2026-10-15.png';
 
 interface Props { variant?: 'home' | 'heating' }
 const { variant = 'home' } = Astro.props;
@@ -24,15 +24,11 @@ const v = hero[variant];
       </div>
     </div>
   </div>
-  <div class="hero__object" data-drift>
-    <Placeholder text={v.photo} ratio="21 / 8" class="hero__ph" />
-  </div>
-  <div class="wrap">
-    <figure class="hero__quote">
-      <Placeholder text={hero.quote.photo} ratio="1 / 1" class="hero__face" />
-      <blockquote><p>{hero.quote.text}</p></blockquote>
-      <figcaption>{hero.quote.who}</figcaption>
-    </figure>
+  <div class={`hero__object ${variant === 'heating' ? 'hero__object--screen' : ''}`}>
+    <Image src={variant === 'home' ? crown : heating} alt={v.photoAlt}
+      widths={variant === 'home' ? [390, 640, 900] : [320, 390]}
+      sizes={variant === 'home' ? '(min-width: 48rem) 82vw, calc(100vw - 1.25rem)' : '(min-width: 28rem) 390px, calc(100vw - 2.5rem)'}
+      format="webp" quality={82} loading="eager" />
   </div>
 </section>
 
@@ -45,17 +41,14 @@ const v = hero[variant];
   .hero__sub p { margin-bottom: 0.5rem; }
   .hero__ctas { display: grid; gap: 0.5rem; justify-items: start; align-content: start; }
   .hero__ctas .btn { width: 100%; }
-  .hero__object { margin-top: clamp(2.5rem, 6vw, 4rem); padding-left: var(--gutter); }
-  .hero__object :global(.hero__ph) { --ratio: 4 / 3; }
-  .hero__quote { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: 0.25rem 1rem; margin: 2.5rem 0 0; padding-top: 1.5rem; border-top: 1px solid var(--rule); max-width: 34rem; }
-  .hero__quote :global(.hero__face) { grid-row: span 2; width: 4rem; }
-  .hero__quote :global(.hero__face .ph__text) { display: none; }
-  .hero__quote blockquote { margin: 0; font-size: 1rem; line-height: 1.45; }
-  .hero__quote figcaption { font-size: 0.9375rem; color: var(--mute); }
+  .hero__object { margin-top: clamp(2.5rem, 6vw, 4rem); margin-left: var(--gutter); border: 1px solid var(--rule); }
+  .hero__object :global(img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: center 43%; }
+  .hero__object--screen { width: min(390px, calc(100% - 2 * var(--gutter))); margin-inline: auto; }
+  .hero__object--screen :global(img) { aspect-ratio: 390 / 844; object-fit: contain; }
   @media (min-width: 48rem) {
     .hero__ctas .btn { width: auto; }
-    .hero__object { margin-left: 18%; padding-left: 0; }
-    .hero__object :global(.hero__ph) { --ratio: 21 / 8; }
+    .hero__object:not(.hero__object--screen) { margin-left: 18%; }
+    .hero__object:not(.hero__object--screen) :global(img) { aspect-ratio: 21 / 8; }
   }
   @media (min-width: 64rem) {
     .hero__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; align-items: start; }
