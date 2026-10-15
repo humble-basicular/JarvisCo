@@ -482,7 +482,6 @@ export const funnel = {
     optional: '(nebūtina)',
     required: '(būtina)',
     submit: 'Gauti nemokamą peržiūrą',
-    callback: 'Nenoriu pildyti – paskambinkite man',
     sending: 'Siunčiama…',
     preparing: 'Ruošiamos nuotraukos…',
     privacy: 'Duomenis ir failus naudoju tik Jūsų peržiūrai paruošti ir susisiekti dėl jos.',

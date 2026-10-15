@@ -110,7 +110,7 @@ export const how = {
   title: 'Keturi žingsniai, mokate tik paskutiniame',
   text: 'Nuo formos iki veikiančios svetainės. Visą darbą darau pats.',
   steps: [
-    { title: 'Forma, 2 min.', text: 'Atsakote į kelis klausimus apie savo darbą. Arba paprašote, kad paskambinčiau.' },
+    { title: 'Forma, 2 min.', text: 'Atsakote į kelis klausimus apie savo darbą.' },
     { title: 'Peržiūra per 48 val.', text: 'Atsiunčiu nuorodą į Jūsų svetainės peržiūrą. Nepatinka – tiesiog neatsakote.' },
     { title: 'Domenas ir paleidimas', text: 'Patinka – registruoju domeną Jūsų vardu (~15 € per metus, mokate Jūs). Paleidžiu svetainę ir Google verslo profilį.' },
     { title: 'Mokate tik po pirmos užklausos', text: 'Mėnesio mokestis prasideda po pirmos tikros užklausos per svetainę, bet ne vėliau kaip po 3 mėn. nuo paleidimo.' },
@@ -195,7 +195,6 @@ export const steps = {
   next: 'Toliau',
   back: 'Atgal',
   skip: 'Praleisti',
-  callbackJump: 'Nenorite pildyti? Paskambinkite man',
   trade: {
     q: 'Kokia Jūsų sritis?',
     options: ['Šildymas', 'Santechnika', 'Medžių darbai', 'Stogai', 'Elektra', 'Statyba ir remontas', 'Aplinkos tvarkymas', 'Kita'],
@@ -231,6 +230,7 @@ export const steps = {
   },
   consent: 'Spausdami mygtuką sutinkate, kad šiuos duomenis ir failus naudočiau tik Jūsų peržiūrai paruošti ir susisiekti dėl jos.',
   callback: 'Paskambinkite man',
+  callbackNote: 'Arba paskambinsiu aš: įrašykite telefono numerį. Visus atsakymus matysiu.',
   composed: { trade: 'Sritis', years: 'Patirtis', yearsUnit: 'm.' },
   extraErrors: {
     photos_ok: 'Pasirinkite vieną variantą.',

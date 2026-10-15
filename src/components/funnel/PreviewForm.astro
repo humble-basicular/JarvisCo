@@ -68,7 +68,6 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
       <label for="pf-trade-other">{s.trade.otherLabel} <span class="pf__opt">{f.optional}</span></label>
       <input id="pf-trade-other" type="text" maxlength="60" form={NONE} />
     </div>
-    <a class="pf__jump" href="#pf-step-contact" data-goto-last>{s.callbackJump}</a>
   </fieldset>
 
   <fieldset class="pf__step" data-step>
@@ -140,7 +139,7 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
     </div>
   </fieldset>
 
-  <fieldset class="pf__step" data-step id="pf-step-contact">
+  <fieldset class="pf__step" data-step>
     <legend class="pf__q" tabindex="-1">{s.contact.q}</legend>
     <p class="pf__hint" data-code-note hidden>{s.contact.withCode}</p>
     <div class="pf__field">
@@ -206,6 +205,7 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
     </div>
 
     <p class="pf__consent">{s.consent} <a href={footer.privacy.href}>{footer.privacy.label}</a>.</p>
+    <p class="pf__hint pf__callnote">{s.callbackNote}</p>
     <div class="pf__send">
       <button class="btn btn--accent btn--big" type="submit" name="kind" value="preview_request">{MAIN_CTA}</button>
       <button class="btn btn--line btn--big" type="submit" name="kind" value="callback_request">{s.callback}</button>
@@ -285,7 +285,6 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
   .pf__list:empty { display: none; }
   .pf__err { color: var(--err); font-weight: 600; font-size: 0.9375rem; margin: 0.5rem 0 0; }
 
-  .pf__jump { display: inline-flex; align-items: center; min-height: 3rem; margin-top: 1.5rem; font-weight: 600; }
   .pf__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .pf__consent { font-size: 0.9375rem; color: var(--ink-2); max-width: 36rem; }
   .pf__consent a { display: inline-flex; align-items: center; min-height: 3rem; margin-block: -0.875rem; }
