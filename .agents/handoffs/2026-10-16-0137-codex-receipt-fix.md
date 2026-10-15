@@ -20,3 +20,6 @@ No deployment or real submissions. Local fake stubs only.
 Claude H1 review2: diff 46fe94a...2991682, focus prior objection. Claude H3/H4 retry: separate offer-v2-claude-showcase from 2991682; Codex WIP assets and script copied, original untouched. Parent owns shared board and final acceptance.
 ## Omitted context
 Shared CRM board last section; Drive hero/examples plan and website-design-report.
+
+## Parent verification after Claude review2
+Claude Sonnet5.5 medium APPROVED2991682. Parent T3 direct click verified actual phone focus hides dock at390×844; complete scripts/heating-browser-check.js now37/37PASS against current localhost4433. Receipt client-sites/h1-qa/parent-receipt-verification.json. Headless reviewer dock failure was not reproduced in T3. Lighthouse/deviceHEIC/liveWorker remain unverified. H3H4 Claude Opus5.5 stage remains active; next action is its completion notice, then Codex review/final acceptance/preview.
