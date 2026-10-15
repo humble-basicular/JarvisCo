@@ -1,3 +1,10 @@
+// Rows stored before offer-v2 §2.4 have no email/preview_via: read them as null on the two funnel kinds.
+function withEmailFields(type: Event['type'], submission: Submission | SiteSubmission): Submission | SiteSubmission {
+  if (type !== 'preview_request' && type !== 'callback_request') return submission;
+  const stored = submission as Submission;
+  return { ...stored, email: stored.email ?? null, preview_via: stored.preview_via ?? null };
+}
+
 interface Env {
   DB: D1Database;
   FILES: KVNamespace;
@@ -228,6 +235,8 @@ interface StoredFile { key: string; name: string; type: string; size: number }
 interface Submission {
   name: string | null;
   phone: string | null;
+  email: string | null;
+  preview_via: 'sms' | 'email' | null;
   services: string[];
   services_other: string | null;
   area: string[];
@@ -242,6 +251,7 @@ interface SiteSubmission {
   service: string | null; location: string | null; brand: string | null;
   contact_time: string | null; consent: boolean; files: StoredFile[];
 }
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MB = 1024 * 1024;
 // Bound the stream before parsing multipart; allow bounded multipart overhead.
 const MAX_FORM_BODY = 25 * MB + 64 * 1024;
@@ -295,13 +305,21 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
   const code = isSite ? '' : text('code');
   if (code === null || (code !== '' && !validCode(code))) return invalid('code');
   const values: Record<string, string> = {};
-  for (const [field, max] of Object.entries(isSite ? { name: 80, phone: 20, message: 2000, service: 120, location: 120, ...(kind === 'job_request' ? { brand: 60 } : {}) } : { name: 80, phone: 20, services_other: 200, area_other: 200, standout: 1000 })) {
+  for (const [field, max] of Object.entries(isSite ? { name: 80, phone: 20, message: 2000, service: 120, location: 120, ...(kind === 'job_request' ? { brand: 60 } : {}) } : { name: 80, phone: 20, email: 254, services_other: 200, area_other: 200, standout: 1000 })) {
     const value = text(field);
     if (value === null || [...value].length > max) return invalid(field);
     values[field] = value;
   }
   const phone = values.phone!;
-  if ((!code && !phone) || (phone && (!/^[0-9 +()\-]+$/.test(phone) || phone.replace(/\D/g, '').length < 8))) return invalid('phone');
+  // Optional on the two funnel kinds (spec offer-v2 §2.4); stored lower-case.
+  const email = (values.email ?? '').toLowerCase();
+  if (email && !EMAIL.test(email)) return invalid('email');
+  const via = isSite ? '' : text('preview_via');
+  if (via === null || !['', 'sms', 'email'].includes(via)) return invalid('preview_via');
+  if (via === 'email' && !email) return invalid('email');
+  // A homepage preview with only an email is reachable; every other no-code case still needs a phone.
+  const emailOnly = kind === 'preview_request' && !code && !phone && !!email && via !== 'sms';
+  if ((!code && !phone && !emailOnly) || (phone && (!/^[0-9 +()\-]+$/.test(phone) || phone.replace(/\D/g, '').length < 8))) return invalid('phone');
   const lists: Record<string, string[]> = {};
   for (const field of isSite ? [] : ['services', 'area']) {
     const entries = data.getAll(field);
@@ -381,6 +399,7 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
       contact_time: time || null, consent: consent === 'yes', files: descriptors,
     } : {
       name: values.name || null, phone: phone || null,
+      email: email || null, preview_via: (via || null) as Submission['preview_via'],
       services: lists.services!, services_other: values.services_other || null,
       area: lists.area!, area_other: values.area_other || null,
       photos_ok: photos || null, standout: values.standout || null, contact_time: time || null, files: descriptors,
@@ -499,7 +518,7 @@ async function events(request: Request, env: Env, url: URL): Promise<Response> {
   `).bind(since, retentionCutoff(new Date(Date.now())), high ?? '0', afterAt, afterAt, afterId, limit + 1).all<Event & { payload: string | null }>();
   const hasMore = result.results.length > limit;
   const page = result.results.slice(0, limit).map(({ payload, ...event }) =>
-    payload === null ? event : { ...event, submission: JSON.parse(payload) as Submission });
+    payload === null ? event : { ...event, submission: withEmailFields(event.type, JSON.parse(payload) as Submission) });
   const last = page.at(-1);
   return json({
     events: page,
