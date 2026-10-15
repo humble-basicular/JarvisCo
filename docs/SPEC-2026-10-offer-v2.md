@@ -62,6 +62,21 @@ This **extends** `SPEC-2026-10-preview-funnel.md`; everything there stays valid.
 - `GET /t/files/<key>` unchanged.
 - The live CRM parser rejects unknown types and fields, so the **CRM ships first**, then the Worker (same order as before).
 
+### 2.4 Email on the jarvisweb.lt preview form (Jarvis, 2026-10-15)
+
+Applies to the existing `preview_request` and `callback_request` kinds (funnel spec §4). Two new optional fields:
+
+| Field | Rule |
+|---|---|
+| `email` | ≤ 254 chars after trim, stored lower-case, must match `^[^\s@]+@[^\s@]+\.[^\s@]+$` |
+| `preview_via` | `sms`, `email` or empty: where the lead wants the preview link |
+
+- `preview_request`: `preview_via=email` requires `email` (`400 field:"email"`). `preview_via=sms` or empty keeps today's phone rule (phone required when `code` is empty). Without a code at least one way to reach them is required.
+- `callback_request`: unchanged (needs `code` or `phone`); `email` is stored when given.
+- Feed `submission` (funnel spec §5) gains `"email": "<string>|null"` and `"preview_via": "sms"|"email"|null`. Old rows without them are read as `null`.
+- CRM: show both on the lead's answers; the preview task note ends with "→ el. paštu {email}" when `preview_via=email`. A homepage submission with email only creates a new `site_form` lead (no email matching in v1). **No automatic email** anywhere: Jarvis sends the link by hand.
+- Order: CRM ships before the Worker emits these fields (the CRM parser is strict).
+
 ## 3. Client-site and lead-gen pages (V5, V7)
 
 - **Client site** (generated, V5): a prominent callback form "Palikite numerį, perskambinsiu" with name, phone, message, files → `kind=site_inquiry`, `site=<code>`, posted to `https://www.jarvisweb.lt/t/form` with `Accept: application/json`. Call/SMS buttons send the §2.2 beacons. Thank-you on the page; no automatic SMS. On any error the page shows the business's `tel:` link ("Paskambinkite tiesiai"). Privacy line: the business is the controller, JarvisCo processes the form for it. Previews (`/perziura/<slug>`) keep inert forms and send nothing.
