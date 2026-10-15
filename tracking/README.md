@@ -13,7 +13,7 @@ Both `jarvisweb.lt` and `www.jarvisweb.lt` have `/p/*` and `/t/*` Worker routes.
 
 ## Form submissions and attachments
 
-`POST /t/form` accepts `multipart/form-data` following spec §4. Text is trimmed; unknown fields are ignored. For the original funnel, required `kind` is `preview_request` or `callback_request`; `code` is a configured five-character proof code or empty. `phone` is required without a code, otherwise optional: at most 20 characters, only digits/spaces/`+ - ( )`, and at least eight digits when supplied. Other optional fields:
+`POST /t/form` accepts `multipart/form-data` following spec §4. Text is trimmed; unknown fields are ignored. For the original funnel, required `kind` is `preview_request` or `callback_request`; `code` is a configured five-character proof code or empty. `phone` is required without a code, otherwise optional: at most 20 characters, only digits/spaces/`+ - ( )`, and at least eight digits when supplied. Offer-v2 §2.4 adds two optional fields on both kinds: `email` (≤254 after trim, lower-cased, `^[^\s@]+@[^\s@]+\.[^\s@]+$`, else `400 field:"email"`) and `preview_via` (`sms`, `email` or empty, else `400 field:"preview_via"`). `preview_via=email` requires `email`. A homepage `preview_request` (no code) is accepted with a phone, or with an email unless `preview_via=sms`; `callback_request` still needs `code` or `phone`. Both are stored in the existing JSON payload (no migration); the feed emits `email` and `preview_via` (null when absent, also for rows stored before this change) on these two kinds only. Nothing is sent by email or SMS. Other optional fields:
 
 | Fields | Validation |
 |---|---|
@@ -74,7 +74,7 @@ Site budgets use atomic D1 transactions: 5 forms/minute and 30/UTC day per site,
 
 Feed IDs are persistent SQLite AUTOINCREMENT IDs encoded as decimal strings, shared by beacons, clicks and submissions. They are distinct from the UUID submission receipt/KV ID. Migration `0002_submissions.sql` preserves existing IDs and the AUTOINCREMENT high-water mark even when older rows have expired.
 
-The feed adds `preview_cta`, `preview_request`, and `callback_request`. Only the two form types may have `code:null` (homepage). Form entries carry `submission` with exactly `name`, `phone`, `services`, `services_other`, `area`, `area_other`, `photos_ok`, `standout`, `contact_time`, and `files`; optional empty text becomes null and missing lists stay `[]`. `files` contains `{key,name,type,size}` objects. Normal beacons/clicks do not carry `submission`. Every event includes `site:null` unless it belongs to an offer-v2 site. The envelope and cursor version remain unchanged.
+The feed adds `preview_cta`, `preview_request`, and `callback_request`. Only the two form types may have `code:null` (homepage). Form entries carry `submission` with exactly `name`, `phone`, `email`, `preview_via`, `services`, `services_other`, `area`, `area_other`, `photos_ok`, `standout`, `contact_time`, and `files`; optional empty text becomes null and missing lists stay `[]`. `files` contains `{key,name,type,size}` objects. Normal beacons/clicks do not carry `submission`. Every event includes `site:null` unless it belongs to an offer-v2 site. The envelope and cursor version remain unchanged.
 
 Deduplicate by `(Worker database identity, id)`; never deduplicate on timestamps, which can be equal. Events are sorted ascending by `(at, id)` and initial `since` is **inclusive**.
 
