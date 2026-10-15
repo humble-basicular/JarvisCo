@@ -17,7 +17,7 @@ type Messages = {
   sending: string;
   preparing: string;
   progress: string;
-  composed: { trade: string; years: string; yearsUnit: string };
+  composed: { trade: string; years: string; yearsUnit: string; profile: string };
   channel: { sms: string; email: string };
   labels: { required: string; optional: string };
 };
@@ -63,10 +63,9 @@ export function isEmail(value: string) {
 }
 
 /** "Sritis: Šildymas; Patirtis: 3–10 m." + free text, within the 1000-char limit. */
-export function composeStandout(trade: string, years: string, free: string, words = { trade: 'Sritis', years: 'Patirtis', yearsUnit: 'm.' }) {
+export function composeStandout(trade: string, years: string, free: string, words = { trade: 'Sritis', years: 'Patirtis', yearsUnit: 'm.', profile: 'Profilis' }, profile = '') {
   const head = [trade && `${words.trade}: ${trade}`, years && `${words.years}: ${years} ${words.yearsUnit}`].filter(Boolean).join('; ');
-  const head2 = head;
-  return [head2, free].filter(Boolean).join('\n').slice(0, 1000);
+  return [head, profile && `${words.profile}: ${profile}`, free].filter(Boolean).join('\n').slice(0, 1000);
 }
 
 function withType(file: File): File | null {
@@ -368,7 +367,7 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
         if (!WIRE_FIELDS.has(key) || typeof value !== 'string' || key === 'standout') continue;
         body.append(key, value.trim());
       }
-      body.append('standout', composeStandout(tradeValue(), selected(yearsInputs), String(new FormData(form).get('standout') ?? '').trim(), messages.composed));
+      body.append('standout', composeStandout(tradeValue(), selected(yearsInputs), String(new FormData(form).get('standout') ?? '').trim(), messages.composed, form.querySelector<HTMLInputElement>('[data-profile]')!.value.trim()));
       body.append('kind', kind);
       files.forEach((file) => body.append('files', file, file.name));
 

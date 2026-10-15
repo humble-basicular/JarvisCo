@@ -24,8 +24,8 @@ Rules applied: every "0 €" is followed by "iki pirmos užklausos, ne ilgiau ka
 | proof.forms.more | Rugpjūčio ekrano kopija · Spalio ekrano kopija | drafted |
 | proof.analytics | Lankytojai svetainėje. · Šaltinis: Cloudflare Web Analytics · laukiama ekrano kopijos | drafted (slot) |
 | proof.honest | Paspaudimai iš Google nėra užklausos: ne kiekvienas lankytojas parašo. Todėl rodau abu skaičius atskirai. | drafted |
-| compare.title / text | Paslaugos.lt ar sava svetainė · Kainų čia nelyginu. Tik tai, kas nutinka su užklausa. | drafted |
-| compare.rows | Kas mato užklausą: Užklausą gali matyti ir kiti meistrai. / Tik Jūs. · Kieno klientas: Klientas ieško platformoje ir renkasi iš sąrašo. / Klientas ieško Jūsų ir rašo tiesiai Jums. · Kas lieka, jei sustojate: Profilis priklauso platformai ir jos taisyklėms. / Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums. | drafted — **check the Paslaugos.lt claims against how it really works** |
+| compare.title / text | Katalogai ar sava svetainė · Katalogai ir svetainė gali veikti kartu. Štai kuo jie skiriasi. | Jarvis review 2026-10-15; source-neutral |
+| compare.cols / rows | Katalogai (Paslaugos.lt, 1551.lt…) / Jūsų svetainė · Kur Jus randa: Tarp kitų paslaugų teikėjų. / Atskirame Jūsų paslaugų puslapyje. · Kaip prisistatote: Profilis pagal katalogo struktūrą ir taisykles. / Jūsų paslaugos, darbų nuotraukos ir kontaktai vienoje vietoje. · Kas lieka, jei sustojate: Profilį tvarkote pagal katalogo taisykles. / Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums. | Jarvis review; no claim about shared inquiries |
 | how.title / text | Keturi žingsniai, mokate tik paskutiniame · Nuo formos iki veikiančios svetainės. Visą darbą darau pats. | drafted |
 | how.steps | Forma, 2 min. · Peržiūra per 48 val. · Domenas ir paleidimas · Mokate tik po pirmos užklausos (+ one sentence each, see v4.js) | §4.2 structure, drafted text |
 | examples | Kaip atrodytų Jūsų · Tikros svetainės, ne maketai. Šildymo pavyzdyje vardas ir duomenys išgalvoti. · Šildymo meistro svetainė / Pavyzdys / Žiūrėti pavyzdį · arbcut.lt – arboristas, Kaunas / Veikianti svetainė / Žiūrėti arbcut.lt | §4.2 title, rest drafted |
@@ -37,10 +37,15 @@ Rules applied: every "0 €" is followed by "iki pirmos užklausos, ne ilgiau ka
 | about | Matas, Kaunas · Svetaines kuriu pats ir atsakau pats. · Individuali veikla. Rašote ar skambinate – atsiliepiu aš, ne skambučių centras. · Skambinti +370 676 99395 | §4.2 line + drafted |
 | faq (7) | Darbo per valias, kam man? · Turėjau svetainę, nieko nedavė · Kas, jei neatneš užklausų? · Ar būsiu pirmas Google? · Kas, jei atsisakysiu? · Kodėl nemokamai pradžiai? · Neturiu nuotraukų ar logotipo — all answers drafted (see v4.js) | questions §4.2/§4.3 |
 | cta | Pažiūrėkite, kaip atrodytų Jūsų svetainė · Keli trumpi klausimai, apie 2 minutes. Peržiūrą atsiųsiu per 48 val. Nepatiks – tiesiog neatsakykite. | drafted |
-| steps (form) | Kokia Jūsų sritis? (Šildymas, Santechnika, Medžių darbai, Stogai, Elektra, Statyba ir remontas, Aplinkos tvarkymas, Kita) · Kokias paslaugas teikiate? · Kur dirbate? · Kiek metų dirbate šioje srityje? (Iki 3 / 3–10 / 10–20 / Daugiau nei 20 m.) · Kuo išsiskiriate? · Nuotraukos ir logotipas: Paimkite iš mano Paslaugos.lt profilio / Įkelsiu savo · Kur atsiųsti peržiūrą? · Paskambinkite man · Nenorite pildyti? Paskambinkite man · Klausimas N iš 6 · Toliau / Atgal | §4.3 order, drafted wording |
+| steps (form) | Kokia Jūsų sritis? (Šildymas, Santechnika, Medžių darbai, Stogai, Elektra, Statyba ir remontas, Aplinkos tvarkymas, Kita) · Kokias paslaugas teikiate? · Kur dirbate? · Kiek metų dirbate šioje srityje? (Iki 3 / 3–10 / 10–20 / Daugiau nei 20 m.) · Kuo išsiskiriate? · Nuotraukos ir logotipas: Paimkite nuotraukas iš mano profilio internete (Paslaugos.lt, 1551.lt ar kt.) / Įkelsiu savo · Profilio nuoroda (nebūtina) · Kur atsiųsti peržiūrą? · Paskambinkite man · Nenorite pildyti? Paskambinkite man · Klausimas N iš 6 · Toliau / Atgal | §4.3 order, drafted wording |
 | steps.consent | Spausdami mygtuką sutinkate, kad šiuos duomenis ir failus naudočiau tik Jūsų peržiūrai paruošti ir susisiekti dėl jos. Privatumo politika. | drafted |
 | steps.extraErrors | Pasirinkite vieną variantą. · …: nepavyko paruošti nuotraukos. Pabandykite kitą arba mažesnę. | drafted |
 | footer.line | Svetainės paslaugų meistrams. Kaunas, visa Lietuva. | drafted |
 | meta.home / meta.heating | titles + descriptions (see v4.js) | drafted |
 
 Unchanged from the funnel stage (`src/data/content.js` → `funnel.form`): field labels for name/phone/contact time, error texts, thank-you texts.
+
+## Jarvis review 2026-10-15 — source-neutral wording
+
+- FAQ „Neturiu nuotraukų ar logotipo“: „Nieko tokio. Su Jūsų leidimu paimsiu darbų nuotraukas iš Jūsų profilio internete (Paslaugos.lt, 1551.lt ar kt.), o vietoj logotipo bus tvarkingai užrašytas pavadinimas. Vėliau viską galima pakeisti.“
+- Optional „Profilio nuoroda“ is composed into `standout` as „Profilis: <url>“; no new wire field.

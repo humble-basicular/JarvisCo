@@ -131,6 +131,10 @@ const NONE = 'pf-none'; // no such form: these inputs are never submitted
     </div>
     <p class="pf__err" id="pf-photos_ok-err" data-error="photos_ok" hidden></p>
     <div class="pf__field pf__field--sub">
+      <label for="pf-profile">{s.photos.profile} <span class="pf__opt">{f.optional}</span></label>
+      <input id="pf-profile" type="text" maxlength="500" form={NONE} data-profile />
+    </div>
+    <div class="pf__field pf__field--sub">
       <label for="pf-files">{s.photos.files} <span class="pf__opt">{f.optional}</span></label>
       <p class="pf__hint" id="pf-files-hint">{s.photos.filesHint}</p>
       <input id="pf-files" class="pf__file" type="file" name="files" multiple accept={accept} aria-describedby="pf-files-hint pf-files-err" />

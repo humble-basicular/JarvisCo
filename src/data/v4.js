@@ -95,13 +95,13 @@ export const proof = {
 
 export const compare = {
   label: 'Palyginimas',
-  title: 'Paslaugos.lt ar sava svetainė',
-  text: 'Kainų čia nelyginu. Tik tai, kas nutinka su užklausa.',
-  cols: ['Paslaugos.lt', 'Jūsų svetainė'],
+  title: 'Katalogai ar sava svetainė',
+  text: 'Katalogai ir svetainė gali veikti kartu. Štai kuo jie skiriasi.',
+  cols: ['Katalogai (Paslaugos.lt, 1551.lt…)', 'Jūsų svetainė'],
   rows: [
-    { q: 'Kas mato užklausą', a: 'Užklausą gali matyti ir kiti meistrai.', b: 'Tik Jūs.' },
-    { q: 'Kieno klientas', a: 'Klientas ieško platformoje ir renkasi iš sąrašo.', b: 'Klientas ieško Jūsų ir rašo tiesiai Jums.' },
-    { q: 'Kas lieka, jei sustojate', a: 'Profilis priklauso platformai ir jos taisyklėms.', b: 'Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums.' },
+    { q: 'Kur Jus randa', a: 'Tarp kitų paslaugų teikėjų.', b: 'Atskirame Jūsų paslaugų puslapyje.' },
+    { q: 'Kaip prisistatote', a: 'Profilis pagal katalogo struktūrą ir taisykles.', b: 'Jūsų paslaugos, darbų nuotraukos ir kontaktai vienoje vietoje.' },
+    { q: 'Kas lieka, jei sustojate', a: 'Profilį tvarkote pagal katalogo taisykles.', b: 'Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums.' },
   ],
 };
 
@@ -178,7 +178,7 @@ export const faq = {
     { q: 'Ar būsiu pirmas Google?', a: 'To pažadėti negaliu, ir niekas sąžiningai negali. Padarau tai, kas priklauso nuo manęs: greita svetainė, puslapiai pagal paslaugas ir miestus, Google verslo profilis. Kaip sekasi, matysite mėnesio ataskaitoje.' },
     { q: 'Kas, jei atsisakysiu?', a: 'Parašote SMS arba paskambinate. Per bandomąjį laikotarpį tai nieko nekainuoja. Vėliau svetainė veikia iki apmokėto mėnesio pabaigos ir tada išjungiama. Domenas, Google profilis, Jūsų nuotraukos ir tekstai lieka Jums.' },
     { q: 'Kodėl nemokamai pradžiai?', a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Rizikuoju savo laiku: jei svetainė neatneša užklausų, nieko neuždirbu. Jūs mokate tik už domeną, ir jis lieka Jūsų vardu.' },
-    { q: 'Neturiu nuotraukų ar logotipo', a: 'Nieko tokio. Su Jūsų leidimu paimsiu darbų nuotraukas iš Jūsų Paslaugos.lt profilio, o vietoj logotipo bus tvarkingai užrašytas pavadinimas. Vėliau viską galima pakeisti.' },
+    { q: 'Neturiu nuotraukų ar logotipo', a: 'Nieko tokio. Su Jūsų leidimu paimsiu darbų nuotraukas iš Jūsų profilio internete (Paslaugos.lt, 1551.lt ar kt.), o vietoj logotipo bus tvarkingai užrašytas pavadinimas. Vėliau viską galima pakeisti.' },
   ],
 };
 
@@ -212,7 +212,8 @@ export const steps = {
   },
   photos: {
     q: 'Nuotraukos ir logotipas',
-    yes: 'Paimkite iš mano Paslaugos.lt profilio',
+    yes: 'Paimkite nuotraukas iš mano profilio internete (Paslaugos.lt, 1551.lt ar kt.)',
+    profile: 'Profilio nuoroda',
     own: 'Įkelsiu savo',
     files: 'Įkelkite nuotraukas ar logotipą',
     filesHint: 'Darbų nuotraukos, logotipas, kainoraštis. Iki 8 failų, iš viso iki 25 MB. Nuotraukas prieš siųsdamas sumažinu.',
@@ -231,7 +232,7 @@ export const steps = {
   consent: 'Spausdami mygtuką sutinkate, kad šiuos duomenis ir failus naudočiau tik Jūsų peržiūrai paruošti ir susisiekti dėl jos.',
   callback: 'Paskambinkite man',
   callbackNote: 'Arba paskambinsiu aš: įrašykite telefono numerį. Visus atsakymus matysiu.',
-  composed: { trade: 'Sritis', years: 'Patirtis', yearsUnit: 'm.' },
+  composed: { trade: 'Sritis', years: 'Patirtis', yearsUnit: 'm.', profile: 'Profilis' },
   extraErrors: {
     photos_ok: 'Pasirinkite vieną variantą.',
     contact_time: 'Pasirinkite vieną variantą.',
