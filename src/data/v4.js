@@ -4,9 +4,63 @@
    ilgiau kaip 3 mėn." and mentions the domain fee nearby. No rank guarantees,
    no invented numbers, no testimonial text. */
 import { brand } from './content.js';
+import arbcut from './arbcut-proof.json' with { type: 'json' };
 
 /** Dates with non-breaking hyphens, so they never wrap mid-date. */
 const d = (date) => date.replace(/-/g, '\u2011');
+
+/* arbcut.lt proof figures come only from arbcut-proof.json, which
+   scripts/proof-refresh.mjs writes from the screenshots it takes. Search
+   Console shows English figures ("11.9K", "5%", "8.1"); the page shows them
+   in Lithuanian notation without changing the value. */
+const MONTH_IN = ['sausį', 'vasarį', 'kovą', 'balandį', 'gegužę', 'birželį', 'liepą', 'rugpjūtį', 'rugsėjį', 'spalį', 'lapkritį', 'gruodį'];
+const MONTH_KEY = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const MONTH_GEN = ['Sausio', 'Vasario', 'Kovo', 'Balandžio', 'Gegužės', 'Birželio', 'Liepos', 'Rugpjūčio', 'Rugsėjo', 'Spalio', 'Lapkričio', 'Gruodžio'];
+const lt = (figure) => figure.replace('.', ',');
+const monthIndex = (ym) => Number(ym.slice(5, 7)) - 1;
+/** "11.9K" → {value: '11,9', unit: 'tūkst.'}; "573" → {value: '573'}. */
+function count(figure) {
+  const k = /^([\d.]+)K$/i.exec(figure);
+  return k ? { value: lt(k[1]), unit: 'tūkst.' } : { value: lt(figure) };
+}
+export function gscProof(g) {
+  const imp = count(g.impressions);
+  const ctr = lt(g.ctr).replace('%', ' %');
+  const pos = lt(g.position);
+  const impText = `${imp.value}${imp.unit ? ` ${imp.unit}` : ''}`;
+  return {
+    file: g.file,
+    stats: [
+      { ...count(g.clicks), label: 'paspaudimai iš Google paieškos' },
+      { ...imp, label: 'parodymų Google paieškoje' },
+      { value: ctr, label: 'vidutinis paspaudimų rodiklis' },
+      { value: pos, label: 'vidutinė pozicija' },
+    ],
+    alt: `Google Search Console ataskaita: ${lt(g.clicks)} paspaudimai, ${impText} parodymų, ${ctr} CTR, vidutinė pozicija ${pos}, laikotarpis ${g.from} – ${g.to}`,
+    caption: `Google paieška per 3 mėnesius, ${d(g.from)} – ${d(g.to)}.`,
+    meta: `Ekrano kopija ${d(g.captured)} · Šaltinis: Google Search Console`,
+  };
+}
+export function formsProof(f) {
+  const months = f.months.slice(-3);
+  const current = f.captured.slice(0, 7);
+  // The biggest month is the screenshot shown; the others open from links under it.
+  const main = months.reduce((a, b) => (b.submissions > a.submissions ? b : a));
+  return {
+    file: main.file,
+    stats: [
+      ...months.map((m) => ({
+        value: String(m.submissions),
+        label: m.month === current ? `${MONTH_IN[monthIndex(m.month)]} (iki ${Number(f.captured.slice(8, 10))} d.)` : MONTH_IN[monthIndex(m.month)],
+      })),
+      { value: String(f.total), label: `iš viso nuo ${d(f.created)}` },
+    ],
+    alt: `Web3Forms paskyra: forma ArbCut, iš viso ${f.total} pateiktos formos, ${f.spam} šlamšto, ${MONTH_IN[monthIndex(main.month)]} ${main.submissions}`,
+    caption: `Užklausos per svetainės formą. Web3Forms suskaičiavo ${f.total} pateiktas formas nuo ${d(f.created)}, kai forma buvo sukurta; šlamšto – ${f.spam}.`,
+    meta: `Ekrano kopija ${d(f.captured)} · Šaltinis: Web3Forms`,
+    more: months.filter((m) => m !== main).map((m) => ({ label: `${MONTH_GEN[monthIndex(m.month)]} ekrano kopija`, key: MONTH_KEY[monthIndex(m.month)], file: m.file })),
+  };
+}
 
 export const ZERO = '0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn.';
 export const DOMAIN = 'Domeną (~15 € per metus) apmokate Jūs, ir jis registruojamas Jūsų vardu.';
@@ -57,32 +111,8 @@ export const proof = {
   portraitCaption: 'Mantas Gerulis, arboristas, Kaunas',
   site: 'arbcut.lt',
   text: 'arbcut.lt – arboristo svetainė Kaune, kurią sukūriau. Žemiau – tikros ekrano kopijos iš jos paskyrų: tik apkirptos, skaičiai nepakeisti.',
-  gsc: {
-    stats: [
-      { value: '595', label: 'paspaudimai iš Google paieškos' },
-      { value: '11,9', unit: 'tūkst.', label: 'parodymų Google paieškoje' },
-      { value: '5 %', label: 'vidutinis paspaudimų rodiklis' },
-      { value: '8,1', label: 'vidutinė pozicija' },
-    ],
-    alt: 'Google Search Console ataskaita: 595 paspaudimai, 11,9 tūkst. parodymų, 5 % CTR, vidutinė pozicija 8,1, laikotarpis 2026-07-12 – 2026-10-10',
-    caption: `Google paieška per 3 mėnesius, ${d('2026-07-12')} – ${d('2026-10-10')}.`,
-    meta: `Ekrano kopija ${d('2026-10-14')} · Šaltinis: Google Search Console`,
-  },
-  forms: {
-    stats: [
-      { value: '7', label: 'rugpjūtį' },
-      { value: '13', label: 'rugsėjį' },
-      { value: '1', label: 'spalį (iki 14 d.)' },
-      { value: '28', label: `iš viso nuo ${d('2026-04-19')}` },
-    ],
-    alt: 'Web3Forms paskyra: forma ArbCut, iš viso 28 pateiktos formos, 0 šlamšto, rugsėjį 13',
-    caption: `Užklausos per svetainės formą. Web3Forms suskaičiavo 28 pateiktas formas nuo ${d('2026-04-19')}, kai forma buvo sukurta; šlamšto – 0.`,
-    meta: `Ekrano kopija ${d('2026-10-14')} · Šaltinis: Web3Forms`,
-    more: [
-      { label: 'Rugpjūčio ekrano kopija', key: 'aug' },
-      { label: 'Spalio ekrano kopija', key: 'oct' },
-    ],
-  },
+  gsc: gscProof(arbcut.gsc),
+  forms: formsProof(arbcut.forms),
   honest: 'Paspaudimai iš Google nėra užklausos: ne kiekvienas lankytojas parašo. Todėl rodau abu skaičius atskirai.',
   site: 'Atidaryti arbcut.lt',
 };

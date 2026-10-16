@@ -4,14 +4,15 @@ import { Image, getImage } from 'astro:assets';
 import { proof } from '@data/v4.js';
 import { arbcutProof } from '@data/content.js';
 import portrait from '@assets/arbcut/mantas-portretas.jpg';
-import gsc from '@assets/proof/arbcut-gsc-3m-2026-10-14.png';
-import aug from '@assets/proof/arbcut-web3forms-aug-2026-10-14.png';
-import sep from '@assets/proof/arbcut-web3forms-sep-2026-10-14.png';
-import oct from '@assets/proof/arbcut-web3forms-oct-2026-10-14.png';
+import { proofImage } from '@data/proof-images';
 
+// Screenshot files are named in arbcut-proof.json (scripts/proof-refresh.mjs).
+const gsc = proofImage(proof.gsc.file.replace(/\.\w+$/, ''));
+const forms = proofImage(proof.forms.file.replace(/\.\w+$/, ''));
 // Full-size copies: tapping a screenshot opens it (phones cannot read the small text).
 const big = (src: ImageMetadata) => getImage({ src, width: 2400, format: 'webp', quality: 85 });
-const full = { gsc: await big(gsc), sep: await big(sep), aug: await big(aug), oct: await big(oct) };
+const full = { gsc: await big(gsc), forms: await big(forms) };
+const more = await Promise.all(proof.forms.more.map(async (m) => ({ label: m.label, href: (await big(proofImage(m.file.replace(/\.\w+$/, '')))).src })));
 const widths = [640, 960, 1400, 2000];
 const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
 ---
@@ -37,11 +38,11 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
 
     <figure class="shot">
       <ul class="stats">{proof.forms.stats.map((s) => <li><strong>{s.value}</strong><span>{s.label}</span></li>)}</ul>
-      <a class="shot__img" href={full.sep.src}><Image src={sep} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
+      <a class="shot__img" href={full.forms.src}><Image src={forms} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
       <figcaption>
         <span>{proof.forms.caption}</span>
         <span class="stamp stamp--plain shot__meta">{proof.forms.meta}</span>
-        <span class="shot__more">{proof.forms.more.map((m) => <a class="link" href={full[m.key as 'aug' | 'oct'].src}>{m.label}</a>)}</span>
+        <span class="shot__more">{more.map((m) => <a class="link" href={m.href}>{m.label}</a>)}</span>
       </figcaption>
     </figure>
 

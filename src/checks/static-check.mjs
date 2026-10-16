@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { brand, form, arbcutProof, steps, funnel } from '../data/content.js';
 import { MAIN_CTA } from '../data/v4.js';
+import arbcut from '../data/arbcut-proof.json' with { type: 'json' };
 import { BEACON_ENDPOINT, EVENT_TYPES, FORM_ENDPOINT, STORAGE_KEY, TRACKING_PREFIXES } from '../data/tracking.js';
 import { pages, attr, text, normalized, nodes } from './html.mjs';
 
@@ -122,7 +123,8 @@ for (const route of ['/', '/sildymui', '/noriu']) {
   }
   check(el.some((node) => attr(node, 'data-proof-anchor') !== undefined), `${route}: proof beacon anchor missing`);
   check(el.some((node) => attr(node, 'href') === funnel.example.href), `${route}: example link missing`);
-  for (const proof of ['arbcut-gsc-3m', 'arbcut-web3forms-sep', 'arbcut-web3forms-aug', 'arbcut-web3forms-oct']) {
+  // Every screenshot named in arbcut-proof.json (scripts/proof-refresh.mjs) must be on the page.
+  for (const proof of [arbcut.gsc.file, ...arbcut.forms.months.slice(-3).map((m) => m.file)].map((f) => f.replace(/\.\w+$/, ''))) {
     check(el.some((node) => (attr(node, 'src') ?? attr(node, 'href') ?? '').includes(proof)), `${route}: proof screenshot ${proof} missing`);
   }
 }

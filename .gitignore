@@ -28,3 +28,6 @@ Thumbs.db
 /previews/*.json
 /public/previews/
 /client-sites/
+
+# proof-refresh.mjs run folders (raw page text, uncropped screenshots)
+/.proof-runs/
