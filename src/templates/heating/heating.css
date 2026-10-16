@@ -113,7 +113,8 @@ a.hs-top__call:hover { background: var(--accent-hover); }
 .hs-btn--field:hover { background: color-mix(in srgb, var(--hs-field-btn) 90%, var(--accent)); border-color: color-mix(in srgb, var(--hs-field-btn) 90%, var(--accent)); }
 .hs-btn--field .hs-btn__num { color: var(--hs-field-btn-num); }
 .hs-btn--outline { background: transparent; color: var(--on-accent); border-color: color-mix(in srgb, var(--on-accent) 70%, transparent); }
-.hs-btn--outline:hover { background: color-mix(in srgb, var(--on-accent) 10%, transparent); border-color: var(--on-accent); }
+/* --accent-hover moves away from the text colour (accent.ts), so hover never lowers contrast. */
+.hs-btn--outline:hover { background: var(--accent-hover); border-color: var(--on-accent); }
 .hs-btn--line { background: transparent; color: var(--ink); border-color: var(--ink); }
 .hs-btn--line:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
 .hs-btn--ghost { background: var(--paper); color: var(--ink); border: 1.5px dashed #8a9397; }
@@ -440,6 +441,7 @@ a.hs-foot__phone:hover { text-decoration: underline; text-decoration-thickness: 
 }
 .hs-dock .hs-btn { min-height: 3rem; padding-inline: 0.5rem; font-size: 1rem; }
 .hs-dock .hs-btn--line { background: #fff; }
+.hs-dock .hs-btn--line:hover { background: var(--ink); } /* same specificity as the rule above: keep the ink hover (white text) */
 .hs-dock.is-hidden { transform: translateY(110%); visibility: hidden; }
 
 /* Simple pages (thanks, privacy) */

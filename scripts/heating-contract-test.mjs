@@ -9,7 +9,7 @@ import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 import { normalize, validateSaved } from './preview/normalize.mjs';
 import { accentTokens, contrast, BG, INK } from '../src/templates/heating/accent.ts';
-import { CONTRAST_AUDIT as AUDIT, chrome, serve } from './heating-cdp.mjs';
+import { CONTRAST_AUDIT as AUDIT, chrome, serve, sleep } from './heating-cdp.mjs';
 
 let passed = 0;
 const check = (label, fn) => { fn(); passed++; console.log(`PASS ${label}`); };
@@ -140,6 +140,16 @@ for (const [name, accent] of Object.entries(FIXTURES)) {
   writeFileSync(input, JSON.stringify({ ...fixtureBase, slug: id, accent, photos }));
   const result = spawnSync(process.execPath, ['scripts/client-site.mjs', input, '--site', `accent-${name}`, '--domain', 'example.lt', '--test', 'http://localhost:4433', '--retain-build'], { cwd: root, encoding: 'utf8' });
   check(`accent ${name} (${accent}) client site builds`, () => assert.equal(result.status, 0, result.stderr));
+  check(`accent ${name}: test build is marked, noindex, robots-blocked and refused by deploy-check`, () => {
+    const dir = resolve('client-sites', id);
+    assert.ok(existsSync(resolve(dir, 'TEST-BUILD-DO-NOT-DEPLOY.txt')));
+    for (const page of ['index.html', 'privatumo-politika/index.html', 'aciu/index.html']) assert.match(readFileSync(resolve(dir, page), 'utf8'), /name="robots" content="noindex,nofollow"/, page);
+    assert.match(readFileSync(resolve(dir, 'index.html'), 'utf8'), /hs-banner__tag">TESTAS</);
+    assert.equal(readFileSync(resolve(dir, 'robots.txt'), 'utf8'), 'User-agent: *\nDisallow: /\n');
+    const verdict = spawnSync(process.execPath, ['scripts/client-site-deploy-check.mjs', dir], { cwd: root, encoding: 'utf8' });
+    assert.equal(verdict.status, 1, verdict.stdout);
+    assert.match(verdict.stderr, /TEST-BUILD-DO-NOT-DEPLOY/);
+  });
   // Same as above: inputs leave previews/ (renamed, not deleted) so the main build ignores them.
   const { renameSync } = await import('node:fs');
   renameSync(input, resolve(accentEvidence, `${name}-${id}.json`));
@@ -162,6 +172,19 @@ try {
           assert.ok(audit.checked > 80, `only ${audit.checked} elements measured`);
           assert.equal(audit.on, accentTokens(FIXTURES[name]).on);
           assert.equal(overflow, 0);
+        });
+        // Hover states: force :hover on every link/button/label (CDP), let transitions
+        // finish, then measure everything again.
+        await browser.cdp('DOM.enable');
+        await browser.cdp('CSS.enable');
+        const { root } = await browser.cdp('DOM.getDocument', { depth: -1 });
+        const { nodeIds } = await browser.cdp('DOM.querySelectorAll', { nodeId: root.nodeId, selector: 'a, button, label' });
+        for (const nodeId of nodeIds) await browser.cdp('CSS.forcePseudoState', { nodeId, forcedPseudoClasses: ['hover'] });
+        await sleep(400);
+        const hovered = await browser.evaluate(AUDIT);
+        check(`accent ${name} at ${vp.width}: ${nodeIds.length} hover states readable`, () => {
+          assert.ok(nodeIds.length > 10, `only ${nodeIds.length} hover targets`);
+          assert.deepEqual(hovered.fails, []);
         });
       }
     } finally { server.close(); }

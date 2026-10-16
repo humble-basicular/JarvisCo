@@ -30,11 +30,16 @@ interface Props {
   robots?: string;
   /** Live only: shown as data attributes the page script reads. */
   live?: { code: string; beacon: string; tel: string | null };
+  /** Local test build (client-site.mjs --test, stub endpoints): noindex everywhere + a visible TESTAS banner. Never deployed. */
+  testBuild?: boolean;
 }
-const { mode, title, description, business, banner, canonical, image, jsonLd, live } = Astro.props;
+const { mode, title, description, business, canonical, image, jsonLd, live, testBuild } = Astro.props;
+const banner: Banner | undefined = testBuild
+  ? { tag: 'TESTAS', note: 'Vietinis bandomasis variantas: forma siunčiama tik į bandomąjį serverį. Neskelbti.', href: '/', label: 'Pradžia' }
+  : Astro.props.banner;
 // Any #rrggbb is accepted: accentTokens() picks white or ink text (or darkens the field) so it stays readable.
 const colours = accentTokens(/^#[0-9a-f]{6}$/i.test(Astro.props.accent ?? '') ? Astro.props.accent! : DEFAULT_ACCENT);
-const robots = Astro.props.robots ?? (mode === 'preview' ? 'noindex,nofollow' : 'index,follow');
+const robots = testBuild ? 'noindex,nofollow' : Astro.props.robots ?? (mode === 'preview' ? 'noindex,nofollow' : 'index,follow');
 const mark = initials(business).replace(/[<>&"']/g, '');
 const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="${colours.field}"/><text x="32" y="43" font-family="Arial,sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="${colours.on}">${mark}</text></svg>`)}`;
 

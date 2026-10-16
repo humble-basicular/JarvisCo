@@ -50,6 +50,7 @@ const input = argv.find((a) => a.endsWith('.json'));
 const code = flag('site');
 const domain = flag('domain')?.toLowerCase();
 const test = flag('test');
+const TEST_MARKER = 'TEST-BUILD-DO-NOT-DEPLOY.txt';
 // Opt-in audit mode retains all staging artifacts and refuses existing output.
 const retainBuild = argv.includes('--retain-build');
 
@@ -126,7 +127,15 @@ try {
 }
 
 const index = readFileSync(join(target, 'index.html'), 'utf8');
-if (/noindex/i.test(index)) fail('built index.html is noindex');
+if (test) {
+  // Artifact-level guard: scripts/client-site-deploy-check.mjs refuses any folder with this marker.
+  writeFileSync(join(target, TEST_MARKER), 'Local test build with stub form endpoints. Never deploy this folder.\n');
+  if (!/name="robots" content="noindex,nofollow"/.test(index)) fail('test build index.html must be noindex');
+  if (!/Disallow: \/\n/.test(readFileSync(join(target, 'robots.txt'), 'utf8'))) fail('test build robots.txt must disallow everything');
+} else {
+  if (/noindex/i.test(index)) fail('built index.html is noindex');
+  if (/localhost|127\.0\.0\.1/.test(index)) fail('live build points at a local endpoint');
+}
 if (!index.includes(`<link rel="canonical" href="https://${domain}/">`)) fail('canonical missing in built index.html');
 for (const f of ['aciu/index.html', 'privatumo-politika/index.html', 'robots.txt', 'sitemap.xml']) if (!existsSync(join(target, f))) fail(`missing ${f}`);
 

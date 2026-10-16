@@ -2,12 +2,38 @@
 // Offline, deterministic chroma replacement. No browser, network or paid APIs.
 // See src/assets/hero/PROVENANCE.md. The source photograph is never rewritten.
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { basename, dirname, resolve } from 'node:path';
+import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { basename, dirname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 export const sha256 = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
+
+/* Every file this engine writes must land inside src/assets, be a regular file
+   (or not exist yet) and never alias an input: checked BEFORE anything is
+   written, through symlinked folders too (realpath of the nearest existing parent). */
+const ASSET_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'assets');
+export function outputPaths(output) {
+  if (!/\.png$/i.test(output)) throw new Error('Output must be a .png file');
+  const stem = output.replace(/\.png$/i, '');
+  return [output, `${stem}-alpha.png`, `${stem}-light.png`, `${stem}-receipt.json`];
+}
+function realOrParent(path) {
+  let p = path, tail = [];
+  while (!existsSync(p)) { tail.unshift(basename(p)); const up = dirname(p); if (up === p) break; p = up; }
+  return resolve(realpathSync(p), ...tail);
+}
+export function preflight({ source, capture, output }) {
+  for (const input of [source, capture]) if (lstatSync(input).isSymbolicLink()) throw new Error(`Input must not be a symlink: ${input}`);
+  const root = realpathSync(ASSET_ROOT);
+  const inputs = [realpathSync(source), realpathSync(capture)];
+  for (const file of outputPaths(output)) {
+    if (existsSync(file) && lstatSync(file).isSymbolicLink()) throw new Error(`Output must not be a symlink: ${file}`);
+    const real = realOrParent(file);
+    if (!real.startsWith(root + sep)) throw new Error(`Output must stay inside src/assets: ${file}`);
+    if (inputs.includes(real)) throw new Error(`Output would overwrite an input: ${file}`);
+  }
+}
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const median = (a) => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)];
 const round = (x) => +x.toFixed(4);
@@ -108,7 +134,7 @@ function smooth(field, w, h, radius) {
 
 export async function compositeScreen({ source, capture, output, sourceSha256, captureSha256, cropTop = 0, cropBottom = 0, bottomOcclusion = false }) {
   source = resolve(source); capture = resolve(capture); output = resolve(output);
-  if (output === source || output === capture) throw new Error('Output must not overwrite an input');
+  preflight({ source, capture, output });
   const beforeSource = sha256(source), beforeCapture = sha256(capture);
   if (!sourceSha256 || beforeSource !== sourceSha256) throw new Error('Source SHA-256 mismatch (or missing --source-sha)');
   if (!captureSha256 || beforeCapture !== captureSha256) throw new Error('Capture SHA-256 mismatch (or missing --capture-sha)');
@@ -244,6 +270,7 @@ export async function compositeScreen({ source, capture, output, sourceSha256, c
     if (result[q + 1] > 140 && result[q] < 64 && result[q + 2] < 64) residualGreen++;
   }
   if (outsideChanged || residualGreen) throw new Error(`Safety check failed: outside=${outsideChanged}, green=${residualGreen}`);
+  preflight({ source, capture, output }); // again, right before writing
   mkdirSync(dirname(output), { recursive: true });
   const stem = output.replace(/\.png$/i, '');
   await sharp(result, { raw: { width: w, height: h, channels: 3 } }).png().toFile(output);
