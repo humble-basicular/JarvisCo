@@ -6,7 +6,7 @@ import type { View } from '../view';
 
 interface Props { data: SiteData; v: View }
 const { data, v } = Astro.props;
-const { live, telHref, callCta, smsHref, areas, mark } = v;
+const { live, telHref, callCta, smsHref, areas, mark, logo } = v;
 const year = new Date().getFullYear();
 ---
 <footer class="hs-foot" id="kontaktai" aria-labelledby="hs-contact">
@@ -14,7 +14,7 @@ const year = new Date().getFullYear();
     <div class="hs-foot__main">
       <div>
         <p class="hs-label hs-label--inv">{t.contactLabel}</p>
-        <h2 id="hs-contact" class="hs-foot__name"><span class="hs-foot__mark" aria-hidden="true">{mark}</span>{data.business}</h2>
+        <h2 id="hs-contact" class="hs-foot__name">{logo ? <img class="hs-foot__mark hs-foot__mark--img" src={logo.src} width="44" height="44" alt="" /> : <span class="hs-foot__mark" aria-hidden="true">{mark}</span>}{data.business}</h2>
         {live ? <a class="hs-foot__phone" href={telHref} data-cta="cta_call">{data.phone}</a> : <p class="hs-foot__phone">{data.phone}</p>}
         <div class="hs-foot__ctas">
           <a class="hs-btn hs-btn--call" href={telHref} data-cta={callCta}>{t.call}</a>

@@ -8,6 +8,6 @@ import { pageDescription } from '../../templates/heating/content';
 
 const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: '/noriu', label: '← Grįžti' };
 ---
-<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} banner={banner}>
+<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} logo={demo.logo?.src} banner={banner}>
   <HeatingSite data={demo} mode="preview" />
 </HeatingLayout>

@@ -16,11 +16,12 @@ const tel = toE164(data.phone);
   title={`Privatumo politika – ${data.business}`}
   description={`${data.business}: kaip tvarkome užklausos formos duomenis.`}
   business={data.business}
+  logo={data.logo?.src}
   accent={data.accent}
   canonical={`https://${site.domain}/privatumo-politika`}
   live={{ code: site.code, beacon: site.beaconEndpoint, tel }}
 >
-  <SimpleTop business={data.business} phone={data.phone} tel={tel} />
+  <SimpleTop business={data.business} phone={data.phone} tel={tel} logo={data.logo?.src} />
   <main class="hs-wrap hs-page">
     <h1>Privatumo politika</h1>
     <h2>Kas tvarko duomenis</h2>

@@ -10,6 +10,10 @@ export interface SiteReview { text: string; name: string; place?: string; source
 /** One row of the price/terms table, e.g. {name: 'Iškvietimas Kaune', price: 'nuo 40 €'}. */
 export interface SitePrice { name: string; price: string; note?: string }
 
+/** The client's logo mark (square SVG/PNG, read on a light background). Replaces the
+ *  initials circle; `line` is a short descriptor set under the name in the header. */
+export interface SiteLogo { src: string; line?: string }
+
 export interface SiteData {
   slug: string;
   business: string;
@@ -32,6 +36,7 @@ export interface SiteData {
   priceNote?: string;
   /** #rrggbb brand colour; the template picks white or ink text on it (accent.ts). */
   accent?: string;
+  logo?: SiteLogo;
   reviews?: SiteReview[];
   faq?: { q: string; a: string }[];
   legal?: { name?: string; code?: string; address?: string };

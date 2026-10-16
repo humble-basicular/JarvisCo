@@ -19,7 +19,7 @@ import Inquiry from './parts/Inquiry.astro';
 interface Props { data: SiteData; mode: Mode; site?: LiveSite }
 const { data, mode, site } = Astro.props;
 const v = view(data, mode, site);
-const { live, telHref, callCta, smsHref, hero, works, spans, services, router, areas, mark, nav, pad } = v;
+const { live, telHref, callCta, smsHref, hero, works, spans, services, router, areas, mark, logo, nav, pad } = v;
 // Hours: in the proof list on phones (the top strip shows them on wide screens), in the identity card without a photo.
 const proof = v.proof.filter((p) => hero || p.label !== t.hours);
 const bareServices = services.every((s) => !s.text);
@@ -44,7 +44,10 @@ const SIZES = {
 </div>
 <header class="hs-top">
   <div class="hs-wrap hs-top__bar">
-    <a class="hs-logo" href="#pradzia"><span class="hs-logo__mark" aria-hidden="true">{mark}</span><span class="hs-logo__name">{data.business}</span></a>
+    <a class="hs-logo" href="#pradzia">
+      {logo ? <img class="hs-logo__mark hs-logo__mark--img" src={logo.src} width="44" height="44" alt="" /> : <span class="hs-logo__mark" aria-hidden="true">{mark}</span>}
+      <span class="hs-logo__text"><span class="hs-logo__name">{data.business}</span>{logo?.line && <span class="hs-logo__line">{logo.line}</span>}</span>
+    </a>
     <nav class="hs-nav" aria-label="Svetainės skyriai">
       {nav.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
@@ -88,7 +91,7 @@ const SIZES = {
       ) : (
         <aside class="hs-card" aria-label="Kontaktai">
           <div class="hs-card__head">
-            <span class="hs-card__mark" aria-hidden="true">{mark}</span>
+            {logo ? <img class="hs-card__mark hs-card__mark--img" src={logo.src} width="56" height="56" alt="" /> : <span class="hs-card__mark" aria-hidden="true">{mark}</span>}
             <p class="hs-card__name">{data.business}</p>
           </div>
           <dl class="hs-card__rows">

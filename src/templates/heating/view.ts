@@ -33,6 +33,7 @@ export function view(data: SiteData, mode: Mode, site?: LiveSite) {
     faq: faqList(data),
     areas,
     mark: initials(data.business),
+    logo: data.logo,
     h1,
     /** Long generated headlines step the display size down instead of stacking single words. */
     h1Length: h1.length > 52 ? 'long' : h1.length > 36 ? 'mid' : 'short',

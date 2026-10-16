@@ -18,12 +18,13 @@ const telHref = tel ? `tel:${tel}` : undefined;
   title={`Užklausa – ${data.business}`}
   description={`${data.business}: užklausa.`}
   business={data.business}
+  logo={data.logo?.src}
   accent={data.accent}
   canonical={`https://${site.domain}/aciu`}
   robots="noindex,follow"
   live={{ code: site.code, beacon: site.beaconEndpoint, tel }}
 >
-  <SimpleTop business={data.business} phone={data.phone} tel={tel} />
+  <SimpleTop business={data.business} phone={data.phone} tel={tel} logo={data.logo?.src} />
   <main class="hs-wrap hs-page">
     <div data-aciu-neutral>
       <p class="hs-label">Užklausa</p>

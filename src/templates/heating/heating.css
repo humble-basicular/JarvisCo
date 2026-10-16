@@ -87,6 +87,9 @@ html:has(.hs) { scroll-behavior: smooth; scroll-padding-bottom: 5.5rem; }
   flex: none; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%;
   background: var(--accent); color: var(--on-accent); font: 700 1.3125rem/1 var(--cond); letter-spacing: 0.02em;
 }
+.hs-logo__mark--img, .hs-card__mark--img, .hs-foot__mark--img { display: block; object-fit: contain; background: none; }
+.hs-logo__text { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.hs-logo__line { font: 600 0.8125rem/1.1 var(--cond); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* Long business names wrap to two lines rather than being cut off. */
 .hs-logo__name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font: 700 1.375rem/1.05 var(--cond); }
 .hs-nav { display: none; }

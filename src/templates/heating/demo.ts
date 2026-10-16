@@ -11,6 +11,7 @@ import radiator from './assets/demo-radiator-1280.webp?url';
 import radiatorSmall from './assets/demo-radiator-768.webp?url';
 import underfloor from './assets/demo-underfloor-1280.webp?url';
 import underfloorSmall from './assets/demo-underfloor-768.webp?url';
+import logo from './assets/demo-logo.svg?url';
 import room from './assets/demo-boiler-room-1280.webp?url';
 import roomSmall from './assets/demo-boiler-room-768.webp?url';
 
@@ -19,6 +20,7 @@ export const demo: SiteData = {
   demo: true,
   business: 'Šilumos ratas',
   phone: '+370 600 00000',
+  logo: { src: logo, line: 'Šildymo meistrai · Kaunas' },
   city: 'Kaunas',
   areas: ['Kaunas', 'Kauno r.', 'Garliava', 'Akademija', 'Raudondvaris', 'Karmėlava'],
   services: [
