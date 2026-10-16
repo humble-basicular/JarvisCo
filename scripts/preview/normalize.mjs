@@ -50,14 +50,12 @@ export function validateSubmission(sub) {
   };
 }
 
-/** #rrggbb whose white-text contrast is at least 4.5:1 (buttons are white on accent). */
+/** Any #rrggbb brand colour. The template keeps it readable: white or ink text on
+ *  it, darkened only when neither reaches 4.5:1 (src/templates/heating/accent.ts). */
 export function accent(value) {
   const v = text(value, 'accent', 7);
   if (!v) return undefined;
   if (!/^#[0-9a-f]{6}$/i.test(v)) throw new Error('accent must be #rrggbb');
-  const lin = (i) => { const c = parseInt(v.slice(i, i + 2), 16) / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
-  const l = 0.2126 * lin(1) + 0.7152 * lin(3) + 0.0722 * lin(5);
-  if (1.05 / (l + 0.05) < 4.5) throw new Error(`accent ${v} is too light for white text (needs 4.5:1)`);
   return v.toLowerCase();
 }
 

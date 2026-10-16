@@ -1,96 +1,135 @@
 ---
-/* Sections after the work photos, shared by both directions and rendered only
-   from supplied facts: about + qualifications, prices, areas + hours, real
-   reviews, FAQ. Each direction styles them through its own body class. */
+/* The middle of the page as one dense block on paper, rendered only from
+   supplied facts: About (identity panel, the client's text, counted facts,
+   qualifications), then prices beside areas + hours, then real reviews.
+   FAQ follows on white. */
 import { t } from '../content';
 import type { SiteData } from '../types';
 import type { View } from '../view';
 
 interface Props { data: SiteData; v: View }
 const { data, v } = Astro.props;
-const { live, areas, faq } = v;
+const { live, areas, faq, facts, mark, telHref, services } = v;
+// Lettered on the panel like on a van door: the first service names, short ones only.
+const livery = services.map((s) => s.name.replace(/\s*\([^)]*\)/gu, '')).filter((n) => n.length <= 34).slice(0, 4);
+const hasAbout = Boolean(data.about) || (data.qualifications?.length ?? 0) > 0;
+const hasPrices = (data.prices?.length ?? 0) > 0;
+const hasReviews = (data.reviews?.length ?? 0) > 0;
+const PIN = '<path d="M12 21s-6.5-6.1-6.5-11a6.5 6.5 0 0 1 13 0c0 4.9-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.25"/>';
 ---
-{(Boolean(data.about) || (data.qualifications?.length ?? 0) > 0) && (
-  <section class="hs-sec hs-sec--rule" id="apie" aria-labelledby="hs-about">
-    <div class="hs-wrap hs-split">
-      <header class="hs-head">
-        <p class="hs-label">{t.aboutLabel}</p>
-        <h2 id="hs-about">{data.business}</h2>
-      </header>
-      <div class="hs-split__body">
-        {data.about && <p class="hs-prose">{data.about}</p>}
-        {data.qualifications && data.qualifications.length > 0 && (
-          <div class="hs-quals">
-            <h3>{t.qualificationsTitle}</h3>
-            <ul class="hs-ticks">{data.qualifications.map((q) => <li>{q}</li>)}</ul>
-          </div>
-        )}
-      </div>
-    </div>
-  </section>
-)}
+<div class="hs-sec hs-middle">
+  <div class="hs-wrap hs-middle__stack">
+    {hasAbout && (
+      <section class="hs-about" id="apie" aria-labelledby="hs-about">
+        <div class="hs-livery" aria-hidden="true">
+          <span class="hs-livery__mark">{mark}</span>
+          <ul class="hs-livery__svc">{livery.map((s) => <li>{s}</li>)}</ul>
+          <p class="hs-livery__name">{data.business}</p>
+          <p class="hs-livery__areas">{areas.slice(0, 3).join(' · ')}</p>
+          <p class="hs-livery__phone">{data.phone}</p>
+        </div>
+        <div class="hs-about__body">
+          <p class="hs-label">{t.aboutLabel}</p>
+          <h2 id="hs-about">{data.business}</h2>
+          {data.about && <p class="hs-prose">{data.about}</p>}
+          {facts.length > 0 && (
+            <ul class="hs-facts">
+              {facts.map((f) => (
+                <li>
+                  <span class="hs-facts__n">{f.n}</span>
+                  <span class="hs-facts__label">{f.label}</span>
+                  {f.detail && <span class="hs-facts__detail">{f.detail}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+          {data.qualifications && data.qualifications.length > 0 && (
+            <div class="hs-quals">
+              <h3>{t.qualificationsTitle}</h3>
+              <ul class="hs-ticks">{data.qualifications.map((q) => <li>{q}</li>)}</ul>
+            </div>
+          )}
+        </div>
+      </section>
+    )}
 
-{data.prices && data.prices.length > 0 && (
-  <section class="hs-sec hs-sec--rule" id="kainos" aria-labelledby="hs-prices">
-    <div class="hs-wrap hs-split">
-      <header class="hs-head">
-        <p class="hs-label">{t.pricesLabel}</p>
-        <h2 id="hs-prices">{data.demo ? 'Pavyzdinės kainos ir sąlygos' : t.pricesTitle}</h2>
-      </header>
-      <div class="hs-split__body">
-        <table class="hs-prices">
-          <tbody>
-            {data.prices.map((p) => (
-              <tr>
-                <th scope="row">{p.name}{p.note && <span class="hs-prices__note">{p.note}</span>}</th>
-                <td>{p.price}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {data.priceNote && <p class="hs-prices__foot">{data.priceNote}</p>}
-      </div>
-    </div>
-  </section>
-)}
-
-<section class="hs-sec hs-sec--rule" id="vietoves" aria-labelledby="hs-areas">
-  <div class="hs-wrap hs-split">
-    <header class="hs-head">
-      <p class="hs-label">{t.areasLabel}</p>
-      <h2 id="hs-areas">{data.hours ? t.areasTitle : t.areasLabel}</h2>
-    </header>
-    <div class="hs-split__body">
-      <ul class="hs-areas">{areas.map((a) => <li>{a}</li>)}</ul>
-      {data.hours && <p class="hs-areas__hours"><span class="hs-proof__label">{t.hours}</span>{data.hours}</p>}
-      <p class="hs-areas__note">{t.areasUnsure}</p>
-    </div>
-  </div>
-</section>
-
-{data.reviews && data.reviews.length > 0 && (
-  <section class="hs-sec hs-sec--rule" id="zodis" aria-labelledby="hs-reviews">
-    <div class="hs-wrap">
-      <header class="hs-head">
-        <p class="hs-label">{t.reviewsLabel}</p>
-        <h2 id="hs-reviews">{t.reviewsTitle}</h2>
-      </header>
-      <ul class="hs-quotes">
-        {data.reviews.map((r) => (
-          <li>
-            <blockquote><p>{r.text}</p></blockquote>
-            <p class="hs-quotes__by">
-              {r.name}{r.place ? `, ${r.place}` : ''}
-              {(r.source || r.date) && <span class="hs-quotes__src"> · {r.url && live ? <a href={r.url} rel="noopener">{r.source ?? r.url}</a> : r.source}{r.date ? ` ${r.date}` : ''}</span>}
+    <div class:list={['hs-terms', !hasPrices && 'hs-terms--solo']}>
+      {hasPrices && (
+        <section class="hs-panel hs-panel--prices" id="kainos" aria-labelledby="hs-prices">
+          <p class="hs-label">{t.pricesLabel}</p>
+          <h2 id="hs-prices">{data.demo ? 'Pavyzdinės kainos ir sąlygos' : t.pricesTitle}</h2>
+          <table class="hs-prices">
+            <tbody>
+              {data.prices!.map((p) => (
+                <tr>
+                  <th scope="row">{p.name}{p.note && <span class="hs-prices__note">{p.note}</span>}</th>
+                  <td>{p.price}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {data.priceNote && (
+            <p class="hs-prices__foot">
+              <svg class="hs-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+              <span>{data.priceNote}</span>
             </p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
-)}
+          )}
+        </section>
+      )}
 
-<section class="hs-sec hs-sec--rule" id="duk" aria-labelledby="hs-faq">
+      <section class="hs-panel hs-panel--areas" id="vietoves" aria-labelledby="hs-areas">
+        <header class="hs-panel__head">
+          <p class="hs-label">{t.areasLabel}</p>
+          <h2 id="hs-areas">{data.hours ? t.areasTitle : t.areasLabel}</h2>
+        </header>
+        <div class="hs-panel__body">
+        <div class="hs-panel__cols">
+          <div>
+            <h3 class="hs-mini">{t.areas}</h3>
+            <ul class="hs-areas">
+              {areas.map((a) => (
+                <li class:list={[a === data.city && 'is-base']}>
+                  {a === data.city && <svg class="hs-ico" viewBox="0 0 24 24" aria-hidden="true" set:html={PIN}></svg>}
+                  {a}
+                </li>
+              ))}
+            </ul>
+          </div>
+          {data.hours && (
+            <div class="hs-hours">
+              <h3 class="hs-mini">{t.hours}</h3>
+              <p class="hs-hours__text">{data.hours}</p>
+            </div>
+          )}
+        </div>
+        <p class="hs-areas__note">{t.areasUnsure} <a class="hs-arrow" href={live ? telHref : '#uzklausa'} data-cta={live ? 'cta_call' : undefined}>{live ? data.phone : t.leave}</a></p>
+        </div>
+      </section>
+    </div>
+
+    {hasReviews && (
+      <section class="hs-reviews" id="zodis" aria-labelledby="hs-reviews">
+        <header class="hs-head">
+          <p class="hs-label">{t.reviewsLabel}</p>
+          <h2 id="hs-reviews">{t.reviewsTitle}</h2>
+        </header>
+        <ul class="hs-quotes">
+          {data.reviews!.map((r) => (
+            <li>
+              <blockquote><p>{r.text}</p></blockquote>
+              <p class="hs-quotes__by">
+                {r.name}{r.place ? `, ${r.place}` : ''}
+                {(r.source || r.date) && <span class="hs-quotes__src"> · {r.url && live ? <a href={r.url} rel="noopener">{r.source ?? r.url}</a> : r.source}{r.date ? ` ${r.date}` : ''}</span>}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </div>
+</div>
+
+<section class="hs-sec hs-sec--white" id="duk" aria-labelledby="hs-faq">
   <div class="hs-wrap hs-split">
     <header class="hs-head">
       <p class="hs-label">{t.faqLabel}</p>

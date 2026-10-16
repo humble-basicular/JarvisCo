@@ -1,14 +1,21 @@
 ---
-/* TEMPORARY (2026-10-16 design review): the heating demo in direction B ("Livery").
-   noindex like every /pavyzdys page and kept out of the sitemap. Remove or promote
-   once Jarvis picks a direction. */
-import HeatingLayout from '../../templates/heating/HeatingLayout.astro';
-import HeatingSite from '../../templates/heating/HeatingSite.astro';
-import { demo } from '../../templates/heating/demo';
-import { pageDescription } from '../../templates/heating/content';
-
-const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: '/noriu', label: '← Grįžti' };
+/* RETIRED 2026-10-16: direction B became the only heating template, shown at
+   /pavyzdys/sildymas. This old review URL only forwards there now (noindex,
+   like every /pavyzdys page); the lead removes this file (listed in the handoff). */
 ---
-<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys B`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} banner={banner} direction="b">
-  <HeatingSite data={demo} mode="preview" direction="b" />
-</HeatingLayout>
+<!doctype html>
+<html lang="lt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta http-equiv="refresh" content="0;url=/pavyzdys/sildymas" />
+    <title>Pavyzdys perkeltas</title>
+  </head>
+  <body>
+    <main>
+      <h1>Pavyzdys perkeltas</h1>
+      <p><a href="/pavyzdys/sildymas">Atidaryti šildymo meistro svetainės pavyzdį</a></p>
+    </main>
+  </body>
+</html>

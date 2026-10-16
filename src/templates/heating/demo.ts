@@ -6,9 +6,13 @@ import installed from './assets/demo-boiler-installed-1536.webp?url';
 import installedMid from './assets/demo-boiler-installed-1024.webp?url';
 import installedSmall from './assets/demo-boiler-installed-768.webp?url';
 import service from './assets/demo-boiler-service-1280.webp?url';
+import serviceSmall from './assets/demo-boiler-service-768.webp?url';
 import radiator from './assets/demo-radiator-1280.webp?url';
+import radiatorSmall from './assets/demo-radiator-768.webp?url';
 import underfloor from './assets/demo-underfloor-1280.webp?url';
+import underfloorSmall from './assets/demo-underfloor-768.webp?url';
 import room from './assets/demo-boiler-room-1280.webp?url';
+import roomSmall from './assets/demo-boiler-room-768.webp?url';
 
 export const demo: SiteData = {
   slug: 'sildymas',
@@ -39,9 +43,9 @@ export const demo: SiteData = {
   priceNote: 'Tiksli remonto kaina – nustačius gedimą ir suderinus su Jumis. Detalės skaičiuojamos atskirai.',
   photos: [
     { src: installed, srcset: `${installedSmall} 768w, ${installedMid} 1024w, ${installed} 1536w`, width: 1536, height: 1024, alt: 'Sieninis katilas ir variniai vamzdžiai. DI sukurta pavyzdinė iliustracija.' },
-    { src: service, width: 1280, height: 853, alt: 'Katilo priežiūros įrankiai. DI iliustracija, ne atliktas darbas.' },
-    { src: radiator, width: 1254, height: 1254, alt: 'Radiatorius gyvenamajame kambaryje. DI iliustracija, ne atliktas darbas.' },
-    { src: underfloor, width: 1280, height: 853, alt: 'Grindinio šildymo vamzdžiai. DI iliustracija, ne atliktas darbas.' },
-    { src: room, width: 1254, height: 1254, alt: 'Namo katilinės įranga. DI iliustracija, ne atliktas darbas.' },
+    { src: service, srcset: `${serviceSmall} 768w, ${service} 1280w`, width: 1280, height: 853, alt: 'Katilo priežiūros įrankiai. DI iliustracija, ne atliktas darbas.' },
+    { src: radiator, srcset: `${radiatorSmall} 768w, ${radiator} 1254w`, width: 1254, height: 1254, alt: 'Radiatorius gyvenamajame kambaryje. DI iliustracija, ne atliktas darbas.' },
+    { src: underfloor, srcset: `${underfloorSmall} 768w, ${underfloor} 1280w`, width: 1280, height: 853, alt: 'Grindinio šildymo vamzdžiai. DI iliustracija, ne atliktas darbas.' },
+    { src: room, srcset: `${roomSmall} 768w, ${room} 1254w`, width: 1254, height: 1254, alt: 'Namo katilinės įranga. DI iliustracija, ne atliktas darbas.' },
   ],
 };

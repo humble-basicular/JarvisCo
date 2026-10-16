@@ -59,6 +59,10 @@ export const t = {
   pricesTitle: 'Kainos ir sąlygos',
   areasLabel: 'Kur dirbame',
   areasTitle: 'Vietovės ir darbo laikas',
+  areasBase: 'Bazė',
+  galleryDemoLabel: 'Nuotraukos',
+  galleryDemoTitle: 'Šildymas iš arčiau',
+  gallerySwipe: 'Nuotraukos, slinkite į šoną',
   areasUnsure: 'Nerandate savo vietovės? Paskambinkite arba palikite užklausą – pasakysime, ar atvyksime.',
   reviewsLabel: 'Klientų žodis',
   reviewsTitle: 'Ką sako klientai',
@@ -120,6 +124,16 @@ const upperFirst = (s: string) => s.charAt(0).toLocaleUpperCase('lt') + s.slice(
 export const joinList = (items: string[]) => items.join(', ');
 /** "a, b ir c" */
 export const andList = (items: string[]) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} ir ${items.at(-1)}`);
+
+/** Lithuanian count forms: 1 paslauga, 2–9 paslaugos, 10–20 (and …0) paslaugų, 21 paslauga. */
+export function plural(n: number, [one, few, many]: [string, string, string]): string {
+  const d = n % 10, h = n % 100;
+  if (d === 1 && h !== 11) return one;
+  if (d >= 2 && h < 10 || d >= 2 && h > 20) return few;
+  return many;
+}
+/** "a, b, c ir kt." for a short preview of a longer list. */
+const preview = (items: string[]) => (items.length > 3 ? `${items.slice(0, 3).join(', ')} ir kt.` : andList(items));
 
 export function serviceList(data: SiteData): { name: string; text: string }[] {
   return data.services.map((s): { name: string; text: string } => {
@@ -213,6 +227,18 @@ export function pageTitle(data: SiteData): string {
 
 export function pageDescription(data: SiteData): string {
   return `${lead(data)} Tel. ${data.phone}.`.slice(0, 300);
+}
+
+/** Counted facts for the About block, all read from the data (areas, brands, services): never invented. */
+export function aboutFacts(data: SiteData): { n: number; label: string; detail: string }[] {
+  const areas = data.areas.length ? data.areas : [data.city];
+  const names = serviceList(data);
+  const facts = [
+    ...(areas.length > 1 ? [{ n: areas.length, label: plural(areas.length, ['vietovė', 'vietovės', 'vietovių']), detail: preview(areas) }] : []),
+    ...(data.brands?.length ? [{ n: data.brands.length, label: plural(data.brands.length, ['markė', 'markės', 'markių']), detail: preview(data.brands) }] : []),
+    { n: names.length, label: plural(names.length, ['paslauga', 'paslaugos', 'paslaugų']), detail: '' },
+  ];
+  return facts.length >= 2 ? facts : [];
 }
 
 /** Symptom-first entry points (report §4 wireframe 4). Only for services the site really lists. */

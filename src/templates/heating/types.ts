@@ -30,7 +30,7 @@ export interface SiteData {
   prices?: SitePrice[];
   /** One line under the price table, e.g. what is agreed separately. */
   priceNote?: string;
-  /** #rrggbb, white text on it must reach 4.5:1 (checked by the generator). */
+  /** #rrggbb brand colour; the template picks white or ink text on it (accent.ts). */
   accent?: string;
   reviews?: SiteReview[];
   faq?: { q: string; a: string }[];
@@ -51,8 +51,5 @@ export interface LiveSite {
 }
 
 export type Mode = 'preview' | 'live';
-
-/** Design direction under review: A "Editorial" (default) or B "Livery". */
-export type Direction = 'a' | 'b';
 
 export interface Banner { tag: string; note: string; href: string; label: string }

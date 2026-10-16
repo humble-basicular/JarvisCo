@@ -37,7 +37,7 @@ Then edit the texts in `previews/<slug>.json` if needed (they are plain JSON) an
 | `email` | string | Optional, shown in the contact block |
 | `hours` | string | Optional, ≤ 120 chars |
 | `brands` | string[] | Optional, ≤ 10. Only brands the client named |
-| `accent` | `#rrggbb` | Optional brand colour; refused when white text on it is below 4.5:1 |
+| `accent` | `#rrggbb` | Optional brand colour, any shade. The template puts white or ink text on it, whichever reaches 4.5:1, and darkens it only when neither does (`src/templates/heating/accent.ts`) |
 | `legal` | `{name, code, address}` | Optional, shown in footer, privacy page and schema |
 | `reviews` | `{text, name, place?, source?, url?, date?}[]` | Optional, ≤ 6. Real quotes only; the section is hidden without them |
 | `faq` | `{q, a}[]` | Optional, ≤ 8, appended to the standard questions |

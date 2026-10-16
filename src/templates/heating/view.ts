@@ -1,8 +1,16 @@
-/* Everything both design directions derive from SiteData + mode, computed once.
+/* Everything the heating page derives from SiteData + mode, computed once.
    `mode="preview"`: call links jump to the form and nothing dials; `mode="live"`:
    tel:/sms: links carry cta beacons (client.js). */
-import { faqList, headline, initials, isMobile, lead, proofItems, routes, serviceList, t, toE164 } from './content';
+import { aboutFacts, faqList, headline, initials, isMobile, lead, proofItems, routes, serviceList, t, toE164 } from './content';
 import type { LiveSite, Mode, SiteData } from './types';
+
+/** Gallery tiles on a 6-column grid (wide screens): rows of three, and when
+ *  the count does not divide by three the last two or four photos go in
+ *  pairs, so no row is left with a gap (4 → 2×2, 5 → 3+2, 7 → 3+2+2). */
+export function gallerySpans(n: number): ('third' | 'half')[] {
+  const rest = n % 3;
+  return Array.from({ length: n }, (_, i) => ((rest === 2 && i >= n - 2) || (rest === 1 && i >= n - 4) ? 'half' : 'third'));
+}
 
 export function view(data: SiteData, mode: Mode, site?: LiveSite) {
   const live = mode === 'live' && site ? site : undefined;
@@ -17,9 +25,11 @@ export function view(data: SiteData, mode: Mode, site?: LiveSite) {
     smsHref: live && isMobile(e164) ? `sms:${e164}` : undefined,
     hero,
     works,
+    spans: gallerySpans(works.length),
     services: serviceList(data),
     router: routes(data),
     proof: proofItems(data),
+    facts: aboutFacts(data),
     faq: faqList(data),
     areas,
     mark: initials(data.business),
@@ -29,7 +39,7 @@ export function view(data: SiteData, mode: Mode, site?: LiveSite) {
     lead: lead(data),
     nav: [
       { href: '#paslaugos', label: t.navServices },
-      ...(works.length ? [{ href: '#darbai', label: data.demo ? 'Nuotraukos' : t.navWorks }] : []),
+      ...(works.length ? [{ href: '#darbai', label: data.demo ? t.galleryDemoLabel : t.navWorks }] : []),
       { href: '#vietoves', label: t.navAreas },
       { href: '#kontaktai', label: t.navContact },
     ],
