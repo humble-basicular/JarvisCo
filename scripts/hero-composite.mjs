@@ -2,7 +2,7 @@
 // Offline, deterministic chroma replacement. No browser, network or paid APIs.
 // See src/assets/hero/PROVENANCE.md. The source photograph is never rewritten.
 import { createHash } from 'node:crypto';
-import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { lstatSync, mkdirSync, readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -11,27 +11,44 @@ export const sha256 = (file) => createHash('sha256').update(readFileSync(file)).
 
 /* Every file this engine writes must land inside src/assets, be a regular file
    (or not exist yet) and never alias an input: checked BEFORE anything is
-   written, through symlinked folders too (realpath of the nearest existing parent). */
+   written. Links are inspected with lstat, so dangling links count as present;
+   inputs are compared by device+inode, so case-variant names and hardlinks of
+   an input are caught (realpath strings miss both on macOS). */
 const ASSET_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'assets');
 export function outputPaths(output) {
   if (!/\.png$/i.test(output)) throw new Error('Output must be a .png file');
   const stem = output.replace(/\.png$/i, '');
   return [output, `${stem}-alpha.png`, `${stem}-light.png`, `${stem}-receipt.json`];
 }
-function realOrParent(path) {
+const lstatOrNull = (path) => lstatSync(path, { throwIfNoEntry: false }) ?? null;
+// Nearest present entry (dangling links included) plus the missing tail below it.
+function nearestEntry(path) {
   let p = path, tail = [];
-  while (!existsSync(p)) { tail.unshift(basename(p)); const up = dirname(p); if (up === p) break; p = up; }
-  return resolve(realpathSync(p), ...tail);
+  while (!lstatOrNull(p)) { tail.unshift(basename(p)); const up = dirname(p); if (up === p) break; p = up; }
+  return { p, tail };
 }
-export function preflight({ source, capture, output }) {
-  for (const input of [source, capture]) if (lstatSync(input).isSymbolicLink()) throw new Error(`Input must not be a symlink: ${input}`);
-  const root = realpathSync(ASSET_ROOT);
-  const inputs = [realpathSync(source), realpathSync(capture)];
+export function preflight({ source, capture, output }, assetRoot = ASSET_ROOT) {
+  for (const input of [source, capture]) {
+    const stat = lstatSync(input);
+    if (stat.isSymbolicLink()) throw new Error(`Input must not be a symlink: ${input}`);
+    if (!stat.isFile()) throw new Error(`Input must be a regular file: ${input}`);
+  }
+  for (const dir of [dirname(assetRoot), assetRoot]) {
+    const stat = lstatOrNull(dir);
+    if (!stat?.isDirectory()) throw new Error(`src/assets must be a real directory, not a symlink: ${dir}`);
+  }
+  const root = realpathSync(assetRoot);
+  const inputs = [statSync(source), statSync(capture)];
   for (const file of outputPaths(output)) {
-    if (existsSync(file) && lstatSync(file).isSymbolicLink()) throw new Error(`Output must not be a symlink: ${file}`);
-    const real = realOrParent(file);
+    const { p, tail } = nearestEntry(file);
+    const stat = lstatSync(p);
+    if (stat.isSymbolicLink()) throw new Error(`Output must not be or pass through a symlink: ${file}`);
+    const real = resolve(realpathSync(p), ...tail);
     if (!real.startsWith(root + sep)) throw new Error(`Output must stay inside src/assets: ${file}`);
-    if (inputs.includes(real)) throw new Error(`Output would overwrite an input: ${file}`);
+    if (!tail.length) {
+      if (!stat.isFile()) throw new Error(`Output must be a regular file: ${file}`);
+      if (inputs.some((input) => input.dev === stat.dev && input.ino === stat.ino)) throw new Error(`Output would overwrite an input: ${file}`);
+    }
   }
 }
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -132,9 +149,10 @@ function smooth(field, w, h, radius) {
   return a;
 }
 
-export async function compositeScreen({ source, capture, output, sourceSha256, captureSha256, cropTop = 0, cropBottom = 0, bottomOcclusion = false }) {
+// assetRoot exists for the guard regressions (temp fixtures); the CLI never sets it.
+export async function compositeScreen({ source, capture, output, sourceSha256, captureSha256, cropTop = 0, cropBottom = 0, bottomOcclusion = false, assetRoot = ASSET_ROOT }) {
   source = resolve(source); capture = resolve(capture); output = resolve(output);
-  preflight({ source, capture, output });
+  preflight({ source, capture, output }, assetRoot);
   const beforeSource = sha256(source), beforeCapture = sha256(capture);
   if (!sourceSha256 || beforeSource !== sourceSha256) throw new Error('Source SHA-256 mismatch (or missing --source-sha)');
   if (!captureSha256 || beforeCapture !== captureSha256) throw new Error('Capture SHA-256 mismatch (or missing --capture-sha)');
@@ -270,7 +288,7 @@ export async function compositeScreen({ source, capture, output, sourceSha256, c
     if (result[q + 1] > 140 && result[q] < 64 && result[q + 2] < 64) residualGreen++;
   }
   if (outsideChanged || residualGreen) throw new Error(`Safety check failed: outside=${outsideChanged}, green=${residualGreen}`);
-  preflight({ source, capture, output }); // again, right before writing
+  preflight({ source, capture, output }, assetRoot); // again, right before writing
   mkdirSync(dirname(output), { recursive: true });
   const stem = output.replace(/\.png$/i, '');
   await sharp(result, { raw: { width: w, height: h, channels: 3 } }).png().toFile(output);
