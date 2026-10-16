@@ -67,12 +67,7 @@ check('saved image dimensions are validated', () => assert.throws(() => validate
     assert.ok((html.match(/<img [^>]*srcset="[^"]*768w/g) ?? []).length === 5, 'every image has a 768w source');
   });
   check('demo: single template, no direction-A markup', () => assert.doesNotMatch(html, /class="[^"]*\bhs-[ab]\b/));
-  check('old /pavyzdys/sildymas-b review URL redirects to the demo', () => {
-    const b = readFileSync('dist/pavyzdys/sildymas-b/index.html', 'utf8');
-    assert.match(b, /http-equiv="refresh" content="\d+;url=\/pavyzdys\/sildymas"/);
-    assert.match(b, /name="robots" content="noindex,nofollow"/);
-    assert.doesNotMatch(b, /hs-hero/);
-  });
+  check('no leftover direction-B review route', () => assert.ok(!existsSync('dist/pavyzdys/sildymas-b/index.html')));
 }
 check('demo and previews excluded from sitemap', () => assert.doesNotMatch(readFileSync('dist/sitemap-0.xml', 'utf8'), /\/(?:pavyzdys|perziura)\//));
 
