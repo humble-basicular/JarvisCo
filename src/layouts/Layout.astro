@@ -27,9 +27,12 @@ interface Props {
   /** Kept for older callers; the v4 design has no sticky bar. */
   stickyBar?: boolean;
 }
-const { title, description, nav = headerText.nav.map((i) => ({ ...i, href: `/${i.href}` })), faq = [], noindex = false, canonicalPath, formHref, ogImage: ogPath = '/assets/og.png' } = Astro.props;
+const { title, description, nav = headerText.nav.map((i) => ({ ...i, href: `/${i.href}` })), faq = [], noindex = false, canonicalPath, formHref, ogImage: ogPath = '/assets/og-v4.png' } = Astro.props;
 const canonical = new URL(canonicalPath ?? (Astro.url.pathname.replace(/\/$/, '') || '/'), brand.url).href;
-const ogImage = new URL(ogPath, brand.url).href;
+// Vercel preview builds point the share card at the preview itself, so a shared
+// preview link shows the card that will go live (canonical stays jarvisweb.lt).
+const shareBase = process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : brand.url;
+const ogImage = new URL(ogPath, shareBase).href;
 
 // Cloudflare Web Analytics (cookieless). Set PUBLIC_CF_ANALYTICS_TOKEN at build
 // time, or enable the automatic setup in Cloudflare; empty = no script.
@@ -104,7 +107,7 @@ const faqSchema = faq.length
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="icon" type="image/svg+xml" href="/brand/editorial/jarvisco-favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/brand/v4/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <script is:inline>document.documentElement.classList.add('js');</script>
