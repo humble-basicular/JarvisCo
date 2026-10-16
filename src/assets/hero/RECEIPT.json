@@ -1,0 +1,89 @@
+{
+  "createdAt": "2026-10-15T22:42:00.085Z",
+  "capture": {
+    "dir": "client-sites/showcase-capture-r2",
+    "capturedAt": "2026-10-15T22:41:04.218Z",
+    "sourceCommit": "29916824c3d50529ea8b50c18670de5557d68aaa",
+    "route": "/pavyzdys/sildymas",
+    "browser": "Chrome/155.0.8059.79"
+  },
+  "showcase": {
+    "heating-mobile.png": {
+      "from": "mobile",
+      "cssViewport": "390x844",
+      "dpr": 2,
+      "fullPage": false,
+      "pixels": "780x1688",
+      "sha256": "b31a05e577d0a00f79841cd4f6ce383e7400e2bb4847ee5a2d3a839ba63a6f6c"
+    },
+    "heating-desktop.png": {
+      "from": "desktop",
+      "cssViewport": "1440x900",
+      "dpr": 2,
+      "fullPage": false,
+      "pixels": "2880x1800",
+      "sha256": "bf16c28cf589cdc1c3f8aca6d570a841ce139a5d25595da937162167ed63164d"
+    },
+    "heating-mobile-tall.png": {
+      "from": "tall",
+      "cssViewport": "390x11201",
+      "dpr": 1.4,
+      "fullPage": true,
+      "pixels": "546x15681",
+      "sha256": "628da3e23edbc15c829e80380e3f5ed4207050403bb2abb30152b14651107dbf"
+    }
+  },
+  "hero": {
+    "source": "Drive Personal Everything/research/2026-10-15-hero-variants/hero-v2.png (AI-generated, ChatGPT Images via Codex; prompts in PROMPTS.md there)",
+    "sourceSha256": "46da694eba0555f1e349879b2247c6226c48374d14a137b8c4f9d3bbf4468545",
+    "pixels": "1536x1024 (tool's native size; not upscaled)",
+    "screenCapture": {
+      "cssViewport": "390x722",
+      "dpr": 2,
+      "sha256": "83b4ba0e7f33a683ff7a6c8c727bb6e35fac996b0e8896116b0613af2810a0f7"
+    },
+    "maskPixels": 32406,
+    "corners": [
+      [
+        656,
+        125
+      ],
+      [
+        777,
+        102
+      ],
+      [
+        826,
+        332
+      ],
+      [
+        696,
+        361
+      ]
+    ],
+    "expanded": [
+      [
+        652.7,
+        120.8
+      ],
+      [
+        778.5,
+        96.9
+      ],
+      [
+        829.5,
+        336.1
+      ],
+      [
+        694.3,
+        366.2
+      ]
+    ],
+    "mask": "near-green g>0.55,r<0.25,b<0.25 · Dilate Disk:1.5 · blur 0x0.6",
+    "composite": "src/assets/hero/toolbelt-heating.png",
+    "compositeSha256": "c2cd328e832dc840f7611d4aad66f0977df62787e5c5a204c05be8f8dbef547a",
+    "outsideMaskDifference": 0,
+    "greenPixelsLeft": 0,
+    "work": "client-sites/showcase-capture-r2/composite"
+  }
+}

@@ -2,6 +2,7 @@
 /* Real dated screenshots and Mantas's approved portrait. Provenance below. */
 import { Image, getImage } from 'astro:assets';
 import { proof } from '@data/v4.js';
+import { arbcutProof } from '@data/content.js';
 import portrait from '@assets/arbcut/mantas-portretas.jpg';
 import gsc from '@assets/proof/arbcut-gsc-3m-2026-10-14.png';
 import aug from '@assets/proof/arbcut-web3forms-aug-2026-10-14.png';
@@ -24,7 +25,7 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
       </div>
       <figure class="proof__person">
         <Image src={portrait} alt={proof.portraitAlt} widths={[390, 640, 900]} sizes="(min-width: 64rem) 28rem, calc(100vw - 2.5rem)" format="webp" quality={82} loading="lazy" />
-        <figcaption>{proof.portraitCaption}</figcaption>
+        <figcaption>{proof.portraitCaption} · <a class="link" href={arbcutProof.site.href} rel="noopener" data-track="arbcut">{proof.site}</a></figcaption>
       </figure>
     </div>
 

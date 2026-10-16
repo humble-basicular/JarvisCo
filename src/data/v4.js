@@ -28,19 +28,19 @@ export const header = {
 export const hero = {
   home: {
     lines: ['Svetainė, kuri', 'nieko nekainuoja,', 'kol neatneša užklausos.'],
-    photoAlt: 'Mantas Gerulis dirba medžio lajoje',
   },
   heating: {
     stamp: 'Šildymo meistrams',
     lines: ['Svetainė šildymo meistrui,', 'kuri nieko nekainuoja,', 'kol neatneša užklausos.'],
-    photoAlt: 'Šildymo meistro svetainės pavyzdys, mobilioji versija',
   },
   sub: [
     'Nemokama Jūsų svetainės peržiūra per 48 val. Paleidus svetainę mėnesio mokesčio nėra iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
     'Mokate tik už domeną (~15 € per metus), ir jis registruojamas Jūsų vardu.',
   ],
   sms: 'Parašyti SMS',
-
+  // Hero plan §4: an illustration, not a client. The belt is AI-generated; the screen is a real screenshot of our demo.
+  photoAlt: 'Odinis meistro įrankių diržas su plaktuku, rulete ir replėmis; kišenėje – telefonas su atidarytu šildymo meistro svetainės pavyzdžiu',
+  caption: 'Iliustracija: diržas sukurtas DI, telefone – tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija.',
 };
 
 export const offerRow = [
@@ -54,7 +54,8 @@ export const proof = {
   label: 'Rezultatai',
   title: 'Kas vyksta arbcut.lt',
   portraitAlt: 'Mantas Gerulis su grandininiu pjūklu',
-  portraitCaption: 'Mantas Gerulis, arboristas, Kaunas · arbcut.lt',
+  portraitCaption: 'Mantas Gerulis, arboristas, Kaunas',
+  site: 'arbcut.lt',
   text: 'arbcut.lt – arboristo svetainė Kaune, kurią sukūriau. Žemiau – tikros ekrano kopijos iš jos paskyrų: tik apkirptos, skaičiai nepakeisti.',
   gsc: {
     stats: [
@@ -111,25 +112,33 @@ export const how = {
 };
 
 export const examples = {
-  label: 'Pavyzdžiai',
-  title: 'Kaip atrodytų Jūsų',
-  text: 'Tikros svetainės, ne maketai. Šildymo pavyzdyje vardas ir duomenys išgalvoti.',
-  items: [
-    {
-      photoAlt: 'Šildymo meistro svetainės mobilioji ekrano kopija',
-      title: 'Šildymo meistro svetainė',
-      note: 'Pavyzdys',
-      link: 'Žiūrėti pavyzdį',
-      href: '/pavyzdys/sildymas',
-    },
-    {
-      photoAlt: 'arbcut.lt mobilioji ekrano kopija',
-      title: 'arbcut.lt – arboristas, Kaunas',
-      note: 'Veikianti svetainė',
-      link: 'Žiūrėti pavyzdį',
-      href: 'https://arbcut.lt',
-    },
-  ],
+  label: 'Pavyzdys',
+  title: 'Tokia būtų Jūsų svetainė',
+  text: 'Šildymo meistro svetainės pavyzdys: įmonė ir duomenys išgalvoti. Jūsų peržiūroje bus Jūsų paslaugos, vietovės ir nuotraukos. Viskas rėmeliuose – tikros ekrano kopijos, ne maketas.',
+  open: 'Atidaryti gyvai',
+  href: '/pavyzdys/sildymas',
+  showcase: {
+    url: 'jarvisweb.lt/pavyzdys/sildymas',
+    caption: 'Pavyzdys: šildymo meistro svetainė',
+    desktopAlt: 'Pavyzdinės šildymo meistro svetainės „Šilumos ratas“ ekrano kopija kompiuteryje: antraštė „Šildymo sistemos Kaune ir Kauno rajone“, skambučio ir užklausos mygtukai',
+    phoneAlt: 'Ta pati pavyzdinė svetainė telefone: pirmas ekranas su skambučio mygtuku',
+    pause: 'Sustabdyti slinkimą',
+  },
+  // Hero plan §5 D3: generic portal card, demo data only, no real portal, rating or person.
+  beforeAfter: {
+    from: 'Iš to, ką jau turite internete',
+    to: 'tokia svetainė per 48 val.',
+    beforeTag: 'Prieš: profilis portale',
+    afterTag: 'Po: Jūsų svetainė',
+    portal: 'Paslaugų portalas',
+    demo: 'Pavyzdys',
+    meta: 'Šildymo sistemos · Kaunas, Kauno r.',
+    text: 'Katilų remontas ir priežiūra, šilumos siurbliai, grindinis šildymas. Dirbame Kaune ir Kauno rajone.',
+    contact: 'Susisiekti per portalą',
+    portalAlt: 'Pavyzdinis meistro profilis paslaugų portale: pavadinimas, trumpas aprašymas ir trys darbų nuotraukos',
+    siteAlt: 'Iš to paties profilio padaryta svetainė telefone',
+    note: 'Pavyzdys: profilis išgalvotas, portalas bendrinis, nuotraukos – DI iliustracijos. Tikras profilis ir svetainė būtų su Jūsų duomenimis.',
+  },
 };
 
 export const price = {

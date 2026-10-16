@@ -1,17 +1,30 @@
 ---
-/* Real client work on home; the actual heating demo on the trade page. */
-import { Image } from 'astro:assets';
+/* Fervor-style hero (hero plan 2026-10-15 §4): big tight headline, one large
+   object crossing the layout. The object is the AI-generated tool belt (hero-v2)
+   with a real screenshot of our own heating demo composited onto the phone
+   screen; provenance in src/assets/hero/PROVENANCE.md. An illustration of the
+   product, never presented as a client. Mantas's photos stay in the results. */
+import { getImage } from 'astro:assets';
 import { brand } from '@data/content.js';
 import { hero, MAIN_CTA } from '@data/v4.js';
-import crown from '@assets/arbcut/mantas-lajoje.jpg';
-import heating from '@assets/proof/sildymas-mobile-2026-10-15.png';
+import belt from '@assets/hero/toolbelt-heating.png';
 
 interface Props { variant?: 'home' | 'heating' }
 const { variant = 'home' } = Astro.props;
 const v = hero[variant];
+
+// Per-format quality: AVIF 50 already looks like WebP 72 and is smaller (sharp,
+// 1280 w: 62 KB vs 84 KB); one <Picture> quality would make AVIF the larger file.
+const widths = [640, 960, 1280, 1536];
+const sizes = '(min-width: 80rem) min(100vw, 96rem), (min-width: 48rem) 118vw, 150vw';
+const srcset = async (format: 'avif' | 'webp', quality: number) =>
+  (await Promise.all(widths.map(async (width) => `${(await getImage({ src: belt, width, format, quality })).src} ${width}w`))).join(', ');
+const avif = await srcset('avif', 50);
+const webp = await srcset('webp', 72);
+const fallback = await getImage({ src: belt, width: 1280, format: 'webp', quality: 72 });
 ---
 <section class="hero" aria-labelledby="hero-title">
-  <div class="wrap">
+  <div class="wrap hero__text">
     {'stamp' in v && <p class="stamp hero__stamp">{v.stamp}</p>}
     <h1 class="hero__title" id="hero-title">
       {v.lines.map((line, i) => <span class="reveal-line" style={`--i:${i}`}>{line} </span>)}
@@ -24,18 +37,19 @@ const v = hero[variant];
       </div>
     </div>
   </div>
-  <div class={`hero__object ${variant === 'heating' ? 'hero__object--screen' : ''}`}>
-    <Image src={variant === 'home' ? crown : heating} alt={v.photoAlt}
-      width={variant === 'home' ? 900 : 390} height={variant === 'home' ? 675 : 844}
-      fit="cover" position="centre"
-      widths={variant === 'home' ? [390, 640, 780, 900] : [320, 390]}
-      sizes={variant === 'home' ? '(min-width: 48rem) 82vw, calc(100vw - 1.25rem)' : '(min-width: 28rem) 390px, calc(100vw - 2.5rem)'}
-      format="webp" quality={75} loading="eager" fetchpriority="high" />
-  </div>
+  <figure class="hero__object">
+    <picture>
+      <source type="image/avif" srcset={avif} sizes={sizes} />
+      <source type="image/webp" srcset={webp} sizes={sizes} />
+      <img src={fallback.src} alt={hero.photoAlt} width="1536" height="1024" loading="eager" fetchpriority="high" />
+    </picture>
+    <figcaption class="wrap hero__caption">{hero.caption}</figcaption>
+  </figure>
 </section>
 
 <style>
-  .hero { padding-top: clamp(2.5rem, 7vw, 5.5rem); overflow: clip; }
+  .hero { position: relative; padding-top: clamp(2.5rem, 7vw, 5.5rem); overflow: clip; }
+  .hero__text { position: relative; z-index: 1; }
   .hero__stamp { margin-bottom: 1.25rem; }
   .hero__title { font-size: clamp(2.75rem, 8.6vw, 7.5rem); font-weight: 600; line-height: 0.95; letter-spacing: -0.05em; max-width: 15ch; }
   .hero__row { display: grid; gap: 2rem; margin-top: clamp(1.75rem, 4vw, 3rem); }
@@ -43,16 +57,31 @@ const v = hero[variant];
   .hero__sub p { margin-bottom: 0.5rem; }
   .hero__ctas { display: grid; gap: 0.5rem; justify-items: start; align-content: start; }
   .hero__ctas .btn { width: 100%; }
-  .hero__object { margin-top: clamp(2.5rem, 6vw, 4rem); margin-left: var(--gutter); border: 1px solid var(--rule); }
-  .hero__object :global(img) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: center 43%; }
-  .hero__object--screen { width: min(390px, calc(100% - 2 * var(--gutter))); margin-inline: auto; }
-  .hero__object--screen :global(img) { aspect-ratio: 390 / 844; object-fit: contain; }
+
+  /* The belt reads as an object on the page rather than a framed picture. Wider than
+     the viewport on small screens: the belt runs off both edges, the phone stays
+     in the middle (it sits at 48 % of the frame). */
+  .hero__object { margin: clamp(0.5rem, 3vw, 2rem) 0 0; }
+  .hero__object :global(picture) { display: block; width: 150%; margin-left: -25%; }
+  /* Display only, the file is untouched: the generated background varies 244–253
+     (faint blotches once compressed). brightness 1.045 lifts all of it to white
+     and multiply turns white into exactly the paper colour. */
+  .hero__object :global(img) { width: 100%; height: auto; aspect-ratio: 1536 / 1024; filter: brightness(1.045); mix-blend-mode: multiply; }
+  .hero__caption { margin-top: -0.5rem; padding-bottom: 1.5rem; color: var(--mute); font-size: 0.8125rem; line-height: 1.4; text-align: right; }
+
   @media (min-width: 48rem) {
     .hero__ctas .btn { width: auto; }
-    .hero__object:not(.hero__object--screen) { margin-left: 18%; }
-    .hero__object:not(.hero__object--screen) :global(img) { aspect-ratio: 21 / 8; }
+    .hero__object :global(picture) { width: 118%; margin-left: -9%; }
   }
   @media (min-width: 64rem) {
     .hero__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; align-items: start; }
+  }
+  /* Wide screens: the copy sits in the photo's empty top-left corner and the belt
+     rises diagonally beside it, ending past the right edge (Fervor's hammer). */
+  @media (min-width: 80rem) {
+    .hero__row { grid-template-columns: minmax(0, 27rem); }
+    .hero__object { margin-top: calc(-1 * clamp(21rem, 25vw, 25rem)); }
+    .hero__object :global(picture) { width: min(100vw, 96rem); margin-inline: auto; }
+    .hero__caption { margin-top: -1.5rem; }
   }
 </style>

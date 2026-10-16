@@ -26,7 +26,7 @@ Rules applied: every "0 €" is followed by "iki pirmos užklausos, ne ilgiau ka
 | compare.cols / rows | Paslaugos.lt ir panašūs užklausų portalai / Jūsų svetainė · Kur Jus randa: Tarp kitų paslaugų teikėjų. / Atskirame Jūsų paslaugų puslapyje. · Kaip prisistatote: Profilis pagal portalo struktūrą ir taisykles. / Jūsų paslaugos, darbų nuotraukos ir kontaktai vienoje vietoje. · Kas lieka, jei sustojate: Profilį tvarkote pagal portalo taisykles. / Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums. | Jarvis review; no claim about shared inquiries |
 | how.title / text | Keturi žingsniai, mokate tik paskutiniame · Nuo formos iki veikiančios svetainės. Visą darbą darau pats. | drafted |
 | how.steps | Forma, 2 min. · Peržiūra per 48 val. · Domenas ir paleidimas · Mokate tik po pirmos užklausos (+ one sentence each, see v4.js) | §4.2 structure, drafted text |
-| examples | Kaip atrodytų Jūsų · Tikros svetainės, ne maketai. Šildymo pavyzdyje vardas ir duomenys išgalvoti. · Šildymo meistro svetainė / Pavyzdys / Žiūrėti pavyzdį · arbcut.lt – arboristas, Kaunas / Veikianti svetainė / Žiūrėti pavyzdį | §4.2 title, rest drafted |
+| examples | Pavyzdys · Tokia būtų Jūsų svetainė · one heating demo (phone + desktop captures), „Atidaryti gyvai“ → /pavyzdys/sildymas, then the before/after strip (see v4.js `examples.showcase` / `examples.beforeAfter`) | hero plan 2026-10-15 §5 (D2, D3); replaces „Kaip atrodytų Jūsų“ |
 | price | 39 € / mėn. · tik po pirmos užklausos arba po 3 mėn. nuo paleidimo – kas įvyks anksčiau. · Iki tol – 0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn. Domeną (~15 € per metus) apmokate Jūs, ir jis registruojamas Jūsų vardu. | §4.2 + §1 |
 | price.includes | Svetainė ir talpinimas · Smulkūs pakeitimai: tekstai, nuotraukos, kainos (iki ~30 min. per mėnesį) · Google verslo profilio priežiūra: nuotraukos, nuoroda įvertinimams · Kas mėnesį SMS ataskaita: kiek užklausų ir paspaudimų „Skambinti“ | §1 |
 | price.inquiry | Tikro kliento žinutė per svetainės formą apie Jūsų paslaugą. Bandymai, šlamštas ir pasikartojimai neskaičiuojami – kiekvieną patikrinu rankomis. | §1 |
@@ -75,3 +75,9 @@ Unchanged from the funnel stage (`src/data/content.js` → `funnel.form`): field
 - Email error (`funnel.form.errors.email`): „Įveskite teisingą el. pašto adresą, pvz. vardas@pastas.lt.“
 
 Build checks reject unfinished photo/quote labels and retain the honest-offer checks. Static checks require the email and preview channel wire fields.
+
+## Hero plan 2026-10-15 — hero object + one example (H3/H4)
+
+- Hero (home and /sildymui): the AI-generated tool belt with a real screenshot of the heating demo on the phone. Alt: „Odinis meistro įrankių diržas su plaktuku, rulete ir replėmis; kišenėje – telefonas su atidarytu šildymo meistro svetainės pavyzdžiu“. Caption: „Iliustracija: diržas sukurtas DI, telefone – tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija.“ Supersedes the per-variant hero alts above (Mantas's photos stay in the results section).
+- Pavyzdys section: label „Pavyzdys“, title „Tokia būtų Jūsų svetainė“, text „Šildymo meistro svetainės pavyzdys: įmonė ir duomenys išgalvoti. Jūsų peržiūroje bus Jūsų paslaugos, vietovės ir nuotraukos. Viskas rėmeliuose – tikros ekrano kopijos, ne maketas.“ Button „Atidaryti gyvai“. Pause control „Sustabdyti slinkimą“. arbcut.lt is no longer an example here.
+- Before/after strip: „Iš to, ką jau turite internete → tokia svetainė per 48 val.“; tags „Prieš: profilis portale“ / „Po: Jūsų svetainė“; generic „Paslaugų portalas“ card built from the demo's made-up data (no real portal, logo, rating or person); note „Pavyzdys: profilis išgalvotas, portalas bendrinis, nuotraukos – DI iliustracijos. Tikras profilis ir svetainė būtų su Jūsų duomenimis.“
