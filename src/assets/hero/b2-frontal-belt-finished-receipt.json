@@ -1,0 +1,123 @@
+{
+  "version": 2,
+  "createdAt": "2026-10-16T05:55:50.867Z",
+  "source": "b2-frontal-belt.png",
+  "sourceSha256": "146f7bf10598cec7518fc5be309f60e602aa27a992910f32546c505a9b366fab",
+  "capture": "hero-screen.png",
+  "captureSha256": "83b4ba0e7f33a683ff7a6c8c727bb6e35fac996b0e8896116b0613af2810a0f7",
+  "output": "b2-frontal-belt-finished.png",
+  "outputSha256": "27bacb9f699606b9df28c8c4267d04d930d7caf52ba042fd1ceb1f295deaf90f",
+  "pixels": {
+    "width": 1536,
+    "height": 1024,
+    "upscaled": false
+  },
+  "capturePixels": {
+    "width": 780,
+    "height": 1444
+  },
+  "crop": {
+    "left": 0,
+    "top": 146,
+    "width": 780,
+    "height": 1298
+  },
+  "captureFit": {
+    "mode": "contain",
+    "padding": {
+      "r": 250,
+      "g": 249,
+      "b": 246
+    },
+    "note": "Website aspect ratio retained; paper padding centred when viewport and handset ratios differ"
+  },
+  "cropReason": "Top example/disclaimer bar cropped from supplied capture; no clean capture available",
+  "key": {
+    "rgb": [
+      6,
+      252,
+      13
+    ],
+    "componentPixels": 80400,
+    "softPixels": 2917,
+    "alpha": "continuous excess-green unmix; no dilation; original foreground recovered and despilled"
+  },
+  "edges": {
+    "left": {
+      "slope": -0.0015,
+      "intercept": 630.3804,
+      "rms": 0.0239,
+      "samples": 202
+    },
+    "right": {
+      "slope": -0.0058,
+      "intercept": 848.6374,
+      "rms": 0.0741,
+      "samples": 202
+    },
+    "top": {
+      "slope": 0.0005,
+      "intercept": 249.143,
+      "rms": 0.011,
+      "samples": 118
+    },
+    "bottom": {
+      "slope": 0.0123,
+      "intercept": 610.7721,
+      "rms": 0.3539,
+      "samples": 118
+    }
+  },
+  "corners": [
+    [
+      630,
+      249.4808
+    ],
+    [
+      847.1941,
+      249.5973
+    ],
+    [
+      845.0455,
+      621.1704
+    ],
+    [
+      629.4373,
+      618.5173
+    ]
+  ],
+  "contentOversize": 1.015,
+  "bottomOcclusion": true,
+  "bottomGeometry": "Visible pocket boundary fitted for content extent; physical lower glass corners are hidden and not recoverable. Original pocket retained by alpha.",
+  "photoMatch": {
+    "paperWhite": [
+      248,
+      247,
+      243
+    ],
+    "screenWhite": [
+      241,
+      240,
+      236
+    ],
+    "blackFloor": 9,
+    "luminanceMapRange": [
+      0.9832,
+      1.0062
+    ],
+    "antialiasResamplePixels": [
+      216,
+      370
+    ],
+    "resampleKernel": "lanczos3",
+    "opticalBlur": 0.35,
+    "glassGlarePeak": 0.021,
+    "grainPeakToPeak": 0.65
+  },
+  "checks": {
+    "outsideScreenChangedPixels": 0,
+    "greenPixelsLeft": 0,
+    "encodedPixelsMatch": true,
+    "inputHashesUnchanged": true
+  }
+}

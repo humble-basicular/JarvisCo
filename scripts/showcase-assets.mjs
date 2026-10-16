@@ -4,14 +4,14 @@
    - copies the demo screenshots to src/assets/showcase/ (metadata stripped, pixels unchanged)
    - composites the hero-screen capture onto the phone's green screen in the
      AI-generated tool-belt photo (hero plan §4 D5, recipe in src/assets/hero/PROVENANCE.md)
-   - writes src/assets/hero/RECEIPT.json (hashes, corners, source commit)
+   - writes src/assets/hero/RECEIPT-v2.json (hashes, corners, source commit)
    The source photo is never modified; pixels outside the feathered screen mask
-   are checked to be unchanged. Work files stay in <capture-dir>/composite/. No deletions. */
+   are checked to be unchanged. Versioned alpha/light maps sit beside the candidate. No deletions. */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import sharp from 'sharp';
+import { compositeScreen } from './hero-composite.mjs';
 
 const [captureArg, heroArg] = process.argv.slice(2);
 if (!captureArg || !heroArg) { console.error('usage: showcase-assets.mjs <capture-dir> <hero-v2.png>'); process.exit(1); }
@@ -37,65 +37,20 @@ for (const [name, file] of [['mobile', 'heating-mobile.png'], ['desktop', 'heati
   outputs[file] = { from: name, cssViewport: shot(name).cssViewport, dpr: shot(name).dpr, fullPage: shot(name).fullPage, pixels: magick('identify', '-format', '%wx%h', target), sha256: sha(target) };
 }
 
-// 2. Hero composite.
-const work = join(capture, 'composite');
-mkdirSync(work, { recursive: true });
-const [W, H] = magick('identify', '-format', '%w %h', hero).split(' ').map(Number);
-if (`${W}x${H}` !== '1536x1024') throw new Error('expected the native 1536×1024 hero-v2 (never upscaled)');
-const mask = join(work, 'mask.png');
-magick(hero, '-fx', '(g>0.55 && r<0.25 && b<0.25) ? 1 : 0', '-threshold', '50%', mask);
-// Screen corners = extremes of x+y and x−y over the mask (as corners.py).
-const { data, info } = await sharp(mask).greyscale().raw().toBuffer({ resolveWithObject: true });
-let tl, tr, br, bl, count = 0;
-for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) {
-  if (data[y * info.width + x] < 128) continue;
-  count++;
-  if (!tl || x + y < tl[0] + tl[1]) tl = [x, y];
-  if (!br || x + y > br[0] + br[1]) br = [x, y];
-  if (!tr || x - y > tr[0] - tr[1]) tr = [x, y];
-  if (!bl || x - y < bl[0] - bl[1]) bl = [x, y];
-}
-const corners = [tl, tr, br, bl];
-const centre = corners.reduce(([x, y], [a, b]) => [x + a / 4, y + b / 4], [0, 0]);
-// Rounded display corners: push the quad 4% outwards; the mask clips it back.
-const expanded = corners.map(([x, y]) => [+(x + (x - centre[0]) * 0.04).toFixed(1), +(y + (y - centre[1]) * 0.04).toFixed(1)]);
+// 2. Prepare a versioned candidate; current site hero is deliberately unchanged.
+// The supplied capture includes a 146px example bar. For redesigned captures use
+// the standalone hero-composite CLI with an explicit crop (see PROVENANCE.md).
 const screenShot = shot('hero-screen');
-const [sw, sh] = magick('identify', '-format', '%w %h', screenShot.file).split(' ').map(Number);
-const src = [[0, 0], [sw - 1, 0], [sw - 1, sh - 1], [0, sh - 1]];
-const pairs = src.map((p, i) => `${p.join(',')} ${expanded[i].join(',')}`).join(' ');
-const warped = join(work, 'warped.png');
-magick(screenShot.file, '-alpha', 'set', '-virtual-pixel', 'transparent', '-define', `distort:viewport=${W}x${H}+0+0`, '-distort', 'Perspective', pairs, warped);
-const alpha = join(work, 'alpha.png');
-magick(mask, '-morphology', 'Dilate', 'Disk:1.5', '-blur', '0x0.6', alpha);
-const screen = join(work, 'screen.png');
-magick(warped, alpha, '-compose', 'CopyOpacity', '-composite', screen);
-mkdirSync('src/assets/hero', { recursive: true });
-const composite = 'src/assets/hero/toolbelt-heating.png';
-magick(hero, screen, '-compose', 'Over', '-composite', '-strip', composite);
-const outside = Number(magick(hero, composite, '-compose', 'Difference', '-composite', '(', alpha, '-threshold', '0', '-negate', ')', '-compose', 'Multiply', '-composite', '-format', '%[fx:maxima]', 'info:'));
-if (outside !== 0) throw new Error(`pixels changed outside the screen mask: ${outside}`);
-const greenLeft = Number(magick(composite, '-fx', '(g>0.55 && r<0.25 && b<0.25) ? 1 : 0', '-format', '%[fx:int(mean*w*h)]', 'info:'));
-if (greenLeft > 0) throw new Error(`${greenLeft} green-screen pixels left uncovered`);
-
+const heroReceipt = await compositeScreen({
+  source: hero, capture: screenShot.file,
+  output: 'src/assets/hero/toolbelt-heating-v2.png',
+  sourceSha256: HERO_SHA, captureSha256: screenShot.sha256, cropTop: 146,
+});
 const out = {
   createdAt: new Date().toISOString(),
   capture: { dir: relative(process.cwd(), capture), capturedAt: receipt.capturedAt, sourceCommit: receipt.sourceCommit, route: receipt.route, browser: receipt.browser },
   showcase: outputs,
-  hero: {
-    source: 'Drive Personal Everything/research/2026-10-15-hero-variants/hero-v2.png (AI-generated, ChatGPT Images via Codex; prompts in PROMPTS.md there)',
-    sourceSha256: HERO_SHA,
-    pixels: `${W}x${H} (tool's native size; not upscaled)`,
-    screenCapture: { cssViewport: screenShot.cssViewport, dpr: screenShot.dpr, sha256: screenShot.sha256 },
-    maskPixels: count,
-    corners,
-    expanded,
-    mask: 'near-green g>0.55,r<0.25,b<0.25 · Dilate Disk:1.5 · blur 0x0.6',
-    composite,
-    compositeSha256: sha(composite),
-    outsideMaskDifference: outside,
-    greenPixelsLeft: greenLeft,
-    work: relative(process.cwd(), work), // repo-relative: the repo is public
-  },
+  hero: heroReceipt,
 };
-writeFileSync('src/assets/hero/RECEIPT.json', `${JSON.stringify(out, null, 2)}\n`);
+writeFileSync('src/assets/hero/RECEIPT-v2.json', JSON.stringify(out, null, 2) + '\n');
 console.log(JSON.stringify(out, null, 2));

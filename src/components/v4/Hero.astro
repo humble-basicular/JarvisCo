@@ -1,27 +1,37 @@
 ---
-/* Fervor-style hero (hero plan 2026-10-15 §4): big tight headline, one large
-   object crossing the layout. The object is the AI-generated tool belt (hero-v2)
-   with a real screenshot of our own heating demo composited onto the phone
-   screen; provenance in src/assets/hero/PROVENANCE.md. An illustration of the
-   product, never presented as a client. Mantas's photos stay in the results. */
+/* Fervor-style hero (hero plan 2026-10-15 §4, Jarvis picked concept A1 on
+   2026-10-16): big tight headline, then one large object. The object is an
+   AI-generated top-down flat lay of heating tools with a real screenshot of our
+   own heating demo composited onto the phone screen (scripts/hero-composite.mjs;
+   provenance in src/assets/hero/PROVENANCE.md). An illustration of the product,
+   never presented as a client. Mantas's photos stay in the results. */
 import { getImage } from 'astro:assets';
 import { brand } from '@data/content.js';
 import { hero, MAIN_CTA } from '@data/v4.js';
-import belt from '@assets/hero/toolbelt-heating.png';
+import flatLay from '@assets/hero/a1-knolling-finished.png';
 
 interface Props { variant?: 'home' | 'heating' }
 const { variant = 'home' } = Astro.props;
 const v = hero[variant];
 
-// Per-format quality: AVIF 50 already looks like WebP 72 and is smaller (sharp,
-// 1280 w: 62 KB vs 84 KB); one <Picture> quality would make AVIF the larger file.
-const widths = [640, 960, 1280, 1536];
-const sizes = '(min-width: 80rem) min(100vw, 96rem), (min-width: 48rem) 118vw, 150vw';
-const srcset = async (format: 'avif' | 'webp', quality: number) =>
-  (await Promise.all(widths.map(async (width) => `${(await getImage({ src: belt, width, format, quality })).src} ${width}w`))).join(', ');
-const avif = await srcset('avif', 50);
-const webp = await srcset('webp', 72);
-const fallback = await getImage({ src: belt, width: 1280, format: 'webp', quality: 72 });
+// Two crops of the same photo: the whole flat lay from 48rem, and a centred 4:5
+// crop on phones so the phone in the picture stays big enough to read (it sits
+// in the exact centre of the frame). Per-format quality: AVIF 50 ≈ WebP 72 and smaller.
+const CROP = { width: 819, height: 1024 }; // 4:5 of the 1536 × 1024 source, no upscaling
+const set = async (format: 'avif' | 'webp', quality: number, widths: number[], crop = false) =>
+  (await Promise.all(widths.map(async (width) => {
+    const img = await getImage({ src: flatLay, width, format, quality, ...(crop ? { height: Math.round((width * CROP.height) / CROP.width), fit: 'cover', position: 'centre' } : {}) });
+    return `${img.src} ${width}w`;
+  }))).join(', ');
+const wide = [768, 1024, 1280, 1536];
+const narrow = [390, 600, 819];
+const sources = {
+  avifWide: await set('avif', 50, wide), webpWide: await set('webp', 72, wide),
+  avifNarrow: await set('avif', 50, narrow, true), webpNarrow: await set('webp', 72, narrow, true),
+};
+const wideSizes = '(min-width: 82rem) 77rem, calc(100vw - 2 * var(--gutter))';
+const narrowSizes = '100vw';
+const fallback = await getImage({ src: flatLay, width: 1280, format: 'webp', quality: 72 });
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="wrap hero__text">
@@ -39,9 +49,11 @@ const fallback = await getImage({ src: belt, width: 1280, format: 'webp', qualit
   </div>
   <figure class="hero__object">
     <picture>
-      <source type="image/avif" srcset={avif} sizes={sizes} />
-      <source type="image/webp" srcset={webp} sizes={sizes} />
-      <img src={fallback.src} alt={hero.photoAlt} width="1536" height="1024" loading="eager" fetchpriority="high" />
+      <source media="(min-width: 48rem)" type="image/avif" srcset={sources.avifWide} sizes={wideSizes} width="1536" height="1024" />
+      <source media="(min-width: 48rem)" type="image/webp" srcset={sources.webpWide} sizes={wideSizes} width="1536" height="1024" />
+      <source type="image/avif" srcset={sources.avifNarrow} sizes={narrowSizes} width={CROP.width} height={CROP.height} />
+      <source type="image/webp" srcset={sources.webpNarrow} sizes={narrowSizes} width={CROP.width} height={CROP.height} />
+      <img src={fallback.src} alt={hero.photoAlt} width="1536" height="1024" loading="eager" fetchpriority="high" decoding="async" />
     </picture>
     <figcaption class="wrap hero__caption">{hero.caption}</figcaption>
   </figure>
@@ -58,30 +70,28 @@ const fallback = await getImage({ src: belt, width: 1280, format: 'webp', qualit
   .hero__ctas { display: grid; gap: 0.5rem; justify-items: start; align-content: start; }
   .hero__ctas .btn { width: 100%; }
 
-  /* The belt reads as an object on the page rather than a framed picture. Wider than
-     the viewport on small screens: the belt runs off both edges, the phone stays
-     in the middle (it sits at 48 % of the frame). */
-  .hero__object { margin: clamp(0.5rem, 3vw, 2rem) 0 0; }
-  .hero__object :global(picture) { display: block; width: 150%; margin-left: -25%; }
-  /* Display only, the file is untouched: the generated background varies 244–253
-     (faint blotches once compressed). brightness 1.045 lifts all of it to white
-     and multiply turns white into exactly the paper colour. */
-  .hero__object :global(img) { width: 100%; height: auto; aspect-ratio: 1536 / 1024; filter: brightness(1.045); mix-blend-mode: multiply; }
-  .hero__caption { margin-top: -0.5rem; padding-bottom: 1.5rem; color: var(--mute); font-size: 0.8125rem; line-height: 1.4; text-align: right; }
+  /* The flat lay sits straight on the page: its paper background (≈ #faf9f6)
+     matches ours, so no frame, filter or blend. Phones get the 4:5 crop. */
+  .hero__object { margin: clamp(1.5rem, 4vw, 3rem) 0 0; }
+  .hero__object :global(picture) { display: block; }
+  .hero__object :global(img) { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; }
+  .hero__caption { margin-top: 0.75rem; padding-bottom: 1.5rem; color: var(--mute); font-size: 0.8125rem; line-height: 1.4; text-align: right; }
 
   @media (min-width: 48rem) {
     .hero__ctas .btn { width: auto; }
-    .hero__object :global(picture) { width: 118%; margin-left: -9%; }
+    .hero__object { width: min(100% - 2 * var(--gutter), 77rem); margin-inline: auto; }
+    /* The photo's paper is ±1 level off ours and shades slightly toward the
+       edges: a soft fade on all four sides hides the box edge. */
+    .hero__object :global(img) {
+      aspect-ratio: 1536 / 1024;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent), linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+      -webkit-mask-composite: source-in;
+      mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent), linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+      mask-composite: intersect;
+    }
+    .hero__caption { padding-inline: 0; }
   }
   @media (min-width: 64rem) {
     .hero__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; align-items: start; }
-  }
-  /* Wide screens: the copy sits in the photo's empty top-left corner and the belt
-     rises diagonally beside it, ending past the right edge (Fervor's hammer). */
-  @media (min-width: 80rem) {
-    .hero__row { grid-template-columns: minmax(0, 27rem); }
-    .hero__object { margin-top: calc(-1 * clamp(21rem, 25vw, 25rem)); }
-    .hero__object :global(picture) { width: min(100vw, 96rem); margin-inline: auto; }
-    .hero__caption { margin-top: -1.5rem; }
   }
 </style>
