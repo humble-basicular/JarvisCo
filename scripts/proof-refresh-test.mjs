@@ -5,7 +5,10 @@
    real run must still be checked by eye (its page text is kept in .proof-runs/).
    node scripts/proof-refresh-test.mjs */
 import assert from 'node:assert/strict';
-import { parseGsc, parseTooltip, parseW3f } from './proof-refresh.mjs';
+import { copyFileSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { loadImport, parseGsc, parseTooltip, parseW3f } from './proof-refresh.mjs';
 import { formsProof, gscProof, proof } from '../src/data/v4.js';
 
 let passed = 0;
@@ -52,4 +55,20 @@ check('a refresh on 16 Oct renders the new month and total', () => {
   const g = gscProof({ file: 'g.png', captured: '2026-10-16', from: '2026-07-14', to: '2026-10-12', clicks: '1204', impressions: '980', ctr: '4.8%', position: '7.9' });
   assert.deepEqual(g.stats.map((s) => s.value), ['1204', '980', '4,8 %', '7,9']);
 });
+
+// Import path: a folder like the one Codex Computer Use leaves (temp, left in place).
+const dir = mkdtempSync(join(tmpdir(), 'proof-import-'));
+copyFileSync('src/assets/proof/arbcut-gsc-3m-2026-10-14.png', join(dir, 'gsc.png'));
+copyFileSync('src/assets/proof/arbcut-web3forms-oct-2026-10-14.png', join(dir, 'oct.png'));
+const figures = (patch = {}) => {
+  const f = { captured: '2026-10-14', how: 'test', gsc: { png: 'gsc.png', clicks: '595', impressions: '11.9K', ctr: '5%', position: '8.1', from: '2026-07-12', to: '2026-10-10' },
+    forms: { createdText: 'Apr 19, 2026', thisMonth: 1, total: 28, spam: 0, months: [{ month: '2026-10', submissions: 1, png: 'oct.png' }] }, ...patch };
+  writeFileSync(join(dir, 'figures.json'), JSON.stringify(f));
+  return () => loadImport(dir);
+};
+check('import reads figures and screenshots', () => { const r = figures()(); assert.equal(r.gsc.clicks, '595'); assert.equal(r.w3f.created, '2026-04-19'); assert.equal(r.w3f.months[0].submissions, 1); });
+check('import: chart month must equal the counter', () => assert.throws(figures({ forms: { createdText: 'Apr 19, 2026', thisMonth: 2, total: 28, spam: 0, months: [{ month: '2026-10', submissions: 1, png: 'oct.png' }] } }), /counter says 2/));
+check('import: a missing screenshot refuses', () => assert.throws(figures({ gsc: { png: 'nope.png', clicks: '595', impressions: '11.9K', ctr: '5%', position: '8.1', from: '2026-07-12', to: '2026-10-10' } }), /not a PNG/));
+check('import: months above the total refuse', () => assert.throws(figures({ forms: { createdText: 'Apr 19, 2026', thisMonth: 1, total: 0, spam: 0, months: [{ month: '2026-10', submissions: 1, png: 'oct.png' }] } }), /more than the total/));
+check('import: "how" is required', () => assert.throws(figures({ how: '' }), /how/));
 console.log(`${passed} proof-refresh checks passed`);

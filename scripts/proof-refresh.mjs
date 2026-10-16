@@ -10,6 +10,19 @@
                                       add the new PNGs to src/assets/proof/, log provenance
    npm run proof:refresh -- --show    the same, with the Chrome window visible
    npm run proof:refresh -- --dry     capture and print only: nothing in src/ changes
+   npm run proof:refresh -- import <dir> --dry | --checked
+                                      MAIN PATH (Jarvis 2026-10-16): the screenshots are taken in
+                                      Jarvis's own logged-in Chrome (Codex Computer Use) and saved
+                                      with figures.json; --checked once the lead has compared every
+                                      figure with the screenshots by eye.
+
+   <dir>/figures.json (screenshots crop only, e.g. magick -crop WxH+X+Y, no resize/edits):
+   { "captured": "YYYY-MM-DD", "how": "who, which browser, exact crop commands",
+     "gsc": { "png": "gsc.png", "property": "sc-domain:arbcut.lt", "clicks": "612",
+              "impressions": "12.1K", "ctr": "5%", "position": "8.0",
+              "from": "YYYY-MM-DD", "to": "YYYY-MM-DD" },            ← as shown on screen
+     "forms": { "createdText": "Apr 19, 2026", "thisMonth": 3, "total": 30, "spam": 0,
+                "months": [ { "month": "YYYY-MM", "submissions": 7, "png": "web3forms-YYYY-MM.png" } ] } }
 
    The login lives in its own Chrome profile outside the repo (PROFILE below),
    never in git. Read-only on both sites: it only loads pages and moves the
@@ -219,6 +232,37 @@ async function captureW3f(b, run) {
   return { ...totals, months, crop: box };
 }
 
+/* ---------- import (screenshots taken in Jarvis's own browser) ---------- */
+
+const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+/** Reads <dir>/figures.json + its PNGs (format: top of this file), applying the same checks as a capture. */
+export function loadImport(dir) {
+  const f = JSON.parse(readFileSync(join(dir, 'figures.json'), 'utf8'));
+  const png = (name, what) => {
+    const file = join(dir, String(name ?? ''));
+    if (!name || !existsSync(file) || !readFileSync(file).subarray(0, 4).equals(PNG)) throw new Error(`${what}: ${name} is not a PNG in ${dir}`);
+    return file;
+  };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f.captured ?? '')) throw new Error('figures.json: captured must be YYYY-MM-DD');
+  if (!f.how) throw new Error('figures.json: "how" must say who took the screenshots, in which browser, and the exact crop commands');
+  const g = f.gsc ?? {};
+  // Same parser as a capture: rebuild the page text from the figures, so the same rules apply.
+  const axis = (iso) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}/${iso.slice(2, 4)}`;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(g.from ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(g.to ?? '')) throw new Error('figures.json: gsc.from/gsc.to must be YYYY-MM-DD');
+  const gsc = { ...parseGsc(`Total clicks ${g.clicks}\nTotal impressions ${g.impressions}\nAverage CTR ${g.ctr}\nAverage position ${g.position}\n${axis(g.from)} ${axis(g.to)}`), property: g.property ?? 'not recorded', png: png(g.png, 'gsc') };
+  const w = f.forms ?? {};
+  const w3f = { ...parseW3f(`ArbCut\nCreated ${w.createdText}\nSubmissions this month ${w.thisMonth}\nTotal Submissions ${w.total}\nTotal Spam Blocked ${w.spam}`) };
+  if (!Array.isArray(w.months) || !w.months.length) throw new Error('figures.json: forms.months must list the chart months');
+  w3f.months = w.months.map((m, i) => {
+    if (!/^\d{4}-\d{2}$/.test(m.month ?? '') || !Number.isInteger(m.submissions) || m.submissions < 0) throw new Error(`figures.json: forms.months[${i}] needs month YYYY-MM and whole submissions`);
+    return { month: m.month, submissions: m.submissions, png: png(m.png, `forms.months[${i}]`) };
+  }).sort((a, z) => a.month.localeCompare(z.month));
+  const now = w3f.months.find((m) => m.month === f.captured.slice(0, 7));
+  if (now && now.submissions !== w3f.thisMonth) throw new Error(`Web3Forms: chart says ${now.submissions} this month, the counter says ${w3f.thisMonth}`);
+  if (w3f.months.reduce((a, m) => a + m.submissions, 0) > w3f.total) throw new Error('Web3Forms: the months add up to more than the total');
+  return { gsc, w3f, date: f.captured, how: f.how };
+}
+
 /* ---------- main ---------- */
 
 async function main() {
@@ -230,15 +274,23 @@ async function main() {
     return;
   }
   const dry = args.includes('--dry');
-  const date = today();
-  const run = join(ROOT, '.proof-runs', `${date}-${Date.now()}`);
-  mkdirSync(run, { recursive: true });
-  const b = await launch({ show: args.includes('--show') });
-  let gsc, w3f;
-  try {
-    gsc = await captureGsc(b, run);
-    w3f = await captureW3f(b, run);
-  } finally { b.close(); }
+  let gsc, w3f, date, run, how;
+  if (args[0] === 'import') {
+    if (!args[1]) throw new Error('usage: npm run proof:refresh -- import <capture-folder> [--dry | --checked]');
+    if (!dry && !args.includes('--checked')) throw new Error('import writes only with --checked: first compare every figure in figures.json with the screenshots by eye (run with --dry to see them)');
+    run = resolve(args[1]);
+    ({ gsc, w3f, date, how } = loadImport(run));
+  } else {
+    date = today();
+    run = join(ROOT, '.proof-runs', `${date}-${Date.now()}`);
+    mkdirSync(run, { recursive: true });
+    how = 'Headless Chrome screenshots taken by the script from Jarvis\'s own logins (Chrome profile outside the repo), DPR 2, crop only (CDP clip of the block that holds the figures; no resize, no pixel edits). The figures were read from the same page text at the same moment. Raw page text and uncropped viewports: `.proof-runs/` (local, not committed).';
+    const b = await launch({ show: args.includes('--show') });
+    try {
+      gsc = await captureGsc(b, run);
+      w3f = await captureW3f(b, run);
+    } finally { b.close(); }
+  }
 
   const old = JSON.parse(readFileSync(DATA, 'utf8'));
   const name = (kind) => `arbcut-${kind}-${date}.png`;
@@ -270,7 +322,7 @@ async function main() {
   writeFileSync(DATA, `${JSON.stringify(next, null, 2)}\n`);
   appendFileSync(PROVENANCE, [
     '', `## Proof refresh ${date} (scripts/proof-refresh.mjs)`,
-    `Headless Chrome screenshots taken by the script from Jarvis's own logins (Chrome profile outside the repo), DPR 2, crop only (CDP clip of the block that holds the figures; no resize, no pixel edits). The figures in \`src/data/arbcut-proof.json\` were read from the same page text at the same moment. Raw page text and uncropped viewports: \`.proof-runs/\` (local, not committed).`,
+    how,
     '', '| File here | Shows |', '|---|---|',
     `| ${next.gsc.file} | Search Console (${gsc.property}), 3 months, ${gsc.from} – ${gsc.to}: clicks ${gsc.clicks}, impressions ${gsc.impressions}, CTR ${gsc.ctr}, position ${gsc.position} |`,
     ...next.forms.months.map((m) => `| ${m.file} | Web3Forms dashboard, form ArbCut (created ${w3f.created}), total ${w3f.total}, spam ${w3f.spam}; chart tooltip ${m.month}: ${m.submissions} |`),
