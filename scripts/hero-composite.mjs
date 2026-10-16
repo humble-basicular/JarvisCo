@@ -258,7 +258,7 @@ export async function compositeScreen({ source, capture, output, sourceSha256, c
     capture: basename(capture), captureSha256: beforeCapture, output: basename(output), outputSha256: sha256(output),
     pixels: { width: w, height: h, upscaled: false }, capturePixels: { width: cw, height: meta.height }, crop,
     captureFit: { mode: 'contain', padding: capturePaper, note: 'Website aspect ratio retained; paper padding centred when viewport and handset ratios differ' },
-    cropReason: cropTop ? 'Top example/disclaimer bar cropped from supplied capture; no clean capture available' : 'No top crop requested',
+    cropReason: cropTop ? 'Top example banner cropped (its measured height; capture shot taller by the same amount)' : 'No top crop requested',
     key: { rgb: key, componentPixels: tail, softPixels, alpha: 'continuous excess-green unmix; no dilation; original foreground recovered and despilled' },
     edges: Object.fromEntries(Object.entries({ left, right, top, bottom }).map(([k, a]) => [k, Object.fromEntries(Object.entries(a).map(([key, value]) => [key, round(value)]))])),
     corners: corners.map((a) => a.map(round)), contentOversize: 1.015, bottomOcclusion,

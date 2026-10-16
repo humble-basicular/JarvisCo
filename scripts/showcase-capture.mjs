@@ -66,6 +66,15 @@ try {
     // Load lazy images: walk the page once, then return to the top.
     const pageHeight = await evaluate(`(async () => { const h = document.documentElement.scrollHeight; for (let y = 0; y < h; y += 600) { scrollTo(0, y); await new Promise((r) => setTimeout(r, 60)); } await Promise.all([...document.images].map((i) => i.decode().catch(() => {}))); scrollTo(0, 0); return document.documentElement.scrollHeight; })()`);
     let height = s.height;
+    // The hero phone shows the site without the example banner (the hero caption
+    // says it is our demo): shoot taller by the banner's height; showcase-assets
+    // crops exactly that many rows, so the screen keeps its 390 × 722 proportions.
+    let bannerCss = 0;
+    if (s.name === 'hero-screen') {
+      bannerCss = await evaluate(`Math.ceil(document.querySelector('.hs-banner')?.getBoundingClientRect().height ?? 0)`);
+      height = s.height + bannerCss;
+      await cdp('Emulation.setDeviceMetricsOverride', { width: s.width, height, deviceScaleFactor: s.dpr, mobile: s.mobile });
+    }
     if (s.fullPage) {
       height = pageHeight;
       if (height * s.dpr > 16000) throw new Error(`${s.name}: ${height} CSS px @${s.dpr}x exceeds the 16 000 device px limit`);
@@ -75,7 +84,7 @@ try {
     const shot = await cdp('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     const file = join(out, `${s.name}.png`);
     writeFileSync(file, Buffer.from(shot.data, 'base64'));
-    shots.push({ name: s.name, file, cssViewport: `${s.width}x${height}`, dpr: s.dpr, mobile: s.mobile, fullPage: Boolean(s.fullPage), pageHeight, sha256: sha(file) });
+    shots.push({ name: s.name, file, cssViewport: `${s.width}x${height}`, dpr: s.dpr, mobile: s.mobile, fullPage: Boolean(s.fullPage), pageHeight, bannerCss, sha256: sha(file) });
     console.log(`${s.name}: ${s.width}x${height} CSS px @${s.dpr}x`);
   }
   const receipt = {
