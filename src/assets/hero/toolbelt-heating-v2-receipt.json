@@ -1,0 +1,123 @@
+{
+  "version": 2,
+  "createdAt": "2026-10-16T05:57:49.488Z",
+  "source": "hero-v2.png",
+  "sourceSha256": "46da694eba0555f1e349879b2247c6226c48374d14a137b8c4f9d3bbf4468545",
+  "capture": "hero-screen.png",
+  "captureSha256": "83b4ba0e7f33a683ff7a6c8c727bb6e35fac996b0e8896116b0613af2810a0f7",
+  "output": "toolbelt-heating-v2.png",
+  "outputSha256": "c0e4ff1b0263f240814076c6601e487cdfd41f075498f75890c3fcd2ff9f286e",
+  "pixels": {
+    "width": 1536,
+    "height": 1024,
+    "upscaled": false
+  },
+  "capturePixels": {
+    "width": 780,
+    "height": 1444
+  },
+  "crop": {
+    "left": 0,
+    "top": 146,
+    "width": 780,
+    "height": 1298
+  },
+  "captureFit": {
+    "mode": "contain",
+    "padding": {
+      "r": 250,
+      "g": 249,
+      "b": 246
+    },
+    "note": "Website aspect ratio retained; paper padding centred when viewport and handset ratios differ"
+  },
+  "cropReason": "Top example/disclaimer bar cropped from supplied capture; no clean capture available",
+  "key": {
+    "rgb": [
+      6,
+      253,
+      3
+    ],
+    "componentPixels": 32971,
+    "softPixels": 3106,
+    "alpha": "continuous excess-green unmix; no dilation; original foreground recovered and despilled"
+  },
+  "edges": {
+    "left": {
+      "slope": 0.198,
+      "intercept": 623.4875,
+      "rms": 0.0829,
+      "samples": 129
+    },
+    "right": {
+      "slope": 0.1946,
+      "intercept": 761.9745,
+      "rms": 0.0919,
+      "samples": 129
+    },
+    "top": {
+      "slope": -0.206,
+      "intercept": 258.3773,
+      "rms": 0.0804,
+      "samples": 73
+    },
+    "bottom": {
+      "slope": -0.229,
+      "intercept": 521.5945,
+      "rms": 0.0571,
+      "samples": 72
+    }
+  },
+  "corners": [
+    [
+      648.2009,
+      124.8171
+    ],
+    [
+      780.9423,
+      97.466
+    ],
+    [
+      826.6399,
+      332.2819
+    ],
+    [
+      695.2368,
+      362.3751
+    ]
+  ],
+  "contentOversize": 1.015,
+  "bottomOcclusion": false,
+  "bottomGeometry": "Four straight screen edge fits intersected",
+  "photoMatch": {
+    "paperWhite": [
+      251,
+      249,
+      248
+    ],
+    "screenWhite": [
+      244,
+      242,
+      241
+    ],
+    "blackFloor": 9,
+    "luminanceMapRange": [
+      0.9701,
+      1.004
+    ],
+    "antialiasResamplePixels": [
+      135,
+      241
+    ],
+    "resampleKernel": "lanczos3",
+    "opticalBlur": 0.35,
+    "glassGlarePeak": 0.021,
+    "grainPeakToPeak": 0.65
+  },
+  "checks": {
+    "outsideScreenChangedPixels": 0,
+    "greenPixelsLeft": 0,
+    "encodedPixelsMatch": true,
+    "inputHashesUnchanged": true
+  }
+}

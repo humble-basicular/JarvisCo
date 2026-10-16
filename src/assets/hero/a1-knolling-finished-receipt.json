@@ -1,0 +1,123 @@
+{
+  "version": 2,
+  "createdAt": "2026-10-16T05:55:50.553Z",
+  "source": "a1-knolling-proportions-r2.png",
+  "sourceSha256": "ea816ae494030ab46aa2ba58dd0d4ea247bb8a9f106d048961c5ddb2d4b7e8a0",
+  "capture": "hero-screen.png",
+  "captureSha256": "83b4ba0e7f33a683ff7a6c8c727bb6e35fac996b0e8896116b0613af2810a0f7",
+  "output": "a1-knolling-finished.png",
+  "outputSha256": "df5a23c13e2dce21f8d670959d193188301984c03f7fde25242795fb622437f7",
+  "pixels": {
+    "width": 1536,
+    "height": 1024,
+    "upscaled": false
+  },
+  "capturePixels": {
+    "width": 780,
+    "height": 1444
+  },
+  "crop": {
+    "left": 0,
+    "top": 146,
+    "width": 780,
+    "height": 1298
+  },
+  "captureFit": {
+    "mode": "contain",
+    "padding": {
+      "r": 250,
+      "g": 249,
+      "b": 246
+    },
+    "note": "Website aspect ratio retained; paper padding centred when viewport and handset ratios differ"
+  },
+  "cropReason": "Top example/disclaimer bar cropped from supplied capture; no clean capture available",
+  "key": {
+    "rgb": [
+      3,
+      250,
+      6
+    ],
+    "componentPixels": 218425,
+    "softPixels": 5888,
+    "alpha": "continuous excess-green unmix; no dilation; original foreground recovered and despilled"
+  },
+  "edges": {
+    "left": {
+      "slope": 0,
+      "intercept": 596.5541,
+      "rms": 0.0202,
+      "samples": 349
+    },
+    "right": {
+      "slope": -0.0001,
+      "intercept": 938.3777,
+      "rms": 0.0167,
+      "samples": 349
+    },
+    "top": {
+      "slope": 0,
+      "intercept": 180.3722,
+      "rms": 0.0154,
+      "samples": 187
+    },
+    "bottom": {
+      "slope": -0.0001,
+      "intercept": 817.6446,
+      "rms": 0.0243,
+      "samples": 187
+    }
+  },
+  "corners": [
+    [
+      596.561,
+      180.3463
+    ],
+    [
+      938.3615,
+      180.3314
+    ],
+    [
+      938.3045,
+      817.5804
+    ],
+    [
+      596.5854,
+      817.6038
+    ]
+  ],
+  "contentOversize": 1.015,
+  "bottomOcclusion": false,
+  "bottomGeometry": "Four straight screen edge fits intersected",
+  "photoMatch": {
+    "paperWhite": [
+      250,
+      248,
+      244
+    ],
+    "screenWhite": [
+      243,
+      241,
+      237
+    ],
+    "blackFloor": 9,
+    "luminanceMapRange": [
+      0.9907,
+      1.0062
+    ],
+    "antialiasResamplePixels": [
+      342,
+      637
+    ],
+    "resampleKernel": "lanczos3",
+    "opticalBlur": 0.35,
+    "glassGlarePeak": 0.021,
+    "grainPeakToPeak": 0.65
+  },
+  "checks": {
+    "outsideScreenChangedPixels": 0,
+    "greenPixelsLeft": 0,
+    "encodedPixelsMatch": true,
+    "inputHashesUnchanged": true
+  }
+}
