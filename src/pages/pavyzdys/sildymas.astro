@@ -1,5 +1,6 @@
 ---
-/* Demo heating site shown as the example on /noriu (funnel spec §8). noindex. */
+/* Demo heating site shown as the example on /noriu (funnel spec §8). noindex.
+   Direction A ("Editorial"); /pavyzdys/sildymas-b shows direction B while both are under review. */
 import HeatingLayout from '../../templates/heating/HeatingLayout.astro';
 import HeatingSite from '../../templates/heating/HeatingSite.astro';
 import { demo } from '../../templates/heating/demo';
@@ -7,6 +8,6 @@ import { pageDescription } from '../../templates/heating/content';
 
 const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: '/noriu', label: '← Grįžti' };
 ---
-<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} banner={banner}>
-  <HeatingSite data={demo} mode="preview" />
+<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} banner={banner} direction="a">
+  <HeatingSite data={demo} mode="preview" direction="a" />
 </HeatingLayout>

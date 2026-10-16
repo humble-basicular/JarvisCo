@@ -19,18 +19,26 @@ check('client accent contrast is enforced', () => assert.throws(() => normalize(
 check('unsafe review URL is rejected', () => assert.throws(() => normalize({ ...base, reviews: [{ name: 'Test', text: 'Test', url: 'javascript:alert(1)' }] }), /https/));
 check('saved image dimensions are validated', () => assert.throws(() => validateSaved({ ...base, slug: 'test', photos: [{ src: '/x.jpg', width: 0, height: 10 }] }), /positive integer/));
 
-const html = readFileSync('dist/pavyzdys/sildymas/index.html', 'utf8');
-check('demo: noindex, inert form, no callable contacts or schema', () => {
-  assert.match(html, /content="noindex,nofollow"/);
-  assert.match(html, /data-inert-form/);
-  assert.doesNotMatch(html, /href="(?:tel:|sms:|mailto:)|data-callback-form="|type="application\/ld\+json"/);
-  assert.match(html, /PAVYZDYS/);
-});
-check('five illustrations labelled; no invented reviews or qualifications', () => {
-  assert.equal((html.match(/<img /g) ?? []).length, 5);
-  assert.equal((html.match(/<figcaption[^>]*>[^<]*(?:DI|iliustracija)/g) ?? []).length, 5);
-  assert.doesNotMatch(html, /id="(?:zodis|apie)"[^>]*aria-labelledby="hs-reviews"|Atestatas|gamintojų mokymai/);
-});
+// Both design directions under review (A at /pavyzdys/sildymas, B at /pavyzdys/sildymas-b).
+for (const [label, file] of [['demo A', 'dist/pavyzdys/sildymas/index.html'], ['demo B', 'dist/pavyzdys/sildymas-b/index.html']]) {
+  const html = readFileSync(file, 'utf8');
+  check(`${label}: noindex, inert form, no callable contacts or schema`, () => {
+    assert.match(html, /content="noindex,nofollow"/);
+    assert.match(html, /data-inert-form/);
+    assert.doesNotMatch(html, /href="(?:tel:|sms:|mailto:)|data-callback-form="|type="application\/ld\+json"/);
+    assert.match(html, /PAVYZDYS/);
+  });
+  // One visible statement by the photos plus a tag on the hero image replace per-photo captions;
+  // every image still says it is an AI illustration in its alt text.
+  check(`${label}: five illustrations disclosed; no invented reviews or qualifications`, () => {
+    const imgs = html.match(/<img [^>]*>/g) ?? [];
+    assert.equal(imgs.length, 5);
+    assert.ok(imgs.every((img) => /alt="[^"]*\bDI\b[^"]*iliustracija/.test(img)), 'every alt names the DI illustration');
+    assert.equal((html.match(/class="hs-tag"[^>]*>DI iliustracija</g) ?? []).length, 1, 'hero tag');
+    assert.equal((html.match(/class="[^"]*hs-disclose[^"]*"[^>]*>[^<]*DI sukurtos iliustracijos, ne atlikti darbai/g) ?? []).length, 1, 'photo note');
+    assert.doesNotMatch(html, /id="(?:zodis|apie)"[^>]*aria-labelledby="hs-reviews"|Atestatas|gamintojų mokymai/);
+  });
+}
 check('demo and previews excluded from sitemap', () => assert.doesNotMatch(readFileSync('dist/sitemap-0.xml', 'utf8'), /\/(?:pavyzdys|perziura)\//));
 
 // Each symlink case uses its own fresh slug, so no cleanup/removal is needed.

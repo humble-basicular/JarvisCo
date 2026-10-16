@@ -2,7 +2,8 @@
    are allowed: the business, number, prices and facts are fictional, and every
    page that shows it carries the PAVYZDYS banner. No invented reviews, even here. */
 import type { SiteData } from './types';
-import installed from './assets/demo-boiler-installed-1280.webp?url';
+import installed from './assets/demo-boiler-installed-1536.webp?url';
+import installedMid from './assets/demo-boiler-installed-1024.webp?url';
 import installedSmall from './assets/demo-boiler-installed-768.webp?url';
 import service from './assets/demo-boiler-service-1280.webp?url';
 import radiator from './assets/demo-radiator-1280.webp?url';
@@ -25,7 +26,7 @@ export const demo: SiteData = {
     'Radiatoriai ir vamzdynai',
   ],
   tagline: 'Šildymo sistemos Kaune ir Kauno rajone',
-  standout: 'Remontas ir priežiūra\nKatilų keitimas\nŠilumos siurblių įrengimas',
+  standout: 'Du meistrai iš Kauno\nKainą pasakome prieš darbus',
   brands: ['Bosch', 'Vaillant', 'Viessmann', 'Baxi', 'Protherm'],
   hours: 'I–V 8:00–18:00, šildymo sezonu ir šeštadieniais',
   email: 'info@pavyzdys.example',
@@ -37,7 +38,7 @@ export const demo: SiteData = {
   ],
   priceNote: 'Tiksli remonto kaina – nustačius gedimą ir suderinus su Jumis. Detalės skaičiuojamos atskirai.',
   photos: [
-    { src: installed, srcset: `${installedSmall} 768w, ${installed} 1280w`, width: 1280, height: 853, alt: 'Sieninis katilas ir variniai vamzdžiai. DI sukurta pavyzdinė iliustracija.' },
+    { src: installed, srcset: `${installedSmall} 768w, ${installedMid} 1024w, ${installed} 1536w`, width: 1536, height: 1024, alt: 'Sieninis katilas ir variniai vamzdžiai. DI sukurta pavyzdinė iliustracija.' },
     { src: service, width: 1280, height: 853, alt: 'Katilo priežiūros įrankiai. DI iliustracija, ne atliktas darbas.' },
     { src: radiator, width: 1254, height: 1254, alt: 'Radiatorius gyvenamajame kambaryje. DI iliustracija, ne atliktas darbas.' },
     { src: underfloor, width: 1280, height: 853, alt: 'Grindinio šildymo vamzdžiai. DI iliustracija, ne atliktas darbas.' },

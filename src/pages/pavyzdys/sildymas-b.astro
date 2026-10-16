@@ -1,0 +1,14 @@
+---
+/* TEMPORARY (2026-10-16 design review): the heating demo in direction B ("Livery").
+   noindex like every /pavyzdys page and kept out of the sitemap. Remove or promote
+   once Jarvis picks a direction. */
+import HeatingLayout from '../../templates/heating/HeatingLayout.astro';
+import HeatingSite from '../../templates/heating/HeatingSite.astro';
+import { demo } from '../../templates/heating/demo';
+import { pageDescription } from '../../templates/heating/content';
+
+const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: '/noriu', label: '← Grįžti' };
+---
+<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys B`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} banner={banner} direction="b">
+  <HeatingSite data={demo} mode="preview" direction="b" />
+</HeatingLayout>

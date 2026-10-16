@@ -52,4 +52,7 @@ export interface LiveSite {
 
 export type Mode = 'preview' | 'live';
 
+/** Design direction under review: A "Editorial" (default) or B "Livery". */
+export type Direction = 'a' | 'b';
+
 export interface Banner { tag: string; note: string; href: string; label: string }

@@ -37,7 +37,7 @@ export const t = {
   call: 'Skambinti',
   sms: 'Parašyti SMS',
   leave: 'Palikti užklausą',
-  leaveLong: 'Palikite numerį – perskambinsime',
+  leaveLong: 'Palikite numerį\u00a0– perskambinsime',
   navServices: 'Paslaugos',
   navWorks: 'Darbai',
   navAreas: 'Kur dirbame',
@@ -65,7 +65,7 @@ export const t = {
   faqLabel: 'D. U. K.',
   faqTitle: 'Dažniausi klausimai',
   formLabel: 'Užklausa',
-  formTitle: 'Palikite numerį – perskambinsime',
+  formTitle: 'Palikite numerį\u00a0– perskambinsime',
   formOrCall: 'Arba skambinkite:',
   service: 'Ko reikia?',
   servicePick: 'Pasirinkite paslaugą',
@@ -198,7 +198,12 @@ export function coverage(data: SiteData, short = false): string {
 
 export function lead(data: SiteData): string {
   if (data.demo) return 'Katilų remontas, priežiūra ir naujos šildymo sistemos – nuo katilinės iki radiatorių.';
-  const groups = serviceGroups(data).map(lowerFirst).slice(0, 4);
+  // Up to four service groups, fewer when the names are long, so the hero stays short on a phone.
+  const groups: string[] = [];
+  for (const g of serviceGroups(data).map(lowerFirst).slice(0, 4)) {
+    if (groups.length && andList([...groups, g]).length > 110) break;
+    groups.push(g);
+  }
   return `${data.business} – ${andList(groups)}. ${coverage(data, true)}`;
 }
 
@@ -211,16 +216,17 @@ export function pageDescription(data: SiteData): string {
 }
 
 /** Symptom-first entry points (report §4 wireframe 4). Only for services the site really lists. */
-const ROUTES: { match: RegExp; title: string; text: string }[] = [
-  { match: /remont|gedim|klaid/iu, title: 'Katilas neveikia ar rodo klaidą', text: 'Nurodykite katilo markę, modelį ir klaidos kodą. Galite pridėti ekrano ar duomenų lentelės nuotrauką.' },
-  { match: /priežiūr|aptarnav|profilakt/iu, title: 'Reikia metinės priežiūros', text: 'Planinę katilo apžiūrą patogiausia suderinti prieš šildymo sezoną.' },
-  { match: /keitim|montav|įreng|šilumos siurbl/iu, title: 'Planuojate keisti ar įrengti šildymą', text: 'Pasakykite, kokį šildymą turite dabar ir kokį namą ar butą reikia šildyti.' },
+export type RouteKind = 'repair' | 'servicing' | 'install';
+const ROUTES: { kind: RouteKind; match: RegExp; title: string; text: string }[] = [
+  { kind: 'repair', match: /remont|gedim|klaid/iu, title: 'Katilas neveikia ar rodo klaidą?', text: 'Nurodykite katilo markę, modelį ir klaidos kodą. Galite pridėti ekrano ar duomenų lentelės nuotrauką.' },
+  { kind: 'servicing', match: /priežiūr|aptarnav|profilakt/iu, title: 'Reikia metinės priežiūros?', text: 'Planinę katilo apžiūrą patogiausia suderinti prieš šildymo sezoną.' },
+  { kind: 'install', match: /keitim|montav|įreng|šilumos siurbl/iu, title: 'Planuojate keisti ar įrengti šildymą?', text: 'Pasakykite, kokį šildymą turite dabar ir kokį namą ar butą reikia šildyti.' },
 ];
-export function routes(data: SiteData): { title: string; text: string; service: string }[] {
+export function routes(data: SiteData): { kind: RouteKind; title: string; text: string; service: string }[] {
   const names = serviceList(data).map((s) => s.name);
   return ROUTES.flatMap((r) => {
     const service = names.find((n) => r.match.test(n));
-    return service ? [{ title: r.title, text: r.text, service }] : [];
+    return service ? [{ kind: r.kind, title: r.title, text: r.text, service }] : [];
   });
 }
 
@@ -261,7 +267,14 @@ export function faqList(data: SiteData): { q: string; a: string }[] {
   ];
 }
 
-export const initials = (business: string) => business.split(/\s+/u).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toLocaleUpperCase('lt');
+/** Two letters for the mark: "Šilumos ratas" → "ŠR"; legal forms and short words are skipped
+ *  ("UAB Šildymo ir vėdinimo sprendimai" → "ŠV"). */
+const SKIP = /^(?:uab|mb|iį|ii|ab|všį|vsi|ir|bei|ar|su|iš|į|ui)$/iu;
+export const initials = (business: string) => {
+  const words = business.replace(/["„“”']/gu, '').split(/\s+/u).filter(Boolean);
+  const main = words.filter((w) => !SKIP.test(w) && /\p{L}/u.test(w));
+  return (main.length ? main : words).slice(0, 2).map((w) => [...w][0]).join('').toLocaleUpperCase('lt');
+};
 
 /** +370 600 00000 / 8 600 00000 / 860000000 / 060000000 / 60000000 → +37060000000. null if not a phone. */
 export function toE164(phone: string): string | null {

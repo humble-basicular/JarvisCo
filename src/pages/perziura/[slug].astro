@@ -10,6 +10,7 @@ import HeatingSite from '../../templates/heating/HeatingSite.astro';
 import { pageDescription, pageTitle } from '../../templates/heating/content';
 import type { SiteData } from '../../templates/heating/types';
 import { validateSaved } from '../../../scripts/preview/normalize.mjs';
+import { direction } from '../../templates/heating/site/load';
 
 export const getStaticPaths = (() => {
   const files = import.meta.glob<{ default: SiteData }>('../../../previews/*.json', { eager: true });
@@ -22,6 +23,6 @@ export const getStaticPaths = (() => {
 const { data } = Astro.props;
 const banner = { tag: 'PERŽIŪRA', note: 'Svetainės juodraštis, paruoštas jarvisweb.lt', href: brand.smsHref, label: 'Parašyti Matui' };
 ---
-<HeatingLayout mode="preview" title={`${data.business} – peržiūra`} description={pageDescription(data)} business={data.business} accent={data.accent} banner={banner}>
-  <HeatingSite data={data} mode="preview" />
+<HeatingLayout mode="preview" title={`${data.business} – peržiūra`} description={pageDescription(data)} business={data.business} accent={data.accent} banner={banner} direction={direction()}>
+  <HeatingSite data={data} mode="preview" direction={direction()} />
 </HeatingLayout>

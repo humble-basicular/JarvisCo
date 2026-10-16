@@ -6,7 +6,7 @@ import HeatingLayout from '../../HeatingLayout.astro';
 import SimpleTop from '../../SimpleTop.astro';
 import clientScript from '../../client.js?raw';
 import { t, toE164 } from '../../content';
-import { loadBuild } from '../load';
+import { direction, loadBuild } from '../load';
 
 const { data, site } = loadBuild();
 const tel = toE164(data.phone);
@@ -21,6 +21,7 @@ const telHref = tel ? `tel:${tel}` : undefined;
   canonical={`https://${site.domain}/aciu`}
   robots="noindex,follow"
   live={{ code: site.code, beacon: site.beaconEndpoint, tel }}
+  direction={direction()}
 >
   <SimpleTop business={data.business} phone={data.phone} tel={tel} />
   <main class="hs-wrap hs-page">

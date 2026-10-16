@@ -1,0 +1,173 @@
+---
+/* Direction A, "Editorial": off-white paper, very large grotesk headlines,
+   big edge-to-edge photography, thin ink rules and one client accent.
+   Sections render only from supplied facts (see content.ts). */
+import './site-a.css';
+import { processSteps, t } from './content';
+import type { LiveSite, Mode, SiteData } from './types';
+import { DEMO_HERO_TAG, DEMO_PHOTO_NOTE, view } from './view';
+import Details from './parts/Details.astro';
+import Footer from './parts/Footer.astro';
+import Inquiry from './parts/Inquiry.astro';
+
+interface Props { data: SiteData; mode: Mode; site?: LiveSite }
+const { data, mode, site } = Astro.props;
+const v = view(data, mode, site);
+const { live, telHref, callCta, smsHref, hero, works, services, router, areas, mark, nav, pad } = v;
+// Without a photo the identity card already shows the hours.
+const proof = v.proof.filter((p) => hero || p.label !== t.hours);
+/** Works in rows of two with alternating wide/narrow halves; an odd last photo spans the row. */
+const tile = (i: number) => (i === works.length - 1 && i % 2 === 0 ? 'full' : (Math.floor(i / 2) % 2 === 0) === (i % 2 === 0) ? 'wide' : 'narrow');
+---
+<a class="hs-skip" href="#uzklausa">Pereiti prie užklausos formos</a>
+<header class:list={['hs-top', data.business.length > 22 && 'hs-top--long']}>
+  <div class="hs-wrap hs-top__bar">
+    <a class="hs-logo" href="#pradzia"><span class="hs-logo__mark" aria-hidden="true">{mark}</span><span class="hs-logo__name">{data.business}</span></a>
+    <nav class="hs-nav" aria-label="Svetainės skyriai">
+      {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+    <a class="hs-top__call" href={telHref} data-cta={callCta}>
+      <span class="hs-top__label">{t.call}</span>
+      <span class="hs-top__num">{data.phone}</span>
+    </a>
+  </div>
+</header>
+
+<main id="pradzia">
+  <section class:list={['hs-hero', hero ? 'hs-hero--photo' : 'hs-hero--card']} aria-labelledby="hs-h1">
+    <div class="hs-wrap">
+      <p class="hs-label">{areas.slice(0, 3).join(' · ')}</p>
+      <h1 id="hs-h1" class={`hs-h1 hs-h1--${v.h1Length}`}>{v.h1}</h1>
+    </div>
+    <div class="hs-wrap hs-hero__row">
+      <div class="hs-hero__copy">
+        <p class="hs-hero__lead">{v.lead}</p>
+        <div class="hs-hero__ctas">
+          <a class="hs-btn hs-btn--call" href={telHref} data-cta={callCta}>{t.call}<span class="hs-btn__num">{data.phone}</span></a>
+          <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leaveLong}</a>
+        </div>
+        {smsHref && <p class="hs-hero__sms">Patogiau rašyti? <a href={smsHref} data-cta="cta_sms">{t.sms}</a></p>}
+      </div>
+
+      {proof.length > 0 && (
+        <ul class="hs-proof" aria-label="Svarbiausia">
+          {proof.map((p) => <li>{p.label && <span class="hs-proof__label">{p.label}</span>}<span class="hs-proof__text">{p.text}</span></li>)}
+        </ul>
+      )}
+
+      {hero ? (
+        <figure class="hs-hero__media">
+          <img src={hero.src} srcset={hero.srcset} sizes="(min-width: 64rem) 58vw, 100vw" width={hero.width} height={hero.height} alt={hero.alt ?? `${data.business}: atliktas darbas`} fetchpriority="high" decoding="async" />
+          {data.demo && <figcaption class="hs-tag">{DEMO_HERO_TAG}</figcaption>}
+        </figure>
+      ) : (
+        <aside class="hs-card" aria-label="Kontaktai">
+          <div class="hs-card__head">
+            <span class="hs-card__mark" aria-hidden="true">{mark}</span>
+            <p class="hs-card__name">{data.business}</p>
+          </div>
+          <dl class="hs-card__rows">
+            <div>
+              <dt>{t.phone}</dt>
+              <dd class="hs-card__phone">{live ? <a href={telHref} data-cta="cta_call">{data.phone}</a> : data.phone}</dd>
+            </div>
+            <div><dt>{t.areas}</dt><dd>{areas.join(', ')}</dd></div>
+            {data.hours && <div><dt>{t.hours}</dt><dd>{data.hours}</dd></div>}
+            <div><dt>{t.servicesLabel}</dt><dd><ul class="hs-card__svc">{services.slice(0, 5).map((s) => <li>{s.name}</li>)}</ul></dd></div>
+          </dl>
+        </aside>
+      )}
+    </div>
+  </section>
+
+  {router.length >= 2 && (
+    <section class="hs-sec hs-router" id="pagalba" aria-labelledby="hs-router">
+      <div class="hs-wrap">
+        <header class="hs-head hs-head--row">
+          <p class="hs-label hs-label--inv">{t.routerLabel}</p>
+          <h2 id="hs-router">{t.routerTitle}</h2>
+        </header>
+        <ul class="hs-routes">
+          {router.map((r, i) => (
+            <li>
+              <span class="hs-routes__n" aria-hidden="true">{pad(i + 1)}</span>
+              <h3>{r.title}</h3>
+              <p>{r.text}</p>
+              <a class="hs-arrow" href="#uzklausa" data-service={r.service}>{t.routerAsk}<span class="hs-vh">: {r.title.toLocaleLowerCase('lt')}</span></a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="hs-sec" id="paslaugos" aria-labelledby="hs-services">
+    <div class="hs-wrap">
+      <header class="hs-head hs-head--row">
+        <p class="hs-label">{t.servicesLabel}</p>
+        <h2 id="hs-services">{t.servicesTitle}</h2>
+        {data.brands && data.brands.length > 0 && (
+          <p class="hs-head__aside"><strong>{t.brandsLead}</strong> {data.brands.join(', ')}.</p>
+        )}
+      </header>
+      <ol class="hs-svc">
+        {services.map((s, i) => (
+          <li>
+            <span class="hs-svc__n" aria-hidden="true">{pad(i + 1)}</span>
+            <h3>{s.name}</h3>
+            {s.text && <p>{s.text}</p>}
+            <a class="hs-svc__ask" href="#uzklausa" data-service={s.name}>{t.serviceAsk}<span class="hs-vh">: {s.name}</span></a>
+          </li>
+        ))}
+      </ol>
+      {data.brands && data.brands.length > 0 && (
+        <p class="hs-brands">Nerandate savo katilo gamintojo? Parašykite modelį arba pridėkite duomenų lentelės nuotrauką.</p>
+      )}
+    </div>
+  </section>
+
+  {works.length > 0 && (
+    <section class="hs-sec hs-sec--white" id="darbai" aria-labelledby="hs-works">
+      <div class="hs-wrap">
+        <header class="hs-head hs-head--row">
+          <p class="hs-label">{data.demo ? 'Nuotraukos' : t.worksLabel}</p>
+          <h2 id="hs-works">{data.demo ? 'Šildymas iš arčiau' : t.worksTitle}</h2>
+          {data.demo && <p class="hs-head__aside hs-disclose">{DEMO_PHOTO_NOTE}</p>}
+        </header>
+        <ul class="hs-works">
+          {works.map((photo, i) => (
+            <li class={`hs-works__${tile(i)}`}>
+              <figure>
+                <img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt ?? `${data.business}: atliktas darbas`} loading="lazy" decoding="async" />
+                {photo.alt && !data.demo && <figcaption>{photo.alt}</figcaption>}
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="hs-sec hs-steps-sec" id="eiga" aria-labelledby="hs-process">
+    <div class="hs-wrap">
+      <header class="hs-head hs-head--row">
+        <p class="hs-label">{t.processLabel}</p>
+        <h2 id="hs-process">{t.processTitle}</h2>
+      </header>
+      <ol class="hs-steps">
+        {processSteps(data).map((s, i) => (
+          <li>
+            <span class="hs-steps__n" aria-hidden="true">{pad(i + 1)}</span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <Details data={data} v={v} />
+  <Inquiry data={data} v={v} />
+</main>
+
+<Footer data={data} v={v} />

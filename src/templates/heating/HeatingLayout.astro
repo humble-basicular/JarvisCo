@@ -10,8 +10,11 @@ import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-san
 import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
 import condLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-600-normal.woff2?url';
 import condExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-600-normal.woff2?url';
+// Direction B sets its headlines in the bold condensed cut: preloaded there, never requested by A.
+import condBoldLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2?url';
+import condBoldExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-700-normal.woff2?url';
 import { DEFAULT_ACCENT, initials } from './content';
-import type { Banner, Mode } from './types';
+import type { Banner, Direction, Mode } from './types';
 
 interface Props {
   mode: Mode;
@@ -27,8 +30,9 @@ interface Props {
   robots?: string;
   /** Live only: shown as data attributes the page script reads. */
   live?: { code: string; beacon: string; tel: string | null };
+  direction?: Direction;
 }
-const { mode, title, description, business, banner, canonical, image, jsonLd, live } = Astro.props;
+const { mode, title, description, business, banner, canonical, image, jsonLd, live, direction = 'a' } = Astro.props;
 const accent = /^#[0-9a-f]{6}$/i.test(Astro.props.accent ?? '') ? Astro.props.accent! : DEFAULT_ACCENT;
 const robots = Astro.props.robots ?? (mode === 'preview' ? 'noindex,nofollow' : 'index,follow');
 const mark = initials(business).replace(/[<>&"']/g, '');
@@ -43,6 +47,8 @@ const fontCss = [
   face('HS Sans', sansExt, EXT, '400 700'),
   face('HS Cond', condLatin, LATIN, '600'),
   face('HS Cond', condExt, EXT, '600'),
+  face('HS Cond', condBoldLatin, LATIN, '700'),
+  face('HS Cond', condBoldExt, EXT, '700'),
   // Metric-matched local fallbacks so text does not re-wrap when the web fonts swap in.
   "@font-face{font-family:'HS Sans Fallback';src:local('Arial'),local('ArialMT'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:25%;line-gap-override:0%}",
   "@font-face{font-family:'HS Cond Fallback';src:local('Arial Narrow'),local('ArialNarrow'),local('Roboto Condensed'),local('Arial');size-adjust:82%}",
@@ -58,10 +64,16 @@ const fontCss = [
     {mode === 'preview' && <meta name="referrer" content="no-referrer" />}
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#172126" />
+    <meta name="theme-color" content={direction === 'b' ? accent : '#172126'} />
     <link rel="icon" href={favicon} />
     <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sansExt} as="font" type="font/woff2" crossorigin />
+    {direction === 'b' && (
+      <>
+        <link rel="preload" href={condBoldLatin} as="font" type="font/woff2" crossorigin />
+        <link rel="preload" href={condBoldExt} as="font" type="font/woff2" crossorigin />
+      </>
+    )}
     {canonical && <link rel="canonical" href={canonical} />}
     {mode === 'live' && canonical && (
       <>
@@ -77,7 +89,7 @@ const fontCss = [
     <style set:html={`${fontCss}:root{--hs-accent:${accent}}`}></style>
   </head>
   <body
-    class={mode === 'preview' ? 'hs hs--preview' : 'hs'}
+    class:list={['hs', `hs-${direction}`, mode === 'preview' && 'hs--preview']}
     data-site={live?.code}
     data-beacon={live?.beacon}
     data-tel={live?.tel ?? undefined}
