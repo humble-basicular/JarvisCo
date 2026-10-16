@@ -102,7 +102,7 @@ try {
     expect(page.broken.length === 0, `${name}: images not decoded ${page.broken}`);
     expect(cls < 0.01, `${name}: layout shift ${cls}`);
     expect(consoleErrors.length === 0, `${name}: console errors ${consoleErrors}`);
-    if (route !== '/pavyzdys/sildymas') expect(hero && hero.loading === 'eager' && hero.fetchpriority === 'high' && hero.w === '1536' && hero.h === '1024' && /\.avif$/.test(hero.src), `${name}: hero image attributes ${JSON.stringify(hero)}`);
+    if (route !== '/pavyzdys/sildymas') expect(hero && hero.loading === 'eager' && hero.fetchpriority === 'high' && hero.w === '1536' && hero.h === '1024' && /^a1-knolling-finished\.[\w-]+\.avif$/.test(hero.src), `${name}: hero image attributes ${JSON.stringify(hero)}`);
     console.log(`${name}: ${page.height}px, overflow ${page.overflowX}, broken ${page.broken.length}, CLS ${cls.toFixed(4)}`);
   }
 

@@ -38,9 +38,9 @@ export const hero = {
     'Mokate tik už domeną (~15 € per metus), ir jis registruojamas Jūsų vardu.',
   ],
   sms: 'Parašyti SMS',
-  // Hero plan §4: an illustration, not a client. The belt is AI-generated; the screen is a real screenshot of our demo.
-  photoAlt: 'Odinis meistro įrankių diržas su plaktuku, rulete ir replėmis; kišenėje – telefonas su atidarytu šildymo meistro svetainės pavyzdžiu',
-  caption: 'Iliustracija: diržas sukurtas DI, telefone – tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija.',
+  // Hero plan §4 (concept A1): an illustration, not a client. The flat lay is AI-generated; the screen is a real screenshot of our demo.
+  photoAlt: 'Šildymo meistro įrankiai, išdėlioti ant stalo: santechninis ir reguliuojamas raktai, manometras, radiatoriaus raktelis, sandarinimo juosta, varinis vamzdis ir ruletė; viduryje – telefonas su atidarytu šildymo meistro svetainės pavyzdžiu',
+  caption: 'Iliustracija: įrankiai ir telefonas sukurti DI, ekrane – tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija.',
 };
 
 export const offerRow = [
