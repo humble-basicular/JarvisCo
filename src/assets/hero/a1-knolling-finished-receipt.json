@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "createdAt": "2026-10-16T05:55:50.553Z",
+  "createdAt": "2026-10-16T10:22:11.706Z",
   "source": "a1-knolling-proportions-r2.png",
   "sourceSha256": "ea816ae494030ab46aa2ba58dd0d4ea247bb8a9f106d048961c5ddb2d4b7e8a0",
   "capture": "hero-screen.png",
-  "captureSha256": "83b4ba0e7f33a683ff7a6c8c727bb6e35fac996b0e8896116b0613af2810a0f7",
+  "captureSha256": "29c166867f8b04bb2dd62d07c0d3a3573b9948794452025441eaff127b8a20bb",
   "output": "a1-knolling-finished.png",
-  "outputSha256": "df5a23c13e2dce21f8d670959d193188301984c03f7fde25242795fb622437f7",
+  "outputSha256": "d211c02083729a94c534e6a381152cb73aa0189e164b39c503c9378d3af44759",
   "pixels": {
     "width": 1536,
     "height": 1024,
@@ -14,24 +14,24 @@
   },
   "capturePixels": {
     "width": 780,
-    "height": 1444
+    "height": 1590
   },
   "crop": {
     "left": 0,
     "top": 146,
     "width": 780,
-    "height": 1298
+    "height": 1444
   },
   "captureFit": {
     "mode": "contain",
     "padding": {
-      "r": 250,
-      "g": 249,
-      "b": 246
+      "r": 255,
+      "g": 255,
+      "b": 255
     },
     "note": "Website aspect ratio retained; paper padding centred when viewport and handset ratios differ"
   },
-  "cropReason": "Top example/disclaimer bar cropped from supplied capture; no clean capture available",
+  "cropReason": "Top example banner cropped (its measured height; capture shot taller by the same amount)",
   "key": {
     "rgb": [
       3,

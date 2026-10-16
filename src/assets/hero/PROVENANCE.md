@@ -1,6 +1,13 @@
 # Hero and showcase images: provenance
 
-The existing site hero and its historical receipt (`toolbelt-heating.png`, `RECEIPT.json`) remain unchanged. The v2 candidates below are for review; no page imports them.
+**Site hero since 2026-10-16: `a1-knolling-finished.png`** (concept A1, picked by Jarvis): AI-generated top-down flat lay of heating tools (ChatGPT Images via Codex; source `originals/a1-knolling-proportions-r2.png` in main Drive `Personal Everything/research/2026-10-16-hero-concepts/`, SHA-256 `ea816ae4…e8a0`), with a real headless-Chrome capture of our heating demo `/pavyzdys/sildymas` composited onto the phone by composite v2. The demo's example banner is cropped by its measured height (the capture is shot taller by the same amount), so the screen keeps 390 × 722 CSS px proportions. `RECEIPT.json` (written by `scripts/showcase-assets.mjs`) pins the capture commit, hashes and geometry. Shown as an illustration with a caption, never as a client.
+
+Rebuild after any demo change, from the integration worktree with a clean demo template:
+1. `npm run build && npx astro preview --host 127.0.0.1 --port <port>`
+2. `node scripts/showcase-capture.mjs http://127.0.0.1:<port> client-sites/<capture-dir>`
+3. `node scripts/showcase-assets.mjs client-sites/<capture-dir> "<Drive>/Personal Everything/research/2026-10-16-hero-concepts/originals/a1-knolling-proportions-r2.png"` (refreshes `../showcase/*.png` too)
+
+Not used by any page any more (kept for review history; cleanup candidates): `toolbelt-heating.png`, `toolbelt-heating-v2*`, `b2-frontal-belt-finished*`, `RECEIPT-v2.json` if present.
 
 ## Composite v2 — 2026-10-16
 
