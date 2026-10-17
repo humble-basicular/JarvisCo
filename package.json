@@ -12,7 +12,8 @@
     "check:js": "node src/checks/js-budget.mjs",
     "check": "astro build && npm run check:copy && npm run check:js && npm run check:static",
     "astro": "astro",
-    "check:static": "node src/checks/static-check.mjs"
+    "check:static": "node src/checks/static-check.mjs",
+    "check:inquiry": "node --test src/checks/inquiry-track-test.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.3.0",
