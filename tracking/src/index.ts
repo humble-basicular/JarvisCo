@@ -17,10 +17,24 @@ interface Event {
   id: string;
   code: string | null;
   site: string | null;
-  type: BeaconType | 'click' | 'preview_request' | 'callback_request' | 'site_inquiry' | 'job_request';
+  type: BeaconType | 'click' | 'preview_request' | 'callback_request' | 'site_inquiry' | 'job_request' | 'form_open' | 'form_submit';
   submission?: Submission | SiteSubmission;
+  meta?: BeaconMeta;
   at: string;
   ua_class: 'bot' | 'human';
+}
+// Anonymous page context of a site beacon: no cookie, IP, full UA or visitor id.
+interface BeaconMeta { page: string; loc: string | null; ref: 'direct' | 'search' | 'social' | 'internal' | 'other'; mobile: boolean }
+const SITE_BEACON_TYPES: readonly string[] = ['cta_call', 'cta_sms', 'form_open', 'form_submit'];
+const BEACON_REFS: readonly string[] = ['direct', 'search', 'social', 'internal', 'other'];
+const BEACON_PAGE = /^\/[^?#\s]{0,119}$/;
+const BEACON_LOC = /^[a-z0-9_-]{1,40}$/;
+// All-or-nothing: a malformed context never blocks the count, it is simply dropped.
+function beaconMeta(payload: Record<string, unknown>): BeaconMeta | null {
+  const { page, loc, ref, mobile } = payload;
+  if (typeof page !== 'string' || !BEACON_PAGE.test(page) || typeof ref !== 'string' || !BEACON_REFS.includes(ref)
+    || typeof mobile !== 'boolean') return null;
+  return { page, loc: typeof loc === 'string' && BEACON_LOC.test(loc) ? loc : null, ref: ref as BeaconMeta['ref'], mobile };
 }
 interface Cursor {
   v: 1;
@@ -193,16 +207,18 @@ async function beacon(request: Request, env: Env): Promise<Response> {
   if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) return error('invalid_event', 400);
   const { code, site, type } = payload as Record<string, unknown>;
   let siteCode: string | null = null;
+  let meta: BeaconMeta | null = null;
   if ('site' in payload) {
     if (typeof site !== 'string' || !SITE.test(site)) return error('invalid_event', 400);
     const config = sites(env);
     if (!config) return error('unavailable', 503);
     if (!config[site]) return error('invalid_event', 400);
     if (!allowedOrigin(request, config[site]!)) return error('origin', 403);
-    if ('code' in payload || typeof type !== 'string' || !['cta_call', 'cta_sms'].includes(type)) {
+    if ('code' in payload || typeof type !== 'string' || !SITE_BEACON_TYPES.includes(type)) {
       return cors(error('invalid_event', 400), request.headers.get('Origin')!);
     }
     siteCode = site;
+    meta = beaconMeta(payload as Record<string, unknown>);
   } else if (!firstPartyOrigin(request)) return error('origin', 403);
   if (!siteCode && (!validCode(code) || typeof type !== 'string' || !TYPES.includes(type))) return error('invalid_event', 400);
 
@@ -215,9 +231,10 @@ async function beacon(request: Request, env: Env): Promise<Response> {
       env.DB.prepare(`INSERT INTO rate_limits(code, window_start, requests) VALUES (?, ?, 1)
         ON CONFLICT(code, window_start) DO UPDATE SET requests = min(requests + 1, ?)
       `).bind(bucket, window, RATE_LIMIT + 1),
-      env.DB.prepare(`INSERT INTO events(code, site, type, ua_class)
-        SELECT ?, ?, ?, ? WHERE (SELECT requests FROM rate_limits WHERE code = ? AND window_start = ?) <= ?
-      `).bind(siteCode ? null : code, siteCode, type, uaClass(request), bucket, window, RATE_LIMIT),
+      env.DB.prepare(`INSERT INTO events(code, site, type, ua_class, page, loc, ref, mobile)
+        SELECT ?, ?, ?, ?, ?, ?, ?, ? WHERE (SELECT requests FROM rate_limits WHERE code = ? AND window_start = ?) <= ?
+      `).bind(siteCode ? null : code, siteCode, type, uaClass(request), meta?.page ?? null, meta?.loc ?? null, meta?.ref ?? null,
+        meta ? Number(meta.mobile) : null, bucket, window, RATE_LIMIT),
     ]);
     if (results[1]!.meta.changes === 0) {
       const response = json({ error: 'rate_limited' }, 429, { 'Retry-After': String(Math.ceil((window + WINDOW_MS - now) / 1000)) });
@@ -513,14 +530,17 @@ async function events(request: Request, env: Env, url: URL): Promise<Response> {
   const afterAt = cursor?.at ?? since;
   const afterId = cursor?.id ?? '0';
   const result = await env.DB.prepare(`
-    SELECT CAST(events.id AS TEXT) AS id, events.code, events.site, events.type, events.at, events.ua_class, submissions.payload
+    SELECT CAST(events.id AS TEXT) AS id, events.code, events.site, events.type, events.at, events.ua_class,
+      events.page, events.loc, events.ref, events.mobile, submissions.payload
     FROM events LEFT JOIN submissions ON submissions.event_id = events.id
     WHERE events.at >= ? AND events.at >= ? AND events.id <= ? AND (events.at > ? OR (events.at = ? AND events.id > ?))
     ORDER BY events.at ASC, events.id ASC LIMIT ?
-  `).bind(since, retentionCutoff(new Date(Date.now())), high ?? '0', afterAt, afterAt, afterId, limit + 1).all<Event & { payload: string | null }>();
+  `).bind(since, retentionCutoff(new Date(Date.now())), high ?? '0', afterAt, afterAt, afterId, limit + 1).all<Event & { payload: string | null; page: string | null; loc: string | null; ref: BeaconMeta['ref'] | null; mobile: number | null }>();
   const hasMore = result.results.length > limit;
-  const page = result.results.slice(0, limit).map(({ payload, ...event }) =>
-    payload === null ? event : { ...event, submission: withEmailFields(event.type, JSON.parse(payload) as Submission) });
+  const page = result.results.slice(0, limit).map(({ payload, page: path, loc, ref, mobile, ...event }) => {
+    const withMeta = path === null || ref === null ? event : { ...event, meta: { page: path, loc, ref, mobile: mobile === 1 } };
+    return payload === null ? withMeta : { ...withMeta, submission: withEmailFields(event.type, JSON.parse(payload) as Submission) };
+  });
   const last = page.at(-1);
   return json({
     events: page,

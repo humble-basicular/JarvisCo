@@ -22,7 +22,7 @@ const test_default = {
   }
 };
 `;
-const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql', '0004_sites.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
+const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql', '0004_sites.sql', '0005_site_beacons.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
 const fixedNow = Date.now();
 let mf;
 let db;
@@ -88,7 +88,7 @@ test('apex and www valid links redirect uncached and record human clicks', async
     assert.equal(row.type, 'click');
     assert.equal(row.ua_class, 'human');
     assert.match(row.at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/);
-    assert.deepEqual(Object.keys(row).sort(), ['at', 'code', 'id', 'site', 'type', 'ua_class']);
+    assert.deepEqual(Object.keys(row).sort(), ['at', 'code', 'id', 'loc', 'mobile', 'page', 'ref', 'site', 'type', 'ua_class']);
   }
 });
 
@@ -112,7 +112,7 @@ test('all specified scanners and generic bot patterns are classified, never stor
   assert.equal(rows.length, bots.length + 1);
   assert.ok(rows.every((row) => row.ua_class === 'bot'));
   const columns = (await db.prepare('PRAGMA table_info(events)').all()).results.map((row) => row.name);
-  assert.deepEqual(columns, ['id', 'code', 'site', 'type', 'at', 'ua_class']);
+  assert.deepEqual(columns, ['id', 'code', 'site', 'type', 'at', 'ua_class', 'page', 'loc', 'ref', 'mobile']); // still no IP, UA or cookie column
 });
 
 test('all seven types work with sendBeacon JSON Blob and plain-text string bodies', async () => {
@@ -963,6 +963,63 @@ test('site storage failure retains CORS and no-JS fallback without publishing', 
     body: JSON.stringify({ site: 'arbcut', type: 'cta_sms' }) }), { SITES, DB: { prepare() { throw new Error('local failure'); } } }, { waitUntil() {} });
   assert.equal(beacon.status, 503);
   assert.equal(beacon.headers.get('Access-Control-Allow-Origin'), 'https://arbcut.lt');
+});
+
+test('site form/tap beacons store anonymous context and the feed emits it as meta', async () => {
+  const meta = { page: '/medziu-pjovimas-kaunas/', loc: 'hero', ref: 'search', mobile: true };
+  assert.equal((await siteBeacon('arbcut', 'cta_call', 'https://arbcut.lt', meta)).status, 204);
+  assert.equal((await siteBeacon('arbcut', 'form_open', 'https://arbcut.lt', { ...meta, loc: 'contact-form' })).status, 204);
+  assert.equal((await siteBeacon('arbcut', 'form_submit', 'https://arbcut.lt', { ...meta, loc: 'x'.repeat(41), mobile: false })).status, 204);
+  assert.equal((await siteBeacon('arbcut', 'cta_sms')).status, 204);
+  // Malformed context never blocks the count; it is dropped as a whole.
+  for (const bad of [{ page: '/a?q=1', ref: 'direct', mobile: true }, { page: 'a', ref: 'direct', mobile: true },
+    { page: '/a', ref: 'weird', mobile: true }, { page: '/a', ref: 'direct', mobile: 'yes' }, { page: '/a b', ref: 'direct', mobile: true },
+    { page: '/' + 'a'.repeat(120), ref: 'direct', mobile: true }]) {
+    assert.equal((await siteBeacon('arbcut', 'cta_call', 'https://arbcut.lt', bad)).status, 204);
+  }
+  const entries = (await (await pull()).json()).events;
+  assert.deepEqual(entries.map(e => [e.type, e.meta]), [
+    ['cta_call', meta], ['form_open', { ...meta, loc: 'contact-form' }],
+    ['form_submit', { ...meta, loc: null, mobile: false }], ['cta_sms', undefined],
+    ...Array(6).fill(['cta_call', undefined])]);
+  for (const e of entries) assert.deepEqual(Object.keys(e).sort(), ['at', 'code', 'id', ...(e.meta ? ['meta'] : []), 'site', 'type', 'ua_class'].sort());
+  // Form/tap beacons exist only for sites, never for proof codes, and take no cookie, IP or UA.
+  assert.equal((await post('a2345', 'form_submit')).status, 400);
+  assert.equal((await siteBeacon('arbcut', 'form_submit', 'https://arbcut.lt', { code: 'a2345' })).status, 400);
+  const stored = (await db.prepare("SELECT * FROM events WHERE type = 'form_open'").first());
+  assert.deepEqual(Object.keys(stored).sort(), ['at', 'code', 'id', 'loc', 'mobile', 'page', 'ref', 'site', 'type', 'ua_class']);
+});
+
+test('beacon migration keeps old rows and the ID high-water mark, and constrains the new columns', async () => {
+  const { runtime, database } = await createRuntime({ schema: false });
+  try {
+    for (const name of ['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql', '0004_sites.sql']) {
+      const sql = await readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8');
+      await database.batch(sql.split(';').map(s => s.trim()).filter(Boolean).map(s => database.prepare(s)));
+    }
+    await database.prepare("INSERT INTO events(id,site,type,ua_class) VALUES (7,'arbcut','cta_call','human')").run();
+    await database.prepare("INSERT INTO events(id,type,ua_class) VALUES (8,'preview_request','human')").run();
+    await database.prepare("INSERT INTO submissions(id,event_id,kind,at,ua_class,payload) SELECT 'old',8,type,at,ua_class,'{\"name\":\"Existing\"}' FROM events WHERE id = 8").run();
+    await database.prepare("UPDATE sqlite_sequence SET seq = 100 WHERE name = 'events'").run();
+    const sql = await readFile(new URL('../migrations/0005_site_beacons.sql', import.meta.url), 'utf8');
+    await database.batch(sql.split(';').map(s => s.trim()).filter(Boolean).map(s => database.prepare(s)));
+    assert.equal(await database.prepare('SELECT count(*) AS n FROM events').first('n'), 2);
+    assert.equal((await database.prepare('SELECT * FROM events WHERE id = 7').first()).page, null);
+    assert.equal((await database.prepare('SELECT * FROM submissions').first()).event_id, 8);
+    assert.equal((await database.prepare('PRAGMA foreign_key_list(submissions)').first()).table, 'events');
+    assert.deepEqual((await database.prepare('PRAGMA foreign_key_check').all()).results, []);
+    await database.prepare("INSERT INTO events(site,type,ua_class,page,loc,ref,mobile) VALUES ('arbcut','form_submit','human','/a/','hero','direct',0)").run();
+    assert.equal(await database.prepare('SELECT max(id) AS id FROM events').first('id'), 101);
+    for (const sql of ["INSERT INTO events(type,ua_class) VALUES ('form_open','human')",
+      "INSERT INTO events(site,code,type,ua_class) VALUES ('arbcut','p2345','form_open','human')",
+      "INSERT INTO events(code,type,ua_class) VALUES ('p2345','form_submit','human')",
+      "INSERT INTO events(site,type,ua_class,page,ref,mobile) VALUES ('arbcut','cta_call','human','/a?x=1','direct',1)",
+      "INSERT INTO events(site,type,ua_class,page,ref) VALUES ('arbcut','cta_call','human','/a','direct')",
+      "INSERT INTO events(site,type,ua_class,page,loc,ref,mobile) VALUES ('arbcut','cta_call','human','/a','Hero','direct',1)",
+      "INSERT INTO events(code,type,ua_class,page,ref,mobile) VALUES ('a2345','view','human','/a','direct',1)"]) {
+      await assert.rejects(database.prepare(sql).run(), /CHECK/, sql);
+    }
+  } finally { await runtime.dispose(); }
 });
 
 test('offer migration preserves paired old submissions, FK target and deleted ID high-water mark', async () => {
