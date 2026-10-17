@@ -45,7 +45,7 @@ check('current Web3Forms copy unchanged', () => {
   ]);
   assert.equal(proof.forms.alt, 'Web3Forms paskyra: forma ArbCut, iš viso 29 pateiktos formos, 0 šlamšto, rugsėjį 13');
   assert.equal(proof.forms.file, 'arbcut-web3forms-sep-2026-10-17.png');
-  assert.deepEqual(proof.forms.more.map((m) => m.label), ['Rugpjūčio ekrano kopija', 'Spalio ekrano kopija']);
+  assert.deepEqual(proof.forms.more.map((m) => m.label), ['Paskyros apžvalga: iš viso 29, šlamšto 0', 'Rugpjūčio ekrano kopija', 'Spalio ekrano kopija']);
 });
 check('Lithuanian plural forms follow the number', () => {
   const f = ['paspaudimas', 'paspaudimai', 'paspaudimų'];

@@ -86,9 +86,10 @@ magick web3forms-2026-10-full.png -crop 1940x410+275+545 web3forms-2026-10.png
 | File here | Shows |
 |---|---|
 | arbcut-gsc-3m-2026-10-17.png | Search Console (sc-domain:arbcut.lt), 3 months, 2026-07-15 – 2026-10-14: clicks 613, impressions 12K, CTR 5.1%, position 8 |
-| arbcut-web3forms-aug-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-08: 7 |
-| arbcut-web3forms-sep-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-09: 13 |
-| arbcut-web3forms-oct-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-10: 2 |
+| arbcut-web3forms-aug-2026-10-17.png | Web3Forms submission chart, tooltip 2026-08: 7 (chart only) |
+| arbcut-web3forms-sep-2026-10-17.png | Web3Forms submission chart, tooltip 2026-09: 13 (chart only) |
+| arbcut-web3forms-oct-2026-10-17.png | Web3Forms submission chart, tooltip 2026-10: 2 (chart only) |
+| arbcut-web3forms-overview-2026-10-17.png | Web3Forms overview: form ArbCut created Apr 19, 2026, this month 2, total 29, spam 0 (added after review r1 2026-10-17: the month crops do not show these; copied unchanged from `web3forms-overview.png`) |
 
 ## 2026-10-17: city pages (Search Console Pages tab)
 Same capture session as the 2026-10-17 run above (`.proof-runs/2026-10-17-codex/`, Codex Computer Use, Chrome profile "Matas Bašinskas", GSC /u/4/), period 3 months 2026-07-15 – 2026-10-14. Copied unchanged from `gsc-pages.png` (crop `magick gsc-pages-top-full.png -crop 3690x1790+740+510`); no pixel edits.

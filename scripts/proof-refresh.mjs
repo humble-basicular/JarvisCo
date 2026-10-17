@@ -284,6 +284,8 @@ export function loadImport(dir) {
     if (!isMonth(m.month) || !Number.isInteger(m.submissions) || m.submissions < 0) throw new Error(`figures.json: forms.months[${i}] needs a real month YYYY-MM and whole submissions`);
     return { month: m.month, submissions: m.submissions, png: png(m.png, `forms.months[${i}]`) };
   }).sort((a, z) => a.month.localeCompare(z.month));
+  // The overview crop is what shows created / total / spam / this month (the month crops show only the chart).
+  if (w.overviewPng) w3f.overviewPng = png(w.overviewPng, 'forms.overviewPng');
   checkForms(w3f, f.captured.slice(0, 7));
   return { gsc, w3f, date: f.captured, how: f.how };
 }
@@ -337,6 +339,7 @@ async function main() {
     forms: {
       captured: date, created: w3f.created, total: w3f.total, spam: w3f.spam,
       months: w3f.months.map((m) => ({ month: m.month, submissions: m.submissions, file: name(`web3forms-${KEYS[Number(m.month.slice(5)) - 1]}`) })),
+      ...(w3f.overviewPng ? { overview: name('web3forms-overview') } : {}),
     },
   };
   writeFileSync(join(run, 'arbcut-proof.json'), `${JSON.stringify(next, null, 2)}\n`);
@@ -351,17 +354,18 @@ async function main() {
   console.log(`Run folder (page text, uncropped + cropped screenshots): ${run}`);
   if (dry) { console.log('--dry: src/ not changed.'); return; }
 
-  publishScreenshots([[gsc.png, next.gsc.file], ...w3f.months.map((m, i) => [m.png, next.forms.months[i].file])]);
+  publishScreenshots([[gsc.png, next.gsc.file], ...w3f.months.map((m, i) => [m.png, next.forms.months[i].file]), ...(w3f.overviewPng ? [[w3f.overviewPng, next.forms.overview]] : [])]);
   writeFileSync(DATA, `${JSON.stringify(next, null, 2)}\n`);
   appendFileSync(PROVENANCE, [
     '', `## Proof refresh ${date} (scripts/proof-refresh.mjs)`,
     how,
     '', '| File here | Shows |', '|---|---|',
     `| ${next.gsc.file} | Search Console (${gsc.property}), 3 months, ${gsc.from} – ${gsc.to}: clicks ${gsc.clicks}, impressions ${gsc.impressions}, CTR ${gsc.ctr}, position ${gsc.position} |`,
-    ...next.forms.months.map((m) => `| ${m.file} | Web3Forms dashboard, form ArbCut (created ${w3f.created}), total ${w3f.total}, spam ${w3f.spam}; chart tooltip ${m.month}: ${m.submissions} |`),
+    ...next.forms.months.map((m) => `| ${m.file} | Web3Forms submission chart, tooltip ${m.month}: ${m.submissions} (chart only) |`),
+    ...(next.forms.overview ? [`| ${next.forms.overview} | Web3Forms overview: form ArbCut created ${w3f.created}, this month ${w3f.thisMonth ?? '–'}, total ${w3f.total}, spam ${w3f.spam} |`] : []),
     '',
   ].join('\n'));
-  console.log(`Updated src/data/arbcut-proof.json, added ${1 + w3f.months.length} screenshots and a PROVENANCE.md entry.\nNext: look at the new PNGs, npm run check, commit, Vercel preview; production only after Jarvis approves.`);
+  console.log(`Updated src/data/arbcut-proof.json, added ${1 + w3f.months.length + (w3f.overviewPng ? 1 : 0)} screenshots and a PROVENANCE.md entry.\nNext: look at the new PNGs, npm run check, commit, Vercel preview; production only after Jarvis approves.`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === import.meta.filename) {

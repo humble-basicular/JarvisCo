@@ -84,7 +84,11 @@ export function formsProof(f) {
     alt: `Web3Forms paskyra: forma ArbCut, iš viso ${f.total} ${ltPlural(f.total, ['pateikta forma', 'pateiktos formos', 'pateiktų formų'])}, ${f.spam} šlamšto, ${MONTH_IN[monthIndex(main.month)]} ${main.submissions}`,
     caption: `Užklausos per svetainės formą. Web3Forms suskaičiavo ${f.total} ${ltPlural(f.total, ['pateiktą formą', 'pateiktas formas', 'pateiktų formų'])} nuo ${d(f.created)}, kai forma buvo sukurta; šlamšto – ${f.spam}.`,
     meta: `Ekrano kopija ${d(f.captured)} · Šaltinis: Web3Forms`,
-    more: months.filter((m) => m !== main).map((m) => ({ label: `${MONTH_GEN[monthIndex(m.month)]} ekrano kopija`, key: MONTH_KEY[monthIndex(m.month)], file: m.file })),
+    more: [
+      // The overview is the screenshot that shows the total, the spam count and the creation date.
+      ...(f.overview ? [{ label: `Paskyros apžvalga: iš viso ${f.total}, šlamšto ${f.spam}`, key: 'overview', file: f.overview }] : []),
+      ...months.filter((m) => m !== main).map((m) => ({ label: `${MONTH_GEN[monthIndex(m.month)]} ekrano kopija`, key: MONTH_KEY[monthIndex(m.month)], file: m.file })),
+    ],
   };
 }
 
