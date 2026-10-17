@@ -57,7 +57,7 @@ check('saved image dimensions are validated', () => assert.throws(() => validate
   check('demo: five illustrations disclosed; no invented reviews or qualifications', () => {
     // The logo mark (header, footer) is decorative (alt=""), so only the photos count here.
     const all = html.match(/<img [^>]*>/g) ?? [];
-    assert.ok(all.filter((img) => /alt=""/.test(img)).every((img) => /class="[^"]*__mark--img/.test(img)), 'only logo marks are decorative');
+    assert.ok(all.filter((img) => /alt=""/.test(img)).every((img) => /class="[^"]*(?:__mark--img|hs-hero__seal)/.test(img)), 'only the logo mark and seal are decorative');
     const imgs = all.filter((img) => !/alt=""/.test(img));
     assert.equal(imgs.length, 5);
     assert.ok(imgs.every((img) => /alt="[^"]*\bDI\b[^"]*iliustracija/.test(img)), 'every alt names the DI illustration');

@@ -88,6 +88,7 @@ const SIZES = {
       {hero ? (
         <figure class="hs-hero__media">
           <img src={hero.src} srcset={hero.srcset} sizes="(min-width: 80rem) 31rem, (min-width: 64rem) 38vw, 92vw" width={hero.width} height={hero.height} alt={hero.alt ?? `${data.business}: atliktas darbas`} fetchpriority="high" decoding="async" />
+          {logo && <img class="hs-hero__seal" src={logo.src} width="64" height="64" alt="" />}
           {data.demo && <figcaption class="hs-tag">{DEMO_HERO_TAG}</figcaption>}
         </figure>
       ) : (

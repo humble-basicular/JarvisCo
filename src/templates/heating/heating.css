@@ -160,7 +160,10 @@ a.hs-top__call:hover { background: var(--accent-hover); }
 .hs-proof .hs-ico { margin-top: 0.1rem; stroke-width: 2.75; }
 .hs-proof__label { font-weight: 450; }
 .hs-hero__media { grid-area: media; position: relative; padding: 0.5rem; background: #fff; border-radius: var(--tile); box-shadow: 0 30px 60px -40px rgba(0, 0, 0, 0.55); }
-.hs-hero__media img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 45%; border-radius: 8px; background: var(--band); }
+.hs-hero__media img:not(.hs-hero__seal) { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 45%; border-radius: 8px; background: var(--band); }
+
+/* The business mark as a round seal in the photo's corner, like a van-door roundel */
+.hs-hero__seal { position: absolute; top: 1.25rem; right: 1.25rem; width: 4.25rem; height: 4.25rem; padding: 0.25rem; border-radius: 50%; background: #fff; box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.5); object-fit: contain; }
 
 /* Identity card (no photo): the business as it would be lettered on the van */
 .hs-card { grid-area: media; align-self: start; background: #fff; color: var(--ink); border-radius: var(--tile); padding: clamp(1.5rem, 4vw, 2.5rem); box-shadow: 0 30px 60px -40px rgba(0, 0, 0, 0.55); }
@@ -466,7 +469,7 @@ a.hs-foot__phone:hover { text-decoration: underline; text-decoration-thickness: 
   .hs-top__call .hs-ico { width: 1.125rem; height: 1.125rem; }
   .hs-logo__name { font-size: 1.5rem; }
   .hs-hero__ctas { grid-template-columns: auto auto; justify-content: start; }
-  .hs-hero__media img { aspect-ratio: 16 / 10; }
+  .hs-hero__media img:not(.hs-hero__seal) { aspect-ratio: 16 / 10; }
   .hs-proof { display: flex; flex-wrap: wrap; gap: 0.5rem 1.75rem; }
   .hs-proof [data-hours] { display: none; }
   .hs-svc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -512,7 +515,7 @@ a.hs-foot__phone:hover { text-decoration: underline; text-decoration-thickness: 
 
   .hs-hero__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-areas: 'copy media'; column-gap: clamp(2.5rem, 5vw, 5rem); align-items: center; }
   .hs-hero--router { padding-bottom: 8.5rem; }
-  .hs-hero__media img { aspect-ratio: 4 / 5; max-height: 38rem; }
+  .hs-hero__media img:not(.hs-hero__seal) { aspect-ratio: 4 / 5; max-height: 38rem; }
   .hs-hero--card .hs-card { padding: 2.25rem 2.5rem; align-self: center; }
   .hs-router { margin-top: -6rem; padding-top: 0; }
   .hs-router__panel { box-shadow: 0 24px 48px -32px rgba(28, 33, 36, 0.45); }
