@@ -14,6 +14,7 @@ import condBoldLatin from '@fontsource/barlow-condensed/files/barlow-condensed-l
 import condBoldExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-700-normal.woff2?url';
 import { accentCss, accentTokens } from './accent';
 import { DEFAULT_ACCENT, initials } from './content';
+import Tracking from './parts/Tracking.astro';
 import type { Banner, Mode } from './types';
 
 interface Props {
@@ -88,6 +89,7 @@ const fontCss = [
         {image && <meta property="og:image" content={image} />}
       </>
     )}
+    {mode === 'live' && live && <Tracking site={live.code} />}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
     <style set:html={`${fontCss}:root{${accentCss(colours)}}`}></style>
   </head>
