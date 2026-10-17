@@ -124,8 +124,8 @@ export const hero = {
   ],
   sms: 'Parašyti SMS',
   // Hero plan §4 (concept A1): an illustration, not a client. The flat lay is AI-generated; the screen is a real screenshot of our demo.
-  photoAlt: 'Pavyzdinė šildymo meistro svetainė telefone: pirmas ekranas su antrašte, skambučio ir užklausos mygtukais',
-  caption: 'Tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija. Paspauskite – atsidarys gyvai.',
+  photoAlt: 'Atidaryta metalinė įrankių dėžė: variniai fitingai, raktai, sandarinimo juosta, o viename skyriuje – telefonas su atidaryta šildymo meistro svetaine',
+  caption: 'Iliustracija: įrankių dėžė sukurta DI, ekrane – tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija. Paspauskite – atsidarys gyvai.',
 };
 
 export const offerRow = [
@@ -216,7 +216,7 @@ export const examples = {
     text: 'Katilų remontas ir priežiūra, šilumos siurbliai, grindinis šildymas. Dirbame Kaune ir Kauno rajone.',
     contact: 'Susisiekti per portalą',
     portalAlt: 'Pavyzdinis meistro profilis paslaugų portale: pavadinimas, trumpas aprašymas ir trys darbų nuotraukos',
-    siteAlt: 'Iš to paties profilio padaryta svetainė telefone',
+    siteAlt: 'Iš to paties profilio padaryta svetainė telefone: Kauno miesto puslapis „Katilų remontas ir šildymo sistemos Kaune“',
     note: 'Pavyzdys: profilis išgalvotas, portalas bendrinis, nuotraukos – DI iliustracijos. Tikras profilis ir svetainė būtų su Jūsų duomenimis.',
   },
 };

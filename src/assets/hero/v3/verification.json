@@ -1,0 +1,74 @@
+[
+  {
+    "id": "V1",
+    "output": "src/assets/hero/v3/v1-flat-lay-4x5-finished.png",
+    "size": [
+      1120,
+      1400
+    ],
+    "attempts": 1,
+    "phoneBodyMidline": {
+      "y": 674,
+      "left": 343,
+      "right": 786,
+      "width": 444,
+      "percent": 39.64,
+      "method": "Continuous dark bezel/body extent adjacent to chroma at phone mid-height, RGB maximum <100"
+    },
+    "screenWidthPercent": 36.5,
+    "checks": {
+      "outsideScreenChangedPixels": 0,
+      "greenPixelsLeft": 0,
+      "encodedPixelsMatch": true,
+      "inputHashesUnchanged": true
+    }
+  },
+  {
+    "id": "V2",
+    "output": "src/assets/hero/v3/v2-workbench-4x5-finished.png",
+    "size": [
+      1120,
+      1400
+    ],
+    "attempts": 2,
+    "phoneBodyMidline": {
+      "y": 679,
+      "left": 339,
+      "right": 825,
+      "width": 487,
+      "percent": 43.48,
+      "method": "Continuous dark bezel/body extent adjacent to chroma at phone mid-height, RGB maximum <100"
+    },
+    "screenWidthPercent": 37.79,
+    "checks": {
+      "outsideScreenChangedPixels": 0,
+      "greenPixelsLeft": 0,
+      "encodedPixelsMatch": true,
+      "inputHashesUnchanged": true
+    }
+  },
+  {
+    "id": "V3",
+    "output": "src/assets/hero/v3/v3-toolbox-tray-4x5-finished.png",
+    "size": [
+      1120,
+      1400
+    ],
+    "attempts": 1,
+    "phoneBodyMidline": {
+      "y": 684,
+      "left": 327,
+      "right": 796,
+      "width": 470,
+      "percent": 41.96,
+      "method": "Continuous dark bezel/body extent adjacent to chroma at phone mid-height, RGB maximum <100"
+    },
+    "screenWidthPercent": 38.93,
+    "checks": {
+      "outsideScreenChangedPixels": 0,
+      "greenPixelsLeft": 0,
+      "encodedPixelsMatch": true,
+      "inputHashesUnchanged": true
+    }
+  }
+]

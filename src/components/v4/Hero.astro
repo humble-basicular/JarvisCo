@@ -1,18 +1,28 @@
 ---
-/* Hero: big tight headline, then a real phone. Jarvis 2026-10-17: the AI flat lay
-   (concept A1) did not fit, so the object is now a straight phone frame with a
-   real headless-Chrome capture of our heating demo (src/assets/showcase,
-   scripts/showcase-capture.mjs). Tapping it opens the live demo in a new tab.
-   Phones get headline → CTA → phone; from 64rem the phone sits beside the text. */
-import { Image } from 'astro:assets';
+/* Hero: big tight headline + buttons on the left, one large illustration on the
+   right (Jarvis picked concept V3 "toolbox tray" on 2026-10-17). AI-generated
+   overhead photo of an open tool tray (ChatGPT Images via Codex) with a real
+   headless-Chrome capture of our heating demo composited onto the phone by
+   scripts/hero-composite.mjs; provenance in src/assets/hero/PROVENANCE.md.
+   Portrait 4:5, so phones show the whole picture with the phone large. An
+   illustration of the product, captioned as such, never presented as a client. */
+import { getImage } from 'astro:assets';
 import { brand } from '@data/content.js';
 import { hero, examples, MAIN_CTA } from '@data/v4.js';
-import screen from '@assets/showcase/heating-mobile.png';
+import tray from '@assets/hero/v3/v3-toolbox-tray-4x5-finished.png';
 
 interface Props { variant?: 'home' | 'heating' }
 const { variant = 'home' } = Astro.props;
 const v = hero[variant];
-const phoneSizes = '(min-width: 64rem) 17rem, min(16.5rem, 70vw)';
+
+// AVIF 50 ≈ WebP 72 and smaller; widths never exceed the 1120 px source.
+const widths = [360, 560, 800, 1120];
+const set = async (format: 'avif' | 'webp', quality: number) =>
+  (await Promise.all(widths.map(async (width) => `${(await getImage({ src: tray, width, format, quality })).src} ${width}w`))).join(', ');
+const avif = await set('avif', 50);
+const webp = await set('webp', 72);
+const fallback = await getImage({ src: tray, width: 800, format: 'webp', quality: 72 });
+const sizes = '(min-width: 64rem) 30rem, min(28rem, calc(100vw - 2 * var(--gutter)))';
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="wrap hero__grid">
@@ -28,10 +38,12 @@ const phoneSizes = '(min-width: 64rem) 17rem, min(16.5rem, 70vw)';
       </div>
     </div>
     <figure class="hero__object">
-      <a class="hero__phone" href={examples.href} target="_blank" rel="noopener">
-        <span class="hero__screen">
-          <Image src={screen} alt={hero.photoAlt} widths={[390, 600, 780]} sizes={phoneSizes} format="webp" quality={82} loading="eager" fetchpriority="high" decoding="async" />
-        </span>
+      <a class="hero__art" href={examples.href} target="_blank" rel="noopener">
+        <picture>
+          <source type="image/avif" srcset={avif} sizes={sizes} width="1120" height="1400" />
+          <source type="image/webp" srcset={webp} sizes={sizes} width="1120" height="1400" />
+          <img src={fallback.src} alt={hero.photoAlt} width="1120" height="1400" loading="eager" fetchpriority="high" decoding="async" />
+        </picture>
         <span class="visually-hidden"> (atsidaro naujame skirtuke)</span>
       </a>
       <figcaption class="hero__caption">{hero.caption}</figcaption>
@@ -41,28 +53,27 @@ const phoneSizes = '(min-width: 64rem) 17rem, min(16.5rem, 70vw)';
 
 <style>
   .hero { position: relative; padding-top: clamp(2.5rem, 7vw, 5.5rem); padding-bottom: clamp(2.5rem, 6vw, 4.5rem); overflow: clip; }
-  .hero__grid { display: grid; gap: clamp(2.5rem, 7vw, 3.5rem); }
+  .hero__grid { display: grid; gap: clamp(2rem, 6vw, 3.5rem); }
   .hero__text { position: relative; z-index: 1; display: grid; gap: clamp(1.25rem, 3vw, 1.75rem); align-content: start; }
   .hero__stamp { margin-bottom: -0.25rem; }
-  .hero__title { font-size: clamp(2.5rem, 11vw, 7.5rem); font-weight: 600; line-height: 1.06; letter-spacing: -0.05em; max-width: 15ch; overflow-wrap: break-word; hyphens: manual; }
+  .hero__title { font-size: clamp(2.5rem, 11vw, 7.5rem); font-weight: 600; line-height: 1.06; letter-spacing: -0.05em; max-width: 15ch; overflow-wrap: break-word; }
   .hero__sub { max-width: 34rem; color: var(--ink-2); font-size: clamp(1.0625rem, 0.6vw + 0.95rem, 1.25rem); }
   .hero__sub p { margin-bottom: 0.5rem; }
   .hero__ctas { display: grid; gap: 0.5rem; justify-items: start; align-content: start; }
   .hero__ctas .btn { width: 100%; }
 
-  /* The phone: flat ink body, straight, never tilted (same frame as the showcase). */
-  .hero__object { display: grid; justify-items: center; gap: 0.875rem; margin: 0; }
-  .hero__phone { display: block; width: min(16.5rem, 70vw); padding: 0.625rem; border-radius: 2.5rem; background: var(--ink); box-shadow: 0 1.5rem 3rem -1.5rem rgb(20 20 18 / 0.45); transition: transform 0.3s var(--ease); }
-  .hero__phone:hover { transform: translateY(-4px); }
-  .hero__phone:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
-  .hero__screen { display: block; overflow: hidden; aspect-ratio: 390 / 844; border-radius: 1.875rem; background: var(--paper); }
-  .hero__screen :global(img) { display: block; width: 100%; height: auto; }
-  .hero__caption { max-width: 20rem; color: var(--mute); font-size: 0.875rem; line-height: 1.4; text-align: center; }
+  /* The tray photo: a straight print on the page, soft shadow, rounded a touch. */
+  .hero__object { display: grid; justify-items: center; gap: 0.75rem; margin: 0; }
+  .hero__art { display: block; width: min(28rem, 100%); border-radius: 0.5rem; overflow: hidden; box-shadow: 0 1.5rem 3rem -1.75rem rgb(20 20 18 / 0.55); transition: transform 0.3s var(--ease); }
+  .hero__art:hover { transform: translateY(-4px); }
+  .hero__art:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+  .hero__art :global(picture), .hero__art :global(img) { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; }
+  .hero__caption { max-width: 28rem; color: var(--mute); font-size: 0.8125rem; line-height: 1.4; text-align: center; }
 
   @media (min-width: 30rem) { .hero__ctas .btn { width: auto; } }
   @media (min-width: 64rem) {
-    .hero__grid { grid-template-columns: minmax(0, 1fr) 17rem; column-gap: clamp(3rem, 6vw, 6rem); align-items: center; }
-    .hero__title { font-size: clamp(3.5rem, 6.4vw, 6.25rem); }
-    .hero__phone { width: 17rem; }
+    .hero__grid { grid-template-columns: minmax(0, 1fr) minmax(20rem, 30rem); column-gap: clamp(3rem, 5vw, 5rem); align-items: center; }
+    .hero__title { font-size: clamp(3.5rem, 6vw, 6.25rem); }
+    .hero__art { width: 100%; }
   }
 </style>
