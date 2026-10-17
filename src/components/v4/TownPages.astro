@@ -14,7 +14,7 @@ const towns = townLinks();
       {towns.map((t) => (
         <li class="gt__row">
           <h3 class="stamp gt__q">{t.name}</h3>
-          <p class="gt__a">Šildymas {t.loc}. {t.distance}, atvykimas: {t.arrival.toLocaleLowerCase('lt')}.</p>
+          <p class="gt__a">{t.distance}, atvykimas: {t.arrival.toLocaleLowerCase('lt')}.</p>
           <a class="link" href={t.href}>{townPages.open}<span class="visually-hidden">: šildymas {t.loc}</span></a>
         </li>
       ))}
@@ -26,10 +26,11 @@ const towns = townLinks();
 <style>
   .gt { border-top: 1px solid var(--ink); }
   .gt__row { display: grid; gap: 0.5rem; padding-block: 1.5rem; border-bottom: 1px solid var(--rule); }
-  .gt__q { margin: 0; font-size: 0.9375rem; }
+  .gt__row:last-child { border-bottom: 0; }
+  .gt__q { grid-column: 1 / -1; margin: 0; font-size: 0.9375rem; }
   .gt__a { margin: 0; font-weight: 600; }
-  .gt__note { max-width: 40rem; padding-top: 1.5rem; color: var(--ink-2); }
+  .gt__note { max-width: 40rem; margin-top: clamp(2rem, 5vw, 3rem); padding-top: 1.5rem; border-top: 1px solid var(--rule); color: var(--ink-2); }
   @media (min-width: 64rem) {
-    .gt__row { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; align-items: baseline; column-gap: clamp(1rem, 4vw, 4rem); }
+    .gt__row { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: clamp(1rem, 4vw, 4rem); }
   }
 </style>
