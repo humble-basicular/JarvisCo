@@ -1,9 +1,9 @@
 {
-  "createdAt": "2026-10-16T10:22:11.708Z",
+  "createdAt": "2026-10-17T11:22:58.332Z",
   "capture": {
-    "dir": "client-sites/showcase-capture-r3",
-    "capturedAt": "2026-10-16T10:22:03.810Z",
-    "sourceCommit": "60eaedce1c8e9edae758b397358738ede6677211",
+    "dir": "client-sites/showcase-2026-10-17",
+    "capturedAt": "2026-10-17T11:22:50.878Z",
+    "sourceCommit": "f2bb8ca92c6e2c79a0a9b2d5d16b61baaf78a81f",
     "route": "/pavyzdys/sildymas",
     "browser": "Chrome/155.0.8059.82"
   },
@@ -14,7 +14,7 @@
       "dpr": 2,
       "fullPage": false,
       "pixels": "780x1688",
-      "sha256": "8650cdddc5693a4756164973fd4a06a246bd370580ed73d83c5b4448a57704e1"
+      "sha256": "fff90bd902566d8b92592edd5408b87b2af5fc6bfb0c62b56cd360c648c32140"
     },
     "heating-desktop.png": {
       "from": "desktop",
@@ -22,26 +22,26 @@
       "dpr": 2,
       "fullPage": false,
       "pixels": "2880x1800",
-      "sha256": "43919356556443299ad477249f53340d609e41b2c88d24ec8c51f329c42c2785"
+      "sha256": "86082394ccc113a90e700c085fc8ee7e1fe60ad09d2718fa12d8371161d677f4"
     },
     "heating-mobile-tall.png": {
       "from": "tall",
-      "cssViewport": "390x11348",
-      "dpr": 1.4,
+      "cssViewport": "390x12255",
+      "dpr": 1.3,
       "fullPage": true,
-      "pixels": "546x15887",
-      "sha256": "f039dc9b33a132a20497fd3851bd57b2ccb020ac8aaf64e35467e2eb444183c6"
+      "pixels": "507x15931",
+      "sha256": "ee2b284801e8a411d20eeff5a72f7ab52bd03dcd8c5cc5a06abc5f1e3858ac20"
     }
   },
   "hero": {
     "version": 2,
-    "createdAt": "2026-10-16T10:22:11.706Z",
+    "createdAt": "2026-10-17T11:22:58.330Z",
     "source": "a1-knolling-proportions-r2.png",
     "sourceSha256": "ea816ae494030ab46aa2ba58dd0d4ea247bb8a9f106d048961c5ddb2d4b7e8a0",
     "capture": "hero-screen.png",
-    "captureSha256": "29c166867f8b04bb2dd62d07c0d3a3573b9948794452025441eaff127b8a20bb",
+    "captureSha256": "232bd770d9dce84da935732a668ddbd9493b85036020a59c08fbf58060f9c68d",
     "output": "a1-knolling-finished.png",
-    "outputSha256": "d211c02083729a94c534e6a381152cb73aa0189e164b39c503c9378d3af44759",
+    "outputSha256": "9fc04f73caea0b0ab4625d3610f0d6e9afbf2639e4c7acab9399b21ea5a0f39f",
     "pixels": {
       "width": 1536,
       "height": 1024,

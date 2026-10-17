@@ -25,9 +25,9 @@ const SHOTS = [
   { name: 'mobile', width: 390, height: 844, dpr: 2, mobile: true },
   { name: 'desktop', width: 1440, height: 900, dpr: 2, mobile: false },
   { name: 'hero-screen', width: 390, height: 722, dpr: 2, mobile: true },
-  // Whole page. DPR 1.4 keeps it under 16 384 device px: past that Chrome repeats
+  // Whole page. DPR 1.3 (the page grew with the town pages) keeps it under 16 384 device px: past that Chrome repeats
   // compositor tiles, and WebP cannot encode it either.
-  { name: 'tall', width: 390, height: 844, dpr: 1.4, mobile: true, fullPage: true },
+  { name: 'tall', width: 390, height: 844, dpr: 1.3, mobile: true, fullPage: true },
 ];
 
 const git = (...a) => execFileSync('git', a, { encoding: 'utf8' }).trim();
