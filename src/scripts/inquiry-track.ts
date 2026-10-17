@@ -51,11 +51,15 @@ export function postsToWorker(action: string): boolean {
 /** Minimal slice of DOM the tracker needs, so the logic can be unit-tested without a browser. */
 export interface FormLike {
   action: string;
+  getAttribute?(name: string): string | null;
+  matches?(selector: string): boolean;
   checkValidity(): boolean;
   querySelector(selector: string): { value?: string; checked?: boolean } | null;
 }
 export function submitLooksReal(form: FormLike): boolean {
   if (postsToWorker(form.action)) return false;
+  // Demo/inert forms (action="#...", data-inert-form) never submit anywhere.
+  if (form.matches?.('[data-inert-form]') || form.getAttribute?.('action')?.startsWith('#')) return false;
   // Honeypots (Web3Forms `botcheck`, Worker `website`) filled in: a bot, not an inquiry.
   if (form.querySelector('input[name="botcheck"]')?.checked || form.querySelector('input[name="website"]')?.value) return false;
   if (!form.checkValidity()) return false;
@@ -73,12 +77,12 @@ export interface Env {
 }
 
 export function createTracker(env: Env) {
-  const last = new Map<unknown, number>();
+  const last = new WeakMap<object, number>();
   const opened = new WeakSet<object>();
   const emit = (type: BeaconType, loc: string | null) =>
     env.send(env.endpoint, JSON.stringify(buildPayload(env.site, type, env.context(loc))));
   // A double-fired event on the same element is one tap.
-  const fresh = (key: unknown) => {
+  const fresh = (key: object) => {
     const t = env.now();
     if (t - (last.get(key) ?? -Infinity) < REPEAT_MS) return false;
     last.set(key, t);

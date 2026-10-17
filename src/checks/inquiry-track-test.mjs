@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { buildPayload, cleanLoc, createTracker, pagePath, postsToWorker, referrerType, submitLooksReal } from '../scripts/inquiry-track.ts';
 
-const form = ({ action = 'https://api.web3forms.com/submit', valid = true, botcheck = false, website = '', captcha = null } = {}) => ({
-  action, checkValidity: () => valid,
+const form = ({ action = 'https://api.web3forms.com/submit', attr = null, inert = false, valid = true, botcheck = false, website = '', captcha = null } = {}) => ({
+  action, checkValidity: () => valid, getAttribute: (n) => (n === 'action' ? attr : null), matches: (s) => inert && s === '[data-inert-form]',
   querySelector(selector) {
     if (selector === 'input[name="botcheck"]') return { checked: botcheck };
     if (selector === 'input[name="website"]') return website ? { value: website } : null;
@@ -75,6 +75,8 @@ test('form opens once per form; submits only when real', () => {
   api.submit(form({ website: 'spam' }), 'x');
   api.submit(form({ captcha: '' }), 'x');
   api.submit(form({ action: 'https://jarvisweb.lt/t/form' }), 'x');
+  api.submit(form({ action: 'https://demo.test/p#uzklausa', attr: '#uzklausa' }), 'x');
+  api.submit(form({ inert: true }), 'x');
   assert.equal(sent.length, 0);
   const good = form({ captcha: 'token' });
   api.submit(good, 'contact-form'); api.submit(good, 'contact-form');
