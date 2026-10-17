@@ -14,8 +14,10 @@ const s = examples.showcase;
 const phoneSizes = '(min-width: 64rem) 17.5rem, min(17.5rem, calc(78vw - 1.5rem))';
 // The tall capture is ~440 KB: with reduced motion the <picture> resolves to a
 // 1×1 inline GIF, so it is never downloaded (display:none alone still fetches it).
-const tallSet = await Promise.all([390, 546].map((width) => getImage({ src: tall, width, format: 'webp', quality: 72 })));
-const tallSrcset = tallSet.map((img, i) => `${img.src} ${[390, 546][i]}w`).join(', ');
+// Widths follow the capture (never upscaled: WebP stops at 16 383 px high).
+const tallWidths = [390, tall.width];
+const tallSet = await Promise.all(tallWidths.map((width) => getImage({ src: tall, width, format: 'webp', quality: 72 })));
+const tallSrcset = tallSet.map((img, i) => `${img.src} ${tallWidths[i]}w`).join(', ');
 const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 ---
 <figure class="sc">
@@ -34,7 +36,7 @@ const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
             format="webp" quality={80} loading="lazy" decoding="async" />
           <picture class="sc__tall">
             <source media="(prefers-reduced-motion: reduce)" srcset={BLANK} />
-            <img src={tallSet[1].src} srcset={tallSrcset} sizes={phoneSizes} alt="" width="546" height="15681" loading="lazy" decoding="async" />
+            <img src={tallSet[1].src} srcset={tallSrcset} sizes={phoneSizes} alt="" width={tall.width} height={tall.height} loading="lazy" decoding="async" />
           </picture>
         </div>
       </div>
