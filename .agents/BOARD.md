@@ -127,3 +127,12 @@ Spec: `docs/SPEC-2026-10-preview-funnel.md` @ 2e3c062. CRM board has the full ta
 | S2 Worker form/files/prefix p | Codex GPT-6.1-Sol / `funnel-worker` (`../JarvisCo-worktrees/funnel-worker`) | `tracking/**` | ACTIVE |
 | S3+S6 landing, form, preview template | Claude Opus 5.5 / `funnel-site` (`../JarvisCo-worktrees/funnel-site`) | `src/**`, `public/**`, `scripts/preview*`, `previews/**`, root package*.json | ACTIVE |
 | Deploys | lead | — | Worker after review; site production waits for Jarvis (privacy + LT copy) |
+
+## Release closeout — 2026-10-17 (Codex autonomous lead)
+Scope: finish already-authorized deployment of 8494583; no new features, deletions, paid APIs or real submissions. Routing read directly from ~/AI-Core/core/ROUTING.md. Allowance: Codex session4%/weekly93%; Claude session95%/weekly63%. Existing project outcomes show Codex review 14/15 completed, Claude Sonnet review6/6 completed; no routing override needed.
+| Stage | Owner / model | Inputs → outputs | Owned files | Acceptance / status |
+|---|---|---|---|---|
+| release-closeout-review | Codex GPT-6.1-Sol medium (opposite provider to Claude implementation) | 8494583, prior review fixes and production config → bounded read-only release verdict | no repository writes; temporary receipts only | COMPLETE; Codex GPT-6.1-Sol medium approved, no release blockers. Task jarvisweb-release-closeout-review-20261017-r1; no source writes |
+| release-closeout-acceptance | Lead Codex GPT-6.1-Sol high, branch release-finish-20261017, /private/tmp/jarvisweb-release-finish-20261017 | review + live deployments → verified release receipt/handoff | own handoff; lead owns main board only | COMPLETE; npm run check PASS, inquiry6/6, Worker105/105 + typecheck PASS, 10 live pages200,91 assets200, auth/origin/redirect checks PASS. Production Vercel dpl_9J7VW4KgJh36DksU1Kgi3hKGuA4Y; Worker de39db2a with deployed FILES/DB confirmed. Real upload/email and fresh browser QA unverified |
+
+Closeout handoff: `.agents/handoffs/2026-10-17-2105-codex-release-closeout.md`, committed on release-finish-20261017 at d55cbfe and integrated here. No product changes or repeat deployment. Review list-price estimate $0.1332508 complete; thread total/per-accepted-stage cost incomplete, unavailable.
