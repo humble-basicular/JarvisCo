@@ -33,7 +33,7 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
     <figure class="shot" data-proof-anchor>
       <ul class="stats">{proof.gsc.stats.map((s) => <li><strong>{s.value}{s.unit && <small> {s.unit}</small>}</strong><span>{s.label}</span></li>)}</ul>
       <a class="shot__img" href={full.gsc.src}><Image src={gsc} alt={proof.gsc.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
-      <figcaption><span>{proof.gsc.caption}</span><span class="stamp stamp--plain shot__meta">{proof.gsc.meta}</span></figcaption>
+      <figcaption><span class="shot__zoom">{proof.zoom}</span><span>{proof.gsc.caption}</span><span class="stamp stamp--plain shot__meta">{proof.gsc.meta}</span></figcaption>
     </figure>
 
     <figure class="shot" aria-describedby="forms-only">
@@ -41,6 +41,7 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
       <ul class="stats">{proof.forms.stats.map((s) => <li><strong>{s.value}</strong><span>{s.label}</span></li>)}</ul>
       <a class="shot__img" href={full.forms.src}><Image src={forms} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
       <figcaption>
+        <span class="shot__zoom">{proof.zoom}</span>
         <span>{proof.forms.caption}</span>
         <span class="stamp stamp--plain shot__meta">{proof.forms.meta}</span>
         <span class="shot__more">{more.map((m) => <a class="link" href={m.href}>{m.label}</a>)}</span>
@@ -70,6 +71,8 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
   .shot__img { display: block; border: 1px solid var(--rule); background: #fff; }
   .shot__img :global(img) { width: 100%; }
   .shot figcaption { display: grid; gap: 0.5rem; margin-top: 1rem; max-width: 46rem; }
+  .shot__zoom { color: var(--ink); font-size: 0.875rem; font-weight: 600; }
+  @media (hover: hover) and (pointer: fine) { .shot__zoom { display: none; } }
   .shot__meta { color: var(--mute); font-size: 0.875rem; }
   .shot__more { display: flex; flex-wrap: wrap; column-gap: 1.5rem; }
   .shot__only { display: grid; gap: 0.375rem; max-width: 46rem; margin-bottom: 1.25rem; padding: 1rem 1.125rem; border-left: 3px solid var(--accent, var(--ink)); background: var(--paper-2); color: var(--ink-2); font-size: 0.9375rem; line-height: 1.45; }

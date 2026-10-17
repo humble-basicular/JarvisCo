@@ -3,7 +3,7 @@
    (Search Console Pages tab, dated screenshot) and the three demo town pages.
    Every figure is visible in its screenshot (src/assets/proof/PROVENANCE.md). */
 import { Image, getImage } from 'astro:assets';
-import { townPages } from '@data/v4.js';
+import { townPages, proof as v4proof } from '@data/v4.js';
 import { proofImage } from '@data/proof-images';
 import { townLinks } from '../../templates/heating/towns';
 import Head from './Head.astro';
@@ -13,7 +13,6 @@ const p = townPages.proof;
 const shot = proofImage(p.file.replace(/\.\w+$/, ''));
 const big = (src: ImageMetadata) => getImage({ src, width: 2400, format: 'webp', quality: 85 });
 const full = await big(shot);
-const serp = await Promise.all(p.serp.map(async (x: { file: string }) => ({ ...x, img: proofImage(x.file.replace(/\.\w+$/, '')), href: (await big(proofImage(x.file.replace(/\.\w+$/, '')))).src })));
 const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
 ---
 <section class="sec" id="miestu-puslapiai" aria-labelledby="miestu-puslapiai-title">
@@ -27,25 +26,8 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
       </table>
       <p class="tp__sum">{p.sum}</p>
       <a class="tp__img" href={full.src}><Image src={shot} alt={p.alt} widths={[640, 960, 1400, 2000]} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
-      <figcaption><span>{p.caption}</span><span class="stamp stamp--plain tp__meta">{p.meta}</span></figcaption>
+      <figcaption><span class="tp__zoom">{v4proof.zoom}</span><span>{p.caption}</span><span class="stamp stamp--plain tp__meta">{p.meta}</span></figcaption>
     </figure>
-
-    {serp.length > 0 && (
-      <div class="tp__serp">
-        <h3 class="tp__serp-title">{p.serpTitle}</h3>
-        <p class="tp__serp-note">{p.serpNote}</p>
-        <ul class="tp__serp-list">
-          {serp.map((x: any) => (
-            <li>
-              <figure>
-                <a class="tp__img" href={x.href}><Image src={x.img} alt={x.alt} widths={[640, 960, 1400]} sizes="(min-width: 64rem) 36rem, calc(100vw - 2.5rem)" format="webp" quality={80} loading="lazy" /></a>
-                <figcaption><strong>„{x.query}“ – {x.position} vieta</strong><span class="stamp stamp--plain tp__meta">{x.meta}</span></figcaption>
-              </figure>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
 
     <h3 class="tp__demo-title">{townPages.demoTitle}</h3>
     <ul class="gt">
@@ -75,14 +57,11 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
   .tp__sum { max-width: 46rem; margin: 1rem 0 1.5rem; color: var(--ink-2); font-size: 0.9375rem; }
   .tp__img { display: block; border: 1px solid var(--rule); background: #fff; }
   .tp__img :global(img) { width: 100%; height: auto; }
-  .tp figcaption, .tp__serp figcaption { display: grid; gap: 0.5rem; margin-top: 1rem; max-width: 46rem; }
+  .tp figcaption { display: grid; gap: 0.5rem; margin-top: 1rem; max-width: 46rem; }
+  .tp__zoom { color: var(--ink); font-size: 0.875rem; font-weight: 600; }
+  @media (hover: hover) and (pointer: fine) { .tp__zoom { display: none; } }
   .tp__meta { color: var(--mute); font-size: 0.875rem; }
-  .tp__serp { margin-bottom: clamp(3.5rem, 8vw, 5rem); }
-  .tp__serp-title, .tp__demo-title { margin-bottom: 0.75rem; font-size: clamp(1.375rem, 3vw, 1.75rem); letter-spacing: -0.02em; }
-  .tp__serp-note { max-width: 46rem; margin-bottom: 1.5rem; color: var(--ink-2); }
-  .tp__serp-list { display: grid; gap: 2rem; }
-  .tp__serp-list figure { margin: 0; }
-  @media (min-width: 64rem) { .tp__serp-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tp__demo-title { margin-bottom: 0.75rem; font-size: clamp(1.375rem, 3vw, 1.75rem); letter-spacing: -0.02em; }
   .gt { border-top: 1px solid var(--ink); }
   .gt__row { display: grid; gap: 0.5rem; padding-block: 1.5rem; border-bottom: 1px solid var(--rule); }
   .gt__row:last-child { border-bottom: 0; }

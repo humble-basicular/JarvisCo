@@ -88,5 +88,4 @@ Build checks reject unfinished photo/quote labels and retain the honest-offer ch
 |---|---|---|
 | townPages.text | Žmonės paieškoje rašo paslaugą ir miestą … Tai ne teorija – žemiau tikri arbcut.lt skaičiai. | drafted |
 | townPages.proof (stat, sum, caption) | 393 iš 613 paspaudimų iš Google per 3 mėn. atėjo į 10 miestų puslapių; sum explained; dated GSC Pages screenshot | drafted, figures from screenshot |
-| townPages.proof.serpTitle / serpNote | Tikra Google paieška: arbcut.lt pirmame trejete · Rodau tik paieškas, kuriose arbcut.lt yra tarp pirmų trijų neapmokamų rezultatų … | drafted, block hidden until SERP screenshots exist |
 | price.launch | Pradinė kaina pirmiesiems 5 klientams. Jums ji nesikeis, kol naudositės svetaine. | Jarvis approved (2026-10-17) |

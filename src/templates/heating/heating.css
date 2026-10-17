@@ -361,7 +361,7 @@ a.hs-top__call:hover { background: var(--accent-hover); }
 .hs-form__pair { display: grid; gap: 1.25rem; }
 .hs-field { display: grid; gap: 0.375rem; min-width: 0; align-content: start; }
 .hs-field label, .hs-times legend, .hs-upload__title { font-weight: 620; font-size: 1rem; }
-.hs-req, .hs-opt { margin-left: 0.375rem; font: 600 0.75rem/1 var(--cond); letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.hs-req, .hs-opt { margin-left: 0.375rem; font: 600 0.8125rem/1 var(--cond); letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
 .hs-form input[type='text'], .hs-form input[type='tel'], .hs-form select, .hs-form textarea {
   width: 100%; min-height: 3.375rem; padding: 0.75rem 0.875rem; border: 1.5px solid #7c868a; border-radius: var(--radius);
   background: #fff; color: var(--ink); font: inherit; font-size: 1.0625rem;
@@ -435,6 +435,8 @@ a.hs-foot__phone:hover { text-decoration: underline; text-decoration-thickness: 
 .hs-foot__ctas .hs-btn--call:hover { background: #ece4d6; border-color: #ece4d6; }
 .hs-foot__rows { border-top: 1px solid rgba(255, 255, 255, 0.22); align-self: start; }
 .hs-foot__rows > div { padding: 0.875rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.22); display: grid; gap: 0.125rem; }
+/* Town links sit in a sentence: a taller hit area for thumbs without moving the text. */
+.hs-foot__rows dd a { display: inline-block; padding-block: 0.6875rem; margin-block: -0.6875rem; }
 .hs-foot__rows dt { font: 600 0.8125rem/1.2 var(--cond); letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-soft); }
 .hs-foot__legal { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.22); display: grid; gap: 0.25rem; font-size: 0.875rem; color: var(--ink-soft); }
 .hs-foot__legal a { color: #fff; }

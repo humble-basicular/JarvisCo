@@ -1,5 +1,5 @@
 {
-  "_note": "From .proof-runs/2026-10-17-codex/figures.json (gscPages). Every row is visible in the screenshot; townClicks = sum of the 10 town rows. serp: real Google searches where arbcut.lt is in the top 3 organic results only, each with a dated crop-only screenshot.",
+  "_note": "From .proof-runs/2026-10-17-codex/figures.json (gscPages). Every row is visible in the screenshot; townClicks = sum of the 10 town rows.",
   "captured": "2026-10-17",
   "from": "2026-07-15",
   "to": "2026-10-14",
@@ -67,6 +67,5 @@
       "clicks": 8,
       "impressions": 103
     }
-  ],
-  "serp": []
+  ]
 }

@@ -122,6 +122,8 @@ strong { font-weight: 650; }
 .btn--line { background: transparent; color: var(--ink); }
 .btn--line:hover { background: var(--ink); color: var(--paper); }
 .btn--big { min-height: 4rem; padding: 0 2.25rem; font-size: 1.1875rem; }
+/* Smallest phones (320–359 px): keep the main button on one line. */
+@media (max-width: 22.4375rem) { .btn--big { padding: 0 1rem; font-size: 1.0625rem; } }
 .btn svg { width: 1.25rem; height: 1.25rem; flex: none; }
 
 .link {

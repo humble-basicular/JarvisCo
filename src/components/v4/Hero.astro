@@ -1,97 +1,68 @@
 ---
-/* Fervor-style hero (hero plan 2026-10-15 §4, Jarvis picked concept A1 on
-   2026-10-16): big tight headline, then one large object. The object is an
-   AI-generated top-down flat lay of heating tools with a real screenshot of our
-   own heating demo composited onto the phone screen (scripts/hero-composite.mjs;
-   provenance in src/assets/hero/PROVENANCE.md). An illustration of the product,
-   never presented as a client. Mantas's photos stay in the results. */
-import { getImage } from 'astro:assets';
+/* Hero: big tight headline, then a real phone. Jarvis 2026-10-17: the AI flat lay
+   (concept A1) did not fit, so the object is now a straight phone frame with a
+   real headless-Chrome capture of our heating demo (src/assets/showcase,
+   scripts/showcase-capture.mjs). Tapping it opens the live demo in a new tab.
+   Phones get headline → CTA → phone; from 64rem the phone sits beside the text. */
+import { Image } from 'astro:assets';
 import { brand } from '@data/content.js';
-import { hero, MAIN_CTA } from '@data/v4.js';
-import flatLay from '@assets/hero/a1-knolling-finished.png';
+import { hero, examples, MAIN_CTA } from '@data/v4.js';
+import screen from '@assets/showcase/heating-mobile.png';
 
 interface Props { variant?: 'home' | 'heating' }
 const { variant = 'home' } = Astro.props;
 const v = hero[variant];
-
-// Two crops of the same photo: the whole flat lay from 48rem, and a centred 4:5
-// crop on phones so the phone in the picture stays big enough to read (it sits
-// in the exact centre of the frame). Per-format quality: AVIF 50 ≈ WebP 72 and smaller.
-const CROP = { width: 819, height: 1024 }; // 4:5 of the 1536 × 1024 source, no upscaling
-const set = async (format: 'avif' | 'webp', quality: number, widths: number[], crop = false) =>
-  (await Promise.all(widths.map(async (width) => {
-    const img = await getImage({ src: flatLay, width, format, quality, ...(crop ? { height: Math.round((width * CROP.height) / CROP.width), fit: 'cover', position: 'centre' } : {}) });
-    return `${img.src} ${width}w`;
-  }))).join(', ');
-const wide = [768, 1024, 1280, 1536];
-const narrow = [390, 600, 819];
-const sources = {
-  avifWide: await set('avif', 50, wide), webpWide: await set('webp', 72, wide),
-  avifNarrow: await set('avif', 50, narrow, true), webpNarrow: await set('webp', 72, narrow, true),
-};
-const wideSizes = '(min-width: 82rem) 77rem, calc(100vw - 2 * var(--gutter))';
-const narrowSizes = '100vw';
-const fallback = await getImage({ src: flatLay, width: 1280, format: 'webp', quality: 72 });
+const phoneSizes = '(min-width: 64rem) 17rem, min(16.5rem, 70vw)';
 ---
 <section class="hero" aria-labelledby="hero-title">
-  <div class="wrap hero__text">
-    {'stamp' in v && <p class="stamp hero__stamp">{v.stamp}</p>}
-    <h1 class="hero__title" id="hero-title">
-      {v.lines.map((line, i) => <span class="reveal-line" style={`--i:${i}`}>{line} </span>)}
-    </h1>
-    <div class="hero__row">
+  <div class="wrap hero__grid">
+    <div class="hero__text">
+      {'stamp' in v && <p class="stamp hero__stamp">{v.stamp}</p>}
+      <h1 class="hero__title" id="hero-title">
+        {v.lines.map((line, i) => <span class="reveal-line" style={`--i:${i}`}>{line} </span>)}
+      </h1>
       <div class="hero__sub">{hero.sub.map((p) => <p>{p}</p>)}</div>
       <div class="hero__ctas">
         <a class="btn btn--accent btn--big" href="#forma" data-track="preview_cta">{MAIN_CTA}</a>
         <a class="link" href={brand.smsHref} data-track="cta_sms">{hero.sms}</a>
       </div>
     </div>
+    <figure class="hero__object">
+      <a class="hero__phone" href={examples.href} target="_blank" rel="noopener">
+        <span class="hero__screen">
+          <Image src={screen} alt={hero.photoAlt} widths={[390, 600, 780]} sizes={phoneSizes} format="webp" quality={82} loading="eager" fetchpriority="high" decoding="async" />
+        </span>
+        <span class="visually-hidden"> (atsidaro naujame skirtuke)</span>
+      </a>
+      <figcaption class="hero__caption">{hero.caption}</figcaption>
+    </figure>
   </div>
-  <figure class="hero__object">
-    <picture>
-      <source media="(min-width: 48rem)" type="image/avif" srcset={sources.avifWide} sizes={wideSizes} width="1536" height="1024" />
-      <source media="(min-width: 48rem)" type="image/webp" srcset={sources.webpWide} sizes={wideSizes} width="1536" height="1024" />
-      <source type="image/avif" srcset={sources.avifNarrow} sizes={narrowSizes} width={CROP.width} height={CROP.height} />
-      <source type="image/webp" srcset={sources.webpNarrow} sizes={narrowSizes} width={CROP.width} height={CROP.height} />
-      <img src={fallback.src} alt={hero.photoAlt} width="1536" height="1024" loading="eager" fetchpriority="high" decoding="async" />
-    </picture>
-    <figcaption class="wrap hero__caption">{hero.caption}</figcaption>
-  </figure>
 </section>
 
 <style>
-  .hero { position: relative; padding-top: clamp(2.5rem, 7vw, 5.5rem); overflow: clip; }
-  .hero__text { position: relative; z-index: 1; }
-  .hero__stamp { margin-bottom: 1.25rem; }
-  .hero__title { font-size: clamp(2.75rem, 8.6vw, 7.5rem); font-weight: 600; line-height: 1.06; letter-spacing: -0.05em; max-width: 15ch; }
-  .hero__row { display: grid; gap: 2rem; margin-top: clamp(1.75rem, 4vw, 3rem); }
+  .hero { position: relative; padding-top: clamp(2.5rem, 7vw, 5.5rem); padding-bottom: clamp(2.5rem, 6vw, 4.5rem); overflow: clip; }
+  .hero__grid { display: grid; gap: clamp(2.5rem, 7vw, 3.5rem); }
+  .hero__text { position: relative; z-index: 1; display: grid; gap: clamp(1.25rem, 3vw, 1.75rem); align-content: start; }
+  .hero__stamp { margin-bottom: -0.25rem; }
+  .hero__title { font-size: clamp(2.5rem, 11vw, 7.5rem); font-weight: 600; line-height: 1.06; letter-spacing: -0.05em; max-width: 15ch; overflow-wrap: break-word; hyphens: manual; }
   .hero__sub { max-width: 34rem; color: var(--ink-2); font-size: clamp(1.0625rem, 0.6vw + 0.95rem, 1.25rem); }
   .hero__sub p { margin-bottom: 0.5rem; }
   .hero__ctas { display: grid; gap: 0.5rem; justify-items: start; align-content: start; }
   .hero__ctas .btn { width: 100%; }
 
-  /* The flat lay sits straight on the page: its paper background (≈ #faf9f6)
-     matches ours, so no frame, filter or blend. Phones get the 4:5 crop. */
-  .hero__object { margin: clamp(1.5rem, 4vw, 3rem) 0 0; }
-  .hero__object :global(picture) { display: block; }
-  .hero__object :global(img) { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; }
-  .hero__caption { margin-top: 0.75rem; padding-bottom: 1.5rem; color: var(--mute); font-size: 0.8125rem; line-height: 1.4; text-align: right; }
+  /* The phone: flat ink body, straight, never tilted (same frame as the showcase). */
+  .hero__object { display: grid; justify-items: center; gap: 0.875rem; margin: 0; }
+  .hero__phone { display: block; width: min(16.5rem, 70vw); padding: 0.625rem; border-radius: 2.5rem; background: var(--ink); box-shadow: 0 1.5rem 3rem -1.5rem rgb(20 20 18 / 0.45); transition: transform 0.3s var(--ease); }
+  .hero__phone:hover { transform: translateY(-4px); }
+  .hero__phone:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+  .hero__screen { display: block; overflow: hidden; aspect-ratio: 390 / 844; border-radius: 1.875rem; background: var(--paper); }
+  .hero__screen :global(img) { display: block; width: 100%; height: auto; }
+  .hero__caption { max-width: 20rem; color: var(--mute); font-size: 0.875rem; line-height: 1.4; text-align: center; }
 
-  @media (min-width: 48rem) {
-    .hero__ctas .btn { width: auto; }
-    .hero__object { width: min(100% - 2 * var(--gutter), 77rem); margin-inline: auto; }
-    /* The photo's paper is ±1 level off ours and shades slightly toward the
-       edges: a soft fade on all four sides hides the box edge. */
-    .hero__object :global(img) {
-      aspect-ratio: 1536 / 1024;
-      -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent), linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
-      -webkit-mask-composite: source-in;
-      mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent), linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
-      mask-composite: intersect;
-    }
-    .hero__caption { padding-inline: 0; }
-  }
+  @media (min-width: 30rem) { .hero__ctas .btn { width: auto; } }
   @media (min-width: 64rem) {
-    .hero__row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; align-items: start; }
+    .hero__grid { grid-template-columns: minmax(0, 1fr) 17rem; column-gap: clamp(3rem, 6vw, 6rem); align-items: center; }
+    .hero__title { font-size: clamp(3.5rem, 6.4vw, 6.25rem); }
+    .hero__phone { width: 17rem; }
   }
 </style>

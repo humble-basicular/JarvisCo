@@ -65,9 +65,6 @@ export function townsProof(t) {
     alt: `Google Search Console, puslapiai pagal paspaudimus: ${t.rows.map((r) => `${r.town} ${r.clicks}`).join(', ')}`,
     caption: `Google Search Console, puslapiai pagal paspaudimus, ${d(t.from)} – ${d(t.to)}. Miestų puslapių adresai – „medziu-pjovimas-miestas“.`,
     meta: `Ekrano kopija ${d(t.captured)} · Šaltinis: Google Search Console`,
-    serpTitle: 'Tikra Google paieška: arbcut.lt pirmame trejete',
-    serpNote: 'Rodau tik paieškas, kuriose arbcut.lt yra tarp pirmų trijų neapmokamų rezultatų. Rezultatai priklauso nuo vietos ir įrenginio, todėl prie kiekvienos ekrano kopijos – data ir vieta.',
-    serp: t.serp,
   };
 }
 export function formsProof(f) {
@@ -100,6 +97,7 @@ export const header = {
     { label: 'Rezultatai', href: '#rezultatai' },
     { label: 'Kaina', href: '#kaina' },
     { label: 'Kaip tai veikia', href: '#kaip' },
+    { label: 'Apie mane', href: '#apie' },
     { label: 'D.U.K.', href: '#duk' },
   ],
   call: `Skambinti ${brand.phone}`,
@@ -122,8 +120,8 @@ export const hero = {
   ],
   sms: 'Parašyti SMS',
   // Hero plan §4 (concept A1): an illustration, not a client. The flat lay is AI-generated; the screen is a real screenshot of our demo.
-  photoAlt: 'Šildymo meistro įrankiai, išdėlioti ant stalo: santechninis ir reguliuojamas raktai, manometras, radiatoriaus raktelis, sandarinimo juosta, varinis vamzdis ir ruletė; viduryje – telefonas su atidarytu šildymo meistro svetainės pavyzdžiu',
-  caption: 'Iliustracija: įrankiai ir telefonas sukurti DI, ekrane – tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija.',
+  photoAlt: 'Pavyzdinė šildymo meistro svetainė telefone: pirmas ekranas su antrašte, skambučio ir užklausos mygtukais',
+  caption: 'Tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija. Paspauskite – atsidarys gyvai.',
 };
 
 export const offerRow = [
@@ -143,6 +141,7 @@ export const proof = {
   gsc: gscProof(arbcut.gsc),
   forms: formsProof(arbcut.forms),
   // Jarvis 2026-10-17: nobody may read the form counts as all inquiries; calls were never counted.
+  zoom: 'Paspauskite ekrano kopiją – atsidarys didelė, galėsite priartinti pirštais.',
   formsOnly: {
     title: 'Tik užklausos per formą. Skambučiai neįskaičiuoti.',
     text: 'Žmonės, kurie svetainėje paspaudė „Skambinti“ ir paskambino Mantui tiesiai, šiuose skaičiuose nesimato: iki 2026 m. spalio skambučių neskaičiavau. Dabar mano kuriamose svetainėse skaičiuojami ir skambučio mygtuko paspaudimai.',

@@ -64,6 +64,22 @@ const phoneIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" strok
     sheet.querySelector('[data-menu-close]')?.addEventListener('click', () => sheet.close());
     sheet.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => sheet.close()));
     sheet.addEventListener('click', (e) => e.target === sheet && sheet.close());
+    // Swipe right (or down) to close, like a native sheet. Passive listeners; the menu follows the thumb.
+    let x0 = 0, y0 = 0, dx = 0, dy = 0, dragging = false;
+    sheet.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = dy = 0; dragging = true; }, { passive: true });
+    sheet.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      dx = e.touches[0].clientX - x0; dy = e.touches[0].clientY - y0;
+      const sideways = Math.abs(dx) > Math.abs(dy);
+      if (sideways && dx > 0) sheet.style.transform = `translateX(${dx}px)`;
+      else if (!sideways && dy > 0 && sheet.scrollTop <= 0) sheet.style.transform = `translateY(${dy}px)`;
+    }, { passive: true });
+    sheet.addEventListener('touchend', () => {
+      dragging = false;
+      const far = dx > 90 || (dy > 120 && Math.abs(dy) > Math.abs(dx) && sheet.scrollTop <= 0);
+      sheet.style.transform = '';
+      if (far) sheet.close();
+    }, { passive: true });
   }
 </script>
 
@@ -97,12 +113,18 @@ const phoneIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" strok
     width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; padding: 0 var(--gutter) 2rem;
     border: 0; background: var(--paper); color: var(--ink);
   }
+  .sheet { overflow-y: auto; overscroll-behavior: contain; transition: transform 0.2s var(--ease); }
+  .sheet[open] { animation: sheet-in 0.28s var(--ease); }
+  @keyframes sheet-in { from { transform: translateX(12%); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .sheet, .sheet[open] { animation: none; transition: none; } }
   .sheet::backdrop { background: rgb(20 20 18 / 0.4); }
   .sheet__top { display: flex; align-items: center; justify-content: space-between; min-height: var(--hdr-h); border-bottom: 1px solid var(--rule); }
   .sheet__list a {
     display: flex; align-items: baseline; gap: 1rem; min-height: 4rem; padding-block: 0.75rem;
-    border-bottom: 1px solid var(--rule); font-size: 2rem; font-weight: 600; letter-spacing: -0.03em; text-decoration: none;
+    border-bottom: 1px solid var(--rule); font-size: clamp(1.5rem, 7vw, 2rem); font-weight: 600; letter-spacing: -0.03em; text-decoration: none;
   }
+  /* Short phones (iPhone SE 1st gen, 568 px): the whole menu fits without scrolling. */
+  @media (max-height: 40rem) { .sheet__list a { min-height: 3.25rem; padding-block: 0.5rem; } .sheet__ctas { margin-top: 1.25rem; } }
   .sheet__list .stamp { color: var(--mute); font-size: 0.9375rem; }
   .sheet__ctas { display: grid; gap: 0.5rem; margin-top: 2rem; }
 </style>
