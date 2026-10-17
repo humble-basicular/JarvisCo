@@ -55,7 +55,10 @@ check('saved image dimensions are validated', () => assert.throws(() => validate
   // One visible statement by the photos plus a tag on the hero image replace per-photo captions;
   // every image still says it is an AI illustration in its alt text.
   check('demo: five illustrations disclosed; no invented reviews or qualifications', () => {
-    const imgs = html.match(/<img [^>]*>/g) ?? [];
+    // The logo mark (header, footer) is decorative (alt=""), so only the photos count here.
+    const all = html.match(/<img [^>]*>/g) ?? [];
+    assert.ok(all.filter((img) => /alt=""/.test(img)).every((img) => /class="[^"]*__mark--img/.test(img)), 'only logo marks are decorative');
+    const imgs = all.filter((img) => !/alt=""/.test(img));
     assert.equal(imgs.length, 5);
     assert.ok(imgs.every((img) => /alt="[^"]*\bDI\b[^"]*iliustracija/.test(img)), 'every alt names the DI illustration');
     assert.equal((html.match(/class="hs-tag"[^>]*>DI iliustracija</g) ?? []).length, 1, 'hero tag');
