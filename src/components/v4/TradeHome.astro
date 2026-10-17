@@ -4,6 +4,7 @@
 import Hero from './Hero.astro';
 import OfferRow from './OfferRow.astro';
 import Proof from './Proof.astro';
+import TownPages from './TownPages.astro';
 import Compare from './Compare.astro';
 import How from './How.astro';
 import Examples from './Examples.astro';
@@ -20,6 +21,7 @@ const heating = variant === 'heating';
 <OfferRow />
 {heating && <Examples />}
 <Proof />
+<TownPages />
 <Compare />
 <How />
 {!heating && <Examples />}

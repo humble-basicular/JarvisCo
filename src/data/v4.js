@@ -117,6 +117,17 @@ export const proof = {
   site: 'Atidaryti arbcut.lt',
 };
 
+/* "Miestų puslapiai" (W4a). No figure is published without its dated screenshot: when Chat 3 has
+   captured the Search Console Pages tab (scripts/proof-refresh.mjs), add the figure block to
+   TownPages.astro beside the list. Until then the section carries no numbers. */
+export const townPages = {
+  label: 'Miestų puslapiai',
+  title: 'Atskiras puslapis kiekvienam miestui',
+  text: 'Žmonės paieškoje rašo miestą: „arboristas Kaune“, „katilų remontas Jonavoje“. Todėl kiekvienam miestui, kuriame dirbate, paruošiu atskirą puslapį: su vietovės pavadinimu, atvykimo laiku ir vietiniais klausimais. Žemiau – trys šildymo pavyzdžio puslapiai.',
+  open: 'Atidaryti pavyzdį',
+  note: 'Pavyzdyje miestai ir atvykimo laikai išgalvoti. Vietos puslapiai padeda būti randamam paieškoje, bet vietos Google rezultatuose negarantuoju.',
+};
+
 export const compare = {
   label: 'Palyginimas',
   title: 'Portalai ar sava svetainė',

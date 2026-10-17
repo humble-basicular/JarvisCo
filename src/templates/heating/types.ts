@@ -74,4 +74,4 @@ export interface TownPage {
   placesLabel: string;
   places: string[];
 }
-export interface TownLink { slug: string; name: string; loc: string; href: string; arrival: string }
+export interface TownLink { slug: string; name: string; loc: string; href: string; arrival: string; distance: string }

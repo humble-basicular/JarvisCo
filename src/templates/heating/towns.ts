@@ -83,7 +83,7 @@ const TOWNS: Town[] = [
 ];
 
 export const townLinks = (): TownLink[] =>
-  TOWNS.map((t) => ({ slug: t.slug, name: t.name, loc: t.loc, href: `${DEMO_PATH}/${t.slug}`, arrival: t.arrival }));
+  TOWNS.map((t) => ({ slug: t.slug, name: t.name, loc: t.loc, href: `${DEMO_PATH}/${t.slug}`, arrival: t.arrival, distance: t.distance }));
 export const townSlugs = () => TOWNS.map((t) => t.slug);
 
 /** The demo SiteData re-pointed at one town; shared services, photos and look. */
