@@ -1,0 +1,119 @@
+---
+/* The inquiry/callback form (ids, names and data
+   hooks are the client.js / browser-check contract). Live: posts to the Worker;
+   preview: inert, no names, method get. */
+import { CONTACT_TIMES, FILE_ACCEPT, t } from '../content';
+import type { SiteData } from '../types';
+import type { View } from '../view';
+
+interface Props { data: SiteData; v: View }
+const { data, v } = Astro.props;
+const { live, n, services, areas, telHref } = v;
+---
+<form
+  class="hs-form"
+  action={live ? live.formEndpoint : '#uzklausa'}
+  method={live ? 'post' : 'get'}
+  enctype={live ? 'multipart/form-data' : undefined}
+  data-callback-form={live ? '' : undefined}
+  data-inert-form={live ? undefined : ''}
+>
+  {live && (
+    <>
+      <input type="hidden" name="kind" value="site_inquiry" />
+      <input type="hidden" name="site" value={live.code} />
+      <div class="hs-hp" aria-hidden="true"><label for="hs-website">Svetainė</label><input id="hs-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+    </>
+  )}
+  <p class="hs-form__note">{live ? 'Būtinas tik telefono numeris.' : 'Pavyzdinė forma – niekas nebus išsiųsta. Neįrašykite tikrų asmens duomenų.'}</p>
+
+  <div class="hs-field">
+    <label for="hs-service">{t.service}</label>
+    <select id="hs-service" name={n('service')}>
+      <option value="">{t.servicePick}</option>
+      {services.map((s) => <option value={s.name}>{s.name}</option>)}
+      <option value={t.serviceOther}>{t.serviceOther}</option>
+    </select>
+  </div>
+
+  <div class="hs-form__pair">
+    <div class="hs-field">
+      <label for="hs-location">{t.location}</label>
+      <input id="hs-location" name={n('location')} type="text" maxlength="120" list="hs-area-list" autocomplete={live ? 'address-level2' : 'off'} aria-describedby="hs-location-hint" />
+      <datalist id="hs-area-list">{areas.map((a) => <option value={a} />)}</datalist>
+      <p class="hs-hint" id="hs-location-hint">{t.locationHint}</p>
+    </div>
+
+    <div class="hs-field">
+      <label for="hs-name">{t.name}</label>
+      <input id="hs-name" name={n('name')} type="text" maxlength="80" autocomplete={live ? 'name' : 'off'} />
+    </div>
+  </div>
+
+  <div class="hs-field">
+    <label for="hs-phone">{t.phoneField} <span class="hs-req">būtina</span></label>
+    <input id="hs-phone" name={n('phone')} type="tel" inputmode="tel" maxlength="20" autocomplete={live ? 'tel' : 'off'} required={live ? true : undefined} pattern={live ? '[0-9 +\\-\\(\\)]{8,20}' : undefined} aria-describedby="hs-phone-hint" />
+    <p class="hs-hint" id="hs-phone-hint">{t.phoneHint}</p>
+  </div>
+
+  <div class="hs-field">
+    <label for="hs-message">{t.message}</label>
+    <textarea id="hs-message" name={n('message')} rows="4" maxlength="2000" aria-describedby="hs-message-hint"></textarea>
+    <p class="hs-hint" id="hs-message-hint">{t.messageHint}</p>
+  </div>
+
+  <details class="hs-more">
+    <summary>{t.more}</summary>
+    <div class="hs-more__body">
+      {/* Brand and error code have no wire field: client.js writes them into `message`. Shown only with JS. */}
+      <div class="hs-field" data-js-only hidden>
+        <label for="hs-brand">{t.brand}</label>
+        <input id="hs-brand" type="text" maxlength="60" autocomplete="off" data-compose="Katilo markė ir modelis" />
+      </div>
+      <div class="hs-field" data-js-only hidden>
+        <label for="hs-code">{t.code}</label>
+        <input id="hs-code" type="text" maxlength="40" autocomplete="off" data-compose="Klaidos kodas" />
+      </div>
+      <fieldset class="hs-times">
+        <legend>{t.contactTime}</legend>
+        <div class="hs-times__opts">
+          {CONTACT_TIMES.map((c) => (
+            <label class="hs-choice" for={`hs-time-${c.value}`}>
+              {live
+                ? <input type="radio" id={`hs-time-${c.value}`} name="contact_time" value={c.value} />
+                : <input type="radio" id={`hs-time-${c.value}`} name="hs-time" form="hs-none" />}
+              <span>{c.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    </div>
+  </details>
+
+  <div class="hs-upload" data-upload>
+    <p class="hs-upload__title" id="hs-files-title">{t.files} <span class="hs-opt">{t.optional}</span></p>
+    <p class="hs-hint">{t.filesText}</p>
+    <input class="hs-upload__input" id="hs-files" name={n('files')} type="file" multiple accept={FILE_ACCEPT} aria-describedby="hs-files-hint" />
+    <label class="hs-btn hs-btn--ghost hs-upload__btn" for="hs-files">{t.filesButton}</label>
+    <p class="hs-hint" id="hs-files-hint">{t.filesHint}</p>
+    <ul class="hs-files" data-file-list hidden></ul>
+    <p class="hs-files__sum" data-file-sum aria-live="polite"></p>
+  </div>
+
+  <button class="hs-btn hs-btn--block hs-btn--submit" type="submit">{t.submit}</button>
+
+  {live ? (
+    <>
+      <p class="hs-form__legal">
+        Siųsdami formą, perduodate įrašytus duomenis ir failus įmonei {data.business}. Duomenis jos vardu tvarko JarvisCo.
+        Plačiau: <a href="/privatumo-politika">{t.privacy.toLocaleLowerCase('lt')}</a>.
+      </p>
+      <div class="hs-form__error" data-form-error hidden role="alert" tabindex="-1">
+        <p data-form-error-text></p>
+        <p>{t.errorLead} <a href={telHref} data-cta="cta_call">{data.phone}</a></p>
+      </div>
+    </>
+  ) : (
+    <p class="hs-form__legal" role="status" data-inert-status>{t.inert}</p>
+  )}
+</form>

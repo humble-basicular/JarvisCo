@@ -1,0 +1,36 @@
+{
+  "business": "Pavyzdinis Šildymas",
+  "phone": "+370 600 00000",
+  "city": "Kaunas",
+  "areas": [
+    "Kaunas",
+    "Kauno r.",
+    "Jonava"
+  ],
+  "services": [
+    "Katilų montavimas",
+    "Katilų remontas",
+    "Šilumos siurbliai",
+    "Grindinis šildymas"
+  ],
+  "standout": "10 metų patirtis\nGarantija darbams 2 metai\nAtvykstame per 24 valandas",
+  "photos": [],
+  "submission": {
+    "name": "Testas",
+    "phone": null,
+    "services": [
+      "Katilų montavimas",
+      "Šilumos siurbliai"
+    ],
+    "services_other": null,
+    "area": [
+      "Kaunas",
+      "Kauno r."
+    ],
+    "area_other": null,
+    "photos_ok": "send_other",
+    "standout": "10 metų patirtis",
+    "contact_time": "evening",
+    "files": []
+  }
+}

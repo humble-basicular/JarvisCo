@@ -25,8 +25,8 @@ export const brand = {
   telHref: `tel:${PHONE_E164}`,
   // `?&body=` works on both Android and iOS (spec §3.4).
   smsHref: `sms:${PHONE_E164}?&body=${encodeURIComponent(SMS_BODY)}`,
-  email: 'jarviswork.co@gmail.com',
-  emailHref: 'mailto:jarviswork.co@gmail.com',
+  email: 'jarvisworks.co@gmail.com',
+  emailHref: 'mailto:jarvisworks.co@gmail.com',
   gbp: 'https://www.google.com/maps/place/JarvisCo/@55.1680551,22.5645915,8z/data=!4m6!3m5!1s0x46e725ccf8f540d9:0x58d0ee5e75771802!8m2!3d55.1736006!4d23.8832615!16s%2Fg%2F11npf5rgkj',
   facebook: 'https://www.facebook.com/profile.php?id=61562921045681',
   instagram: 'https://www.instagram.com/jarvisworks_co/',
@@ -99,42 +99,42 @@ export const form = {
 
 export const offer = {
   eyebrow: 'Paslauga',
-  title: 'Svetainė Jūsų paslaugoms. Viena kaina.',
+  title: 'Svetainė Jūsų paslaugoms. Nemokama pradžia.',
   lead: 'Kuriu svetaines paslaugų verslams, kad klientai galėtų Jus rasti Google ir kreiptis tiesiogiai.',
-  price: '199 €',
-  priceNote: 'vieną kartą',
-  priceLine: 'vieną kartą · be mėnesinių mokesčių',
-  noMonthly: 'Be mėnesinių mokesčių',
-  includesTitle: 'Ką gaunate už 199 €',
+  price: '0 €',
+  priceNote: 'iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
+  priceLine: 'iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
+  noMonthly: 'Mėnesio mokestis – po pirmos užklausos arba po 3 mėn.',
+  includesTitle: 'Ką gaunate',
   includes: [
     'Pagrindinis puslapis su paslaugomis, darbų pavyzdžiais ir kontaktais',
     'Iki 3 aptarnaujamų vietovių puslapių',
     'Užklausos forma',
     'Pritaikymas telefonui, paieškos (SEO) pagrindai',
-    'Vienas korekcijų etapas',
+    'Smulkūs pakeitimai: tekstai, nuotraukos, kainos',
   ],
   audienceTitle: 'Kam tinka',
   audienceText: 'Paslaugų verslams, kurie dirba savo mieste ar rajone.',
   audience: ['Medžių darbai', 'Aplinkos ir vejos priežiūra', 'Santechnika', 'Stogai', 'Statybos ir remontas', 'Valymas'],
   costsTitle: 'Kiek tai kainuoja',
   costs: [
-    { label: 'Sukūrimas', value: '199 € vieną kartą' },
-    { label: 'Domenas', value: '15 € per metus, registruojamas Jūsų vardu' },
-    { label: 'Talpinimas', value: '0 €' },
-    { label: 'Mėnesinis mokestis', value: 'Nėra' },
+    { label: 'Sukūrimas', value: '0 €' },
+    { label: 'Domenas', value: '~15 € per metus, registruojamas Jūsų vardu' },
+    { label: 'Talpinimas', value: '0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn.' },
+    { label: 'Mėnesinis mokestis', value: '39 € po pirmos užklausos arba po 3 mėn.' },
   ],
-  ownership: 'Svetainė, failai ir domenas – Jūsų. Galite ją perkelti kur norite.',
+  ownership: 'Domenas registruojamas Jūsų vardu. Jei atsisakote, domenas, Google profilis, nuotraukos ir tekstai lieka Jums.',
   // Verified in Jarvis's Paslaugos.lt account: €49.99/month, 2026-10-06.
   comparison: 'Palyginimui: Paslaugos.lt PRO kainuoja apie 50 € kas mėnesį.',
-  payback: 'Užtenka vieno užsakymo, kad atsipirktų. Svetainė lieka Jūsų ir dirba toliau.',
+  payback: 'Mokėti pradedate tik gavę pirmą užklausą. Jei jos nebus per 3 mėn., galite atsisakyti ir mokate tik už domeną.',
   year: {
     title: 'Per pirmus metus',
     lead: 'Paslaugos.lt PRO kainuoja apie 50 € kas mėnesį (patikrinta 2026-10-06).',
     rows: [
       { label: 'Paslaugos.lt PRO', value: '~600 €', detail: '12 mėn. × ~50 €', share: 100 },
-      { label: 'Svetainė', value: '214 €', detail: '199 € + 15 € domenas', share: 36 },
+      { label: 'Svetainė', value: 'iki ~366 €', detail: '15 € domenas + iki 9 mėn. × 39 €', share: 61 },
     ],
-    note: 'Antrais metais svetainė kainuoja tik domeną – 15 €. Paslaugos.lt atsisakyti nereikia: svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
+    note: 'Tai didžiausia suma: mėnesio mokestis prasideda ne vėliau kaip po 3 mėn. nuo paleidimo, o jei užklausų nebus, galite atsisakyti. Paslaugos.lt atsisakyti nereikia: svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
   },
 };
 
@@ -193,11 +193,11 @@ export const faq = {
     },
     {
       q: 'O jei vėliau reikės pakeitimų?',
-      a: 'Mėnesinio mokesčio nėra. Po paleidimo 30 dienų smulkius pataisymus darau nemokamai. Vėliau – susitarsime atskirai, tik jei to norėsite.',
+      a: 'Smulkūs pakeitimai (tekstai, nuotraukos, kainos) įeina į mėnesio mokestį, o per bandomąjį laikotarpį juos darau nemokamai. Didesnius darbus aptariame atskirai.',
     },
     {
-      q: 'Kodėl tokia kaina?',
-      a: 'Tai nedidelės, aiškios apimties svetainė. Sudėtingos sistemos į 199 € neįeina.',
+      q: 'Kodėl pradžia nemokama?',
+      a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Mėnesio mokestį (39 €) pradedate mokėti tik po pirmos užklausos, ne vėliau kaip po 3 mėn. nuo paleidimo. Iki tol mokate tik už domeną (~15 € per metus).',
     },
   ],
 };
@@ -324,10 +324,10 @@ export const contact = {
 
 export const home = {
   meta: {
-    ogImage: '/assets/og.png',
-    title: 'Svetainė paslaugų verslui – 199 € vieną kartą | jarvisweb.lt',
+    ogImage: '/assets/og-v4.png',
+    title: 'Svetainė paslaugų verslui – nemokama iki pirmos užklausos | jarvisweb.lt',
     description:
-      'Svetainė vietiniam paslaugų verslui už 199 € vieną kartą, be mėnesinių mokesčių. Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų.',
+      'Svetainė vietiniam paslaugų verslui: 0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn.; mokate tik domeną. Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų.',
   },
   hero: {
     eyebrow: 'Svetainės vietiniam paslaugų verslui',
@@ -358,10 +358,10 @@ export const home = {
 
 export const resultsPage = {
   meta: {
-    ogImage: '/assets/og-rezultatai.png',
+    ogImage: '/assets/og-rezultatai-v4.png',
     title: '20 užklausų per 2 mėnesius – rezultatai ir kaina | jarvisweb.lt',
     description:
-      'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Originalios ekrano kopijos, kaina 199 € vieną kartą, be mėnesinių mokesčių.',
+      'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Originalios ekrano kopijos; svetainė nemokama iki pirmos užklausos, ne ilgiau kaip 3 mėn., vėliau 39 € per mėnesį.',
   },
   hero: {
     eyebrow: 'Rezultatai · arbcut.lt',
@@ -376,7 +376,7 @@ export const resultsPage = {
 export { TRACKING_PREFIXES };
 
 export const footer = {
-  blurb: 'Svetainės vietiniam paslaugų verslui. 199 € vieną kartą, be mėnesinių mokesčių.',
+  blurb: 'Svetainės vietiniam paslaugų verslui. Nemokama iki pirmos užklausos, ne ilgiau kaip 3 mėn.; vėliau 39 € per mėnesį.',
   contactsTitle: 'Kontaktai',
   linksTitle: 'Puslapiai',
   socialTitle: 'Sekite',
@@ -401,4 +401,122 @@ export const utility = {
     title: 'Tokio puslapio nėra',
     text: 'Galbūt nuoroda pasenusi.',
   },
+};
+
+/* ---------- Free-preview funnel (docs/SPEC-2026-10-preview-funnel.md) ----------
+   /noriu: SMS links with prefix `p` land here; the homepage links here without
+   a code. Jarvis checks this copy before the form goes live. */
+
+export const funnel = {
+  meta: {
+    title: 'Nemokama Jūsų svetainės peržiūra | jarvisweb.lt',
+    description:
+      'Atsakykite į kelis klausimus apie savo darbą, ir per 48 valandas atsiųsiu nuorodą į Jūsų svetainės peržiūrą. Nemokamai, be įsipareigojimų.',
+  },
+  nav: [
+    { label: 'Pavyzdys', href: '#pavyzdys' },
+    { label: 'Rezultatai', href: '#rezultatai' },
+    { label: 'Peržiūra', href: '#kontaktai' },
+  ],
+  hero: {
+    eyebrow: 'Nemokama svetainės peržiūra',
+    h1: 'Nemokamai parodysiu, kaip atrodytų Jūsų svetainė.',
+    sub: 'Atsakykite į kelis klausimus apie savo darbą. Per 48 valandas paruošiu Jūsų svetainės peržiūrą ir nuorodą atsiųsiu SMS žinute. Nieko nemokate ir niekuo neįsipareigojate.',
+    jump: 'Noriu peržiūros',
+    by: 'Matas Bašinskas, svetainių kūrėjas, Kaunas',
+  },
+  example: {
+    eyebrow: 'Pavyzdys',
+    title: 'Šildymo meistro svetainė',
+    text: 'Taip galėtų atrodyti ir Jūsų svetainė: su Jūsų paslaugomis, vietovėmis ir darbų nuotraukomis. Vardas ir duomenys pavyzdyje išgalvoti.',
+    open: 'Atidaryti pavyzdį',
+    href: '/pavyzdys/sildymas',
+  },
+  cta: {
+    title: 'Norite tokios peržiūros?',
+    text: 'Tai nemokama. Jei peržiūra nepatiks, tiesiog neatsakykite.',
+    button: 'Taip, noriu nemokamos peržiūros',
+  },
+  // Service checkboxes by proof-code prefix (spec §2). No list = free text.
+  services: {
+    p: [
+      'Katilų montavimas',
+      'Katilų remontas',
+      'Katilų aptarnavimas',
+      'Šilumos siurbliai',
+      'Grindinis šildymas',
+      'Radiatoriai ir vamzdynai',
+      'Katilinių įrengimas',
+      'Kaminai ir dūmtraukiai',
+      'Židiniai ir krosnelės',
+    ],
+  },
+  areas: ['Kaunas', 'Kauno r.', 'Vilnius', 'Vilniaus r.', 'Klaipėda', 'Šiauliai', 'Panevėžys', 'Alytus', 'Marijampolė', 'Jonava', 'Kėdainiai', 'Visa Lietuva'],
+  form: {
+    title: 'Keli klausimai apie Jūsų darbą',
+    lead: 'Užtruks apie 2 minutes. Visi laukai nebūtini, išskyrus pažymėtus.',
+    services: 'Kokias paslaugas parodyti?',
+    servicesFree: 'Kokias paslaugas teikiate?',
+    servicesFreeHint: 'Pvz. katilų montavimas, santechnika, stogų dengimas.',
+    other: 'Kita',
+    otherHint: 'Įrašykite, ko nėra sąraše.',
+    areas: 'Kur dirbate?',
+    areasOther: 'Kitos vietovės',
+    photos: 'Ar galiu naudoti Jūsų darbų nuotraukas iš Paslaugos.lt profilio?',
+    photosYes: 'Taip, naudokite',
+    photosOther: 'Atsiųsiu kitas',
+    standout: 'Kuo išsiskiriate?',
+    standoutHint: 'Pvz. garantija, darbo patirtis metais, skubūs iškvietimai, sertifikatai.',
+    time: 'Kada patogu pakalbėti?',
+    times: [
+      { value: 'morning', label: 'Rytas' },
+      { value: 'day', label: 'Diena' },
+      { value: 'evening', label: 'Vakaras' },
+      { value: 'sms', label: 'Parašykite SMS' },
+    ],
+    files: 'Pridėkite failų',
+    filesHint: 'Darbų nuotraukos, logotipas, kainoraštis. Iki 8 failų, iš viso iki 25 MB. Nuotraukas prieš siųsdamas sumažinu.',
+    name: 'Vardas',
+    phone: 'Telefono numeris',
+    phoneHint: 'Čia atsiųsiu peržiūros nuorodą.',
+    optional: '(nebūtina)',
+    required: '(būtina)',
+    submit: 'Gauti nemokamą peržiūrą',
+    sending: 'Siunčiama…',
+    preparing: 'Ruošiamos nuotraukos…',
+    privacy: 'Duomenis ir failus naudoju tik Jūsų peržiūrai paruošti ir susisiekti dėl jos.',
+    noscript: 'Naršyklėje išjungtas JavaScript: forma vis tiek išsiųs atsakymus, bet nuotraukos nebus sumažintos, o po išsiuntimo matysite tik trumpą techninį atsakymą. Jei kas nepavyks, skambinkite +370 676 99395.',
+    errors: {
+      phone: 'Įveskite telefono numerį, pvz. +370 612 34567.',
+      phoneCallback: 'Įrašykite telefono numerį, kad galėčiau paskambinti.',
+      email: 'Įveskite teisingą el. pašto adresą, pvz. vardas@pastas.lt.',
+      files: 'Iki 8 failų, kiekvienas iki 10 MB, iš viso iki 25 MB.',
+      fileType: 'Šio failo tipo priimti negaliu. Tinka nuotraukos, PDF, Word, Excel ir tekstiniai failai.',
+      invalid: 'Patikrinkite pažymėtą laukelį.',
+      tooLarge: 'Failai per dideli. Iš viso iki 25 MB.',
+      rateLimited: 'Per daug bandymų iš eilės. Pabandykite po kelių minučių.',
+      failure: `Nepavyko išsiųsti. Pabandykite dar kartą arba skambinkite ${PHONE}.`,
+    },
+    // {name} = vocative first name, {date} = +48 h in Europe/Vilnius.
+    thanks: {
+      preview: 'Ačiū{name}. Peržiūros nuorodą atsiųsiu {via} per 48 val., iki {date}.',
+      callback: 'Ačiū{name}. {time}',
+      times: {
+        morning: 'Paskambinsiu rytą.',
+        day: 'Paskambinsiu dieną.',
+        evening: 'Paskambinsiu vakare.',
+        sms: 'Parašysiu Jums SMS.',
+        '': 'Paskambinsiu artimiausiu metu.',
+      },
+      sign: '– Matas',
+    },
+  },
+};
+
+/* Homepage button to the same form without a code (phone field shown). */
+export const previewOffer = {
+  title: 'Norite pamatyti savo svetainę prieš mokėdami?',
+  text: 'Atsakykite į kelis klausimus, ir per 48 valandas atsiųsiu nemokamą Jūsų svetainės peržiūrą.',
+  button: 'Gauti nemokamą peržiūrą',
+  href: '/noriu#forma',
 };

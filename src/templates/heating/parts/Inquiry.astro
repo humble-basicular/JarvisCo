@@ -1,0 +1,35 @@
+---
+/* The final inquiry/callback section on the colour field: promise, what
+   happens next, call alternative, gas-safety note and the form. */
+import { t } from '../content';
+import type { SiteData } from '../types';
+import type { View } from '../view';
+import InquiryForm from './InquiryForm.astro';
+
+interface Props { data: SiteData; v: View }
+const { data, v } = Astro.props;
+const { live, telHref } = v;
+---
+<section class="hs-sec hs-inq-sec" id="uzklausa" tabindex="-1" aria-labelledby="hs-form-title">
+  <div class="hs-wrap hs-inquiry">
+    <div class="hs-inquiry__copy">
+      <p class="hs-label">{t.formLabel}</p>
+      <h2 id="hs-form-title">{t.formTitle}</h2>
+      <ol class="hs-next">
+        <li>{live ? `Užklausą gauna ${data.business}.` : `Tikroje svetainėje užklausą gautų ${data.business}.`}</li>
+        <li>Perskambiname Jūsų nurodytu numeriu{data.hours ? ' darbo metu' : ''}.</li>
+        <li>Atvykimo laiką ir kainos sąlygas suderiname telefonu.</li>
+      </ol>
+    </div>
+    <div class="hs-inquiry__aside">
+      <p class="hs-inquiry__call"><span>{t.formOrCall}</span> {live ? <a href={telHref} data-cta="cta_call">{data.phone}</a> : <strong>{data.phone}</strong>}</p>
+      {data.hours && <p class="hs-inquiry__hours">{data.hours}</p>}
+      <div class="hs-gas" role="note">
+        <p><strong>{t.gasTitle}</strong> {t.gasText} {live ? <a href="tel:1804">1804</a> : '1804'} (ESO dujų avarinė tarnyba) arba {live ? <a href="tel:112">112</a> : '112'}.</p>
+      </div>
+    </div>
+    <div class="hs-formbox">
+      <InquiryForm data={data} v={v} />
+    </div>
+  </div>
+</section>

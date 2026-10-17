@@ -1,0 +1,27 @@
+---
+/* "Aptarnaujame" on the demo homepage: one service tile per town page (same tiles as "Ką atliekame"). */
+import type { TownLink } from '../types';
+import { andList } from '../content';
+import type { View } from '../view';
+
+interface Props { towns: TownLink[]; v: View }
+const { towns, v } = Astro.props;
+---
+<section class="hs-sec hs-sec--white" id="miestai" aria-labelledby="hs-towns">
+  <div class="hs-wrap">
+    <header class="hs-head">
+      <p class="hs-label">Aptarnaujame</p>
+      <h2 id="hs-towns">Šildymo meistrai {andList(towns.map((x) => x.loc))}</h2>
+    </header>
+    <ol class:list={['hs-svc', `hs-svc--n${towns.length}`]}>
+      {towns.map((x, i) => (
+        <li>
+          <span class="hs-svc__n" aria-hidden="true">{v.pad(i + 1)}</span>
+          <h3>{x.name}</h3>
+          <p>{x.places.slice(0, 4).join(', ')}.</p>
+          <a class="hs-svc__ask" href={x.href}>Šildymas {x.loc}<span class="hs-vh">: atidaryti puslapį</span></a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

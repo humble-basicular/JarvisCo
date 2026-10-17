@@ -1,0 +1,21 @@
+---
+/* Offer line (Trade Sites): 4 facts split by thin rules; 2×2 on mobile. */
+import { offerRow } from '@data/v4.js';
+---
+<div class="wrap"><ul class="offer-row" aria-label="Pasiūlymas trumpai">
+  {offerRow.map((f) => <li><strong>{f.big}</strong> <span>{f.text}</span></li>)}
+</ul></div>
+
+<style>
+  .offer-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-block: 1px solid var(--ink); }
+  .offer-row li { display: grid; align-content: start; gap: 0.25rem; padding: 1.25rem 1rem 1.25rem 0; line-height: 1.35; }
+  .offer-row li:nth-child(even) { padding-left: 1rem; border-left: 1px solid var(--rule); }
+  .offer-row li:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+  .offer-row strong { font-size: clamp(1.375rem, 4vw, 1.75rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; }
+  .offer-row span { color: var(--ink-2); font-size: 0.9375rem; }
+  @media (min-width: 64rem) {
+    .offer-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .offer-row li, .offer-row li:nth-child(even) { padding: 1.75rem 1.5rem; border-top: 0; border-left: 1px solid var(--rule); }
+    .offer-row li:first-child { padding-left: 0; border-left: 0; }
+  }
+</style>

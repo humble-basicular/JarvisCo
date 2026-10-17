@@ -1,0 +1,24 @@
+{
+  "note": "Written by scripts/proof-refresh.mjs from its own screenshots (src/assets/proof/PROVENANCE.md). Edit only by re-running it; every figure must be visible in the named screenshot.",
+  "gsc": {
+    "file": "arbcut-gsc-3m-2026-10-14.png",
+    "captured": "2026-10-14",
+    "from": "2026-07-12",
+    "to": "2026-10-10",
+    "clicks": "595",
+    "impressions": "11.9K",
+    "ctr": "5%",
+    "position": "8.1"
+  },
+  "forms": {
+    "captured": "2026-10-14",
+    "created": "2026-04-19",
+    "total": 28,
+    "spam": 0,
+    "months": [
+      { "month": "2026-08", "submissions": 7, "file": "arbcut-web3forms-aug-2026-10-14.png" },
+      { "month": "2026-09", "submissions": 13, "file": "arbcut-web3forms-sep-2026-10-14.png" },
+      { "month": "2026-10", "submissions": 1, "file": "arbcut-web3forms-oct-2026-10-14.png" }
+    ]
+  }
+}

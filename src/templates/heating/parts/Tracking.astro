@@ -1,0 +1,9 @@
+---
+/* Live client sites only: counts call-button taps, form opens and form submits (inquiry-track.ts).
+   Rendered from HeatingLayout only in live mode, so the demo and previews carry no tracking. */
+interface Props { site: string; endpoint: string }
+const { site, endpoint } = Astro.props;
+---
+<meta name="jw-site" content={site} />
+<meta name="jw-endpoint" content={endpoint} />
+<script>import '../../../scripts/inquiry-track.ts';</script>

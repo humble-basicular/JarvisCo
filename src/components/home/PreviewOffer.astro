@@ -1,0 +1,25 @@
+---
+/* Homepage entry to the free-preview form, without a proof code: /noriu shows
+   the phone field then (funnel spec §4). */
+import { previewOffer as p } from '@data/content.js';
+---
+<section class="po t-dark" aria-labelledby="po-title">
+  <div class="wrap po__inner">
+    <div>
+      <h2 class="po__title" id="po-title">{p.title}</h2>
+      <p class="po__text">{p.text}</p>
+    </div>
+    <a class="btn btn--lime po__btn" href={p.href}>{p.button}<span class="arrow" aria-hidden="true">→</span></a>
+  </div>
+</section>
+<style>
+  .po { padding-block: clamp(3rem, 7vw, 4.5rem); background: radial-gradient(ellipse at 100% 0%, rgba(200,245,96,.14), transparent 55%), var(--ink-2); }
+  .po__inner { display: grid; gap: 1.5rem; align-items: center; }
+  .po__title { font-size: clamp(1.75rem, 4.5vw, 2.75rem); max-width: 22ch; }
+  .po__text { margin: 1rem 0 0; color: #c3d6cb; max-width: 38rem; }
+  .po__btn { width: 100%; }
+  @media (min-width: 48rem) {
+    .po__inner { grid-template-columns: 1fr auto; gap: 3rem; }
+    .po__btn { width: auto; }
+  }
+</style>

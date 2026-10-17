@@ -1,0 +1,12 @@
+---
+/* SMS links with prefix `p` land here as /noriu?r=<code> (the Worker's
+   redirect). It is the heating trade page; canonical → /sildymui. track.ts
+   keeps the code for the tab, strips `r` from the address bar and sends the
+   `preview_cta` beacon on every "Gauti nemokamą peržiūrą" tap. */
+import Layout from '@layouts/Layout.astro';
+import TradeHome from '@components/v4/TradeHome.astro';
+import { header, faq, meta } from '@data/v4.js';
+---
+<Layout {...meta.heating} nav={header.nav} faq={faq.items} formHref="#forma" canonicalPath="/sildymui">
+  <TradeHome variant="heating" />
+</Layout>

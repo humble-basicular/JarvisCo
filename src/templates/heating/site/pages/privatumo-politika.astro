@@ -1,0 +1,52 @@
+---
+/* Privacy policy of the client site: the business is the controller, JarvisCo processes the form for it (spec §3). */
+import HeatingLayout from '../../HeatingLayout.astro';
+import SimpleTop from '../../SimpleTop.astro';
+import clientScript from '../../client.js?raw';
+import { PROCESSOR, toE164 } from '../../content';
+import { loadBuild } from '../load';
+
+const { data, site } = loadBuild();
+const name = data.legal?.name ?? data.business;
+const tel = toE164(data.phone);
+---
+<HeatingLayout
+  mode="live"
+  testBuild={site.testBuild}
+  title={`Privatumo politika – ${data.business}`}
+  description={`${data.business}: kaip tvarkome užklausos formos duomenis.`}
+  business={data.business}
+  logo={data.logo?.src}
+  accent={data.accent}
+  canonical={`https://${site.domain}/privatumo-politika`}
+  live={{ code: site.code, beacon: site.beaconEndpoint, tel }}
+>
+  <SimpleTop business={data.business} phone={data.phone} tel={tel} logo={data.logo?.src} />
+  <main class="hs-wrap hs-page">
+    <h1>Privatumo politika</h1>
+    <h2>Kas tvarko duomenis</h2>
+    <p>
+      Duomenų valdytojas: {name}{data.legal?.code ? `, įm. k. ${data.legal.code}` : ''}{data.legal?.address ? `, ${data.legal.address}` : ''}.
+      Telefonas: {data.phone}{data.email ? `, el. paštas ${data.email}` : ''}.
+    </p>
+    <p>
+      Užklausos formos duomenis valdytojo vardu tvarko duomenų tvarkytojas {PROCESSOR.name} ({PROCESSOR.owner}, {PROCESSOR.status}, {PROCESSOR.city}),
+      kuris prižiūri šią svetainę. Kontaktai: {PROCESSOR.email}.
+    </p>
+    <h2>Kokius duomenis renkame ir kodėl</h2>
+    <ul>
+      <li>Formoje: telefono numeris, o jei patys nurodote – vardas, paslauga, vietovė, žinutė, patogus skambučio laikas ir pridėti failai. Naudojame tik tam, kad atsakytume į Jūsų užklausą.</li>
+      <li>Skambučio ar SMS mygtuko paspaudimas, formos atidarymas ir išsiuntimas užfiksuojami kaip anoniminiai įvykiai: puslapis, vietos žyma, laikas, įrenginio tipas (telefonas ar kompiuteris) ir iš kur atėjote (paieška, kita svetainė ar tiesiogiai). IP adreso, slapukų ir kitų asmens duomenų prie jų nesaugome. Skaičiai rodo, ar svetainė atneša užklausų.</li>
+      <li>Svetainė nenaudoja slapukų ir reklaminės stebėsenos.</li>
+    </ul>
+    <h2>Teisinis pagrindas ir saugojimas</h2>
+    <p>Duomenis tvarkome, nes Jūs patys paprašėte susisiekti (BDAR 6 str. 1 d. b ir f punktai). {PROCESSOR.retention}</p>
+    <h2>Jūsų teisės</h2>
+    <p>
+      Galite prašyti pateikti, ištaisyti ar ištrinti savo duomenis, nesutikti su jų tvarkymu. Rašykite {data.email ?? PROCESSOR.email}
+      arba skambinkite {data.phone}. Skundą galite pateikti Valstybinei duomenų apsaugos inspekcijai (vdai.lrv.lt).
+    </p>
+    <p><a href="/">← Į pradžią</a></p>
+  </main>
+  <script is:inline set:html={clientScript}></script>
+</HeatingLayout>

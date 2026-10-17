@@ -1,0 +1,14 @@
+---
+/* Demo heating site shown as the example on /noriu and in the agency hero (funnel spec §8). noindex.
+   The same template the generator uses for lead previews and client sites. */
+import HeatingLayout from '../../templates/heating/HeatingLayout.astro';
+import HeatingSite from '../../templates/heating/HeatingSite.astro';
+import { demo } from '../../templates/heating/demo';
+import { pageDescription } from '../../templates/heating/content';
+import { townLinks } from '../../templates/heating/towns';
+
+const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: '/noriu', label: '← Grįžti' };
+---
+<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} logo={demo.logo?.src} banner={banner}>
+  <HeatingSite data={demo} mode="preview" towns={townLinks()} />
+</HeatingLayout>

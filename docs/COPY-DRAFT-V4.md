@@ -1,0 +1,83 @@
+# V4 copy draft (jarvisweb.lt redesign) — for Jarvis to replace or approve
+
+Status: **DRAFT, written by Claude 2026-10-14.** Plan §4.2/§4.3 example lines were used where they exist; everything else below was drafted under the honest wording rule (plan §1). The final Lithuanian copy is Jarvis's. Source of truth in code: `src/data/v4.js` (edit there; every line below maps to one key).
+
+Rules applied: every "0 €" is followed by "iki pirmos užklausos, ne ilgiau kaip 3 mėn." and the domain fee is on the same screen (enforced by `npm run check:copy`); no rank guarantees; no invented numbers; no testimonial text (Jarvis: results speak for themselves).
+
+| Key | Lithuanian (as shown) | From plan? |
+|---|---|---|
+| hero.home.lines | Svetainė, kuri / nieko nekainuoja, / kol neatneša užklausos. | §4.2 example |
+| hero.heating.lines | Svetainė šildymo meistrui, / kuri nieko nekainuoja, / kol neatneša užklausos. | drafted |
+| hero.heating.stamp | Šildymo meistrams | drafted |
+| hero.sub[0] | Nemokama Jūsų svetainės peržiūra per 48 val. Paleidus svetainę mėnesio mokesčio nėra iki pirmos užklausos, ne ilgiau kaip 3 mėn. | drafted (§4.2 asks for "iki 3 mėn." + "domenas Jūsų vardu") |
+| hero.sub[1] | Mokate tik už domeną (~15 € per metus), ir jis registruojamas Jūsų vardu. | drafted |
+| MAIN_CTA | Gauti nemokamą peržiūrą | §4.2 |
+| hero.sms | Parašyti SMS | §4.2 |
+| offerRow | Nemokama peržiūra per 48 val. · 0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn. · Domenas Jūsų vardu, ~15 € per metus · Atsisakyti galite bet kada | §4.2, reworded to fit the rule |
+| proof.title | Kas vyksta arbcut.lt | §4.2 |
+| proof.text | arbcut.lt – arboristo svetainė Kaune, kurią sukūriau. Žemiau – tikros ekrano kopijos iš jos paskyrų: tik apkirptos, skaičiai nepakeisti. | drafted |
+| proof.gsc.stats labels | paspaudimai iš Google paieškos · parodymų Google paieškoje · vidutinis paspaudimų rodiklis · vidutinė pozicija | drafted |
+| proof.gsc.caption / meta | Google paieška per 3 mėnesius, 2026-07-12 – 2026-10-10. · Ekrano kopija 2026-10-14 · Šaltinis: Google Search Console | drafted |
+| proof.forms.stats labels | rugpjūtį · rugsėjį · spalį (iki 14 d.) · iš viso nuo 2026-04-19 | drafted |
+| proof.forms.caption / meta | Užklausos per svetainės formą. Web3Forms suskaičiavo 28 pateiktas formas nuo 2026-04-19, kai forma buvo sukurta; šlamšto – 0. · Ekrano kopija 2026-10-14 · Šaltinis: Web3Forms | drafted |
+| proof.forms.more | Rugpjūčio ekrano kopija · Spalio ekrano kopija | drafted |
+| proof.honest | Paspaudimai iš Google nėra užklausos: ne kiekvienas lankytojas parašo. Todėl rodau abu skaičius atskirai. | drafted |
+| compare.title / text | Portalai ar sava svetainė · Portalai ir svetainė gali veikti kartu. Štai kuo jie skiriasi. | Jarvis review 2026-10-15; hero plan D7: portals, never 1551.lt (a business directory) |
+| compare.cols / rows | Paslaugos.lt ir panašūs užklausų portalai / Jūsų svetainė · Kur Jus randa: Tarp kitų paslaugų teikėjų. / Atskirame Jūsų paslaugų puslapyje. · Kaip prisistatote: Profilis pagal portalo struktūrą ir taisykles. / Jūsų paslaugos, darbų nuotraukos ir kontaktai vienoje vietoje. · Kas lieka, jei sustojate: Profilį tvarkote pagal portalo taisykles. / Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums. | Jarvis review; no claim about shared inquiries |
+| how.title / text | Keturi žingsniai, mokate tik paskutiniame · Nuo formos iki veikiančios svetainės. Visą darbą darau pats. | drafted |
+| how.steps | Forma, 2 min. · Peržiūra per 48 val. · Domenas ir paleidimas · Mokate tik po pirmos užklausos (+ one sentence each, see v4.js) | §4.2 structure, drafted text |
+| examples | Pavyzdys · Tokia būtų Jūsų svetainė · one heating demo (phone + desktop captures), „Atidaryti gyvai“ → /pavyzdys/sildymas, then the before/after strip (see v4.js `examples.showcase` / `examples.beforeAfter`) | hero plan 2026-10-15 §5 (D2, D3); replaces „Kaip atrodytų Jūsų“ |
+| price | 39 € / mėn. · tik po pirmos užklausos arba po 3 mėn. nuo paleidimo – kas įvyks anksčiau. · Iki tol – 0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn. Domeną (~15 € per metus) apmokate Jūs, ir jis registruojamas Jūsų vardu. | §4.2 + §1 |
+| price.includes | Svetainė ir talpinimas · Smulkūs pakeitimai: tekstai, nuotraukos, kainos (iki ~30 min. per mėnesį) · Google verslo profilio priežiūra: nuotraukos, nuoroda įvertinimams · Kas mėnesį SMS ataskaita: kiek užklausų ir paspaudimų „Skambinti“ | §1 |
+| price.inquiry | Tikro kliento žinutė per svetainės formą apie Jūsų paslaugą. Bandymai, šlamštas ir pasikartojimai neskaičiuojami – kiekvieną patikrinu rankomis. | §1 |
+| price.cancel | Parašote SMS ar paskambinate, bet kada. Per bandomąjį laikotarpį tai nieko nekainuoja. Vėliau svetainė veikia iki apmokėto mėnesio pabaigos. Domenas, Google profilis, Jūsų nuotraukos ir tekstai lieka Jums. | §1 |
+| price.billing | Sąskaita kas mėnesį, mokama mėnesiui į priekį, pavedimu. | §1 |
+| about | Matas, Kaunas · Svetaines kuriu pats ir atsakau pats. · Individuali veikla. Rašote ar skambinate – atsiliepiu aš, ne skambučių centras. · Skambinti +370 676 99395 | §4.2 line + drafted |
+| faq (7) | Darbo per valias, kam man? · Turėjau svetainę, nieko nedavė · Kas, jei neatneš užklausų? · Ar būsiu pirmas Google? · Kas, jei atsisakysiu? · Kodėl nemokamai pradžiai? · Neturiu nuotraukų ar logotipo — all answers drafted (see v4.js) | questions §4.2/§4.3 |
+| cta | Pažiūrėkite, kaip atrodytų Jūsų svetainė · Keli trumpi klausimai, apie 2 minutes. Peržiūrą atsiųsiu per 48 val. Nepatiks – tiesiog neatsakykite. | drafted |
+| steps (form) | Kokia Jūsų sritis? (Šildymas, Santechnika, Medžių darbai, Stogai, Elektra, Statyba ir remontas, Aplinkos tvarkymas, Kita) · Kokias paslaugas teikiate? · Kur dirbate? · Kiek metų dirbate šioje srityje? (Iki 3 / 3–10 / 10–20 / Daugiau nei 20 m.) · Kuo išsiskiriate? · Nuotraukos ir logotipas: Paimkite nuotraukas iš mano profilio internete (pvz., Paslaugos.lt) / Įkelsiu savo · Profilio nuoroda (nebūtina) · Kur atsiųsti peržiūrą? · Paskambinkite man · Klausimas N iš 6 · Toliau / Atgal | §4.3 order, drafted wording |
+| steps.consent | Spausdami mygtuką sutinkate, kad šiuos duomenis ir failus naudočiau tik Jūsų peržiūrai paruošti ir susisiekti dėl jos. Privatumo politika. | drafted |
+| steps.extraErrors | Pasirinkite vieną variantą. · …: nepavyko paruošti nuotraukos. Pabandykite kitą arba mažesnę. | drafted |
+| footer.line | Svetainės paslaugų meistrams. Kaunas, visa Lietuva. | drafted |
+| meta.home / meta.heating | titles + descriptions (see v4.js) | drafted |
+
+Unchanged from the funnel stage (`src/data/content.js` → `funnel.form`): field labels for name/phone/contact time, error texts, thank-you texts.
+
+## Jarvis review 2026-10-15 — source-neutral wording
+
+- FAQ „Neturiu nuotraukų ar logotipo“: „Nieko tokio. Su Jūsų leidimu paimsiu darbų nuotraukas iš Jūsų profilio internete (pvz., Paslaugos.lt), o vietoj logotipo bus tvarkingai užrašytas pavadinimas. Vėliau viską galima pakeisti.“
+- Optional „Profilio nuoroda“ is composed into `standout` as „Profilis: <url>“; no new wire field.
+
+## Jarvis review 2026-10-15 — real images, no quotes
+
+- Removed the entire Mantas quote block and Cloudflare Web Analytics slot; no replacement claims.
+- Homepage hero alt: „Mantas Gerulis dirba medžio lajoje“. Heating hero alt: „Šildymo meistro svetainės pavyzdys, mobilioji versija“.
+- Portrait alt: „Mantas Gerulis su grandininiu pjūklu“; caption: „Mantas Gerulis, arboristas, Kaunas · arbcut.lt“.
+- Example image alts: „Šildymo meistro svetainės mobilioji ekrano kopija“ / „arbcut.lt mobilioji ekrano kopija“.
+- Both example links: „Žiūrėti pavyzdį“. Captions stay „Šildymo meistro svetainė“ / „Pavyzdys“ and „arbcut.lt – arboristas, Kaunas“ / „Veikianti svetainė“.
+- Removed all photo placeholder labels; kept Jarvis's existing photo.
+
+## Jarvis review 2026-10-15 — contact email
+
+- `brand.email` / `emailHref`: „jarvisworks.co@gmail.com“ / `mailto:jarvisworks.co@gmail.com` (corrected spelling).
+- Email appears next to the phone in the header (envelope icon with email as accessible name on small screens, full address on wide screens; full address also in the menu), „Apie“, final CTA, footer, and no-JS fallback.
+- Final CTA phone text: „+370 676 99395“; email text in every contact block: „jarvisworks.co@gmail.com“.
+- No-JS help: „Formai reikia JavaScript — paskambinkite, parašykite SMS arba el. paštu“.
+
+## Form changes already implemented in items 1–2 (included in this copy review)
+
+- Contact step: „Kur atsiųsti peržiūrą?“; group: „Pasirinkite, kaip gauti peržiūros nuorodą“; choices: „SMS“ / „El. paštu“.
+- Email: „El. paštas“; hint: „Čia atsiųsiu peržiūros nuorodą.“
+- Optional phone hint in email mode: „Nebūtina. Numerio prireiks, jei paspausite „Paskambinkite man“.“
+- With an SMS code: „Peržiūrą atsiųsiu SMS į numerį, iš kurio gavote mano žinutę.“
+- Callback note (last step only): „Arba paskambinsiu aš: įrašykite telefono numerį. Visus atsakymus matysiu.“ Removed the early callback shortcut and its text.
+- Preview thank-you (`funnel.form.thanks.preview`): „Ačiū{name}. Peržiūros nuorodą atsiųsiu {via} per 48 val., iki {date}.“ (`{via}` = „SMS“ / „el. paštu“).
+- Email error (`funnel.form.errors.email`): „Įveskite teisingą el. pašto adresą, pvz. vardas@pastas.lt.“
+
+Build checks reject unfinished photo/quote labels and retain the honest-offer checks. Static checks require the email and preview channel wire fields.
+
+## Hero plan 2026-10-15 — hero object + one example (H3/H4)
+
+- Hero (home and /sildymui), concept A1 picked by Jarvis 2026-10-16: AI-generated top-down flat lay of heating tools with a real screenshot of the heating demo on the phone. Alt: „Šildymo meistro įrankiai, išdėlioti ant stalo: santechninis ir reguliuojamas raktai, manometras, radiatoriaus raktelis, sandarinimo juosta, varinis vamzdis ir ruletė; viduryje – telefonas su atidarytu šildymo meistro svetainės pavyzdžiu“. Caption: „Iliustracija: įrankiai ir telefonas sukurti DI, ekrane – tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija.“ Supersedes the per-variant hero alts above (Mantas's photos stay in the results section).
+- Pavyzdys section: label „Pavyzdys“, title „Tokia būtų Jūsų svetainė“, text „Šildymo meistro svetainės pavyzdys: įmonė ir duomenys išgalvoti. Jūsų peržiūroje bus Jūsų paslaugos, vietovės ir nuotraukos. Viskas rėmeliuose – tikros ekrano kopijos, ne maketas.“ Button „Atidaryti gyvai“. Pause control „Sustabdyti slinkimą“. arbcut.lt is no longer an example here.
+- Before/after strip: „Iš to, ką jau turite internete → tokia svetainė per 48 val.“; tags „Prieš: profilis portale“ / „Po: Jūsų svetainė“; generic „Paslaugų portalas“ card built from the demo's made-up data (no real portal, logo, rating or person); note „Pavyzdys: profilis išgalvotas, portalas bendrinis, nuotraukos – DI iliustracijos. Tikras profilis ir svetainė būtų su Jūsų duomenimis.“

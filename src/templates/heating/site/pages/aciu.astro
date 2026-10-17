@@ -1,0 +1,66 @@
+---
+/* Target after a sent inquiry: client.js goes here on success, and without JS the
+   Worker answers 303 to /aciu or /aciu?klaida=1. Static HTML cannot read the
+   query, so without JS the page stays neutral (no success claim). */
+import HeatingLayout from '../../HeatingLayout.astro';
+import SimpleTop from '../../SimpleTop.astro';
+import clientScript from '../../client.js?raw';
+import { t, toE164 } from '../../content';
+import { loadBuild } from '../load';
+
+const { data, site } = loadBuild();
+const tel = toE164(data.phone);
+const telHref = tel ? `tel:${tel}` : undefined;
+---
+<HeatingLayout
+  mode="live"
+  testBuild={site.testBuild}
+  title={`Užklausa – ${data.business}`}
+  description={`${data.business}: užklausa.`}
+  business={data.business}
+  logo={data.logo?.src}
+  accent={data.accent}
+  canonical={`https://${site.domain}/aciu`}
+  robots="noindex,follow"
+  live={{ code: site.code, beacon: site.beaconEndpoint, tel }}
+>
+  <SimpleTop business={data.business} phone={data.phone} tel={tel} logo={data.logo?.src} />
+  <main class="hs-wrap hs-page">
+    <div data-aciu-neutral>
+      <p class="hs-label">Užklausa</p>
+      <h1>Užklausos būsena</h1>
+      <p>Jei negavote patvirtinimo, paskambinkite tiesiai: <a href={telHref} data-cta="cta_call">{data.phone}</a>.</p>
+    </div>
+    <div data-aciu-ok hidden>
+      <p class="hs-label">Užklausa</p>
+      <h1>{t.thanksTitle}</h1>
+      <p>{t.thanksText}</p>
+      <p>Jei reikia greičiau, paskambinkite: <a href={telHref} data-cta="cta_call">{data.phone}</a>.</p>
+    </div>
+    <div data-aciu-error hidden>
+      <p class="hs-label">Užklausa</p>
+      <h1>Nepavyko išsiųsti</h1>
+      <p>Užklausos išsiųsti nepavyko. Paskambinkite tiesiai: <a href={telHref} data-cta="cta_call">{data.phone}</a>.</p>
+    </div>
+    <p><a href="/">← Į pradžią</a></p>
+  </main>
+  <script is:inline>
+    (function () {
+      // Match this navigation's local receipt and consume it; old visits cannot confirm new inquiries.
+      var error = /[?&]klaida=1/.test(location.search);
+      var received = false;
+      var receipt = new URLSearchParams(location.search).get('receipt');
+      try {
+        var key = 'hs-receipt:' + document.body.getAttribute('data-site');
+        received = !!receipt && receipt !== 'received' && sessionStorage.getItem(key) === receipt;
+        sessionStorage.removeItem(key);
+      } catch (e) {}
+      // Direct visits and native redirects have no verifiable receipt: stay neutral.
+      if (error || received) {
+        document.querySelector('[data-aciu-neutral]').hidden = true;
+        document.querySelector(error ? '[data-aciu-error]' : '[data-aciu-ok]').hidden = false;
+      }
+    })();
+  </script>
+  <script is:inline set:html={clientScript}></script>
+</HeatingLayout>

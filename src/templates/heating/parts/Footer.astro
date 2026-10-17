@@ -1,0 +1,46 @@
+---
+/* Contacts footer + mobile action bar. */
+import { t } from '../content';
+import type { SiteData, TownLink } from '../types';
+import type { View } from '../view';
+
+interface Props { data: SiteData; v: View; towns?: TownLink[] }
+const { data, v, towns } = Astro.props;
+const { live, telHref, callCta, smsHref, areas, mark, logo } = v;
+const year = new Date().getFullYear();
+---
+<footer class="hs-foot" id="kontaktai" aria-labelledby="hs-contact">
+  <div class="hs-wrap">
+    <div class="hs-foot__main">
+      <div>
+        <p class="hs-label hs-label--inv">{t.contactLabel}</p>
+        <h2 id="hs-contact" class="hs-foot__name">{logo ? <img class="hs-foot__mark hs-foot__mark--img" src={logo.src} width="44" height="44" alt="" /> : <span class="hs-foot__mark" aria-hidden="true">{mark}</span>}{data.business}</h2>
+        {live ? <a class="hs-foot__phone" href={telHref} data-cta="cta_call">{data.phone}</a> : <p class="hs-foot__phone">{data.phone}</p>}
+        <div class="hs-foot__ctas">
+          <a class="hs-btn hs-btn--call" href={telHref} data-cta={callCta}>{t.call}</a>
+          {smsHref && <a class="hs-btn hs-btn--inv" href={smsHref} data-cta="cta_sms">{t.sms}</a>}
+          <a class="hs-btn hs-btn--inv" href="#uzklausa">{t.leave}</a>
+        </div>
+      </div>
+      <dl class="hs-foot__rows">
+        <div><dt>{t.areas}</dt><dd>{areas.join(', ')}</dd></div>
+        {towns && <div><dt>Aptarnaujame</dt><dd>{towns.map((x, i) => <>{i > 0 && ', '}<a href={x.href}>{x.name}</a></>)}</dd></div>}
+        {data.hours && <div><dt>{t.hours}</dt><dd>{data.hours}</dd></div>}
+        {data.email && <div><dt>{t.email}</dt><dd>{live ? <a href={`mailto:${data.email}`}>{data.email}</a> : data.email}</dd></div>}
+        {data.legal?.address && <div><dt>Adresas</dt><dd>{data.legal.address}</dd></div>}
+      </dl>
+    </div>
+    <div class="hs-foot__legal">
+      <p>© {year} {data.legal?.name ?? data.business}{data.legal?.code ? ` · įm. k. ${data.legal.code}` : ''}</p>
+      <p>
+        {live ? <a href="/privatumo-politika">{t.privacy}</a> : <span>{t.privacy}</span>}
+        <span aria-hidden="true"> · </span>{t.by} <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<div class="hs-dock" data-dock role="group" aria-label="Greiti veiksmai">
+  <a class="hs-btn hs-btn--call" href={telHref} data-cta={callCta}>{t.call}</a>
+  <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leave}</a>
+</div>

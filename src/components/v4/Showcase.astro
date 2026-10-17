@@ -1,0 +1,99 @@
+---
+/* One heating demo, big, in two straight frames (hero plan §5, D2). Every pixel
+   inside the frames is a headless Chrome capture of /pavyzdys/sildymas made by
+   scripts/showcase-capture.mjs (receipt: src/assets/hero/RECEIPT.json).
+   The phone slowly scrolls the whole-page capture; with reduced motion it shows
+   the static first screen. The scroll can be paused (WCAG 2.2.2) without JS. */
+import { Image, getImage } from 'astro:assets';
+import mobile from '@assets/showcase/heating-mobile.png';
+import tall from '@assets/showcase/heating-mobile-tall.png';
+import desktop from '@assets/showcase/heating-desktop.png';
+import { examples } from '@data/v4.js';
+
+const s = examples.showcase;
+const phoneSizes = '(min-width: 64rem) 17.5rem, min(17.5rem, calc(78vw - 1.5rem))';
+// The tall capture is large: with reduced motion the <picture> resolves to a
+// 1×1 inline GIF, so it is never downloaded (display:none alone still fetches it).
+// Widths follow the capture (never upscaled: WebP stops at 16 383 px high).
+const tallWidths = [390, tall.width];
+const tallSet = await Promise.all(tallWidths.map((width) => getImage({ src: tall, width, format: 'webp', quality: 72 })));
+const tallSrcset = tallSet.map((img, i) => `${img.src} ${tallWidths[i]}w`).join(', ');
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+---
+<figure class="sc">
+  <div class="sc__frames">
+    <div class="sc__desk">
+      <p class="sc__bar" aria-hidden="true"><span>{s.url}</span></p>
+      <Image src={desktop} alt={s.desktopAlt} widths={[640, 960, 1280, 1800]}
+        sizes="(min-width: 82rem) 54rem, (min-width: 64rem) calc(100vw - 25rem), calc(100vw - 2.5rem)"
+        format="webp" quality={78} loading="lazy" decoding="async" />
+    </div>
+    <div class="sc__phone">
+      <input class="visually-hidden sc__toggle" type="checkbox" id="sc-pause" />
+      <div class="sc__body">
+        <div class="sc__screen">
+          <Image class="sc__static" src={mobile} alt={s.phoneAlt} widths={[390, 600, 780]} sizes={phoneSizes}
+            format="webp" quality={80} loading="lazy" decoding="async" />
+          <picture class="sc__tall">
+            <source media="(prefers-reduced-motion: reduce)" srcset={BLANK} />
+            <img src={tallSet[1].src} srcset={tallSrcset} sizes={phoneSizes} alt="" width={tall.width} height={tall.height} loading="lazy" decoding="async" />
+          </picture>
+        </div>
+      </div>
+      <label class="sc__pause" for="sc-pause">{s.pause}</label>
+    </div>
+  </div>
+  <figcaption class="sc__cap">
+    <p class="stamp">{s.caption}</p>
+    <a class="btn btn--ink" href={examples.href}>{examples.open} <span aria-hidden="true">→</span></a>
+  </figcaption>
+</figure>
+
+<style>
+  .sc { margin: 0; }
+  .sc__frames { display: grid; gap: clamp(2.5rem, 6vw, 4rem); align-items: end; }
+
+  /* Desktop: a plain ink-ruled window with the live address, no device mockup. */
+  .sc__desk { order: 2; border: 1px solid var(--ink); background: #fff; }
+  .sc__bar { display: flex; align-items: center; margin: 0; height: 2.25rem; padding: 0 0.875rem; border-bottom: 1px solid var(--ink); background: var(--paper-2); font-size: 0.8125rem; color: var(--mute); }
+  .sc__bar span { padding: 0.125rem 0.75rem; border: 1px solid var(--rule); border-radius: 999px; background: var(--paper); }
+  .sc__desk :global(img) { width: 100%; height: auto; }
+
+  /* Phone: a flat ink body, straight, never tilted. */
+  .sc__phone { order: 1; display: grid; justify-items: center; gap: 0.75rem; }
+  .sc__body { width: min(19rem, 78vw); padding: 0.75rem; border-radius: 2.75rem; background: var(--ink); }
+  .sc__screen { position: relative; overflow: hidden; container-type: size; aspect-ratio: 390 / 844; border-radius: 2rem; background: var(--paper); }
+  .sc__screen img, .sc__screen :global(img) { width: 100%; height: auto; }
+  .sc__tall { display: none; }
+  .sc__toggle, .sc__pause { display: none; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sc__tall { display: block; position: absolute; inset: 0 0 auto; animation: sc-scroll 110s ease-in-out 1s infinite alternate; }
+    .sc__toggle:checked + .sc__body .sc__tall,
+    .sc__body:hover .sc__tall { animation-play-state: paused; }
+    .sc__toggle { display: block; }
+    /* A real checkbox (checked = paused), drawn as a small square before the text. */
+    .sc__pause {
+      display: inline-flex; align-items: center; gap: 0.625rem; min-height: 2.75rem; padding: 0 0.25rem;
+      font-size: 0.9375rem; font-weight: 600; cursor: pointer;
+    }
+    .sc__pause::before { content: ''; width: 1.125rem; height: 1.125rem; border: 1.5px solid var(--ink); border-radius: 3px; background: var(--paper); }
+    .sc__toggle:checked ~ .sc__pause::before { background: var(--ink); box-shadow: inset 0 0 0 3px var(--paper); }
+    .sc__toggle:focus-visible ~ .sc__pause { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+  }
+  /* Hold the first screen, glide to the footer, hold, and come back. */
+  @keyframes sc-scroll {
+    0%, 4% { transform: translateY(0); }
+    96%, 100% { transform: translateY(calc(-100% + 100cqh)); }
+  }
+
+  .sc__cap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; margin-top: clamp(1.75rem, 4vw, 2.5rem); padding-top: 1.25rem; border-top: 1px solid var(--ink); }
+  .sc__cap .stamp { margin: 0; }
+
+  @media (min-width: 64rem) {
+    .sc__frames { grid-template-columns: minmax(0, 1fr) 19rem; column-gap: clamp(2.5rem, 4vw, 4rem); }
+    .sc__desk { order: 1; }
+    .sc__phone { order: 2; }
+    .sc__body { width: 19rem; }
+  }
+</style>

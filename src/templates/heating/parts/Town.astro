@@ -1,0 +1,42 @@
+---
+/* Demo town (GEO) page: what this town gets and how fast the crew arrives. The places list is
+   the standard areas panel in Details. Built from the existing tiles (hs-middle, hs-terms--solo,
+   hs-panel--areas, hs-hours); no town-specific styles. */
+import { t } from '../content';
+import type { TownPage } from '../types';
+import type { View } from '../view';
+
+interface Props { town: TownPage; v: View }
+const { town, v } = Astro.props;
+const { telHref, callCta } = v;
+---
+<div class="hs-sec hs-middle" id="aptarnavimas">
+  <div class="hs-wrap hs-middle__stack">
+    <div class="hs-terms hs-terms--solo">
+      <section class="hs-panel hs-panel--areas" aria-labelledby="hs-town">
+        <header class="hs-panel__head">
+          <p class="hs-label">Šildymas {town.loc}</p>
+          <h2 id="hs-town">{town.heading}</h2>
+        </header>
+        <div class="hs-panel__body">
+          <p class="hs-prose">{town.text}</p>
+          <div class="hs-panel__cols">
+            <div class="hs-hours">
+              <h3 class="hs-mini">Atstumas</h3>
+              <p class="hs-hours__text">{town.distance}</p>
+            </div>
+            <div class="hs-hours">
+              <h3 class="hs-mini">Atvykimas</h3>
+              <p class="hs-hours__text">{town.arrival}</p>
+            </div>
+          </div>
+          <p class="hs-areas__note">{town.note}</p>
+          <div class="hs-hero__ctas">
+            <a class="hs-btn hs-btn--call" href={telHref} data-cta={callCta}>{t.call}</a>
+            <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leave}</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

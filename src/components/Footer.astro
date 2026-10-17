@@ -1,111 +1,38 @@
 ---
-import { brand, footer } from '@data/content.js';
+/* v4 footer (plan §4.2 item 13): individuali veikla details, privacy, terms. */
+import { brand, footer as legal } from '@data/content.js';
+import { footer } from '@data/v4.js';
 const year = new Date().getFullYear();
-// Editorial wordmark, dark variant (the footer is always on ink).
-const LOGO = '/brand/editorial/jarvisco-wordmark-dark.svg';
-// Keep short phrases on one line ("199 € | vieną kartą" split at narrow widths).
-const nb = (text: string) => text.replaceAll(' ', '\u00a0');
-const blurb = footer.blurb.replace('199 € vieną kartą', nb('199 € vieną kartą'));
 ---
-<footer class="ftr t-dark">
-  <div class="wrap">
-    <div class="ftr__grid">
-      <div class="ftr__brand">
-        <a class="ftr__logo" href="/"><img src={LOGO} width="200" height="45" alt={brand.name} loading="lazy" decoding="async" /></a>
-        <p>{blurb}</p>
-      </div>
-      <div class="ftr__contacts">
-        <h2 class="ftr__h">{footer.contactsTitle}</h2>
-        <ul>
-          <li><a href={brand.telHref} data-track="cta_call">{brand.phone}</a></li>
-          <li><a href={brand.emailHref}>{brand.email}</a></li>
-          <li><span>{brand.city}, Lietuva</span></li>
-        </ul>
-      </div>
-      <div>
-        <h2 class="ftr__h">{footer.linksTitle}</h2>
-        <ul>
-          {footer.pages.map((p) => <li><a href={p.href}>{p.label}</a></li>)}
-          <li><a href={footer.privacy.href}>{footer.privacy.label}</a></li>
-          <li><a href={footer.terms.href}>{footer.terms.label}</a></li>
-        </ul>
-      </div>
-      <div>
-        <h2 class="ftr__h">{footer.socialTitle}</h2>
-        <ul>
-          <li><a href={brand.facebook} rel="noopener">Facebook</a></li>
-          <li><a href={brand.instagram} rel="noopener">Instagram</a></li>
-          <li><a href={brand.gbp} rel="noopener">Google verslo profilis</a></li>
-        </ul>
-      </div>
+<footer class="ftr">
+  <div class="wrap ftr__grid">
+    <div>
+      <p class="ftr__name">{brand.name}</p>
+      <p class="mute">{footer.line}</p>
     </div>
-
-    <img class="ftr__mark" src={LOGO} width="1010" height="228" alt="" loading="lazy" decoding="async" />
-
-    <div class="ftr__base">
-      <p>© {year} {brand.owner}{'\u00a0'}· {nb(brand.status)}{'\u00a0'}· {brand.city}</p>
-      <p>jarvisweb.lt</p>
-    </div>
+    <ul class="ftr__links">
+      <li><a href={brand.telHref} data-track="cta_call">{brand.phone}</a></li>
+      <li><a href={brand.emailHref}>{brand.email}</a></li>
+      <li><a href={brand.smsHref} data-track="cta_sms">SMS</a></li>
+      <li><a href="/rezultatai">Rezultatai</a></li>
+      <li><a href={legal.privacy.href}>{legal.privacy.label}</a></li>
+      <li><a href={legal.terms.href}>{legal.terms.label}</a></li>
+    </ul>
+  </div>
+  <div class="wrap ftr__base">
+    <p class="small">© {year} {footer.owner}</p>
   </div>
 </footer>
 
 <style>
-  .ftr {
-    position: relative;
-    overflow: hidden;
-    padding: clamp(3.5rem, 8vw, 6rem) 0 calc(1.5rem + var(--bar-h) + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--line-dark);
-  }
-  .ftr::before {
-    content: '';
-    position: absolute;
-    inset: auto -20% -40% -20%;
-    height: 70%;
-    background: radial-gradient(50% 50% at 50% 100%, rgba(31, 191, 117, 0.22), transparent 70%);
-    pointer-events: none;
-  }
-  .ftr .wrap { position: relative; }
-  .ftr__grid { display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; }
-  .ftr__brand, .ftr__contacts { grid-column: 1 / -1; }
-  .ftr__brand { max-width: 26rem; }
-  .ftr__logo { display: inline-flex; min-height: 3rem; align-items: center; border-radius: 0.5rem; }
-  .ftr__logo img { display: block; width: 12.5rem; height: auto; aspect-ratio: 1010 / 228; }
-  .ftr__brand p { color: var(--mute-dark); margin: 0.5rem 0 0; }
-  .ftr__h { font: 600 0.8125rem/1.2 var(--font-b); letter-spacing: 0.14em; text-transform: uppercase; color: var(--lime); margin-bottom: 0.5rem; }
-  .ftr ul { list-style: none; }
-  .ftr li a, .ftr li span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 3rem;
-    color: #dbe8e0;
-    text-decoration: none;
-    overflow-wrap: anywhere;
-  }
-  .ftr li a:hover { color: #fff; text-decoration: underline; }
-  /* Giant wordmark fading into the footer base, as the old text mark did. */
-  .ftr__mark {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1010 / 228;
-    margin: clamp(2.5rem, 7vw, 5rem) 0 clamp(1rem, 2.5vw, 1.75rem);
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.1) 100%);
-    mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.1) 100%);
-  }
-  .ftr__base {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0.25rem 1.5rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--line-dark);
-    font-size: 0.9375rem;
-    color: var(--mute-dark);
-  }
-  .ftr__base p { margin: 0; }
-  @media (min-width: 48rem) {
-    .ftr { padding-bottom: 2rem; }
-    .ftr__grid { grid-template-columns: 1.6fr 1fr 1fr 1fr; }
-    .ftr__brand, .ftr__contacts { grid-column: auto; }
+  .ftr { border-top: 1px solid var(--ink); padding-top: clamp(3rem, 6vw, 5rem); }
+  .ftr__grid { display: grid; gap: 2rem; }
+  .ftr__name { font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1; margin-bottom: 0.75rem; }
+  .ftr__links { display: grid; }
+  .ftr__links a { display: flex; align-items: center; min-height: 3rem; border-bottom: 1px solid var(--rule); text-decoration: none; overflow-wrap: anywhere; }
+  .ftr__links a:hover { text-decoration: underline; }
+  .ftr__base { padding-block: 2rem 2.5rem; }
+  @media (min-width: 64rem) {
+    .ftr__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 4rem; }
   }
 </style>

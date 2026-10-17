@@ -1,0 +1,80 @@
+---
+/* Real dated screenshots and Mantas's approved portrait. Provenance below. */
+import { Image, getImage } from 'astro:assets';
+import { proof } from '@data/v4.js';
+import { arbcutProof } from '@data/content.js';
+import portrait from '@assets/arbcut/mantas-portretas.jpg';
+import { proofImage } from '@data/proof-images';
+
+// Screenshot files are named in arbcut-proof.json (scripts/proof-refresh.mjs).
+const gsc = proofImage(proof.gsc.file.replace(/\.\w+$/, ''));
+const forms = proofImage(proof.forms.file.replace(/\.\w+$/, ''));
+// Full-size copies: tapping a screenshot opens it (phones cannot read the small text).
+const big = (src: ImageMetadata) => getImage({ src, width: 2400, format: 'webp', quality: 85 });
+const full = { gsc: await big(gsc), forms: await big(forms) };
+const more = await Promise.all(proof.forms.more.map(async (m) => ({ label: m.label, href: (await big(proofImage(m.file.replace(/\.\w+$/, '')))).src })));
+const widths = [640, 960, 1400, 2000];
+const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
+---
+<section class="sec proof" id="rezultatai" aria-labelledby="rezultatai-title">
+  <div class="wrap">
+    <div class="proof__intro">
+      <div class="proof__text">
+        <p class="label">{proof.label}</p>
+        <h2 class="head__title" id="rezultatai-title"><span class="reveal-line" data-reveal>{proof.title}</span></h2>
+        <p class="head__text">{proof.text}</p>
+      </div>
+      <figure class="proof__person">
+        <Image src={portrait} alt={proof.portraitAlt} widths={[390, 640, 900]} sizes="(min-width: 64rem) 28rem, calc(100vw - 2.5rem)" format="webp" quality={82} loading="lazy" />
+        <figcaption>{proof.portraitCaption} · <a class="link" href={arbcutProof.site.href} rel="noopener" data-track="arbcut">{proof.site}</a></figcaption>
+      </figure>
+    </div>
+
+    <figure class="shot" data-proof-anchor>
+      <ul class="stats">{proof.gsc.stats.map((s) => <li><strong>{s.value}{s.unit && <small> {s.unit}</small>}</strong><span>{s.label}</span></li>)}</ul>
+      <a class="shot__img" href={full.gsc.src}><Image src={gsc} alt={proof.gsc.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
+      <figcaption><span>{proof.gsc.caption}</span><span class="stamp stamp--plain shot__meta">{proof.gsc.meta}</span></figcaption>
+    </figure>
+
+    <figure class="shot">
+      <ul class="stats">{proof.forms.stats.map((s) => <li><strong>{s.value}</strong><span>{s.label}</span></li>)}</ul>
+      <a class="shot__img" href={full.forms.src}><Image src={forms} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
+      <figcaption>
+        <span>{proof.forms.caption}</span>
+        <span class="stamp stamp--plain shot__meta">{proof.forms.meta}</span>
+        <span class="shot__more">{more.map((m) => <a class="link" href={m.href}>{m.label}</a>)}</span>
+      </figcaption>
+    </figure>
+
+    <p class="proof__honest">{proof.honest}</p>
+  </div>
+</section>
+
+<style>
+  .proof__intro { display: grid; gap: 2.5rem; margin-bottom: clamp(3.5rem, 8vw, 6rem); }
+  .proof__text { display: grid; gap: 1.25rem; align-content: start; justify-items: start; }
+  .proof__person { margin: 0; max-width: 28rem; }
+  .proof__person :global(img) { width: 100%; height: auto; border: 1px solid var(--rule); }
+  .proof__person figcaption { margin-top: 0.75rem; color: var(--mute); font-size: 0.9375rem; }
+  @media (min-width: 64rem) { .proof__intro { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4rem; align-items: center; } }
+
+  .shot { margin: 0 0 clamp(3.5rem, 8vw, 6rem); }
+  .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 1.5rem; border-top: 1px solid var(--ink); }
+  .stats li { display: grid; gap: 0.25rem; padding: 1rem 1rem 1rem 0; }
+  .stats li:nth-child(even) { padding-left: 1rem; border-left: 1px solid var(--rule); }
+  .stats li:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+  .stats strong { font-size: clamp(2.25rem, 7vw, 4rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1; }
+  .stats small { font-size: 0.45em; letter-spacing: -0.02em; }
+  .stats span { font-size: 0.9375rem; color: var(--ink-2); line-height: 1.35; }
+  .shot__img { display: block; border: 1px solid var(--rule); background: #fff; }
+  .shot__img :global(img) { width: 100%; }
+  .shot figcaption { display: grid; gap: 0.5rem; margin-top: 1rem; max-width: 46rem; }
+  .shot__meta { color: var(--mute); font-size: 0.875rem; }
+  .shot__more { display: flex; flex-wrap: wrap; column-gap: 1.5rem; }
+  .proof__honest { max-width: 40rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); color: var(--ink-2); }
+  @media (min-width: 64rem) {
+    .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .stats li, .stats li:nth-child(even) { padding: 1.25rem 1.5rem; border-top: 0; border-left: 1px solid var(--rule); }
+    .stats li:first-child { padding-left: 0; border-left: 0; }
+  }
+</style>

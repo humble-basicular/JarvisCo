@@ -1,0 +1,24 @@
+{
+  "business": "UAB Šildymo ir vėdinimo sistemų priežiūros centras",
+  "phone": "8 600 00000",
+  "city": "Kaunas",
+  "areas": ["Kaunas", "Kauno r.", "Jonava", "Kėdainiai", "Prienai", "Birštonas", "Garliava", "Kulautuva", "Karmėlava"],
+  "services": [
+    "Dujinių kondensacinių katilų techninė priežiūra",
+    "Kieto kuro ir granulinių katilų remontas",
+    "Oras–vanduo šilumos siurblių įrengimas",
+    "Grindinio šildymo kolektorių balansavimas",
+    "Šildymo sistemų plovimas ir hidraulinis bandymas",
+    "Karšto vandens šildytuvų (boilerių) keitimas"
+  ],
+  "standout": "Dirbame nuo 2012 m.\nDuomenų lentelės nuotrauką galite atsiųsti iš anksto",
+  "hours": "I–V 8:00–17:00",
+  "photos": [
+    { "path": "photos/katilas-vertikali.jpg", "alt": "Sieninis katilas po metinės priežiūros" },
+    { "path": "photos/katiline.jpg", "alt": "Katilinė prieš keitimą" },
+    "photos/radiatorius-2.jpg",
+    { "path": "photos/grindinis.jpg", "alt": "Grindinio šildymo kontūrai prieš išliejant grindis" },
+    "photos/vamzdynas.jpg",
+    "photos/radiatorius.jpg"
+  ]
+}

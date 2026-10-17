@@ -1,0 +1,16 @@
+---
+/* "Pavyzdys" section (hero plan §5, D2–D3): ONE heating demo, shown big on a
+   phone and a desktop, then the before/after strip. arbcut.lt lives only in the
+   results section now. */
+import { examples } from '@data/v4.js';
+import Head from './Head.astro';
+import Showcase from './Showcase.astro';
+import BeforeAfter from './BeforeAfter.astro';
+---
+<section class="sec" id="pavyzdys" aria-labelledby="pavyzdys-title">
+  <div class="wrap">
+    <Head id="pavyzdys-title" label={examples.label} title={examples.title} text={examples.text} />
+    <Showcase />
+    <BeforeAfter />
+  </div>
+</section>

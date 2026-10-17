@@ -1,0 +1,16 @@
+---
+/* Demo town (GEO) pages of the heating example: /pavyzdys/sildymas/<vietove>. One data-driven route;
+   the same template and images as the demo homepage. noindex + PAVYZDYS like the homepage. */
+import HeatingLayout from '../../../templates/heating/HeatingLayout.astro';
+import HeatingSite from '../../../templates/heating/HeatingSite.astro';
+import { DEMO_PATH, townLinks, townPage, townSlugs } from '../../../templates/heating/towns';
+
+export function getStaticPaths() {
+  return townSlugs().map((vietove) => ({ params: { vietove } }));
+}
+const { town, data } = townPage(Astro.params.vietove!);
+const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: DEMO_PATH, label: '← Pavyzdžio pradžia' };
+---
+<HeatingLayout mode="preview" title={town.title} description={town.description} business={data.business} accent={data.accent} logo={data.logo?.src} banner={banner}>
+  <HeatingSite data={data} mode="preview" town={town} towns={townLinks()} />
+</HeatingLayout>

@@ -1,0 +1,111 @@
+---
+/* HTML shell for the heating template. Preview: noindex,nofollow,
+   "PERŽIŪRA"/"PAVYZDYS" banner, no tracking. Live: indexable, canonical on the
+   client's domain, HVACBusiness schema. Self-hosted fonts, no cookies, no analytics. */
+import './heating.css';
+// Self-hosted fonts (fontsource, OFL), latin + latin-ext subsets only: the
+// Lithuanian letters (ąčęėįšųūž) live in latin-ext. The grotesk and the bold
+// condensed headline cut are preloaded; the 600 label cut swaps in without preload.
+import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
+import condLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-600-normal.woff2?url';
+import condExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-600-normal.woff2?url';
+import condBoldLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2?url';
+import condBoldExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-700-normal.woff2?url';
+import { accentCss, accentTokens } from './accent';
+import { DEFAULT_ACCENT, initials } from './content';
+import Tracking from './parts/Tracking.astro';
+import type { Banner, Mode } from './types';
+
+interface Props {
+  mode: Mode;
+  title: string;
+  description: string;
+  business: string;
+  accent?: string;
+  /** Logo mark URL: becomes the tab icon instead of the initials circle. */
+  logo?: string;
+  banner?: Banner;
+  /** Live only. */
+  canonical?: string;
+  image?: string;
+  jsonLd?: object;
+  robots?: string;
+  /** Live only: shown as data attributes the page script reads. */
+  live?: { code: string; beacon: string; tel: string | null };
+  /** Local test build (client-site.mjs --test, stub endpoints): noindex everywhere + a visible TESTAS banner. Never deployed. */
+  testBuild?: boolean;
+}
+const { mode, title, description, business, canonical, image, jsonLd, live, testBuild } = Astro.props;
+const banner: Banner | undefined = testBuild
+  ? { tag: 'TESTAS', note: 'Vietinis bandomasis variantas: forma siunčiama tik į bandomąjį serverį. Neskelbti.', href: '/', label: 'Pradžia' }
+  : Astro.props.banner;
+// Any #rrggbb is accepted: accentTokens() picks white or ink text (or darkens the field) so it stays readable.
+const colours = accentTokens(/^#[0-9a-f]{6}$/i.test(Astro.props.accent ?? '') ? Astro.props.accent! : DEFAULT_ACCENT);
+const robots = testBuild ? 'noindex,nofollow' : Astro.props.robots ?? (mode === 'preview' ? 'noindex,nofollow' : 'index,follow');
+const mark = initials(business).replace(/[<>&"']/g, '');
+const favicon = Astro.props.logo ?? `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="${colours.field}"/><text x="32" y="43" font-family="Arial,sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="${colours.on}">${mark}</text></svg>`)}`;
+
+const LATIN = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
+const EXT = 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
+const face = (family: string, src: string, range: string, weight: string) =>
+  `@font-face{font-family:'${family}';font-style:normal;font-display:swap;font-weight:${weight};src:url(${src}) format('woff2');unicode-range:${range}}`;
+const fontCss = [
+  face('HS Sans', sansLatin, LATIN, '400 700'),
+  face('HS Sans', sansExt, EXT, '400 700'),
+  face('HS Cond', condLatin, LATIN, '600'),
+  face('HS Cond', condExt, EXT, '600'),
+  face('HS Cond', condBoldLatin, LATIN, '700'),
+  face('HS Cond', condBoldExt, EXT, '700'),
+  // Metric-matched local fallbacks so text does not re-wrap when the web fonts swap in.
+  "@font-face{font-family:'HS Sans Fallback';src:local('Arial'),local('ArialMT'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:25%;line-gap-override:0%}",
+  "@font-face{font-family:'HS Cond Fallback';src:local('Arial Narrow'),local('ArialNarrow'),local('Roboto Condensed'),local('Arial');size-adjust:82%}",
+].join('');
+---
+<!doctype html>
+<html lang="lt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="robots" content={robots} />
+    {mode === 'preview' && <meta name="referrer" content="no-referrer" />}
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={colours.field} />
+    <link rel="icon" href={favicon} />
+    <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansExt} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={condBoldLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={condBoldExt} as="font" type="font/woff2" crossorigin />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {mode === 'live' && canonical && (
+      <>
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="lt_LT" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        {image && <meta property="og:image" content={image} />}
+      </>
+    )}
+    {mode === 'live' && live && <Tracking site={live.code} endpoint={live.beacon} />}
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
+    <style set:html={`${fontCss}:root{${accentCss(colours)}}`}></style>
+  </head>
+  <body
+    class:list={['hs', mode === 'preview' && 'hs--preview']}
+    data-site={live?.code}
+    data-beacon={live?.beacon}
+    data-tel={live?.tel ?? undefined}
+  >
+    {banner && (
+      <div class="hs-banner" role="note">
+        <span class="hs-banner__tag">{banner.tag}</span>
+        <span class="hs-banner__note">{banner.note}</span>
+        <a class="hs-banner__link" href={banner.href}>{banner.label}</a>
+      </div>
+    )}
+    <slot />
+  </body>
+</html>

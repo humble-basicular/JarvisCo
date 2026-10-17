@@ -1,0 +1,26 @@
+---
+/* Live client site: the heating template in `live` mode (indexable, canonical on the client's domain). */
+import HeatingLayout from '../../HeatingLayout.astro';
+import HeatingSite from '../../HeatingSite.astro';
+import { jsonLd, pageDescription, pageTitle, toE164 } from '../../content';
+import { loadBuild } from '../load';
+
+const { data, site } = loadBuild();
+const origin = `https://${site.domain}`;
+const photo = data.photos[0];
+---
+<HeatingLayout
+  mode="live"
+  testBuild={site.testBuild}
+  title={pageTitle(data)}
+  description={pageDescription(data)}
+  business={data.business}
+  logo={data.logo?.src}
+  accent={data.accent}
+  canonical={`${origin}/`}
+  image={photo ? `${origin}${photo.src}` : undefined}
+  jsonLd={jsonLd(data, site)}
+  live={{ code: site.code, beacon: site.beaconEndpoint, tel: toE164(data.phone) }}
+>
+  <HeatingSite data={data} mode="live" site={site} />
+</HeatingLayout>
