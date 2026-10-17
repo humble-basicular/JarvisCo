@@ -89,3 +89,10 @@ magick web3forms-2026-10-full.png -crop 1940x410+275+545 web3forms-2026-10.png
 | arbcut-web3forms-aug-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-08: 7 |
 | arbcut-web3forms-sep-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-09: 13 |
 | arbcut-web3forms-oct-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-10: 2 |
+
+## 2026-10-17: city pages (Search Console Pages tab)
+Same capture session as the 2026-10-17 run above (`.proof-runs/2026-10-17-codex/`, Codex Computer Use, Chrome profile "Matas Bašinskas", GSC /u/4/), period 3 months 2026-07-15 – 2026-10-14. Copied unchanged from `gsc-pages.png` (crop `magick gsc-pages-top-full.png -crop 3690x1790+740+510`); no pixel edits.
+
+| File here | Shows |
+|---|---|
+| arbcut-gsc-pages-2026-10-17.png | Search Console Top pages by clicks, rows 1–17: all 10 `/medziu-pjovimas-<miestas>/` pages (69, 56, 50, 45, 42, 37, 35, 35, 16, 8 clicks = 393). Figures in `src/data/arbcut-towns-proof.json`. |

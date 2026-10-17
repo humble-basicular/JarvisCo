@@ -1,0 +1,72 @@
+{
+  "_note": "From .proof-runs/2026-10-17-codex/figures.json (gscPages). Every row is visible in the screenshot; townClicks = sum of the 10 town rows. serp: real Google searches where arbcut.lt is in the top 3 organic results only, each with a dated crop-only screenshot.",
+  "captured": "2026-10-17",
+  "from": "2026-07-15",
+  "to": "2026-10-14",
+  "file": "arbcut-gsc-pages-2026-10-17.png",
+  "totalClicks": 613,
+  "townClicks": 393,
+  "rows": [
+    {
+      "town": "Šiauliai",
+      "path": "/medziu-pjovimas-siauliai/",
+      "clicks": 69,
+      "impressions": 1017
+    },
+    {
+      "town": "Kaunas",
+      "path": "/medziu-pjovimas-kaunas/",
+      "clicks": 56,
+      "impressions": 1551
+    },
+    {
+      "town": "Panevėžys",
+      "path": "/medziu-pjovimas-panevezys/",
+      "clicks": 50,
+      "impressions": 855
+    },
+    {
+      "town": "Marijampolė",
+      "path": "/medziu-pjovimas-marijampole/",
+      "clicks": 45,
+      "impressions": 402
+    },
+    {
+      "town": "Alytus",
+      "path": "/medziu-pjovimas-alytus/",
+      "clicks": 42,
+      "impressions": 588
+    },
+    {
+      "town": "Klaipėda",
+      "path": "/medziu-pjovimas-klaipeda/",
+      "clicks": 37,
+      "impressions": 812
+    },
+    {
+      "town": "Vilnius",
+      "path": "/medziu-pjovimas-vilnius/",
+      "clicks": 35,
+      "impressions": 1275
+    },
+    {
+      "town": "Kėdainiai",
+      "path": "/medziu-pjovimas-kedainiai/",
+      "clicks": 35,
+      "impressions": 265
+    },
+    {
+      "town": "Jonava",
+      "path": "/medziu-pjovimas-jonava/",
+      "clicks": 16,
+      "impressions": 163
+    },
+    {
+      "town": "Kazlų Rūda",
+      "path": "/medziu-pjovimas-kazlu-ruda/",
+      "clicks": 8,
+      "impressions": 103
+    }
+  ],
+  "serp": []
+}

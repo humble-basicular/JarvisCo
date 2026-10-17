@@ -5,6 +5,7 @@
    no invented numbers, no testimonial text. */
 import { brand } from './content.js';
 import arbcut from './arbcut-proof.json' with { type: 'json' };
+import towns from './arbcut-towns-proof.json' with { type: 'json' };
 
 /** Dates with non-breaking hyphens, so they never wrap mid-date. */
 const d = (date) => date.replace(/-/g, '\u2011');
@@ -48,6 +49,25 @@ export function gscProof(g) {
     alt: `Google Search Console ataskaita: ${lt(g.clicks)} ${clicks}, ${impText} parodymų, ${ctr} CTR, vidutinė pozicija ${pos}, laikotarpis ${g.from} – ${g.to}`,
     caption: `Google paieška per 3 mėnesius, ${d(g.from)} – ${d(g.to)}.`,
     meta: `Ekrano kopija ${d(g.captured)} · Šaltinis: Google Search Console`,
+  };
+}
+/** Thousands with a space, Lithuanian style: 1017 → "1 017" (notation only). */
+const thousands = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+/* City-page proof (arbcut-towns-proof.json): the Search Console Pages tab. Only figures visible in the
+   screenshot; townClicks is the sum of its 10 town rows, said so on the page. */
+export function townsProof(t) {
+  return {
+    file: t.file,
+    stat: { value: String(t.townClicks), of: `iš ${t.totalClicks}`, label: `paspaudimų iš Google per 3 mėn. atėjo į ${t.rows.length} miestų puslapių` },
+    sum: `${t.townClicks} – tai ${t.rows.length} miestų eilučių suma iš ekrano kopijos žemiau; ${t.totalClicks} – visi paspaudimai per tą patį laikotarpį (ekrano kopija skiltyje „Rezultatai“). Kiti paspaudimai atėjo į pradžios, paslaugų ir tinklaraščio puslapius.`,
+    head: ['Miesto puslapis', 'Paspaudimai', 'Parodymai'],
+    rows: t.rows.map((r) => ({ town: r.town, path: r.path, clicks: thousands(r.clicks), impressions: thousands(r.impressions) })),
+    alt: `Google Search Console, puslapiai pagal paspaudimus: ${t.rows.map((r) => `${r.town} ${r.clicks}`).join(', ')}`,
+    caption: `Google Search Console, puslapiai pagal paspaudimus, ${d(t.from)} – ${d(t.to)}. Miestų puslapių adresai – „medziu-pjovimas-miestas“.`,
+    meta: `Ekrano kopija ${d(t.captured)} · Šaltinis: Google Search Console`,
+    serpTitle: 'Tikra Google paieška: arbcut.lt pirmame trejete',
+    serpNote: 'Rodau tik paieškas, kuriose arbcut.lt yra tarp pirmų trijų neapmokamų rezultatų. Rezultatai priklauso nuo vietos ir įrenginio, todėl prie kiekvienos ekrano kopijos – data ir vieta.',
+    serp: t.serp,
   };
 }
 export function formsProof(f) {
@@ -137,8 +157,10 @@ export const proof = {
 export const townPages = {
   label: 'Miestų puslapiai',
   title: 'Atskiras puslapis miestui',
-  text: 'Žmonės paieškoje rašo miestą: „arboristas Kaune“, „katilų remontas Jonavoje“. Todėl iki trijų miestų, kuriuose dirbate, paruošiu atskirus puslapius: su vietovės pavadinimu, atvykimo laiku ir vietiniais klausimais. Žemiau – trys šildymo pavyzdžio puslapiai.',
+  text: 'Žmonės paieškoje rašo paslaugą ir miestą: „medžių pjovimas Šiauliai“, „katilų remontas Jonavoje“. Kai kiekvienam miestui yra atskiras puslapis su to miesto pavadinimu, vietovėmis ir atvykimo laiku, Google jį rodo būtent tų paieškų žmonėms. Todėl iki trijų miestų, kuriuose dirbate, paruošiu atskirus puslapius. Tai ne teorija – žemiau tikri arbcut.lt skaičiai.',
   open: 'Atidaryti pavyzdį',
+  demoTitle: 'Taip atrodytų Jūsų miestų puslapiai',
+  proof: townsProof(towns),
   note: 'Pavyzdyje įmonė, atvykimo laikai ir kainos išgalvoti; miestai ir vietovės tikri. Vietos puslapiai padeda būti randamam paieškoje, bet vietos Google rezultatuose negarantuoju.',
 };
 
@@ -201,6 +223,8 @@ export const price = {
   amount: '39 €',
   unit: '/ mėn.',
   when: 'tik po pirmos užklausos arba po 3 mėn. nuo paleidimo – kas įvyks anksčiau.',
+  // Jarvis 2026-10-17: 39 € is the starting price for the first 5 clients, kept for them.
+  launch: 'Pradinė kaina pirmiesiems 5 klientams. Jums ji nesikeis, kol naudositės svetaine.',
   before: `Iki tol – ${ZERO} ${DOMAIN}`,
   includesTitle: 'Į kainą įeina',
   includes: [

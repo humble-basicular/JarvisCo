@@ -46,7 +46,7 @@ const v4Shared = [
   ...v4.proof.gsc.stats.map((s) => s.value), ...v4.proof.gsc.stats.map((s) => s.label),
   ...v4.proof.forms.stats.flatMap((s) => [s.value, s.label]),
   v4.proof.gsc.caption, v4.proof.gsc.meta, v4.proof.forms.caption, v4.proof.forms.meta, v4.proof.formsOnly.title, v4.proof.formsOnly.text, v4.proof.honest,
-  v4.price.amount, v4.price.before, ...v4.price.includes, v4.price.inquiry, v4.price.cancel,
+  v4.price.amount, v4.price.launch, v4.price.before, ...v4.price.includes, v4.price.inquiry, v4.price.cancel,
   ...v4.faq.items.flatMap((item) => [item.q, item.a]),
   ...v4.how.steps.map((s) => s.title), v4.steps.consent,
 ];

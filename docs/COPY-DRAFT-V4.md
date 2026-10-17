@@ -82,3 +82,11 @@ Build checks reject unfinished photo/quote labels and retain the honest-offer ch
 - Hero (home and /sildymui), concept A1 picked by Jarvis 2026-10-16: AI-generated top-down flat lay of heating tools with a real screenshot of the heating demo on the phone. Alt: „Šildymo meistro įrankiai, išdėlioti ant stalo: santechninis ir reguliuojamas raktai, manometras, radiatoriaus raktelis, sandarinimo juosta, varinis vamzdis ir ruletė; viduryje – telefonas su atidarytu šildymo meistro svetainės pavyzdžiu“. Caption: „Iliustracija: įrankiai ir telefonas sukurti DI, ekrane – tikra mano pavyzdinės šildymo meistro svetainės ekrano kopija.“ Supersedes the per-variant hero alts above (Mantas's photos stay in the results section).
 - Pavyzdys section: label „Pavyzdys“, title „Tokia būtų Jūsų svetainė“, text „Šildymo meistro svetainės pavyzdys: įmonė ir duomenys išgalvoti. Jūsų peržiūroje bus Jūsų paslaugos, vietovės ir nuotraukos. Viskas rėmeliuose – tikros ekrano kopijos, ne maketas.“ Button „Atidaryti gyvai“. Pause control „Sustabdyti slinkimą“. arbcut.lt is no longer an example here.
 - Before/after strip: „Iš to, ką jau turite internete → tokia svetainė per 48 val.“; tags „Prieš: profilis portale“ / „Po: Jūsų svetainė“; generic „Paslaugų portalas“ card built from the demo's made-up data (no real portal, logo, rating or person); note „Pavyzdys: profilis išgalvotas, portalas bendrinis, nuotraukos – DI iliustracijos. Tikras profilis ir svetainė būtų su Jūsų duomenimis.“
+
+## 2026-10-17 additions (Claude, drafted; Jarvis approved the idea, wording is a draft)
+| Key | Text | Status |
+|---|---|---|
+| townPages.text | Žmonės paieškoje rašo paslaugą ir miestą … Tai ne teorija – žemiau tikri arbcut.lt skaičiai. | drafted |
+| townPages.proof (stat, sum, caption) | 393 iš 613 paspaudimų iš Google per 3 mėn. atėjo į 10 miestų puslapių; sum explained; dated GSC Pages screenshot | drafted, figures from screenshot |
+| townPages.proof.serpTitle / serpNote | Tikra Google paieška: arbcut.lt pirmame trejete · Rodau tik paieškas, kuriose arbcut.lt yra tarp pirmų trijų neapmokamų rezultatų … | drafted, block hidden until SERP screenshots exist |
+| price.launch | Pradinė kaina pirmiesiems 5 klientams. Jums ji nesikeis, kol naudositės svetaine. | Jarvis approved (2026-10-17) |
