@@ -31,7 +31,7 @@
    It refuses to write anything when a figure cannot be read, when the period
    is not "3 months", or when a crop would show an email address. */
 import { spawn } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
+import { constants, copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -52,18 +52,30 @@ const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Vilnius
 
 /* ---------- parsing (pure, covered by scripts/proof-refresh-test.mjs) ---------- */
 
+/** A real calendar day YYYY-MM-DD (2026-13-12 and 2026-02-30 are not). */
+const isDay = (iso) => {
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(iso ?? '') ? new Date(`${iso}T00:00:00Z`) : null;
+  return Boolean(d) && !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === iso;
+};
+/** A real month YYYY-MM. */
+const isMonth = (ym) => /^\d{4}-(0[1-9]|1[0-2])$/.test(ym ?? '');
+/** A whole count as shown: 28 or 1,204 (English grouping). The whole token must match: 28.9 and 1.2K refuse. */
+const COUNT = '\\d{1,3}(?:,\\d{3})+|\\d+';
+const END = '(?=\\s|$)';
+
 /** Search Console performance page text → figures. Throws if any is missing. */
 export function parseGsc(text) {
   const grab = (label, pattern) => {
-    const m = new RegExp(`${label}\\s*\\n?\\s*(${pattern})`, 'i').exec(text);
-    if (!m) throw new Error(`Search Console: "${label}" not found on the page`);
+    const m = new RegExp(`${label}\\s*\\n?\\s*(${pattern})${END}`, 'i').exec(text);
+    if (!m) throw new Error(`Search Console: "${label}" not found on the page, or not in a supported notation`);
     return m[1];
   };
   const fig = {
-    clicks: grab('Total clicks', '[\\d,.]+K?'),
-    impressions: grab('Total impressions', '[\\d,.]+K?'),
-    ctr: grab('Average CTR', '[\\d.]+%'),
-    position: grab('Average position', '[\\d.]+'),
+    // Whole tokens only (595, 1,204, 11.9K): 1.2M or 8,1 refuse instead of being cut to a prefix.
+    clicks: grab('Total clicks', `(?:${COUNT})(?:\\.\\d+K)?|\\d+K`),
+    impressions: grab('Total impressions', `(?:${COUNT})(?:\\.\\d+K)?|\\d+K`),
+    ctr: grab('Average CTR', '\\d+(?:\\.\\d+)?%'),
+    position: grab('Average position', '\\d+(?:\\.\\d+)?'),
   };
   // English UI uses "," as thousands separator: 1,234 → 1234.
   for (const k of ['clicks', 'impressions']) fig[k] = fig[k].replace(/,/g, '');
@@ -72,6 +84,7 @@ export function parseGsc(text) {
   const dates = [...text.matchAll(/\b(\d{1,2})\/(\d{1,2})\/(\d{2})\b/g)].map(([, m, d, y]) => `20${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
   if (dates.length < 2) throw new Error('Search Console: chart dates not found');
   const from = dates[0], to = dates[dates.length - 1];
+  if (!isDay(from) || !isDay(to)) throw new Error(`Search Console: chart dates ${from} – ${to} are not real days`);
   const days = (Date.parse(to) - Date.parse(from)) / 86400000;
   if (days < 80 || days > 95) throw new Error(`Search Console: period ${from} – ${to} is not 3 months`);
   return { ...fig, from, to };
@@ -80,26 +93,40 @@ export function parseGsc(text) {
 /** Web3Forms dashboard text → totals. */
 export function parseW3f(text) {
   const num = (label) => {
-    const m = new RegExp(`${label}\\s*\\n?\\s*(\\d+)`, 'i').exec(text);
-    if (!m) throw new Error(`Web3Forms: "${label}" not found on the page`);
-    return Number(m[1]);
+    const m = new RegExp(`${label}\\s*\\n?\\s*(${COUNT})${END}`, 'i').exec(text);
+    if (!m) throw new Error(`Web3Forms: "${label}" not found on the page, or not a whole count`);
+    return Number(m[1].replace(/,/g, ''));
   };
   const created = /Created\s+([A-Z][a-z]{2,8})\s+(\d{1,2}),\s+(\d{4})/.exec(text);
   if (!created) throw new Error('Web3Forms: form creation date not found');
   const month = MONTHS.findIndex((m) => m.startsWith(created[1].slice(0, 3)));
   if (!/ArbCut/i.test(text)) throw new Error('Web3Forms: the ArbCut form is not on the dashboard');
-  return {
-    thisMonth: num('Submissions this month'),
-    total: num('Total Submissions'),
-    spam: num('Total Spam Blocked'),
-    created: `${created[3]}-${String(month + 1).padStart(2, '0')}-${created[2].padStart(2, '0')}`,
-  };
+  const day = `${created[3]}-${String(month + 1).padStart(2, '0')}-${created[2].padStart(2, '0')}`;
+  if (month < 0 || !isDay(day)) throw new Error(`Web3Forms: creation date "${created[0]}" is not a real day`);
+  return { thisMonth: num('Submissions this month'), total: num('Total Submissions'), spam: num('Total Spam Blocked'), created: day };
 }
 
 /** Chart tooltip text "October 2026 … Submissions 1" → {month: '2026-10', submissions: 1}. */
 export function parseTooltip(text) {
-  const m = new RegExp(`(${MONTHS.join('|')})\\s+(\\d{4})[\\s\\S]{0,40}?Submissions\\s*(\\d+)`).exec(text);
-  return m ? { month: `${m[2]}-${String(MONTHS.indexOf(m[1]) + 1).padStart(2, '0')}`, submissions: Number(m[3]) } : null;
+  const m = new RegExp(`(${MONTHS.join('|')})\\s+(\\d{4})[\\s\\S]{0,40}?Submissions\\s*(${COUNT})${END}`).exec(text);
+  return m ? { month: `${m[2]}-${String(MONTHS.indexOf(m[1]) + 1).padStart(2, '0')}`, submissions: Number(m[3].replace(/,/g, '')) } : null;
+}
+
+/** Cross-checks of the form counts. current = the capture month (YYYY-MM), whose chart point may be missing. */
+export function checkForms(w3f, current) {
+  if (w3f.thisMonth > w3f.total) throw new Error(`Web3Forms: ${w3f.thisMonth} this month is more than the total ${w3f.total}`);
+  const seen = new Set();
+  for (const m of w3f.months) {
+    if (!isMonth(m.month)) throw new Error(`Web3Forms: chart month ${m.month} is not a real month`);
+    if (seen.has(m.month)) throw new Error(`Web3Forms: chart month ${m.month} is listed twice`);
+    seen.add(m.month);
+    if (m.month > current) throw new Error(`Web3Forms: chart month ${m.month} is after the capture month ${current}`);
+  }
+  const now = w3f.months.find((m) => m.month === current);
+  if (now && now.submissions !== w3f.thisMonth) throw new Error(`Web3Forms: chart says ${now.submissions} this month, the counter says ${w3f.thisMonth}`);
+  // The counter stands in for the current month even when its chart point is missing; never count it twice.
+  const known = w3f.months.filter((m) => m.month !== current).reduce((a, m) => a + m.submissions, 0) + w3f.thisMonth;
+  if (known > w3f.total) throw new Error('Web3Forms: the months add up to more than the total');
 }
 
 /* ---------- browser ---------- */
@@ -226,9 +253,7 @@ async function captureW3f(b, run) {
     await b.shot(png, box);
     months.push({ month: m.month, submissions: m.submissions, png });
   }
-  const current = today().slice(0, 7);
-  const now = months.find((m) => m.month === current);
-  if (now && now.submissions !== totals.thisMonth) throw new Error(`Web3Forms: chart says ${now.submissions} this month, the counter says ${totals.thisMonth}`);
+  checkForms({ ...totals, months }, today().slice(0, 7));
   return { ...totals, months, crop: box };
 }
 
@@ -243,24 +268,36 @@ export function loadImport(dir) {
     if (!name || !existsSync(file) || !readFileSync(file).subarray(0, 4).equals(PNG)) throw new Error(`${what}: ${name} is not a PNG in ${dir}`);
     return file;
   };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(f.captured ?? '')) throw new Error('figures.json: captured must be YYYY-MM-DD');
+  if (!isDay(f.captured)) throw new Error('figures.json: captured must be a real day YYYY-MM-DD');
   if (!f.how) throw new Error('figures.json: "how" must say who took the screenshots, in which browser, and the exact crop commands');
   const g = f.gsc ?? {};
   // Same parser as a capture: rebuild the page text from the figures, so the same rules apply.
   const axis = (iso) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}/${iso.slice(2, 4)}`;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(g.from ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(g.to ?? '')) throw new Error('figures.json: gsc.from/gsc.to must be YYYY-MM-DD');
+  if (!isDay(g.from) || !isDay(g.to)) throw new Error('figures.json: gsc.from/gsc.to must be real days YYYY-MM-DD');
+  for (const k of ['clicks', 'impressions', 'ctr', 'position']) if (typeof g[k] !== 'string') throw new Error(`figures.json: gsc.${k} must be the text shown on screen, e.g. "11.9K"`);
   const gsc = { ...parseGsc(`Total clicks ${g.clicks}\nTotal impressions ${g.impressions}\nAverage CTR ${g.ctr}\nAverage position ${g.position}\n${axis(g.from)} ${axis(g.to)}`), property: g.property ?? 'not recorded', png: png(g.png, 'gsc') };
   const w = f.forms ?? {};
+  for (const k of ['thisMonth', 'total', 'spam']) if (!Number.isInteger(w[k]) || w[k] < 0) throw new Error(`figures.json: forms.${k} must be a whole number`);
   const w3f = { ...parseW3f(`ArbCut\nCreated ${w.createdText}\nSubmissions this month ${w.thisMonth}\nTotal Submissions ${w.total}\nTotal Spam Blocked ${w.spam}`) };
   if (!Array.isArray(w.months) || !w.months.length) throw new Error('figures.json: forms.months must list the chart months');
   w3f.months = w.months.map((m, i) => {
-    if (!/^\d{4}-\d{2}$/.test(m.month ?? '') || !Number.isInteger(m.submissions) || m.submissions < 0) throw new Error(`figures.json: forms.months[${i}] needs month YYYY-MM and whole submissions`);
+    if (!isMonth(m.month) || !Number.isInteger(m.submissions) || m.submissions < 0) throw new Error(`figures.json: forms.months[${i}] needs a real month YYYY-MM and whole submissions`);
     return { month: m.month, submissions: m.submissions, png: png(m.png, `forms.months[${i}]`) };
   }).sort((a, z) => a.month.localeCompare(z.month));
-  const now = w3f.months.find((m) => m.month === f.captured.slice(0, 7));
-  if (now && now.submissions !== w3f.thisMonth) throw new Error(`Web3Forms: chart says ${now.submissions} this month, the counter says ${w3f.thisMonth}`);
-  if (w3f.months.reduce((a, m) => a + m.submissions, 0) > w3f.total) throw new Error('Web3Forms: the months add up to more than the total');
+  checkForms(w3f, f.captured.slice(0, 7));
   return { gsc, w3f, date: f.captured, how: f.how };
+}
+
+/** Copies [source, name] pairs into dir. Every destination is checked before the first write:
+    a file that already holds the very same screenshot (a rerun after an interrupted copy) is kept,
+    any other existing file refuses and nothing is written. */
+export function publishScreenshots(pairs, dir = ASSETS) {
+  const copies = pairs.map(([from, to]) => ({ from, to, dest: join(dir, to), bytes: readFileSync(from) }));
+  if (new Set(copies.map((c) => c.to)).size !== copies.length) throw new Error('two screenshots would get the same file name. Nothing was written.');
+  for (const c of copies) {
+    if (existsSync(c.dest) && !readFileSync(c.dest).equals(c.bytes)) throw new Error(`${c.to} already exists with other content; refresh once per day, or rename by hand. Nothing was written.`);
+  }
+  for (const c of copies) if (!existsSync(c.dest)) copyFileSync(c.from, c.dest, constants.COPYFILE_EXCL);
 }
 
 /* ---------- main ---------- */
@@ -314,11 +351,7 @@ async function main() {
   console.log(`Run folder (page text, uncropped + cropped screenshots): ${run}`);
   if (dry) { console.log('--dry: src/ not changed.'); return; }
 
-  for (const [from, to] of [[gsc.png, next.gsc.file], ...w3f.months.map((m, i) => [m.png, next.forms.months[i].file])]) {
-    const dest = join(ASSETS, to);
-    if (existsSync(dest)) throw new Error(`${to} already exists; refresh once per day, or rename by hand`);
-    copyFileSync(from, dest);
-  }
+  publishScreenshots([[gsc.png, next.gsc.file], ...w3f.months.map((m, i) => [m.png, next.forms.months[i].file])]);
   writeFileSync(DATA, `${JSON.stringify(next, null, 2)}\n`);
   appendFileSync(PROVENANCE, [
     '', `## Proof refresh ${date} (scripts/proof-refresh.mjs)`,

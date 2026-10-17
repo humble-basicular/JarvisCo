@@ -5,10 +5,10 @@
    real run must still be checked by eye (its page text is kept in .proof-runs/).
    node scripts/proof-refresh-test.mjs */
 import assert from 'node:assert/strict';
-import { copyFileSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadImport, parseGsc, parseTooltip, parseW3f } from './proof-refresh.mjs';
+import { checkForms, loadImport, parseGsc, parseTooltip, parseW3f, publishScreenshots } from './proof-refresh.mjs';
 import { formsProof, gscProof, proof } from '../src/data/v4.js';
 
 let passed = 0;
@@ -71,4 +71,43 @@ check('import: chart month must equal the counter', () => assert.throws(figures(
 check('import: a missing screenshot refuses', () => assert.throws(figures({ gsc: { png: 'nope.png', clicks: '595', impressions: '11.9K', ctr: '5%', position: '8.1', from: '2026-07-12', to: '2026-10-10' } }), /not a PNG/));
 check('import: months above the total refuse', () => assert.throws(figures({ forms: { createdText: 'Apr 19, 2026', thisMonth: 1, total: 0, spam: 0, months: [{ month: '2026-10', submissions: 1, png: 'oct.png' }] } }), /more than the total/));
 check('import: "how" is required', () => assert.throws(figures({ how: '' }), /how/));
-console.log(`${passed} proof-refresh checks passed`);
+
+// Review r1 (2026-10-16) regressions: whole tokens, real dates, consistent counts, no partial refresh.
+check('GSC: unsupported notation refuses instead of a prefix', () => {
+  assert.throws(() => parseGsc(GSC.replace('11.9K', '1.2M')), /Total impressions/);
+  assert.throws(() => parseGsc(GSC.replace('Average position\n8.1', 'Average position\n8,1')), /Average position/);
+  assert.equal(parseGsc(GSC.replace('11.9K', '1,204')).impressions, '1204');
+});
+check('Web3Forms: grouped counts are read whole, decimals refuse', () => {
+  assert.equal(parseW3f(W3F.replace('Total Submissions\n28', 'Total Submissions\n1,204')).total, 1204);
+  assert.equal(parseTooltip(`${W3F}\nOctober 2026\nSubmissions\n1,204`).submissions, 1204);
+  assert.throws(() => parseW3f(W3F.replace('Total Submissions\n28', 'Total Submissions\n28.9')), /Total Submissions/);
+});
+check('impossible calendar dates refuse', () => {
+  assert.throws(() => parseGsc(GSC.replace('7/12/26', '13/12/26').replace('10/10/26', '16/10/26')), /not real days/);
+  assert.throws(() => parseW3f(W3F.replace('Apr 19, 2026', 'Apr 31, 2026')), /not a real day/);
+  assert.throws(() => checkForms({ thisMonth: 1, total: 28, months: [{ month: '2026-13', submissions: 1 }] }, '2026-10'), /not a real month/);
+});
+check('counts: current month without its chart point still checked', () => {
+  assert.throws(() => checkForms({ thisMonth: 30, total: 28, months: [{ month: '2026-09', submissions: 13 }] }, '2026-10'), /more than the total/);
+  assert.throws(() => checkForms({ thisMonth: 20, total: 28, months: [{ month: '2026-09', submissions: 13 }] }, '2026-10'), /add up to more/);
+  assert.doesNotThrow(() => checkForms({ thisMonth: 2, total: 29, months: [{ month: '2026-08', submissions: 7 }, { month: '2026-09', submissions: 13 }, { month: '2026-10', submissions: 2 }] }, '2026-10'));
+  assert.throws(() => checkForms({ thisMonth: 2, total: 29, months: [{ month: '2026-09', submissions: 1 }, { month: '2026-09', submissions: 1 }] }, '2026-10'), /twice/);
+});
+check('import: impossible captured date and decimal totals refuse', () => {
+  assert.throws(figures({ captured: '2026-99-99' }), /real day/);
+  assert.throws(figures({ forms: { createdText: 'Apr 19, 2026', thisMonth: 1, total: 28.9, spam: 0, months: [{ month: '2026-10', submissions: 1, png: 'oct.png' }] } }), /whole number/);
+});
+check('a late name collision writes nothing; an identical leftover is kept on rerun', () => {
+  const dest = join(dir, 'assets'); mkdirSync(dest);
+  const pairs = [[join(dir, 'gsc.png'), 'g.png'], [join(dir, 'oct.png'), 'o.png']];
+  copyFileSync(join(dir, 'gsc.png'), join(dest, 'o.png')); // other content under the second name
+  assert.throws(() => publishScreenshots(pairs, dest), /Nothing was written/);
+  assert.deepEqual(readdirSync(dest), ['o.png']);
+  const dest2 = join(dir, 'assets2'); mkdirSync(dest2);
+  copyFileSync(join(dir, 'gsc.png'), join(dest2, 'g.png')); // interrupted earlier run left the first copy
+  publishScreenshots(pairs, dest2);
+  assert.deepEqual(readdirSync(dest2).sort(), ['g.png', 'o.png']);
+  assert.ok(existsSync(join(dest2, 'o.png')));
+});
+console.log(`${passed} proof-refresh checks passed (fixtures left at ${dir})`);
