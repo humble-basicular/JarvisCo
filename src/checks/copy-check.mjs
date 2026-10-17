@@ -33,7 +33,7 @@ for (const value of mustBlock) {
 }
 // /rezultatai keeps the pre-v4 arborist proof and offer (frozen 2026-10-09 numbers).
 const legacy = [
-  '199 €', '20', '573', '11,4 tūkst.', '5 %', '8,2',
+  offer.price, '20', '573', '11,4 tūkst.', '5 %', '8,2',
   '2026-07-05 – 2026-10-04', '2026-10-09',
   ...arbcutProof.items.map((item) => item.note), ...arbcutProof.notes,
   ...offer.includes, ...offer.costs.flatMap((row) => [row.label, row.value]),
