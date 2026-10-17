@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "createdAt": "2026-10-17T11:22:58.330Z",
+  "createdAt": "2026-10-17T11:38:16.012Z",
   "source": "a1-knolling-proportions-r2.png",
   "sourceSha256": "ea816ae494030ab46aa2ba58dd0d4ea247bb8a9f106d048961c5ddb2d4b7e8a0",
   "capture": "hero-screen.png",
-  "captureSha256": "232bd770d9dce84da935732a668ddbd9493b85036020a59c08fbf58060f9c68d",
+  "captureSha256": "642884ed53ee4130cdcb999e8e96b4f5573c526f77c5879ba89e6f9d7166e616",
   "output": "a1-knolling-finished.png",
-  "outputSha256": "9fc04f73caea0b0ab4625d3610f0d6e9afbf2639e4c7acab9399b21ea5a0f39f",
+  "outputSha256": "fe4579e51cb2ee91cd1a330f626bd247cfd072bc91b49d8a18877cf1d5212ed5",
   "pixels": {
     "width": 1536,
     "height": 1024,
