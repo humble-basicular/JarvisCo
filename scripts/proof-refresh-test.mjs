@@ -9,7 +9,7 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, writeFil
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkForms, loadImport, parseGsc, parseTooltip, parseW3f, publishScreenshots } from './proof-refresh.mjs';
-import { formsProof, gscProof, proof } from '../src/data/v4.js';
+import { formsProof, gscProof, ltPlural, proof } from '../src/data/v4.js';
 
 let passed = 0;
 const check = (name, fn) => { fn(); passed++; console.log(`PASS ${name}`); };
@@ -26,26 +26,30 @@ check('Web3Forms without the ArbCut form refuses', () => assert.throws(() => par
 check('chart tooltip', () => assert.deepEqual(parseTooltip(`${W3F}\nOctober 2026\nSubmissions\n1`), { month: '2026-10', submissions: 1 }));
 check('no tooltip → null (axis labels are not months)', () => assert.equal(parseTooltip(W3F), null));
 
-// The committed JSON must render exactly the copy that was on the site before the refactor.
+// The committed JSON (2026-10-17 screenshots) must render exactly this copy.
 check('current Search Console copy unchanged', () => assert.deepEqual({ ...proof.gsc, file: undefined }, {
   file: undefined,
   stats: [
-    { value: '595', label: 'paspaudimai iš Google paieškos' },
-    { value: '11,9', unit: 'tūkst.', label: 'parodymų Google paieškoje' },
-    { value: '5 %', label: 'vidutinis paspaudimų rodiklis' },
-    { value: '8,1', label: 'vidutinė pozicija' },
+    { value: '613', label: 'paspaudimų iš Google paieškos' },
+    { value: '12', unit: 'tūkst.', label: 'parodymų Google paieškoje' },
+    { value: '5,1 %', label: 'vidutinis paspaudimų rodiklis' },
+    { value: '8', label: 'vidutinė pozicija' },
   ],
-  alt: 'Google Search Console ataskaita: 595 paspaudimai, 11,9 tūkst. parodymų, 5 % CTR, vidutinė pozicija 8,1, laikotarpis 2026-07-12 – 2026-10-10',
-  caption: 'Google paieška per 3 mėnesius, 2026‑07‑12 – 2026‑10‑10.',
-  meta: 'Ekrano kopija 2026‑10‑14 · Šaltinis: Google Search Console',
+  alt: 'Google Search Console ataskaita: 613 paspaudimų, 12 tūkst. parodymų, 5,1 % CTR, vidutinė pozicija 8, laikotarpis 2026-07-15 – 2026-10-14',
+  caption: 'Google paieška per 3 mėnesius, 2026‑07‑15 – 2026‑10‑14.',
+  meta: 'Ekrano kopija 2026‑10‑17 · Šaltinis: Google Search Console',
 }));
 check('current Web3Forms copy unchanged', () => {
   assert.deepEqual(proof.forms.stats, [
-    { value: '7', label: 'rugpjūtį' }, { value: '13', label: 'rugsėjį' }, { value: '1', label: 'spalį (iki 14 d.)' }, { value: '28', label: 'iš viso nuo 2026‑04‑19' },
+    { value: '7', label: 'rugpjūtį' }, { value: '13', label: 'rugsėjį' }, { value: '2', label: 'spalį (iki 17 d.)' }, { value: '29', label: 'iš viso nuo 2026‑04‑19' },
   ]);
-  assert.equal(proof.forms.alt, 'Web3Forms paskyra: forma ArbCut, iš viso 28 pateiktos formos, 0 šlamšto, rugsėjį 13');
-  assert.equal(proof.forms.file, 'arbcut-web3forms-sep-2026-10-14.png');
+  assert.equal(proof.forms.alt, 'Web3Forms paskyra: forma ArbCut, iš viso 29 pateiktos formos, 0 šlamšto, rugsėjį 13');
+  assert.equal(proof.forms.file, 'arbcut-web3forms-sep-2026-10-17.png');
   assert.deepEqual(proof.forms.more.map((m) => m.label), ['Rugpjūčio ekrano kopija', 'Spalio ekrano kopija']);
+});
+check('Lithuanian plural forms follow the number', () => {
+  const f = ['paspaudimas', 'paspaudimai', 'paspaudimų'];
+  assert.deepEqual([1, 21, 595, 613, 11, 10, 30, 112, 122].map((n) => ltPlural(n, f)), [f[0], f[0], f[1], f[2], f[2], f[2], f[2], f[2], f[1]]);
 });
 check('a refresh on 16 Oct renders the new month and total', () => {
   const f = formsProof({ captured: '2026-10-16', created: '2026-04-19', total: 30, spam: 0, months: [

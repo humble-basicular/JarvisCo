@@ -71,3 +71,21 @@ Only crop/resize and Astro WebP encoding; no retouching, composites, AI images o
 | `sildymas-mobile-2026-10-15.png` (390×844) | Local `/pavyzdys/sildymas` on `http://127.0.0.1:4335`, 2026-10-15; `npm run build` then `npx astro preview`; same headless Chrome/CDP mobile capture as above; top viewport, no DOM edits | Jarvis's own demo; capture/use explicitly requested by Jarvis. Heating example and heating hero (avoids implying the arborist is a heating client). |
 
 Jarvis's existing `../people/matas.webp` remains in “Apie”; unchanged, no new source copy.
+
+## Proof refresh 2026-10-17 (scripts/proof-refresh.mjs)
+Codex Computer Use, browser, Chrome profile Matas Basinskas (main Matas profile; GSC /u/4/), same session/day. Native screenshots for GSC/overview; Chrome tab screenshots for chart hovers. Original screenshot bytes retained in *-full.png (tool returns JPEG bytes despite filename; crops are actual PNG). No resizing or pixel edits. All crops opened and visually checked: no email, personal name or personal data. Exact crop commands, run in this figures.json folder:
+magick gsc-full.png -crop 3690x1160+740+270 gsc.png
+magick gsc-dates-full.png -crop 2110x1460+740+270 gsc-dates.png
+magick gsc-pages-top-full.png -crop 3690x1790+740+510 gsc-pages.png
+magick gsc-pages-full.png -crop 3690x1840+740+380 gsc-pages-rest.png
+magick web3forms-overview-full.png -crop 3880x1000+550+130 web3forms-overview.png
+magick web3forms-2026-08-full.png -crop 1940x410+275+545 web3forms-2026-08.png
+magick web3forms-2026-09-full.png -crop 1940x410+275+545 web3forms-2026-09.png
+magick web3forms-2026-10-full.png -crop 1940x410+275+545 web3forms-2026-10.png
+
+| File here | Shows |
+|---|---|
+| arbcut-gsc-3m-2026-10-17.png | Search Console (sc-domain:arbcut.lt), 3 months, 2026-07-15 – 2026-10-14: clicks 613, impressions 12K, CTR 5.1%, position 8 |
+| arbcut-web3forms-aug-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-08: 7 |
+| arbcut-web3forms-sep-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-09: 13 |
+| arbcut-web3forms-oct-2026-10-17.png | Web3Forms dashboard, form ArbCut (created 2026-04-19), total 29, spam 0; chart tooltip 2026-10: 2 |

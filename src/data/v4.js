@@ -18,6 +18,14 @@ const MONTH_KEY = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep'
 const MONTH_GEN = ['Sausio', 'Vasario', 'Kovo', 'Balandžio', 'Gegužės', 'Birželio', 'Liepos', 'Rugpjūčio', 'Rugsėjo', 'Spalio', 'Lapkričio', 'Gruodžio'];
 const lt = (figure) => figure.replace('.', ',');
 const monthIndex = (ym) => Number(ym.slice(5, 7)) - 1;
+/** Lithuanian noun form for a whole number: 1, 21 → one; 2–9, 22 → few; 0, 10–20, 613 → many. */
+export function ltPlural(n, [one, few, many]) {
+  const n10 = n % 10, n100 = n % 100;
+  if (n10 === 1 && n100 !== 11) return one;
+  if (n10 >= 2 && (n100 < 12 || n100 > 19)) return few;
+  return many;
+}
+const CLICKS = ['paspaudimas', 'paspaudimai', 'paspaudimų'];
 /** "11.9K" → {value: '11,9', unit: 'tūkst.'}; "573" → {value: '573'}. */
 function count(figure) {
   const k = /^([\d.]+)K$/i.exec(figure);
@@ -28,15 +36,16 @@ export function gscProof(g) {
   const ctr = lt(g.ctr).replace('%', ' %');
   const pos = lt(g.position);
   const impText = `${imp.value}${imp.unit ? ` ${imp.unit}` : ''}`;
+  const clicks = ltPlural(Number(g.clicks.replace(/\D/g, '')), CLICKS);
   return {
     file: g.file,
     stats: [
-      { ...count(g.clicks), label: 'paspaudimai iš Google paieškos' },
+      { ...count(g.clicks), label: `${clicks} iš Google paieškos` },
       { ...imp, label: 'parodymų Google paieškoje' },
       { value: ctr, label: 'vidutinis paspaudimų rodiklis' },
       { value: pos, label: 'vidutinė pozicija' },
     ],
-    alt: `Google Search Console ataskaita: ${lt(g.clicks)} paspaudimai, ${impText} parodymų, ${ctr} CTR, vidutinė pozicija ${pos}, laikotarpis ${g.from} – ${g.to}`,
+    alt: `Google Search Console ataskaita: ${lt(g.clicks)} ${clicks}, ${impText} parodymų, ${ctr} CTR, vidutinė pozicija ${pos}, laikotarpis ${g.from} – ${g.to}`,
     caption: `Google paieška per 3 mėnesius, ${d(g.from)} – ${d(g.to)}.`,
     meta: `Ekrano kopija ${d(g.captured)} · Šaltinis: Google Search Console`,
   };
@@ -55,8 +64,8 @@ export function formsProof(f) {
       })),
       { value: String(f.total), label: `iš viso nuo ${d(f.created)}` },
     ],
-    alt: `Web3Forms paskyra: forma ArbCut, iš viso ${f.total} pateiktos formos, ${f.spam} šlamšto, ${MONTH_IN[monthIndex(main.month)]} ${main.submissions}`,
-    caption: `Užklausos per svetainės formą. Web3Forms suskaičiavo ${f.total} pateiktas formas nuo ${d(f.created)}, kai forma buvo sukurta; šlamšto – ${f.spam}.`,
+    alt: `Web3Forms paskyra: forma ArbCut, iš viso ${f.total} ${ltPlural(f.total, ['pateikta forma', 'pateiktos formos', 'pateiktų formų'])}, ${f.spam} šlamšto, ${MONTH_IN[monthIndex(main.month)]} ${main.submissions}`,
+    caption: `Užklausos per svetainės formą. Web3Forms suskaičiavo ${f.total} ${ltPlural(f.total, ['pateiktą formą', 'pateiktas formas', 'pateiktų formų'])} nuo ${d(f.created)}, kai forma buvo sukurta; šlamšto – ${f.spam}.`,
     meta: `Ekrano kopija ${d(f.captured)} · Šaltinis: Web3Forms`,
     more: months.filter((m) => m !== main).map((m) => ({ label: `${MONTH_GEN[monthIndex(m.month)]} ekrano kopija`, key: MONTH_KEY[monthIndex(m.month)], file: m.file })),
   };

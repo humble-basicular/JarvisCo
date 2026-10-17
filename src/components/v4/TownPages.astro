@@ -15,7 +15,7 @@ const towns = townLinks();
         <li class="gt__row">
           <h3 class="stamp gt__q">{t.name}</h3>
           <p class="gt__a">Pavyzdys: vietovės puslapyje – {t.places.slice(0, 4).join(', ')}.</p>
-          <a class="link" href={t.href}>{townPages.open}<span class="visually-hidden">: šildymas {t.loc}</span></a>
+          <a class="link" href={t.href} target="_blank" rel="noopener">{townPages.open}<span class="visually-hidden">: šildymas {t.loc} (atsidaro naujame skirtuke)</span></a>
         </li>
       ))}
     </ul>
