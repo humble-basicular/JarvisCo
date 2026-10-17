@@ -15,7 +15,8 @@
     "check:static": "node src/checks/static-check.mjs",
     "client-site": "node scripts/client-site.mjs",
     "check:browser": "node src/checks/browser-check.mjs",
-    "proof:refresh": "node scripts/proof-refresh.mjs"
+    "proof:refresh": "node scripts/proof-refresh.mjs",
+    "check:inquiry": "node --test src/checks/inquiry-track-test.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.3.0",
