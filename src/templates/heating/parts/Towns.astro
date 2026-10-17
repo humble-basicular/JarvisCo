@@ -18,7 +18,7 @@ const { towns, v } = Astro.props;
         <li>
           <span class="hs-svc__n" aria-hidden="true">{v.pad(i + 1)}</span>
           <h3>{x.name}</h3>
-          <p>{x.arrival}.</p>
+          <p>{x.places.slice(0, 4).join(', ')}.</p>
           <a class="hs-svc__ask" href={x.href}>Šildymas {x.loc}<span class="hs-vh">: atidaryti puslapį</span></a>
         </li>
       ))}

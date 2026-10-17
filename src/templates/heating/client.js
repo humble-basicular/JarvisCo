@@ -42,7 +42,8 @@
   doc.addEventListener('click', function (event) {
     var a = event.target.closest && event.target.closest('a[data-cta]');
     var type = a && a.getAttribute('data-cta');
-    if (type === 'cta_call' || type === 'cta_sms') send(type);
+    // Call taps are counted by inquiry-track (page + button label) whenever it is loaded: not twice.
+    if (type === 'cta_sms' || (type === 'cta_call' && !doc.querySelector('meta[name="jw-site"]'))) send(type);
   });
 
   if (!form) return;

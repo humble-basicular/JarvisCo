@@ -46,7 +46,7 @@ const TOWNS: Town[] = [
     description: 'Dujinių katilų remontas ir priežiūra Jonavoje, Bukonyse, Upninkuose ir Ruklos apylinkėse. Išvykstame iš Kauno. Pavyzdinė šildymo meistro svetainė.',
     lead: 'Į Jonavą ir apylinkes važiuojame iš Kauno: dujinių katilų remontas, priežiūra ir naujų šildymo sistemų įrengimas.',
     heading: 'Į Jonavą atvykstame iš Kauno',
-    distance: 'Apie 30 km nuo Kauno',
+    distance: 'Apie 30 km nuo Kauno',
     arrival: 'Dažniausiai per 1 darbo dieną',
     text: 'Į Jonavą važiuojame iš Kauno, todėl vizitus planuojame iš anksto. Paskambinus iki vidurdienio, dažniausiai atvykstame tą pačią ar kitą darbo dieną, o iškvietimo kainą pasakome telefonu.',
     note: 'Į kaimus aplink Jonavą kelią įskaičiuojame į iškvietimą, todėl kainą pasakome prieš atvykdami.',
@@ -66,7 +66,7 @@ const TOWNS: Town[] = [
     description: 'Dujinių katilų remontas, priežiūra ir keitimas Kėdainiuose, Dotnuvoje, Josvainiuose ir Šėtoje. Išvykstame iš Kauno. Pavyzdinė šildymo meistro svetainė.',
     lead: 'Į Kėdainius ir rajoną važiuojame iš Kauno pagal iš anksto suderintą laiką: katilų remontas, priežiūra ir keitimas.',
     heading: 'Į Kėdainius atvykstame iš Kauno',
-    distance: 'Apie 55 km nuo Kauno',
+    distance: 'Apie 55 km nuo Kauno',
     arrival: 'Dažniausiai per 1–2 darbo dienas',
     text: 'Kėdainių rajone dirbame sutartu laiku: kelias iš Kauno užima apie valandą, todėl kelis vizitus stengiamės sujungti į vieną dieną. Skubų gedimą aptarkite telefonu, ir pasakysime, kada realiai galime atvykti.',
     note: 'Metinę katilo priežiūrą Kėdainių rajone patogiausia planuoti prieš šildymo sezoną, kai galime sujungti keletą vizitų.',
@@ -80,7 +80,7 @@ const TOWNS: Town[] = [
 ];
 
 export const townLinks = (): TownLink[] =>
-  TOWNS.map((t) => ({ slug: t.slug, name: t.name, loc: t.loc, href: `${DEMO_PATH}/${t.slug}`, arrival: t.arrival, distance: t.distance }));
+  TOWNS.map((t) => ({ slug: t.slug, name: t.name, loc: t.loc, href: `${DEMO_PATH}/${t.slug}`, places: t.places }));
 export const townSlugs = () => TOWNS.map((t) => t.slug);
 
 /** The demo SiteData re-pointed at one town; shared services, photos and look. */

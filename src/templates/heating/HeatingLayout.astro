@@ -89,7 +89,7 @@ const fontCss = [
         {image && <meta property="og:image" content={image} />}
       </>
     )}
-    {mode === 'live' && live && <Tracking site={live.code} />}
+    {mode === 'live' && live && <Tracking site={live.code} endpoint={live.beacon} />}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
     <style set:html={`${fontCss}:root{${accentCss(colours)}}`}></style>
   </head>

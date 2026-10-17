@@ -99,12 +99,12 @@ export const form = {
 
 export const offer = {
   eyebrow: 'Paslauga',
-  title: 'Svetainė Jūsų paslaugoms. Viena kaina.',
+  title: 'Svetainė Jūsų paslaugoms. Nemokama pradžia.',
   lead: 'Kuriu svetaines paslaugų verslams, kad klientai galėtų Jus rasti Google ir kreiptis tiesiogiai.',
   price: '0 €',
   priceNote: 'iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
   priceLine: 'iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
-  noMonthly: 'Mėnesio mokestis tik po pirmos užklausos',
+  noMonthly: 'Mėnesio mokestis – po pirmos užklausos arba po 3 mėn.',
   includesTitle: 'Ką gaunate',
   includes: [
     'Pagrindinis puslapis su paslaugomis, darbų pavyzdžiais ir kontaktais',

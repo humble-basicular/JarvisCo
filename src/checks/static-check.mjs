@@ -139,6 +139,7 @@ for (const [route, page] of routes) {
   if (isPreview) {
     check(attr(robots, 'content') === 'noindex,nofollow', `${route}: preview must be noindex,nofollow`);
     check(!page.nodes.some((node) => node.tagName === 'form' && (attr(node, 'method') ?? 'get').toLowerCase() === 'post'), `${route}: preview form must not post`);
+    check(!page.nodes.some((node) => node.tagName === 'meta' && ['jw-site', 'jw-endpoint'].includes(attr(node, 'name'))) && !page.nodes.some((node) => node.tagName === 'script' && attr(node, 'type') === 'module'), `${route}: previews carry no inquiry tracking`);
     const dial = page.nodes.filter((node) => /^(tel|sms):/.test(attr(node, 'href') ?? ''));
     check(dial.every((node) => attr(node, 'href') === brand.smsHref), `${route}: preview may only link to Matas's SMS, never dial the business`);
   }

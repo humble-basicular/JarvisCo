@@ -12,7 +12,7 @@ import { examples } from '@data/v4.js';
 
 const s = examples.showcase;
 const phoneSizes = '(min-width: 64rem) 17.5rem, min(17.5rem, calc(78vw - 1.5rem))';
-// The tall capture is ~440 KB: with reduced motion the <picture> resolves to a
+// The tall capture is large: with reduced motion the <picture> resolves to a
 // 1×1 inline GIF, so it is never downloaded (display:none alone still fetches it).
 // Widths follow the capture (never upscaled: WebP stops at 16 383 px high).
 const tallWidths = [390, tall.width];

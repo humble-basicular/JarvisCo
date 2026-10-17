@@ -122,10 +122,10 @@ export const proof = {
    TownPages.astro beside the list. Until then the section carries no numbers. */
 export const townPages = {
   label: 'Miestų puslapiai',
-  title: 'Atskiras puslapis kiekvienam miestui',
-  text: 'Žmonės paieškoje rašo miestą: „arboristas Kaune“, „katilų remontas Jonavoje“. Todėl kiekvienam miestui, kuriame dirbate, paruošiu atskirą puslapį: su vietovės pavadinimu, atvykimo laiku ir vietiniais klausimais. Žemiau – trys šildymo pavyzdžio puslapiai.',
+  title: 'Atskiras puslapis miestui',
+  text: 'Žmonės paieškoje rašo miestą: „arboristas Kaune“, „katilų remontas Jonavoje“. Todėl iki trijų miestų, kuriuose dirbate, paruošiu atskirus puslapius: su vietovės pavadinimu, atvykimo laiku ir vietiniais klausimais. Žemiau – trys šildymo pavyzdžio puslapiai.',
   open: 'Atidaryti pavyzdį',
-  note: 'Pavyzdyje miestai ir atvykimo laikai išgalvoti. Vietos puslapiai padeda būti randamam paieškoje, bet vietos Google rezultatuose negarantuoju.',
+  note: 'Pavyzdyje įmonė, atvykimo laikai ir kainos išgalvoti; miestai ir vietovės tikri. Vietos puslapiai padeda būti randamam paieškoje, bet vietos Google rezultatuose negarantuoju.',
 };
 
 export const compare = {

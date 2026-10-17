@@ -74,4 +74,4 @@ export interface TownPage {
   /** Nearby places the page names; the Details areas panel lists them. */
   places: string[];
 }
-export interface TownLink { slug: string; name: string; loc: string; href: string; arrival: string; distance: string }
+export interface TownLink { slug: string; name: string; loc: string; href: string; places: string[] }
