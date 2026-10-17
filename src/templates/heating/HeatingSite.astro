@@ -10,14 +10,16 @@
    beacons and the inquiry form posts to the Worker (offer-v2 spec §3). */
 import clientScript from './client.js?raw';
 import { processSteps, t, type RouteKind } from './content';
-import type { LiveSite, Mode, SiteData } from './types';
+import type { LiveSite, Mode, SiteData, TownLink, TownPage } from './types';
 import { DEMO_HERO_TAG, DEMO_PHOTO_NOTE, view } from './view';
 import Details from './parts/Details.astro';
 import Footer from './parts/Footer.astro';
 import Inquiry from './parts/Inquiry.astro';
+import Town from './parts/Town.astro';
+import Towns from './parts/Towns.astro';
 
-interface Props { data: SiteData; mode: Mode; site?: LiveSite }
-const { data, mode, site } = Astro.props;
+interface Props { data: SiteData; mode: Mode; site?: LiveSite; /** Demo only: this page's town, and the links to every town page. */ town?: TownPage; towns?: TownLink[] }
+const { data, mode, site, town, towns } = Astro.props;
 const v = view(data, mode, site);
 const { live, telHref, callCta, smsHref, hero, works, spans, services, router, areas, mark, logo, nav, pad } = v;
 // Hours: in the proof list on phones (the top strip shows them on wide screens), in the identity card without a photo.
@@ -154,6 +156,8 @@ const SIZES = {
     </div>
   </section>
 
+  {towns && !town && <Towns towns={towns} v={v} />}
+
   {works.length > 0 && (
     <section class:list={['hs-sec hs-sec--white hs-gallery', works.length === 1 && 'hs-gallery--single']} id="darbai" aria-labelledby="hs-works">
       <div class="hs-wrap hs-gallery__grid">
@@ -196,9 +200,10 @@ const SIZES = {
     </div>
   </section>
 
+  {town && <Town town={town} v={v} />}
   <Details data={data} v={v} />
   <Inquiry data={data} v={v} />
 </main>
 
-<Footer data={data} v={v} />
+<Footer data={data} v={v} towns={towns} />
 <script is:inline set:html={clientScript}></script>

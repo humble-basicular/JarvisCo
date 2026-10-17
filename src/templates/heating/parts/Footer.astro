@@ -1,11 +1,11 @@
 ---
 /* Contacts footer + mobile action bar. */
 import { t } from '../content';
-import type { SiteData } from '../types';
+import type { SiteData, TownLink } from '../types';
 import type { View } from '../view';
 
-interface Props { data: SiteData; v: View }
-const { data, v } = Astro.props;
+interface Props { data: SiteData; v: View; towns?: TownLink[] }
+const { data, v, towns } = Astro.props;
 const { live, telHref, callCta, smsHref, areas, mark, logo } = v;
 const year = new Date().getFullYear();
 ---
@@ -24,6 +24,7 @@ const year = new Date().getFullYear();
       </div>
       <dl class="hs-foot__rows">
         <div><dt>{t.areas}</dt><dd>{areas.join(', ')}</dd></div>
+        {towns && <div><dt>Aptarnaujame</dt><dd>{towns.map((x, i) => <>{i > 0 && ', '}<a href={x.href}>{x.name}</a></>)}</dd></div>}
         {data.hours && <div><dt>{t.hours}</dt><dd>{data.hours}</dd></div>}
         {data.email && <div><dt>{t.email}</dt><dd>{live ? <a href={`mailto:${data.email}`}>{data.email}</a> : data.email}</dd></div>}
         {data.legal?.address && <div><dt>Adresas</dt><dd>{data.legal.address}</dd></div>}

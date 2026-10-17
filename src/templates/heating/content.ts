@@ -211,6 +211,7 @@ export function coverage(data: SiteData, short = false): string {
 }
 
 export function lead(data: SiteData): string {
+  if (data.lead) return data.lead;
   if (data.demo) return 'Katilų remontas, priežiūra ir naujos šildymo sistemos – nuo katilinės iki radiatorių.';
   // Up to four service groups, fewer when the names are long, so the hero stays short on a phone.
   const groups: string[] = [];

@@ -41,6 +41,8 @@ export interface SiteData {
   faq?: { q: string; a: string }[];
   legal?: { name?: string; code?: string; address?: string };
   photos: SitePhoto[];
+  /** Overrides the generated hero lead (demo town pages). */
+  lead?: string;
   /** Marks the labelled "Pavyzdys" demo; the only place invented values are allowed. */
   demo?: boolean;
 }
@@ -58,3 +60,18 @@ export interface LiveSite {
 export type Mode = 'preview' | 'live';
 
 export interface Banner { tag: string; note: string; href: string; label: string }
+
+/** Demo town (GEO) page content, rendered by parts/Town.astro. */
+export interface TownPage {
+  name: string;
+  /** Locative: "Jonavoje". */
+  loc: string;
+  heading: string;
+  distance: string;
+  arrival: string;
+  text: string;
+  note: string;
+  placesLabel: string;
+  places: string[];
+}
+export interface TownLink { slug: string; name: string; loc: string; href: string; arrival: string }

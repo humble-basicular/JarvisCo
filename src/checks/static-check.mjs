@@ -7,7 +7,7 @@ import { brand, form, arbcutProof, steps, funnel } from '../data/content.js';
 import { MAIN_CTA } from '../data/v4.js';
 import arbcut from '../data/arbcut-proof.json' with { type: 'json' };
 import { BEACON_ENDPOINT, EVENT_TYPES, FORM_ENDPOINT, STORAGE_KEY, TRACKING_PREFIXES } from '../data/tracking.js';
-import { pages, attr, text, normalized, nodes } from './html.mjs';
+import { pages, attr, text, textContent, normalized, nodes } from './html.mjs';
 
 const built = pages();
 const origin = brand.url;
@@ -142,6 +142,30 @@ for (const [route, page] of routes) {
     const dial = page.nodes.filter((node) => /^(tel|sms):/.test(attr(node, 'href') ?? ''));
     check(dial.every((node) => attr(node, 'href') === brand.smsHref), `${route}: preview may only link to Matas's SMS, never dial the business`);
   }
+}
+// Demo town (GEO) pages: three pages, each with its own title, description and H1, all noindex + PAVYZDYS,
+// linked from the demo homepage ("Aptarnaujame") and from every demo footer.
+{
+  const TOWNS = ['kaunas', 'jonava', 'kedainiai'];
+  const meta = (page, name) => attr(page.nodes.find((n) => n.tagName === 'meta' && attr(n, 'name') === name), 'content');
+  const seen = { title: new Set(), description: new Set(), h1: new Set() };
+  for (const slug of TOWNS) {
+    const route = `/pavyzdys/sildymas/${slug}`;
+    const page = routes.get(route);
+    check(Boolean(page), `Missing ${route}`);
+    if (!page) continue;
+    seen.title.add(normalized(textContent(page.nodes.find((n) => n.tagName === 'title'))));
+    seen.description.add(meta(page, 'description'));
+    seen.h1.add(normalized(textContent(page.nodes.find((n) => n.tagName === 'h1'))));
+    check(meta(page, 'robots') === 'noindex,nofollow', `${route}: must be noindex,nofollow`);
+    check(normalized(text(page.tree)).includes('PAVYZDYS'), `${route}: missing PAVYZDYS banner`);
+    check(page.nodes.some((n) => attr(n, 'id') === 'aptarnavimas') && page.nodes.some((n) => attr(n, 'id') === 'uzklausa'), `${route}: town section and form`);
+    for (const other of TOWNS) check(page.nodes.some((n) => n.tagName === 'a' && attr(n, 'href') === `/pavyzdys/sildymas/${other}`), `${route}: footer link to ${other}`);
+  }
+  for (const key of Object.keys(seen)) check(seen[key].size === TOWNS.length, `Town pages must have unique ${key}`);
+  const home = routes.get('/pavyzdys/sildymas');
+  check(home?.nodes.some((n) => attr(n, 'id') === 'miestai') ?? false, 'Demo homepage: missing "Aptarnaujame" block');
+  for (const slug of TOWNS) check(home?.nodes.some((n) => n.tagName === 'a' && attr(n, 'href') === `/pavyzdys/sildymas/${slug}`) ?? false, `Demo homepage: missing link to ${slug}`);
 }
 check(routes.has('/pavyzdys/sildymas'), 'Missing /pavyzdys/sildymas');
 assert.equal(FORM_ENDPOINT, '/t/form');
