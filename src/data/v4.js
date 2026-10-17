@@ -122,7 +122,12 @@ export const proof = {
   text: 'arbcut.lt – arboristo svetainė Kaune, kurią sukūriau. Žemiau – tikros ekrano kopijos iš jos paskyrų: tik apkirptos, skaičiai nepakeisti.',
   gsc: gscProof(arbcut.gsc),
   forms: formsProof(arbcut.forms),
-  honest: 'Paspaudimai iš Google nėra užklausos: ne kiekvienas lankytojas parašo. Todėl rodau abu skaičius atskirai.',
+  // Jarvis 2026-10-17: nobody may read the form counts as all inquiries; calls were never counted.
+  formsOnly: {
+    title: 'Tik užklausos per formą. Skambučiai neįskaičiuoti.',
+    text: 'Žmonės, kurie svetainėje paspaudė „Skambinti“ ir paskambino Mantui tiesiai, šiuose skaičiuose nesimato: iki 2026 m. spalio skambučių neskaičiavau. Dabar mano kuriamose svetainėse skaičiuojami ir skambučio mygtuko paspaudimai.',
+  },
+  honest: 'Paspaudimai iš Google nėra užklausos: ne kiekvienas lankytojas parašo ar paskambina. Todėl rodau abu skaičius atskirai.',
   site: 'Atidaryti arbcut.lt',
 };
 

@@ -21,7 +21,8 @@ Rules applied: every "0 €" is followed by "iki pirmos užklausos, ne ilgiau ka
 | proof.forms.stats labels | rugpjūtį · rugsėjį · spalį (iki 14 d.) · iš viso nuo 2026-04-19 | drafted |
 | proof.forms.caption / meta | Užklausos per svetainės formą. Web3Forms suskaičiavo 28 pateiktas formas nuo 2026-04-19, kai forma buvo sukurta; šlamšto – 0. · Ekrano kopija 2026-10-14 · Šaltinis: Web3Forms | drafted |
 | proof.forms.more | Rugpjūčio ekrano kopija · Spalio ekrano kopija | drafted |
-| proof.honest | Paspaudimai iš Google nėra užklausos: ne kiekvienas lankytojas parašo. Todėl rodau abu skaičius atskirai. | drafted |
+| proof.formsOnly | Tik užklausos per formą. Skambučiai neįskaičiuoti. · Žmonės, kurie svetainėje paspaudė „Skambinti“ ir paskambino Mantui tiesiai, šiuose skaičiuose nesimato: iki 2026 m. spalio skambučių neskaičiavau. Dabar mano kuriamose svetainėse skaičiuojami ir skambučio mygtuko paspaudimai. | drafted 2026-10-17 (Jarvis's point) |
+| proof.honest | Paspaudimai iš Google nėra užklausos: ne kiekvienas lankytojas parašo ar paskambina. Todėl rodau abu skaičius atskirai. | drafted |
 | compare.title / text | Portalai ar sava svetainė · Portalai ir svetainė gali veikti kartu. Štai kuo jie skiriasi. | Jarvis review 2026-10-15; hero plan D7: portals, never 1551.lt (a business directory) |
 | compare.cols / rows | Paslaugos.lt ir panašūs užklausų portalai / Jūsų svetainė · Kur Jus randa: Tarp kitų paslaugų teikėjų. / Atskirame Jūsų paslaugų puslapyje. · Kaip prisistatote: Profilis pagal portalo struktūrą ir taisykles. / Jūsų paslaugos, darbų nuotraukos ir kontaktai vienoje vietoje. · Kas lieka, jei sustojate: Profilį tvarkote pagal portalo taisykles. / Domenas ir Google verslo profilis – Jūsų vardu. Jie lieka Jums. | Jarvis review; no claim about shared inquiries |
 | how.title / text | Keturi žingsniai, mokate tik paskutiniame · Nuo formos iki veikiančios svetainės. Visą darbą darau pats. | drafted |

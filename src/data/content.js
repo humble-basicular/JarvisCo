@@ -238,7 +238,7 @@ export const arbcutProof = {
         },
       ],
       saved: '2026-10-09',
-      note: 'Tai formos užklausos, ne visos tapo užsakymais.',
+      note: 'Tai tik formos užklausos: skambučiai neįskaičiuoti, iki 2026 m. spalio jų neskaičiavau. Ne visos užklausos tapo užsakymais.',
     },
     {
       id: 'paieska',

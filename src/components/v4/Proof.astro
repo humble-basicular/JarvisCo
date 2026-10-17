@@ -36,7 +36,8 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
       <figcaption><span>{proof.gsc.caption}</span><span class="stamp stamp--plain shot__meta">{proof.gsc.meta}</span></figcaption>
     </figure>
 
-    <figure class="shot">
+    <figure class="shot" aria-describedby="forms-only">
+      <div class="shot__only" id="forms-only"><p class="shot__only-title">{proof.formsOnly.title}</p><p>{proof.formsOnly.text}</p></div>
       <ul class="stats">{proof.forms.stats.map((s) => <li><strong>{s.value}</strong><span>{s.label}</span></li>)}</ul>
       <a class="shot__img" href={full.forms.src}><Image src={forms} alt={proof.forms.alt} widths={widths} sizes={sizes} format="webp" quality={80} loading="lazy" /></a>
       <figcaption>
@@ -71,6 +72,8 @@ const sizes = '(min-width: 82rem) 75rem, calc(100vw - 2.5rem)';
   .shot figcaption { display: grid; gap: 0.5rem; margin-top: 1rem; max-width: 46rem; }
   .shot__meta { color: var(--mute); font-size: 0.875rem; }
   .shot__more { display: flex; flex-wrap: wrap; column-gap: 1.5rem; }
+  .shot__only { display: grid; gap: 0.375rem; max-width: 46rem; margin-bottom: 1.25rem; padding: 1rem 1.125rem; border-left: 3px solid var(--accent, var(--ink)); background: var(--paper-2); color: var(--ink-2); font-size: 0.9375rem; line-height: 1.45; }
+  .shot__only-title { color: var(--ink); font-size: 1.0625rem; font-weight: 600; }
   .proof__honest { max-width: 40rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); color: var(--ink-2); }
   @media (min-width: 64rem) {
     .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
