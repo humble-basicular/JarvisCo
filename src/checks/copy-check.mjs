@@ -31,15 +31,6 @@ for (const value of allowed) {
 for (const value of mustBlock) {
   if (!banned.some((pattern) => pattern.test(value))) throw new Error(`copy-check: nothing blocks ${JSON.stringify(value)}`);
 }
-// /rezultatai keeps the pre-v4 arborist proof and offer (frozen 2026-10-09 numbers).
-const legacy = [
-  offer.price, '20', '573', '11,4 tūkst.', '5 %', '8,2',
-  '2026-07-05 – 2026-10-04', '2026-10-09',
-  ...arbcutProof.items.map((item) => item.note), ...arbcutProof.notes,
-  ...offer.includes, ...offer.costs.flatMap((row) => [row.label, row.value]),
-  offer.ownership, ...faq.items.flatMap((item) => [item.q, item.a]),
-  offer.year.lead,
-];
 // v4 pages (plan §4.2): offer facts, proof numbers (PROVENANCE.md), price, FAQ, form consent.
 const v4Shared = [
   ...v4.offerRow.map((f) => `${f.big} ${f.text}`),
@@ -55,12 +46,12 @@ const headings = new Map([
   ['index.html', h1(v4.hero.home.lines)],
   ['sildymui/index.html', h1(v4.hero.heating.lines)],
   ['noriu/index.html', h1(v4.hero.heating.lines)],
-  ['rezultatai/index.html', `${resultsPage.hero.figure} ${resultsPage.hero.h1}`],
+  ['rezultatai/index.html', h1(v4.hero.results.lines)],
 ]);
-const required = new Map([...headings].map(([path, title]) => [path, [...(path.startsWith('rezultatai') ? legacy : v4Shared), title]]));
+const required = new Map([...headings].map(([path, title]) => [path, [...v4Shared, title]]));
 // Honest wording rule (plan §1): every "0 €" is followed by its limit, and the page names the domain fee.
 const ZERO = /(?<![\d,.])0\s?€/gu;
-const V4_PAGES = new Set(['index.html', 'sildymui/index.html', 'noriu/index.html', '404.html']);
+const V4_PAGES = new Set(['index.html', 'sildymui/index.html', 'noriu/index.html', 'rezultatai/index.html', '404.html']);
 const built = pages();
 const errors = [];
 for (const page of built) {

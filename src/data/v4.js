@@ -110,6 +110,9 @@ export const header = {
   close: 'Uždaryti',
 };
 
+/* August + September 2026 form submissions (arbcut-proof.json, Web3Forms screenshots): the "20 per 2 months" in the SMS. */
+const formsTwoMonths = arbcut.forms.months.filter((m) => m.month === '2026-08' || m.month === '2026-09').reduce((sum, m) => sum + m.submissions, 0);
+
 export const hero = {
   home: {
     lines: ['Svetainė 60 dienų nemokamai.', 'Tęsite tik pamatę rezultatus.'],
@@ -117,6 +120,15 @@ export const hero = {
   heating: {
     stamp: 'Šildymo meistrams',
     lines: ['Svetainė šildymo meistrui', '60 dienų nemokamai.'],
+  },
+  // /rezultatai is the SMS link: its headline repeats the SMS hook, and the figure comes from the Web3Forms screenshots.
+  results: {
+    stamp: 'Rezultatai · arbcut.lt',
+    lines: [`${formsTwoMonths} užklausų vien per formą`, 'per 2 mėnesius.'],
+    sub: [
+      `Tiek užklausų per svetainės formą per rugpjūtį ir rugsėjį gavo arboristas Mantas Gerulis (arbcut.lt). Skambučiai neįskaičiuoti. Žemiau – originalios ekrano kopijos.`,
+      'Tokią pat svetainę galiu sukurti ir Jums: pirmąsias 60 dienų mėnesio mokesčio nėra, mokate tik už domeną (~15 € per metus). Tada pagal ataskaitą nusprendžiate, ar tęsti.',
+    ],
   },
   sub: [
     'Nemokama Jūsų svetainės peržiūra per 48 val. Paleidus svetainę pirmąsias 60 dienų mėnesio mokesčio nėra, o tada pagal ataskaitą nusprendžiate, ar tęsti.',
@@ -341,5 +353,9 @@ export const meta = {
   heating: {
     title: 'Svetainė šildymo meistrui | jarvisweb.lt',
     description: `Šildymo meistrams: nemokama svetainės peržiūra per 48 val. Paleidus – ${ZERO} Mokate tik už domeną (~15 € per metus).`,
+  },
+  results: {
+    title: `${formsTwoMonths} užklausų per 2 mėnesius – arbcut.lt rezultatai | jarvisweb.lt`,
+    description: `Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė ${formsTwoMonths} užklausų vien per formą. Originalios ekrano kopijos. Jūsų svetainė: ${ZERO} Mokate tik už domeną (~15 € per metus).`,
   },
 };
