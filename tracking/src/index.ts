@@ -44,7 +44,8 @@ interface Cursor {
   high: string;
 }
 
-const PREFIXES: Readonly<Record<string, string>> = { a: '/rezultatai', p: '/noriu' };
+// Both prefixes land on the proof page: the SMS says "Rezultatai:" (Jarvis 2026-10-18).
+const PREFIXES: Readonly<Record<string, string>> = { a: '/rezultatai', p: '/rezultatai' };
 const CODE = /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/;
 const TYPES: readonly string[] = ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut', 'preview_cta'];
 const BOT = /facebookexternalhit|whatsapp|telegrambot|slackbot|twitterbot|skypeuripreview|googlebot|bingbot|google-pagerenderer|bot|crawler|spider|preview/i;

@@ -12,7 +12,7 @@ export const EVENT_TYPES = ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf'
 export const CODE_PATTERN = /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/;
 
 /** First character of a code = niche. Mirrors the Worker `prefixes` config. */
-export const TRACKING_PREFIXES = { a: '/rezultatai', p: '/noriu' };
+export const TRACKING_PREFIXES = { a: '/rezultatai', p: '/rezultatai' };
 
 /** Preview-funnel form (funnel spec §4): multipart POST on the same origin. */
 export const FORM_ENDPOINT = '/t/form';

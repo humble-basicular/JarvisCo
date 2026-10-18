@@ -354,7 +354,7 @@ test('new p prefix redirects both hosts while a stays unchanged', async () => {
   for (const host of ['jarvisweb.lt', 'www.jarvisweb.lt']) {
     const response = await request('/p/p2345', {}, host);
     assert.equal(response.status, 302);
-    assert.equal(response.headers.get('Location'), '/noriu?r=p2345');
+    assert.equal(response.headers.get('Location'), '/rezultatai?r=p2345');
   }
   assert.equal((await post('p2345', 'preview_cta')).status, 204);
   assert.deepEqual((await (await pull()).json()).events.map(e => e.type), ['click', 'click', 'preview_cta']);

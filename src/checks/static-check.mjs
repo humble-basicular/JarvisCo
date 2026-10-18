@@ -170,7 +170,7 @@ for (const [route, page] of routes) {
 }
 check(routes.has('/pavyzdys/sildymas'), 'Missing /pavyzdys/sildymas');
 assert.equal(FORM_ENDPOINT, '/t/form');
-assert.equal(TRACKING_PREFIXES.p, '/noriu');
+assert.equal(TRACKING_PREFIXES.p, '/rezultatai');
 assert.equal(BEACON_ENDPOINT, '/t/e');
 assert.equal(STORAGE_KEY, 'jw_proof_code');
 assert.deepEqual(EVENT_TYPES, ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut', 'preview_cta']);
