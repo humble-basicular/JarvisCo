@@ -12,7 +12,8 @@ export default defineConfig({
   integrations: [
     sitemap({
       // Previews (/perziura/*, /pavyzdys/*) are noindex,nofollow and never listed.
-      filter: (page) => !/\/(arboristams|privatumo-politika|taisykles|404)\/?$/.test(page) && !/\/(perziura|pavyzdys)\//.test(page),
+      // /noriu is the SMS-link alias of /sildymui (canonical there), so it is not listed either.
+      filter: (page) => !/\/(arboristams|noriu|privatumo-politika|taisykles|404)\/?$/.test(page) && !/\/(perziura|pavyzdys)\//.test(page),
       // Match the canonical URLs (no trailing slash except the root).
       serialize: (item) => ({ ...item, url: item.url === `${SITE_URL}/` ? item.url : item.url.replace(/\/$/, '') }),
     }),
