@@ -79,7 +79,7 @@ for (const page of built) {
   if (V4_PAGES.has(page.path)) {
     const flat = normalized(visible);
     for (const m of flat.matchAll(ZERO)) {
-      if (!flat.slice(m.index, m.index + 60).includes('iki pirmos užklausos, ne ilgiau kaip 3 mėn.')) errors.push(`${page.file}: "0 €" without "iki pirmos užklausos, ne ilgiau kaip 3 mėn." at …${flat.slice(m.index, m.index + 50)}`);
+      if (!flat.slice(m.index, m.index + 60).includes('60 dienų')) errors.push(`${page.file}: "0 €" without "60 dienų" at …${flat.slice(m.index, m.index + 50)}`);
     }
     if (flat.match(ZERO) && !flat.includes('~15 € per metus')) errors.push(`${page.file}: "0 €" claim without the domain fee`);
   }

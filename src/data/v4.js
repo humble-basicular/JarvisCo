@@ -1,7 +1,7 @@
 /* Offer v2 copy (plan 2026-10-14 §1, §4.2, §4.3). DRAFT: the final Lithuanian
    copy is Jarvis's; every drafted line is listed in docs/COPY-DRAFT-V4.md.
-   Honest wording rule (§1): every "0 €" claim says "iki pirmos užklausos, ne
-   ilgiau kaip 3 mėn." and mentions the domain fee nearby. No rank guarantees,
+   Honest wording rule (§1, offer changed 2026-10-18 to a fixed 60-day trial + report):
+   every "0 €" claim says "pirmąsias 60 dienų" and mentions the domain fee nearby. No rank guarantees,
    no invented numbers, no testimonial text. */
 import { brand } from './content.js';
 import arbcut from './arbcut-proof.json' with { type: 'json' };
@@ -92,7 +92,7 @@ export function formsProof(f) {
   };
 }
 
-export const ZERO = '0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn.';
+export const ZERO = '0 € pirmąsias 60 dienų nuo paleidimo.';
 export const DOMAIN = 'Domeną (~15 € per metus) apmokate Jūs, ir jis registruojamas Jūsų vardu.';
 export const MAIN_CTA = 'Gauti nemokamą peržiūrą';
 
@@ -112,14 +112,14 @@ export const header = {
 
 export const hero = {
   home: {
-    lines: ['Svetainė, kuri', 'nieko nekainuoja,', 'kol neatneša užklausos.'],
+    lines: ['Svetainė 60 dienų nemokamai.', 'Tęsite tik pamatę rezultatus.'],
   },
   heating: {
     stamp: 'Šildymo meistrams',
-    lines: ['Svetainė šildymo meistrui,', 'kuri nieko nekainuoja,', 'kol neatneša užklausos.'],
+    lines: ['Svetainė šildymo meistrui', '60 dienų nemokamai.'],
   },
   sub: [
-    'Nemokama Jūsų svetainės peržiūra per 48 val. Paleidus svetainę mėnesio mokesčio nėra iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
+    'Nemokama Jūsų svetainės peržiūra per 48 val. Paleidus svetainę pirmąsias 60 dienų mėnesio mokesčio nėra, o tada pagal ataskaitą nusprendžiate, ar tęsti.',
     'Mokate tik už domeną (~15 € per metus), ir jis registruojamas Jūsų vardu.',
   ],
   sms: 'Parašyti SMS',
@@ -130,7 +130,7 @@ export const hero = {
 
 export const offerRow = [
   { big: 'Nemokama', text: 'peržiūra per 48 val.' },
-  { big: '0 €', text: 'iki pirmos užklausos, ne ilgiau kaip 3 mėn.' },
+  { big: '0 €', text: 'pirmąsias 60 dienų nuo paleidimo' },
   { big: 'Domenas', text: 'Jūsų vardu, ~15 € per metus' },
   { big: 'Atsisakyti', text: 'galite bet kada' },
 ];
@@ -187,7 +187,7 @@ export const how = {
     { title: 'Forma, 2 min.', text: 'Atsakote į kelis klausimus apie savo darbą.' },
     { title: 'Peržiūra per 48 val.', text: 'Atsiunčiu nuorodą į Jūsų svetainės peržiūrą. Nepatinka – tiesiog neatsakote.' },
     { title: 'Domenas ir paleidimas', text: 'Patinka – registruoju domeną Jūsų vardu (~15 € per metus, mokate Jūs). Paleidžiu svetainę ir Google verslo profilį.' },
-    { title: 'Mokate tik po pirmos užklausos', text: 'Mėnesio mokestis prasideda po pirmos tikros užklausos per svetainę, bet ne vėliau kaip po 3 mėn. nuo paleidimo.' },
+    { title: 'Po 60 dienų – ataskaita', text: 'Atsiunčiu ataskaitą: kiek žmonių rado svetainę Google, paspaudė „Skambinti“ ir parašė. Tęsiate už 39 € per mėnesį arba atsisakote, ir tai nieko nekainuoja.' },
   ],
 };
 
@@ -225,10 +225,10 @@ export const price = {
   label: 'Kaina',
   amount: '39 €',
   unit: '/ mėn.',
-  when: 'tik po pirmos užklausos arba po 3 mėn. nuo paleidimo – kas įvyks anksčiau.',
+  when: 'tik jei po 60 dienų nuspręsite tęsti.',
   // Jarvis 2026-10-17: 39 € is the starting price for the first 5 clients, kept for them.
   launch: 'Pradinė kaina pirmiesiems 5 klientams. Jums ji nesikeis, kol naudositės svetaine.',
-  before: `Iki tol – ${ZERO} ${DOMAIN}`,
+  before: `${ZERO} ${DOMAIN}`,
   includesTitle: 'Į kainą įeina',
   includes: [
     'Svetainė ir talpinimas',
@@ -236,8 +236,8 @@ export const price = {
     'Google verslo profilio priežiūra: nuotraukos, nuoroda įvertinimams',
     'Kas mėnesį SMS ataskaita: kiek užklausų ir paspaudimų „Skambinti“',
   ],
-  inquiryTitle: 'Kas laikoma užklausa',
-  inquiry: 'Tikro kliento žinutė per svetainės formą apie Jūsų paslaugą. Bandymai, šlamštas ir pasikartojimai neskaičiuojami – kiekvieną patikrinu rankomis.',
+  inquiryTitle: 'Ką rodo ataskaita',
+  inquiry: 'Po 60 dienų: kiek kartų svetainė parodyta Google paieškoje, kiek žmonių ją atidarė, kiek paspaudė „Skambinti“ ir kiek parašė per formą. Bandymus ir šlamštą atmetu rankomis.',
   cancelTitle: 'Jei atsisakote',
   cancel: 'Parašote SMS ar paskambinate, bet kada. Per bandomąjį laikotarpį tai nieko nekainuoja. Vėliau svetainė veikia iki apmokėto mėnesio pabaigos. Domenas, Google profilis, Jūsų nuotraukos ir tekstai lieka Jums.',
   billing: 'Sąskaita kas mėnesį, mokama mėnesiui į priekį, pavedimu.',
@@ -257,11 +257,11 @@ export const faq = {
   title: 'Dažni klausimai',
   items: [
     { q: 'Darbo per valias, kam man?', a: 'Svetainė nebūtinai reiškia daugiau darbo. Daugiau užklausų – daugiau pasirinkimo, kuriuos darbus imti. O ramesniu sezonu ji jau būna Google.' },
-    { q: 'Turėjau svetainę, nieko nedavė', a: 'Dažniausiai tokia svetainė tiesiog niekam nerodoma: nėra Google verslo profilio, nėra puslapių pagal paslaugas ir miestus. Čia jie įeina. Ir mėnesio mokestį pradedate mokėti tik po pirmos užklausos, ne vėliau kaip po 3 mėn.' },
-    { q: 'Kas, jei neatneš užklausų?', a: 'Per pirmus 3 mėn. nuo paleidimo mėnesio mokesčio nėra – mokate tik už domeną (~15 € per metus). Jei per tą laiką užklausų nebus, galite atsisakyti, ir tai nieko nekainuos. Jei liksite, toliau – 39 € per mėnesį.' },
+    { q: 'Turėjau svetainę, nieko nedavė', a: 'Dažniausiai tokia svetainė tiesiog niekam nerodoma: nėra Google verslo profilio, nėra puslapių pagal paslaugas ir miestus. Čia jie įeina. Ir pirmąsias 60 dienų mėnesio mokesčio nėra, todėl rezultatą pamatysite prieš mokėdami.' },
+    { q: 'Kas, jei neatneš užklausų?', a: 'Pirmąsias 60 dienų nuo paleidimo mėnesio mokesčio nėra – mokate tik už domeną (~15 € per metus). Tada atsiunčiu ataskaitą. Jei rezultatas netenkina, atsisakote, ir tai nieko nekainuoja. Jei liksite, toliau – 39 € per mėnesį.' },
     { q: 'Ar būsiu pirmas Google?', a: 'To pažadėti negaliu, ir niekas sąžiningai negali. Padarau tai, kas priklauso nuo manęs: greita svetainė, puslapiai pagal paslaugas ir miestus, Google verslo profilis. Kaip sekasi, matysite mėnesio ataskaitoje.' },
     { q: 'Kas, jei atsisakysiu?', a: 'Parašote SMS arba paskambinate. Per bandomąjį laikotarpį tai nieko nekainuoja. Vėliau svetainė veikia iki apmokėto mėnesio pabaigos ir tada išjungiama. Domenas, Google profilis, Jūsų nuotraukos ir tekstai lieka Jums.' },
-    { q: 'Kodėl nemokamai pradžiai?', a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Rizikuoju savo laiku: jei svetainė neatneša užklausų, nieko neuždirbu. Jūs mokate tik už domeną, ir jis lieka Jūsų vardu.' },
+    { q: 'Kodėl nemokamai pradžiai?', a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Rizikuoju savo laiku: jei po 60 dienų rezultatai Jūsų netenkins, nieko neuždirbu. Jūs mokate tik už domeną, ir jis lieka Jūsų vardu.' },
     { q: 'Neturiu nuotraukų ar logotipo', a: 'Nieko tokio. Su Jūsų leidimu paimsiu darbų nuotraukas iš Jūsų profilio internete (pvz., Paslaugos.lt), o vietoj logotipo bus tvarkingai užrašytas pavadinimas. Vėliau viską galima pakeisti.' },
   ],
 };

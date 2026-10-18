@@ -102,9 +102,9 @@ export const offer = {
   title: 'Svetainė Jūsų paslaugoms. Nemokama pradžia.',
   lead: 'Kuriu svetaines paslaugų verslams, kad klientai galėtų Jus rasti Google ir kreiptis tiesiogiai.',
   price: '0 €',
-  priceNote: 'iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
-  priceLine: 'iki pirmos užklausos, ne ilgiau kaip 3 mėn.',
-  noMonthly: 'Mėnesio mokestis – po pirmos užklausos arba po 3 mėn.',
+  priceNote: 'pirmąsias 60 dienų nuo paleidimo',
+  priceLine: 'pirmąsias 60 dienų nuo paleidimo',
+  noMonthly: 'Mėnesio mokestis – tik jei po 60 dienų nuspręsite tęsti.',
   includesTitle: 'Ką gaunate',
   includes: [
     'Pagrindinis puslapis su paslaugomis, darbų pavyzdžiais ir kontaktais',
@@ -120,21 +120,21 @@ export const offer = {
   costs: [
     { label: 'Sukūrimas', value: '0 €' },
     { label: 'Domenas', value: '~15 € per metus, registruojamas Jūsų vardu' },
-    { label: 'Talpinimas', value: '0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn.' },
-    { label: 'Mėnesinis mokestis', value: '39 € po pirmos užklausos arba po 3 mėn.' },
+    { label: 'Talpinimas', value: '0 € pirmąsias 60 dienų nuo paleidimo' },
+    { label: 'Mėnesinis mokestis', value: '39 €, jei po 60 dienų nuspręsite tęsti' },
   ],
   ownership: 'Domenas registruojamas Jūsų vardu. Jei atsisakote, domenas, Google profilis, nuotraukos ir tekstai lieka Jums.',
   // Verified in Jarvis's Paslaugos.lt account: €49.99/month, 2026-10-06.
   comparison: 'Palyginimui: Paslaugos.lt PRO kainuoja apie 50 € kas mėnesį.',
-  payback: 'Mokėti pradedate tik gavę pirmą užklausą. Jei jos nebus per 3 mėn., galite atsisakyti ir mokate tik už domeną.',
+  payback: 'Pirmąsias 60 dienų mokate tik už domeną. Tada atsiunčiu ataskaitą: kiek žmonių rado svetainę Google, paspaudė „Skambinti“ ir parašė. Pagal ją nusprendžiate, ar tęsti.',
   year: {
     title: 'Per pirmus metus',
     lead: 'Paslaugos.lt PRO kainuoja apie 50 € kas mėnesį (patikrinta 2026-10-06).',
     rows: [
       { label: 'Paslaugos.lt PRO', value: '~600 €', detail: '12 mėn. × ~50 €', share: 100 },
-      { label: 'Svetainė', value: 'iki ~366 €', detail: '15 € domenas + iki 9 mėn. × 39 €', share: 61 },
+      { label: 'Svetainė', value: '~405 €', detail: '15 € domenas + 10 mėn. × 39 €', share: 68 },
     ],
-    note: 'Tai didžiausia suma: mėnesio mokestis prasideda ne vėliau kaip po 3 mėn. nuo paleidimo, o jei užklausų nebus, galite atsisakyti. Paslaugos.lt atsisakyti nereikia: svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
+    note: 'Tai suma, jei po 60 nemokamų dienų nuspręsite tęsti. Jei ne, atsisakote ir mokate tik už domeną. Paslaugos.lt atsisakyti nereikia: svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
   },
 };
 
@@ -197,7 +197,7 @@ export const faq = {
     },
     {
       q: 'Kodėl pradžia nemokama?',
-      a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Mėnesio mokestį (39 €) pradedate mokėti tik po pirmos užklausos, ne vėliau kaip po 3 mėn. nuo paleidimo. Iki tol mokate tik už domeną (~15 € per metus).',
+      a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Pirmąsias 60 dienų nuo paleidimo mokate tik už domeną (~15 € per metus). Tada gaunate ataskaitą ir nusprendžiate, ar tęsti už 39 € per mėnesį.',
     },
   ],
 };
@@ -325,9 +325,9 @@ export const contact = {
 export const home = {
   meta: {
     ogImage: '/assets/og-v4.png',
-    title: 'Svetainė paslaugų verslui – nemokama iki pirmos užklausos | jarvisweb.lt',
+    title: 'Svetainė paslaugų verslui – 60 dienų nemokamai | jarvisweb.lt',
     description:
-      'Svetainė vietiniam paslaugų verslui: 0 € iki pirmos užklausos, ne ilgiau kaip 3 mėn.; mokate tik domeną. Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų.',
+      'Svetainė vietiniam paslaugų verslui: 0 € pirmąsias 60 dienų nuo paleidimo; mokate tik domeną. Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų.',
   },
   hero: {
     eyebrow: 'Svetainės vietiniam paslaugų verslui',
@@ -361,7 +361,7 @@ export const resultsPage = {
     ogImage: '/assets/og-rezultatai-v4.png',
     title: '20 užklausų per 2 mėnesius – rezultatai ir kaina | jarvisweb.lt',
     description:
-      'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Originalios ekrano kopijos; svetainė nemokama iki pirmos užklausos, ne ilgiau kaip 3 mėn., vėliau 39 € per mėnesį.',
+      'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Originalios ekrano kopijos; svetainė nemokama pirmąsias 60 dienų, vėliau 39 € per mėnesį.',
   },
   hero: {
     eyebrow: 'Rezultatai · arbcut.lt',
@@ -376,7 +376,7 @@ export const resultsPage = {
 export { TRACKING_PREFIXES };
 
 export const footer = {
-  blurb: 'Svetainės vietiniam paslaugų verslui. Nemokama iki pirmos užklausos, ne ilgiau kaip 3 mėn.; vėliau 39 € per mėnesį.',
+  blurb: 'Svetainės vietiniam paslaugų verslui. Pirmąsias 60 dienų nemokamai; vėliau 39 € per mėnesį.',
   contactsTitle: 'Kontaktai',
   linksTitle: 'Puslapiai',
   socialTitle: 'Sekite',
