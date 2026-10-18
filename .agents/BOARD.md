@@ -1,4 +1,17 @@
 # JarvisWeb proof-site autonomous run
+
+## Results-page consistency fix — 2026-10-18 (active, waiting for allowance)
+User requests /rezultatai?r=pagbs to match current home branding and verified stats; explicitly allows waiting for Claude. Codex completed SMS hook reorder: “20 uzklausu per 2 menesius vien per forma.” in four templates/71 queued drafts; no send/approval.
+
+| Stage | Owner | Branch / files | Acceptance / status |
+|---|---|---|---|
+| Recovery and brief | Codex lead | results-rebrand-20261018, ~/Work/Code projects/JarvisCo-worktrees/results-rebrand; own handoff1b59b61 | DONE: legacy results page/data versus v4 home confirmed in source and live curl; source unchanged |
+| Rebrand | Claude Opus5.5 high planned | same isolated results-rebrand worktree; results page/new scoped v4 component, minimal shared data/check edits | WAIT for fresh allowance (catalog21:00Vilnius reset); use current home components and arbcut-proof/towns JSON; no invented stats, deletion or paid tools; no live form/SMS |
+| Review | Codex, changed files only | read-only + own handoff | pending; ≤2 rounds; attribution, provenance, accessibility, offer parity |
+| Acceptance and release | lead | integration/deploy only | pending; npm check + focused tests; current-task website GUI approval before browser QA; mobile/desktop home/results comparison; live query URL/data/assets verification, not only200 |
+
+Brief: .agents/handoffs/2026-10-18-2025-codex-results-rebrand-ready.md in worktree, commit1b59b61. No site rebrand/deploy yet; no automation or exhausted Claude task launched. User should hold Monday approval until landing page is corrected.
+
 Lead: Codex parent; 2026-10-11. User enabled AI Powerhouse autonomous delegation.
 Integration branch: rebuild-2026-10 in main checkout. Baseline: fc660a724034bfcee16db0df5d2cfdd4b56eaa04. Existing user edits backed up in main Drive Business/JarvisWeb/rebuild-2026-10/backups and committed.
 
