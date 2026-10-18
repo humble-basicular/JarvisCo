@@ -47,8 +47,8 @@ for (const [route, page] of routes) {
     }
   }
 }
-// Pre-v4 arborist landing (kept as is until Jarvis decides its offer).
-for (const route of ['/rezultatai']) {
+// Pre-v4 arborist landing: none left (/rezultatai moved to v4 on 2026-10-18).
+for (const route of []) {
   const page = routes.get(route);
   check(Boolean(page), `Missing ${route}`);
   if (!page) continue;
@@ -75,7 +75,7 @@ for (const route of ['/rezultatai']) {
 }
 // v4 pages with the step-by-step preview form (funnel spec §2–§4, plan §4.2–§4.3).
 const WIRE = ['code', 'name', 'phone', 'services', 'services_other', 'area', 'area_other', 'photos_ok', 'standout', 'contact_time', 'files', 'website', 'email', 'preview_via'];
-for (const route of ['/', '/sildymui', '/noriu']) {
+for (const route of ['/', '/sildymui', '/noriu', '/rezultatai']) {
   const page = routes.get(route);
   check(Boolean(page), `Missing ${route}`);
   if (!page) continue;

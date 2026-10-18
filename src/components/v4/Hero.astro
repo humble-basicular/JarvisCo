@@ -11,9 +11,10 @@ import { brand } from '@data/content.js';
 import { hero, examples, MAIN_CTA } from '@data/v4.js';
 import tray from '@assets/hero/v3/v3-toolbox-tray-4x5-finished.png';
 
-interface Props { variant?: 'home' | 'heating' }
+interface Props { variant?: 'home' | 'heating' | 'results' }
 const { variant = 'home' } = Astro.props;
 const v = hero[variant];
+const sub = 'sub' in v ? v.sub : hero.sub;
 
 // AVIF 50 ≈ WebP 72 and smaller; widths never exceed the 1120 px source.
 const widths = [360, 560, 800, 1120];
@@ -31,7 +32,7 @@ const sizes = '(min-width: 64rem) 30rem, min(28rem, calc(100vw - 2 * var(--gutte
       <h1 class="hero__title" id="hero-title">
         {v.lines.map((line, i) => <span class="reveal-line" style={`--i:${i}`}>{line} </span>)}
       </h1>
-      <div class="hero__sub">{hero.sub.map((p) => <p>{p}</p>)}</div>
+      <div class="hero__sub">{sub.map((p) => <p>{p}</p>)}</div>
       <div class="hero__ctas">
         <a class="btn btn--accent btn--big" href="#forma" data-track="preview_cta">{MAIN_CTA}</a>
         <a class="link" href={brand.smsHref} data-track="cta_sms">{hero.sms}</a>

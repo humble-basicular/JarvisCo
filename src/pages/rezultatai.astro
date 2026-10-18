@@ -1,23 +1,26 @@
 ---
+/* The SMS proof link (jarvisweb.lt/p/<code> → /rezultatai?r=<code>): the v4 design and data of the
+   homepage, proof first. Headline = the SMS hook; every figure comes from the dated screenshots. */
 import Layout from '@layouts/Layout.astro';
-import '../styles/legacy.css';
-import ResultsHero from '@components/ResultsHero.astro';
-import ResultsBento from '@components/home/ResultsBento.astro';
-import Offer from '@components/Offer.astro';
-import Steps from '@components/Steps.astro';
-import About from '@components/About.astro';
-import Faq from '@components/Faq.astro';
-import Contact from '@components/Contact.astro';
-import ZoomDialog from '@components/ZoomDialog.astro';
-import { resultsPage, nav, faq } from '@data/content.js';
+import Hero from '@components/v4/Hero.astro';
+import Proof from '@components/v4/Proof.astro';
+import TownPages from '@components/v4/TownPages.astro';
+import OfferRow from '@components/v4/OfferRow.astro';
+import How from '@components/v4/How.astro';
+import Price from '@components/v4/Price.astro';
+import AboutMe from '@components/v4/AboutMe.astro';
+import FaqList from '@components/v4/FaqList.astro';
+import FormSection from '@components/v4/FormSection.astro';
+import { header, faq, meta } from '@data/v4.js';
 ---
-<Layout {...resultsPage.meta} nav={nav.results} faq={faq.items}>
-  <ResultsHero />
-  <ResultsBento fullPage />
-  <Offer />
-  <Steps />
-  <About />
-  <Faq items={faq.items} />
-  <Contact source="rezultatai" />
-  <ZoomDialog />
+<Layout {...meta.results} nav={header.nav} faq={faq.items} formHref="#forma">
+  <Hero variant="results" />
+  <Proof />
+  <TownPages />
+  <OfferRow />
+  <How />
+  <Price />
+  <AboutMe />
+  <FaqList />
+  <FormSection />
 </Layout>
