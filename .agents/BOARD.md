@@ -1,5 +1,17 @@
 # JarvisWeb proof-site autonomous run
 
+## Private lead preview — 2026-10-19 (Codex continuation)
+Lead: Codex GPT-6.1-Sol, explicit user override after Claude's session limit. Real inputs and assets remain git-ignored and in the existing private Drive preview folder. No publish/send; production waits for the user's “deploy” in this task.
+
+| Stage | Owner / reviewer | Inputs → outputs | Owned files / branch | Acceptance / status |
+|---|---|---|---|---|
+| Recovery | Codex lead | previous run, board and saved artifacts → remaining-work list | coordination only | COMPLETE: implementation committed, screenshots and client test build exist; no delegated review yet |
+| preview-review | Codex GPT-6.1-Sol high / Claude-authored implementation | integration...preview branch diff → findings and verdict | read-only scripts and heating/preview source; no writes | ACTIVE, round 1; privacy, optional fields, demo parity, paths, indexing, inert preview |
+| preview-completion | Codex lead | findings, private profile and artifacts → fixes, drafts and handoff | existing preview branch/worktree (reassigned from Claude), code only after review stops; private artifacts; own handoff | PENDING; npm check, contract, image-size, local browser, real-data isolation; no deletions |
+| preview-integration | Codex lead | approved branch → integration and report | main board, merge only; own handoff | PENDING; independent focused checks, final screenshots, domain checks, rollback/deploy plan; no deployment |
+
+No parallel edits. Review changed files only, maximum two rounds. Review of new Codex fixes goes to Claude if allowance is available; otherwise explicitly record the unverified provider review.
+
 ## Results-page consistency fix — 2026-10-18 (active, waiting for allowance)
 User requests /rezultatai?r=pagbs to match current home branding and verified stats; explicitly allows waiting for Claude. Codex completed SMS hook reorder: “20 uzklausu per 2 menesius vien per forma.” in four templates/71 queued drafts; no send/approval.
 
