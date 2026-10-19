@@ -7,12 +7,13 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync, symlinkSync, readdi
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
-import { normalize, validateSaved } from './preview/normalize.mjs';
+import { checkLogoFile, normalize, townSlug, validateSaved } from './preview/normalize.mjs';
 import { accentTokens, contrast, BG, INK } from '../src/templates/heating/accent.ts';
 import { CONTRAST_AUDIT as AUDIT, chrome, serve, sleep } from './heating-cdp.mjs';
 
 let passed = 0;
 const check = (label, fn) => { fn(); passed++; console.log(`PASS ${label}`); };
+const checkAsync = async (label, fn) => { await fn(); passed++; console.log(`PASS ${label}`); };
 const base = { business: 'Sintetinis testas', phone: '+37060000000', city: 'Kaunas', areas: ['Kaunas'], services: ['Katilų remontas'], photos: [] };
 check('optional claims are absent, supplied descriptions preserved', () => {
   const { data } = normalize({ ...base, services: [{ name: 'Katilų remontas', text: 'Tik pateiktas aprašymas.' }] });
@@ -42,6 +43,56 @@ check('fixture accents: dark and blue keep white text, light switches to ink', (
 });
 check('unsafe review URL is rejected', () => assert.throws(() => normalize({ ...base, reviews: [{ name: 'Test', text: 'Test', url: 'javascript:alert(1)' }] }), /https/));
 check('saved image dimensions are validated', () => assert.throws(() => validateSaved({ ...base, slug: 'test', photos: [{ src: '/x.jpg', width: 0, height: 10 }] }), /positive integer/));
+
+// Optional `logo` and `towns` (both absent → nothing changes).
+check('logo: path or {path, line}; only .svg/.png; saved src must be the generator path', () => {
+  assert.deepEqual(normalize({ ...base, logo: 'logo.svg' }).data.logo, { path: 'logo.svg' });
+  assert.deepEqual(normalize({ ...base, logo: { path: 'x/logo.png', line: 'Šildymas · Kaunas' } }).data.logo, { path: 'x/logo.png', line: 'Šildymas · Kaunas' });
+  assert.throws(() => normalize({ ...base, logo: 'logo.gif' }), /\.svg or \.png/);
+  assert.equal(normalize(base).data.logo, undefined);
+  const saved = { ...base, slug: 'abcdefghjk', photos: [] };
+  assert.deepEqual(validateSaved({ ...saved, logo: { src: '/previews/abcdefghjk/logo.svg', line: 'L' } }).logo, { src: '/previews/abcdefghjk/logo.svg', line: 'L' });
+  assert.throws(() => validateSaved({ ...saved, logo: { src: '/previews/other/logo.svg' } }), /logo\.src/);
+  assert.throws(() => validateSaved({ ...saved, logo: { src: 'https://evil.example/logo.svg' } }), /logo\.src/);
+});
+await checkAsync('logo files: plain SVG/PNG pass; scripts, handlers, external refs and fake PNGs are refused', async () => {
+  const ok = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#1f5f8b"/><path d="M1 1h2" stroke="url(#g)"/></svg>';
+  await checkLogoFile(Buffer.from(ok), '.svg');
+  await checkLogoFile(Buffer.from(`<?xml version="1.0"?>\n<!-- mark -->\n${ok}`), '.svg');
+  const { default: sharp } = await import('sharp');
+  const png = await sharp({ create: { width: 2, height: 2, channels: 4, background: '#1f5f8b' } }).png().toBuffer();
+  await checkLogoFile(png, '.png');
+  await assert.rejects(() => checkLogoFile(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0]), '.png'), /not a valid PNG/);
+  await assert.rejects(() => checkLogoFile(png.subarray(0, 40), '.png'), /not a valid PNG/);
+  for (const bad of [
+    '<svg><script>alert(1)</script></svg>', '<svg onload="alert(1)"></svg>', '<svg><a href="https://x.example">x</a></svg>',
+    '<svg><image xlink:href="http://x.example/a.png"/></svg>', '<svg><a href="javascript:alert(1)">x</a></svg>',
+    '<svg><foreignObject><p>x</p></foreignObject></svg>', '<!DOCTYPE svg [<!ENTITY x "y">]><svg></svg>',
+    '<svg><style>@import "https://x.example/a.css";</style></svg>', '<svg><rect fill="url(https://x.example/p)"/></svg>',
+    '<html><svg></svg></html>',
+    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/2000/svg"><x:script>alert(1)</x:script></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><animate attributeName="href" values="javascript:alert(1)"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><style>rect{fill:red}</style></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><rect style="fill:red"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><use href="&#104;ttps://example.com/a.svg"/></svg>',
+    '<?xml-stylesheet href="https://example.com/a.css"?><svg/>',
+    '<svg><g></svg>',
+  ]) await assert.rejects(() => checkLogoFile(Buffer.from(bad), '.svg'), /logo/, bad);
+  await assert.rejects(() => checkLogoFile(Buffer.from('<svg></svg>'), '.png'), /not a PNG/);
+  await assert.rejects(() => checkLogoFile(Buffer.alloc(201 * 1024, 32), '.svg'), /200 KB/);
+});
+check('towns: ASCII slugs, unique, not reserved; only towns with text get a page', () => {
+  assert.equal(townSlug('Kėdainiai'), 'kedainiai');
+  assert.equal(townSlug('Kauno r.'), 'kauno-r');
+  assert.equal(townSlug('Nemunėlio Radviliškis'), 'nemunelio-radviliskis');
+  const { data } = normalize({ ...base, towns: ['Kaunas', { name: 'Jonava', text: 'Savas tekstas.', places: ['Rukla'], distance: 'Apie 30 km' }] });
+  assert.deepEqual(data.towns, [{ name: 'Kaunas', slug: 'kaunas' }, { name: 'Jonava', slug: 'jonava', text: 'Savas tekstas.', distance: 'Apie 30 km', places: ['Rukla'] }]);
+  assert.throws(() => normalize({ ...base, towns: ['Kaunas', { name: 'Kaunas!' }] }), /two towns/);
+  assert.throws(() => normalize({ ...base, towns: [{ name: 'Ačiū' }] }), /reserved/);
+  assert.throws(() => normalize({ ...base, towns: [{ name: 'X', slug: '../x' }] }), /slug/);
+  assert.throws(() => normalize({ ...base, towns: [{ name: 'Kaunas', faq: Array(5).fill({ q: 'K?', a: 'A.' }) }] }), /more than 4/);
+  assert.equal(normalize(base).data.towns, undefined);
+});
 
 // The demo: one template (direction B), the old review URL only redirects.
 {
@@ -160,6 +211,89 @@ for (const [name, accent] of Object.entries(FIXTURES)) {
   built[name] = resolve('client-sites', id);
 }
 writeFileSync(resolve(accentEvidence, 'fixtures.json'), JSON.stringify(built, null, 2));
+
+// Logo + towns on a live client site (local --test build, never deployed): header mark, hero seal,
+// footer mark; one page per town with text, canonical, sitemap entry and links from home and footer.
+{
+  const id = slug();
+  mkdirSync(resolve('public/previews', id), { recursive: true });
+  copyFileSync(resolve('scripts/preview/example/photos', 'katiline.jpg'), resolve('public/previews', id, '1.jpg'));
+  writeFileSync(resolve('public/previews', id, 'logo.svg'), '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#1f5f8b"/></svg>');
+  const towns = [
+    { name: 'Jonava', slug: 'jonava', text: 'Sintetinis Jonavos tekstas: kelias iš Kauno, kaimai aplink.', tagline: 'Šildymas Jonavoje', distance: 'Apie 30 km nuo Kauno', places: ['Rukla', 'Upninkai'], services: ['Katilų remontas'], faq: [{ q: 'Ar atvykstate į Ruklą?', a: 'Sintetinis atsakymas.' }] },
+    { name: 'Kėdainiai', slug: 'kedainiai', text: 'Sintetinis Kėdainių tekstas: kitas atstumas, kiti darbai.' },
+    { name: 'Garliava', slug: 'garliava' }, // no text → no page, no link
+  ];
+  const input = resolve('previews', `${id}.json`);
+  writeFileSync(input, JSON.stringify({ ...fixtureBase, slug: id, accent: '#1f5f8b', logo: { src: `/previews/${id}/logo.svg`, line: 'Sintetinė eilutė' }, towns, photos: [{ src: `/previews/${id}/1.jpg`, width: 1200, height: 900 }] }));
+  const result = spawnSync(process.execPath, ['scripts/client-site.mjs', input, '--site', 'towns-fixture', '--domain', 'example.lt', '--test', 'http://localhost:4433', '--retain-build'], { cwd: root, encoding: 'utf8' });
+  check('logo + towns client site builds', () => assert.equal(result.status, 0, result.stderr));
+  const dir = resolve('client-sites', id);
+  const page = (p) => readFileSync(resolve(dir, p), 'utf8');
+  check('logo: header mark, hero seal, footer mark and favicon, copied to /foto/logo.svg', () => {
+    const html = page('index.html');
+    assert.ok(existsSync(resolve(dir, 'foto/logo.svg')));
+    for (const cls of ['hs-logo__mark--img', 'hs-hero__seal', 'hs-foot__mark--img']) assert.match(html, new RegExp(`<img class="[^"]*${cls}[^"]*" src="/foto/logo\\.svg"`), cls);
+    assert.match(html, /<link rel="icon" href="\/foto\/logo\.svg"/);
+    assert.match(html, /class="hs-logo__line">Sintetinė eilutė</);
+    assert.doesNotMatch(html, /\/previews\//);
+  });
+  check('towns: a page per town with text; own canonical, H1, text; listed in sitemap; linked from home', () => {
+    const sitemap = page('sitemap.xml');
+    const index = page('index.html');
+    const h1s = new Set();
+    for (const t of ['jonava', 'kedainiai']) {
+      const html = page(`${t}/index.html`);
+      assert.match(html, new RegExp(`<link rel="canonical" href="https://example\\.lt/${t}/">`));
+      assert.ok(sitemap.includes(`<loc>https://example.lt/${t}/</loc>`), `sitemap ${t}`);
+      assert.match(index, new RegExp(`href="/${t}/"`));
+      assert.match(html, /id="aptarnavimas"/);
+      assert.match(html, /<a class="hs-logo" href="\/"/, 'logo goes home');
+      h1s.add(html.match(/<h1[^>]*>([^<]*)</)[1]);
+    }
+    assert.equal(h1s.size, 2);
+    assert.match(page('jonava/index.html'), /Sintetinis Jonavos tekstas/);
+    assert.match(page('jonava/index.html'), /Ar atvykstate į Ruklą\?/);
+    assert.doesNotMatch(page('kedainiai/index.html'), /Sintetinis Jonavos tekstas/);
+    assert.ok(!existsSync(resolve(dir, 'garliava/index.html')), 'no page without text');
+    assert.doesNotMatch(index, /href="\/garliava\/"/);
+    assert.doesNotMatch(index, /Šildymo meistrai/, 'demo wording stays on the demo');
+  });
+  const { renameSync } = await import('node:fs');
+  renameSync(input, resolve(accentEvidence, `towns-${id}.json`));
+  renameSync(resolve('public/previews', id), resolve(accentEvidence, `towns-${id}-photos`));
+  built.towns = dir;
+  FIXTURES.towns = '#1f5f8b';
+}
+
+// Real local previews with towns (git-ignored data, when present in dist/): noindex, banner, logo, own H1s, not in the sitemap.
+{
+  const files = existsSync('previews') ? readdirSync('previews').filter((f) => f.endsWith('.json')) : [];
+  const sitemap = readFileSync('dist/sitemap-0.xml', 'utf8');
+  let seen = 0;
+  for (const f of files) {
+    const data = validateSaved(JSON.parse(readFileSync(resolve('previews', f), 'utf8')));
+    const paged = (data.towns ?? []).filter((t) => t.text);
+    if (!paged.length || !existsSync(`dist/perziura/${data.slug}/index.html`)) continue;
+    seen++;
+    check(`preview ${data.slug}: ${paged.length} town pages noindex, PERŽIŪRA, logo, unique H1, linked, not in sitemap`, () => {
+      const home = readFileSync(`dist/perziura/${data.slug}/index.html`, 'utf8');
+      const h1s = new Set();
+      for (const t of paged) {
+        const html = readFileSync(`dist/perziura/${data.slug}/${t.slug}/index.html`, 'utf8');
+        assert.match(html, /content="noindex,nofollow"/);
+        assert.match(html, /hs-banner__tag">PERŽIŪRA</);
+        assert.doesNotMatch(html, /href="(?:tel:|mailto:)/);
+        if (data.logo) assert.ok(html.includes(`src="${data.logo.src}"`));
+        assert.match(home, new RegExp(`href="/perziura/${data.slug}/${t.slug}"`));
+        h1s.add(html.match(/<h1[^>]*>([^<]*)</)[1]);
+      }
+      assert.equal(h1s.size, paged.length);
+      assert.doesNotMatch(sitemap, new RegExp(data.slug));
+    });
+  }
+  if (!seen) console.log('SKIP no local preview with towns in dist/');
+}
 
 const browser = await chrome();
 try {

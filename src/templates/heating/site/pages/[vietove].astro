@@ -1,0 +1,33 @@
+---
+/* Live client site town pages: /<vietove>/, one per town with its own text (town-pages.ts).
+   Indexable, canonical on the client's domain, listed in sitemap.xml and linked from the home page
+   ("Aptarnaujame") and every footer. */
+import HeatingLayout from '../../HeatingLayout.astro';
+import HeatingSite from '../../HeatingSite.astro';
+import { headline, jsonLd, pageDescription, toE164 } from '../../content';
+import { pagedTowns, siteTownLinks, siteTownPage } from '../../town-pages';
+import { loadBuild } from '../load';
+
+export function getStaticPaths() {
+  return pagedTowns(loadBuild().data).map((t) => ({ params: { vietove: t.slug } }));
+}
+const { data: home, site } = loadBuild();
+const { town, data } = siteTownPage(home, Astro.params.vietove!);
+const origin = `https://${site.domain}`;
+const photo = home.photos[0];
+---
+<HeatingLayout
+  mode="live"
+  testBuild={site.testBuild}
+  title={`${headline(data)} | ${data.business}`.slice(0, 90)}
+  description={pageDescription(data)}
+  business={data.business}
+  logo={data.logo?.src}
+  accent={data.accent}
+  canonical={`${origin}/${Astro.params.vietove}/`}
+  image={photo ? `${origin}${photo.src}` : undefined}
+  jsonLd={jsonLd(home, site)}
+  live={{ code: site.code, beacon: site.beaconEndpoint, tel: toE164(data.phone) }}
+>
+  <HeatingSite data={data} mode="live" site={site} town={town} towns={siteTownLinks(home, '')} home="/" />
+</HeatingLayout>

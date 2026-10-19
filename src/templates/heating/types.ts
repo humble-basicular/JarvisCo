@@ -37,6 +37,8 @@ export interface SiteData {
   /** #rrggbb brand colour; the template picks white or ink text on it (accent.ts). */
   accent?: string;
   logo?: SiteLogo;
+  /** Towns with their own page (/perziura/<slug>/<vietove>, /<vietove>/ on client sites). */
+  towns?: SiteTown[];
   reviews?: SiteReview[];
   faq?: { q: string; a: string }[];
   legal?: { name?: string; code?: string; address?: string };
@@ -61,17 +63,44 @@ export type Mode = 'preview' | 'live';
 
 export interface Banner { tag: string; note: string; href: string; label: string }
 
-/** Demo town (GEO) page content, rendered by parts/Town.astro. */
+/** A town from the input (PreviewInput `towns`). Only towns with their own `text` get a page;
+ *  every word on that page comes from these fields or the business data, never a swapped-name template. */
+export interface SiteTown {
+  name: string;
+  /** URL part, ASCII ("Kėdainiai" → "kedainiai"). */
+  slug: string;
+  /** Locative ("Jonavoje"); derived from the name when absent. */
+  loc?: string;
+  /** Town-specific copy: what is typical there, how the trip works. */
+  text?: string;
+  heading?: string;
+  tagline?: string;
+  lead?: string;
+  /** Distance / travel note, e.g. "Apie 30 km nuo Kauno". */
+  distance?: string;
+  note?: string;
+  /** Nearby places named on the page. */
+  places?: string[];
+  /** Services typical in this town (names as on the site). */
+  services?: string[];
+  faq?: { q: string; a: string }[];
+}
+
+/** Town (GEO) page content, rendered by parts/Town.astro (demo and real towns). */
 export interface TownPage {
   name: string;
   /** Locative: "Jonavoje". */
   loc: string;
   heading: string;
-  distance: string;
-  arrival: string;
+  /** Small label above the heading; default "Šildymas <loc>" (demo wording). */
+  label?: string;
+  distance?: string;
+  arrival?: string;
   text: string;
-  note: string;
+  note?: string;
   /** Nearby places the page names; the Details areas panel lists them. */
   places: string[];
+  /** Services typical in the town, shown as a list. */
+  services?: string[];
 }
-export interface TownLink { slug: string; name: string; loc: string; href: string; places: string[] }
+export interface TownLink { slug: string; name: string; loc: string; href: string; places: string[]; /** Tile text; default: the first places. */ blurb?: string }

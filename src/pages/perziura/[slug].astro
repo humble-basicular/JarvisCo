@@ -8,6 +8,7 @@ import { brand } from '@data/content.js';
 import HeatingLayout from '../../templates/heating/HeatingLayout.astro';
 import HeatingSite from '../../templates/heating/HeatingSite.astro';
 import { pageDescription, pageTitle } from '../../templates/heating/content';
+import { siteTownLinks } from '../../templates/heating/town-pages';
 import type { SiteData } from '../../templates/heating/types';
 import { validateSaved } from '../../../scripts/preview/normalize.mjs';
 
@@ -23,5 +24,5 @@ const { data } = Astro.props;
 const banner = { tag: 'PERŽIŪRA', note: 'Svetainės juodraštis, paruoštas jarvisweb.lt', href: brand.smsHref, label: 'Parašyti Matui' };
 ---
 <HeatingLayout mode="preview" title={`${data.business} – peržiūra`} description={pageDescription(data)} business={data.business} accent={data.accent} logo={data.logo?.src} banner={banner}>
-  <HeatingSite data={data} mode="preview" />
+  <HeatingSite data={data} mode="preview" towns={siteTownLinks(data, `/perziura/${data.slug}`)} />
 </HeatingLayout>

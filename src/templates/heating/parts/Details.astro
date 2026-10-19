@@ -9,7 +9,7 @@ import type { View } from '../view';
 
 interface Props { data: SiteData; v: View }
 const { data, v } = Astro.props;
-const { live, areas, faq, facts, mark, telHref, services } = v;
+const { live, areas, faq, facts, mark, logo, telHref, services } = v;
 // Lettered on the panel like on a van door: the first service names, short ones only.
 const livery = services.map((s) => s.name.replace(/\s*\([^)]*\)/gu, '')).filter((n) => n.length <= 34).slice(0, 4);
 const hasAbout = Boolean(data.about) || (data.qualifications?.length ?? 0) > 0;
@@ -22,7 +22,7 @@ const PIN = '<path d="M12 21s-6.5-6.1-6.5-11a6.5 6.5 0 0 1 13 0c0 4.9-6.5 11-6.5
     {hasAbout && (
       <section class="hs-about" id="apie" aria-labelledby="hs-about">
         <div class="hs-livery" aria-hidden="true">
-          <span class="hs-livery__mark">{mark}</span>
+          {logo && !data.demo ? <img class="hs-livery__mark hs-livery__mark--img" src={logo.src} width="64" height="64" alt="" /> : <span class="hs-livery__mark">{mark}</span>}
           <ul class="hs-livery__svc">{livery.map((s) => <li>{s}</li>)}</ul>
           <p class="hs-livery__name">{data.business}</p>
           <p class="hs-livery__areas">{areas.slice(0, 3).join(' · ')}</p>

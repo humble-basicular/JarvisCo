@@ -1,5 +1,5 @@
 ---
-/* Demo town (GEO) page: what this town gets and how fast the crew arrives. The places list is
+/* Town (GEO) page block: what this town gets, distance and (demo) arrival, typical services. The places list is
    the standard areas panel in Details. Built from the existing tiles (hs-middle, hs-terms--solo,
    hs-panel--areas, hs-hours); no town-specific styles. */
 import { t } from '../content';
@@ -15,22 +15,34 @@ const { telHref, callCta } = v;
     <div class="hs-terms hs-terms--solo">
       <section class="hs-panel hs-panel--areas" aria-labelledby="hs-town">
         <header class="hs-panel__head">
-          <p class="hs-label">Šildymas {town.loc}</p>
+          <p class="hs-label">{town.label ?? `Šildymas ${town.loc}`}</p>
           <h2 id="hs-town">{town.heading}</h2>
         </header>
         <div class="hs-panel__body">
           <p class="hs-prose">{town.text}</p>
-          <div class="hs-panel__cols">
-            <div class="hs-hours">
-              <h3 class="hs-mini">Atstumas</h3>
-              <p class="hs-hours__text">{town.distance}</p>
+          {(town.distance || town.arrival || town.services?.length) && (
+            <div class:list={['hs-panel__cols', town.services?.length && 'hs-panel__cols--top']}>
+              {town.distance && (
+                <div class="hs-hours">
+                  <h3 class="hs-mini">Atstumas</h3>
+                  <p class="hs-hours__text">{town.distance}</p>
+                </div>
+              )}
+              {town.arrival && (
+                <div class="hs-hours">
+                  <h3 class="hs-mini">Atvykimas</h3>
+                  <p class="hs-hours__text">{town.arrival}</p>
+                </div>
+              )}
+              {town.services && town.services.length > 0 && (
+                <div class="hs-hours">
+                  <h3 class="hs-mini">Ką galite užsakyti</h3>
+                  <ul class="hs-ticks">{town.services.map((s) => <li>{s}</li>)}</ul>
+                </div>
+              )}
             </div>
-            <div class="hs-hours">
-              <h3 class="hs-mini">Atvykimas</h3>
-              <p class="hs-hours__text">{town.arrival}</p>
-            </div>
-          </div>
-          <p class="hs-areas__note">{town.note}</p>
+          )}
+          {town.note && <p class="hs-areas__note">{town.note}</p>}
           <div class="hs-hero__ctas">
             <a class="hs-btn hs-btn--call" href={telHref} data-cta={callCta}>{t.call}</a>
             <a class="hs-btn hs-btn--line" href="#uzklausa">{t.leave}</a>
