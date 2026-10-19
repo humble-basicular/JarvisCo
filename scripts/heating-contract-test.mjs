@@ -13,6 +13,7 @@ import { CONTRAST_AUDIT as AUDIT, chrome, serve, sleep } from './heating-cdp.mjs
 
 let passed = 0;
 const check = (label, fn) => { fn(); passed++; console.log(`PASS ${label}`); };
+const checkAsync = async (label, fn) => { await fn(); passed++; console.log(`PASS ${label}`); };
 const base = { business: 'Sintetinis testas', phone: '+37060000000', city: 'Kaunas', areas: ['Kaunas'], services: ['Katilų remontas'], photos: [] };
 check('optional claims are absent, supplied descriptions preserved', () => {
   const { data } = normalize({ ...base, services: [{ name: 'Katilų remontas', text: 'Tik pateiktas aprašymas.' }] });
@@ -54,20 +55,31 @@ check('logo: path or {path, line}; only .svg/.png; saved src must be the generat
   assert.throws(() => validateSaved({ ...saved, logo: { src: '/previews/other/logo.svg' } }), /logo\.src/);
   assert.throws(() => validateSaved({ ...saved, logo: { src: 'https://evil.example/logo.svg' } }), /logo\.src/);
 });
-check('logo files: plain SVG/PNG pass; scripts, handlers, external refs and fake PNGs are refused', () => {
+await checkAsync('logo files: plain SVG/PNG pass; scripts, handlers, external refs and fake PNGs are refused', async () => {
   const ok = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#1f5f8b"/><path d="M1 1h2" stroke="url(#g)"/></svg>';
-  checkLogoFile(Buffer.from(ok), '.svg');
-  checkLogoFile(Buffer.from(`<?xml version="1.0"?>\n<!-- mark -->\n${ok}`), '.svg');
-  checkLogoFile(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0]), '.png');
+  await checkLogoFile(Buffer.from(ok), '.svg');
+  await checkLogoFile(Buffer.from(`<?xml version="1.0"?>\n<!-- mark -->\n${ok}`), '.svg');
+  const { default: sharp } = await import('sharp');
+  const png = await sharp({ create: { width: 2, height: 2, channels: 4, background: '#1f5f8b' } }).png().toBuffer();
+  await checkLogoFile(png, '.png');
+  await assert.rejects(() => checkLogoFile(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0]), '.png'), /not a valid PNG/);
+  await assert.rejects(() => checkLogoFile(png.subarray(0, 40), '.png'), /not a valid PNG/);
   for (const bad of [
     '<svg><script>alert(1)</script></svg>', '<svg onload="alert(1)"></svg>', '<svg><a href="https://x.example">x</a></svg>',
     '<svg><image xlink:href="http://x.example/a.png"/></svg>', '<svg><a href="javascript:alert(1)">x</a></svg>',
     '<svg><foreignObject><p>x</p></foreignObject></svg>', '<!DOCTYPE svg [<!ENTITY x "y">]><svg></svg>',
     '<svg><style>@import "https://x.example/a.css";</style></svg>', '<svg><rect fill="url(https://x.example/p)"/></svg>',
     '<html><svg></svg></html>',
-  ]) assert.throws(() => checkLogoFile(Buffer.from(bad), '.svg'), /logo/, bad);
-  assert.throws(() => checkLogoFile(Buffer.from('<svg></svg>'), '.png'), /not a PNG/);
-  assert.throws(() => checkLogoFile(Buffer.alloc(201 * 1024, 32), '.svg'), /200 KB/);
+    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/2000/svg"><x:script>alert(1)</x:script></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><animate attributeName="href" values="javascript:alert(1)"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><style>rect{fill:red}</style></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><rect style="fill:red"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><use href="&#104;ttps://example.com/a.svg"/></svg>',
+    '<?xml-stylesheet href="https://example.com/a.css"?><svg/>',
+    '<svg><g></svg>',
+  ]) await assert.rejects(() => checkLogoFile(Buffer.from(bad), '.svg'), /logo/, bad);
+  await assert.rejects(() => checkLogoFile(Buffer.from('<svg></svg>'), '.png'), /not a PNG/);
+  await assert.rejects(() => checkLogoFile(Buffer.alloc(201 * 1024, 32), '.svg'), /200 KB/);
 });
 check('towns: ASCII slugs, unique, not reserved; only towns with text get a page', () => {
   assert.equal(townSlug('Kėdainiai'), 'kedainiai');

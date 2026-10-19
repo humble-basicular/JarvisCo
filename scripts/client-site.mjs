@@ -79,10 +79,10 @@ const photoFiles = data.photos.map((p, i) => {
   return { name, real: contained(realpathSync(contained(ROOT, join(ROOT, 'public', 'previews'), 'dir')), join(srcPhotos, name), 'file') };
 });
 // Logo (optional): public/previews/<slug>/logo.svg|png → /foto/logo.svg|png, checked again (the file may have been edited).
-const logoFile = data.logo ? (() => {
+const logoFile = data.logo ? await (async () => {
   const name = data.logo.src.split('/').pop();
   const real = contained(realpathSync(contained(ROOT, join(ROOT, 'public', 'previews'), 'dir')), join(srcPhotos, name), 'file');
-  try { checkLogoFile(readFileSync(real), extname(name)); } catch (e) { fail(e.message); }
+  try { await checkLogoFile(readFileSync(real), extname(name)); } catch (e) { fail(e.message); }
   return { name, real };
 })() : undefined;
 const towns = (data.towns ?? []).filter((t) => t.text).map((t) => t.slug);

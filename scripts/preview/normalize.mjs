@@ -160,10 +160,11 @@ function logo(value) {
 /** A logo file is published on jarvisweb.lt and on the client's domain, and a browser that opens an SVG
  *  directly runs its scripts. Accept only plain drawing SVGs (no script, event handler, external or
  *  javascript: reference, foreignObject, entity) and real PNGs; both ≤ 200 KB. */
-export function checkLogoFile(buffer, ext) {
+export async function checkLogoFile(buffer, ext) {
   if (buffer.length > 200 * 1024) throw new Error('logo file is larger than 200 KB');
   if (/^\.?png$/i.test(ext)) {
     if (!buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) throw new Error('logo .png is not a PNG file');
+    await decodeLogo(buffer, 'png');
     return;
   }
   if (!/^\.?svg$/i.test(ext)) throw new Error('logo must be .svg or .png');
@@ -176,6 +177,48 @@ export function checkLogoFile(buffer, ext) {
     [/@import/i, '@import'], [/<(?:iframe|embed|object|use)\b[^>]*\b(?:src|data)\s*=/i, 'an embedded document'],
   ];
   for (const [re, what] of bad) if (re.test(svg)) throw new Error(`logo .svg contains ${what}`);
+  // Parse the element tree as well as checking raw text: XML namespace prefixes can
+  // otherwise hide <script> / <foreignObject> from a spelling-based denylist.
+  // Only static drawing elements and presentation attributes are accepted. No CSS,
+  // animation, alternate namespaces or processing instructions can fetch/run content.
+  const markup = svg.replace(/^\s*<\?xml\s[^>]*\?>/i, '');
+  if (/<\?/.test(markup)) throw new Error('logo .svg contains a processing instruction');
+  const { parseFragment } = await import('parse5');
+  const drawing = new Set('svg g defs path circle ellipse rect line polyline polygon linearGradient radialGradient stop clipPath mask title desc text tspan use'.split(' '));
+  const attributes = new Set(('id viewBox width height x y x1 x2 y1 y2 cx cy r rx ry d points transform ' +
+    'fill fill-rule fill-opacity stroke stroke-width stroke-linecap stroke-linejoin stroke-miterlimit stroke-dasharray stroke-dashoffset stroke-opacity ' +
+    'opacity color vector-effect preserveAspectRatio gradientUnits gradientTransform spreadMethod offset stop-color stop-opacity ' +
+    'clip-path clip-rule clipPathUnits mask maskUnits maskContentUnits fx fy fr ' +
+    'font-family font-size font-weight text-anchor dominant-baseline dx dy textLength lengthAdjust href role aria-label aria-hidden focusable').split(' '));
+  const visit = (node, depth = 0) => {
+    if (depth > 64) throw new Error('logo .svg is nested too deeply');
+    if (node.tagName) {
+      if (node.namespaceURI !== 'http://www.w3.org/2000/svg' || !drawing.has(node.tagName)) throw new Error(`logo .svg contains unsupported element ${node.tagName}`);
+      for (const attr of node.attrs) {
+        if (attr.name === 'xmlns' && !attr.prefix && attr.value === 'http://www.w3.org/2000/svg') continue;
+        if (attr.prefix || attr.namespace || !attributes.has(attr.name)) throw new Error(`logo .svg contains unsupported attribute ${attr.name}`);
+        if (attr.name === 'href' && !/^#[A-Za-z_][\w.:-]*$/.test(attr.value)) throw new Error('logo .svg href must reference a local drawing');
+        if (/\\/.test(attr.value) || (/url\s*\(/i.test(attr.value) && !/^url\(\s*#[A-Za-z_][\w.:-]*\s*\)$/i.test(attr.value))) throw new Error('logo .svg contains an external or escaped reference');
+      }
+    }
+    for (const child of node.childNodes ?? []) visit(child, depth + 1);
+  };
+  const document = parseFragment(markup);
+  const roots = document.childNodes.filter((n) => n.nodeName !== '#comment' && !(n.nodeName === '#text' && !n.value.trim()));
+  if (roots.length !== 1 || roots[0].tagName !== 'svg') throw new Error('logo .svg must contain one SVG drawing');
+  visit(document);
+  await decodeLogo(buffer, 'svg');
+}
+
+async function decodeLogo(buffer, format) {
+  try {
+    const { default: sharp } = await import('sharp');
+    // A signature alone is not an image. Decode every pixel before publishing,
+    // with a bound on decompressed size even for tiny compressed inputs.
+    await sharp(buffer, { limitInputPixels: 16_777_216 }).raw().toBuffer();
+  } catch {
+    throw new Error(`logo .${format} is not a valid ${format.toUpperCase()} drawing/image`);
+  }
 }
 
 /** Lithuanian national/international formats → E.164, else null. Keep in step with toE164 in src/templates/heating/content.ts. */

@@ -47,7 +47,7 @@ async function generate(file) {
   let logoFile;
   if (data.logo) {
     logoFile = inputFile(base, data.logo.path, 'logo');
-    checkLogoFile(readFileSync(logoFile), extname(logoFile));
+    await checkLogoFile(readFileSync(logoFile), extname(logoFile));
   }
 
   const slug = newSlug();
