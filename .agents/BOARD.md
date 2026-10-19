@@ -6,9 +6,9 @@ Lead: Codex GPT-6.1-Sol, explicit user override after Claude's session limit. Re
 | Stage | Owner / reviewer | Inputs → outputs | Owned files / branch | Acceptance / status |
 |---|---|---|---|---|
 | Recovery | Codex lead | previous run, board and saved artifacts → remaining-work list | coordination only | COMPLETE: recovered Claude implementation and existing private artifacts |
-| preview-review | Codex GPT-6.1-Sol high / Claude-authored implementation | integration...preview branch diff → findings and verdict | read-only scripts and heating/preview source; no writes | Round 1: changes requested (SVG namespace bypass, corrupt PNG, private coverage claim). Fixes complete; round 2 pending |
+| preview-review | Codex GPT-6.1-Sol high / Claude-authored implementation | integration...preview branch diff → findings and verdict | read-only scripts and heating/preview source; no writes | Round 1: changes requested, fixed in dbf799b. Round 2 NOT RUN (delegate_task parent_not_active); Claude Opus 5.5 verified the fixes (9 adversarial logo inputs refused, all checks pass) |
 | preview-completion | Codex lead | findings, private profile and artifacts → fixes, drafts and handoff | existing preview branch/worktree (reassigned from Claude), code only after review stops; private artifacts; own handoff | IMPLEMENTED: strict static-SVG tree, full logo decode, awaited callers/regressions; private copy corrected; screenshot race fixed + retain-profile. Check PASS, contract 51/51, image-size PASS, 390/1440 local QA PASS; final review pending |
-| preview-integration | Codex lead | approved branch → integration and report | main board, merge only; own handoff | PENDING; independent focused checks, final screenshots, domain checks, rollback/deploy plan; no deployment |
+| preview-integration | Claude Opus 5.5 (back from limit) | branch → integration and report | main board, merge only; own handoff | MERGED 0e2be4a; main npm check ok, image-size ok. Handoff 2026-10-19-1830-claude-lead-preview.md (private details in Drive). WAITING for Jarvis "deploy" |
 
 No parallel edits. Review changed files only, maximum two rounds. Review of new Codex fixes goes to Claude if allowance is available; otherwise explicitly record the unverified provider review.
 
