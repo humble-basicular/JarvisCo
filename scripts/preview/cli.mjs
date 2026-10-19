@@ -5,12 +5,12 @@
    `npm run preview` without a file still serves dist/ (astro preview). */
 import { spawn } from 'node:child_process';
 import { randomInt } from 'node:crypto';
-import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-import { normalize } from './normalize.mjs';
+import { checkLogoFile, normalize } from './normalize.mjs';
 const args = process.argv.slice(2);
 const input = args.find((a) => a.endsWith('.json'));
 
@@ -26,25 +26,41 @@ function newSlug() {
   }
 }
 
+/** A file named in the input: inside the input JSON's directory and not a symlink. */
+function inputFile(base, path, what) {
+  const src = resolve(base, path);
+  if (!existsSync(src)) throw new Error(`${what} not found: ${path}`);
+  if (lstatSync(src).isSymbolicLink()) throw new Error(`${what} is a symlink: ${path}`);
+  const rel = relative(realpathSync(base), realpathSync(src));
+  if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) throw new Error(`${what} outside the input folder: ${path}`);
+  return src;
+}
+
 async function generate(file) {
   const raw = JSON.parse(readFileSync(file, 'utf8'));
   const { data, submission } = normalize(raw);
   const base = dirname(file);
   for (const p of data.photos) {
-    const src = resolve(base, p.path);
-    if (!existsSync(src)) throw new Error(`photo not found: ${p.path}`);
-    // Photos must live inside the input JSON's directory and must not be symlinks.
-    if (lstatSync(src).isSymbolicLink()) throw new Error(`photo is a symlink: ${p.path}`);
-    const real = realpathSync(src);
-    const rel = relative(realpathSync(base), real);
-    if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) throw new Error(`photo outside the input folder: ${p.path}`);
-    if (!PHOTO_EXT.has(extname(src).toLowerCase())) throw new Error(`not a photo: ${p.path}`);
-    p.file = src;
+    p.file = inputFile(base, p.path, 'photo');
+    if (!PHOTO_EXT.has(extname(p.file).toLowerCase())) throw new Error(`not a photo: ${p.path}`);
+  }
+  let logoFile;
+  if (data.logo) {
+    logoFile = inputFile(base, data.logo.path, 'logo');
+    checkLogoFile(readFileSync(logoFile), extname(logoFile));
   }
 
   const slug = newSlug();
   const outDir = join(ROOT, 'public', 'previews', slug);
   const photos = [];
+  let logo;
+  if (logoFile) {
+    // Copied as is (already checked): /previews/<slug>/logo.svg|png.
+    const name = `logo${extname(logoFile).toLowerCase()}`;
+    mkdirSync(outDir, { recursive: true });
+    copyFileSync(logoFile, join(outDir, name));
+    logo = { src: `/previews/${slug}/${name}`, ...(data.logo.line ? { line: data.logo.line } : {}) };
+  }
   if (data.photos.length) {
     const { default: sharp } = await import('sharp');
     mkdirSync(outDir, { recursive: true });
@@ -66,6 +82,7 @@ async function generate(file) {
     services: data.services,
     ...(data.standout ? { standout: data.standout } : {}),
     ...(data.tagline ? { tagline: data.tagline } : {}),
+    ...(data.lead ? { lead: data.lead } : {}),
     ...(data.about ? { about: data.about } : {}),
     ...(data.email ? { email: data.email } : {}),
     ...(data.hours ? { hours: data.hours } : {}),
@@ -77,6 +94,8 @@ async function generate(file) {
     ...(data.qualifications.length ? { qualifications: data.qualifications } : {}),
     ...(data.prices?.length ? { prices: data.prices } : {}),
     ...(data.priceNote ? { priceNote: data.priceNote } : {}),
+    ...(logo ? { logo } : {}),
+    ...(data.towns?.length ? { towns: data.towns } : {}),
     photos,
     ...(submission ? { submission } : {}),
   };
@@ -84,7 +103,8 @@ async function generate(file) {
   const target = join(ROOT, 'previews', `${slug}.json`);
   writeFileSync(target, `${JSON.stringify(out, null, 2)}\n`);
 
-  console.log(`Wrote ${relative(ROOT, target)}${photos.length ? ` and ${photos.length} photo(s) in ${relative(ROOT, outDir)}/` : ''}`);
+  console.log(`Wrote ${relative(ROOT, target)}${photos.length || logo ? ` and ${photos.length} photo(s)${logo ? ' + logo' : ''} in ${relative(ROOT, outDir)}/` : ''}`);
+  for (const t of out.towns?.filter((x) => x.text) ?? []) console.log(`Town:   http://localhost:4321/perziura/${slug}/${t.slug}`);
   console.log(`Local:  http://localhost:4321/perziura/${slug}   (npm run dev)`);
   console.log(`Live:   https://jarvisweb.lt/perziura/${slug}   (after deploy)`);
 }

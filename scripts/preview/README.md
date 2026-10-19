@@ -33,6 +33,9 @@ Then edit the texts in `previews/<slug>.json` if needed (they are plain JSON) an
 | `standout` | string | Optional, ≤ 1000 chars. One bullet per line, `;` or sentence. Falls back to `submission.standout` |
 | `photos` | (string \| `{path, alt}`)[] | Optional, ≤ 12. Paths are relative to the input JSON. The first photo is the hero image |
 | `tagline` | string | Optional, ≤ 120 chars. The H1; otherwise derived from supplied services + city |
+| `lead` | string | Optional, ≤ 300 chars. The sentence under the H1; otherwise `<business> – <first services>. <where>` |
+| `logo` | string \| `{path, line?}` | Optional. Path (relative to the input JSON, inside its folder, no symlink) to a square `.svg` or `.png` read on a light background; `line` (≤ 60) is set under the name. Shown in the header, on the hero photo seal, in the footer, as the tab icon and (real sites) on the About panel. SVGs must be plain drawings: no script, `on…` handler, foreignObject, DOCTYPE/entity, `@import`, `javascript:`/`data:` or external `href`/`url()`; PNGs must be real PNGs; ≤ 200 KB (`checkLogoFile` in `normalize.mjs`, checked again by `client-site.mjs`) |
+| `towns` | (string \| `{name, text?, …}`)[] | Optional, ≤ 12. A town **with its own `text`** (≤ 1000) gets a page: `/perziura/<slug>/<vietove>` in the preview, `/<vietove>/` on the client site. Towns without `text` get no page and no link: the generator never fills a town page by swapping the name in shared text. Optional per town: `slug` (default: ASCII of the name, `Kėdainiai` → `kedainiai`; unique, not `aciu`/`privatumo-politika`/`foto`/…), `loc` (locative, default derived: `Jonava` → `Jonavoje`), `heading` (≤ 120), `tagline` (the town page H1, ≤ 120), `lead` (≤ 300), `distance` (≤ 80, e.g. "Apie 30 km nuo Kauno"), `note` (≤ 300), `places` (≤ 12 nearby places), `services` (≤ 8 names shown as "Ką galite užsakyti"), `faq` (≤ 4, replaces the business FAQ additions on that page) |
 | `about` | string | Optional, ≤ 1000 chars. "Apie" text; omitted when not supplied |
 | `email` | string | Optional, shown in the contact block |
 | `hours` | string | Optional, ≤ 120 chars |
@@ -69,7 +72,17 @@ Top-level fields win; missing ones are filled from `submission`. Photos from the
 
 ## Output: `previews/<slug>.json`
 
-The normalised input plus `slug` and `created` (UTC). `photos` become `{src, width, height, alt?}` with `src` under `/previews/<slug>/`. The page reads only this file at build time.
+The normalised input plus `slug` and `created` (UTC). `photos` become `{src, width, height, alt?}` with `src` under `/previews/<slug>/`; the logo is copied as is to `/previews/<slug>/logo.svg|png` and saved as `logo: {src, line?}` (any other `logo.src` is refused). The page reads only this file at build time.
+
+Town pages (`towns` with `text`): `src/pages/perziura/[slug]/[vietove].astro`, built from `src/templates/heating/town-pages.ts` and `parts/Town.astro`. Same rules as the preview home: PERŽIŪRA banner, noindex,nofollow, inert form, out of the sitemap. The preview home lists them under "Aptarnaujame" and in the footer; the header logo on a town page goes back to the preview home.
+
+## 0. Source material from Paslaugos.lt (`scripts/grab-paslaugos-profile.mjs`)
+
+```bash
+node scripts/grab-paslaugos-profile.mjs https://paslaugos.lt/<profile> "<Drive>/Business/JarvisWeb/previews/<lead>/source"
+```
+
+Opens that one profile in headed Chrome with the CRM scraper's persistent profile (Playwright from `~/MultiPurpose CRM/node_modules`, override with `CRM_DIR`), refuses to start while the CRM scraper holds the profile, and on a bot check prints "Solve the check in the Chrome window, then press Enter" and waits for a person (it never works around it). Saves the full-size gallery photos in gallery order (`01.jpg`, … from the lightbox links, ≥ 0.6 s apart), `profile.json` (name, area, badges, full description, services with prices and notes, reviews verbatim with author and date, photo ids/sizes and service captions, source URL, UTC time) and `page-snapshot.html`. The out dir holds real lead data: keep it outside the repo. Paslaugos.lt stamps its logo on gallery photos; crop it off the picks (and ask the client for originals) before using them.
 
 ## 2. Live client site
 
@@ -83,7 +96,7 @@ node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain
 
 - `<code>`: site code, `^[a-z][a-z0-9-]{2,31}$` (offer-v2 spec §1). `<domain>`: bare host, e.g. `kauno-silumas.lt`.
 - Input must be a `previews/<slug>.json` with a generated slug; photos come from `public/previews/<slug>/`. The lead's `submission` is dropped, so form answers never reach the published HTML.
-- Output `client-sites/<slug>/`: `index.html`, `aciu/`, `privatumo-politika/`, `robots.txt`, `sitemap.xml`, `foto/`. Indexable, canonical `https://<domain>/`, `HVACBusiness` JSON-LD, no banner, no cookies, one small inline script.
+- Output `client-sites/<slug>/`: `index.html`, `aciu/`, `privatumo-politika/`, `robots.txt`, `sitemap.xml`, `foto/` (photos and `logo.svg|png`), and `<vietove>/index.html` per town with text: canonical `https://<domain>/<vietove>/`, listed in `sitemap.xml`, linked from the home page ("Aptarnaujame") and every footer. The script fails if a town page, its canonical, its sitemap entry or its home link is missing. Indexable, canonical `https://<domain>/`, `HVACBusiness` JSON-LD, no banner, no cookies, one small inline script.
 - The form posts `kind=site_inquiry`, `site=<code>` to `https://www.jarvisweb.lt/t/form` with `Accept: application/json`; a verified JSON receipt redirects to `/aciu`; explicit rejection shows "Paskambinkite tiesiai" + the business `tel:`. Without JS the Worker's 303 lands on `/aciu` or `/aciu?klaida=1`. Call/SMS links send `{site,type}` beacons (text/plain) to `/t/e`. SMS only shows for +3706… numbers.
 - **Before going live** the code and origins must be in the Worker `SITES` var (spec §1), and Jarvis must approve the privacy text (`privatumo-politika.astro`, `PROCESSOR` in `content.ts`). Deploying is Jarvis's call; the script never deploys or posts.
 - Test: `node scripts/preview-form-stub.mjs 4330 client-sites/<slug> &` then `node scripts/client-site-form-test.mjs` (headless Chrome: success, 500 error, beacons, `/aciu`). Screenshots: `node scripts/screenshot.mjs http://localhost:4330/ out/prefix` (390 and 1440 px, full page).
@@ -116,7 +129,7 @@ The upload list adds new picks, supports per-file removal, and preserves files a
 ### Safe acceptance entrypoints
 
 - `npm run check`: production build, copy, JS budget and static checks. Under a no-delete constraint, rename an existing `dist/` into an ignored audit folder before rebuilding (Astro normally replaces output).
-- `node scripts/heating-contract-test.mjs`: validates optional data, demo honesty/indexing, and five symlink attack cases. Retains fixtures and moves adversarial preview/photo inputs into the printed ignored evidence folder; never deletes them.
+- `node scripts/heating-contract-test.mjs`: validates optional data (including `logo`/`towns` and the logo file check), demo honesty/indexing, five symlink attack cases, a logo + towns client-site fixture, and any local preview with towns in `dist/`. Retains fixtures and moves adversarial preview/photo inputs into the printed ignored evidence folder; never deletes them.
 - `node scripts/image-size-test.mjs`: header parser cases, in memory.
 - `scripts/heating-browser-check.js`: evaluate its complete expression through T3 `preview_evaluate` on a local `--test` client build served by `preview-form-stub.mjs`. Checks submission, upload, error, uncertainty, receipt and beacon behavior against the local stub only; no browser launch or filesystem cleanup. Synthetic iframe state is removed afterward.
 - Legacy `client-site-symlink-test.mjs` and `client-site-form-test.mjs` delete their temporary filesystem fixtures/profile; skip those under a no-delete instruction. The latter also launches standalone Chrome. Use the retained-fixture and T3 alternatives above; do not relax the checks.

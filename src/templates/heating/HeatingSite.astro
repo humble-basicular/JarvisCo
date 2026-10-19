@@ -9,7 +9,7 @@
    is inert (no names, method get). `mode="live"`: tel:/sms: links send cta
    beacons and the inquiry form posts to the Worker (offer-v2 spec §3). */
 import clientScript from './client.js?raw';
-import { processSteps, t, type RouteKind } from './content';
+import { andList, processSteps, t, type RouteKind } from './content';
 import type { LiveSite, Mode, SiteData, TownLink, TownPage } from './types';
 import { DEMO_HERO_TAG, DEMO_PHOTO_NOTE, view } from './view';
 import Details from './parts/Details.astro';
@@ -18,8 +18,14 @@ import Inquiry from './parts/Inquiry.astro';
 import Town from './parts/Town.astro';
 import Towns from './parts/Towns.astro';
 
-interface Props { data: SiteData; mode: Mode; site?: LiveSite; /** Demo only: this page's town, and the links to every town page. */ town?: TownPage; towns?: TownLink[] }
-const { data, mode, site, town, towns } = Astro.props;
+interface Props {
+  data: SiteData; mode: Mode; site?: LiveSite;
+  /** Town pages: this page's town, and the links to every town page. */
+  town?: TownPage; towns?: TownLink[];
+  /** Where the header logo goes: the home page from a town page (default: top of this page). */
+  home?: string;
+}
+const { data, mode, site, town, towns, home } = Astro.props;
 const v = view(data, mode, site);
 const { live, telHref, callCta, smsHref, hero, works, spans, services, router, areas, mark, logo, nav, pad } = v;
 // Hours: in the proof list on phones (the top strip shows them on wide screens), in the identity card without a photo.
@@ -46,7 +52,7 @@ const SIZES = {
 </div>
 <header class="hs-top">
   <div class="hs-wrap hs-top__bar">
-    <a class="hs-logo" href="#pradzia">
+    <a class="hs-logo" href={home ?? '#pradzia'}>
       {logo ? <img class="hs-logo__mark hs-logo__mark--img" src={logo.src} width="44" height="44" alt="" /> : <span class="hs-logo__mark" aria-hidden="true">{mark}</span>}
       <span class="hs-logo__text"><span class="hs-logo__name">{data.business}</span>{logo?.line && <span class="hs-logo__line">{logo.line}</span>}</span>
     </a>
@@ -157,7 +163,9 @@ const SIZES = {
     </div>
   </section>
 
-  {towns && !town && <Towns towns={towns} v={v} />}
+  {towns && !town && (data.demo
+    ? <Towns towns={towns} v={v} />
+    : <Towns towns={towns} v={v} title={towns.length <= 3 ? `Dirbame ${andList(towns.map((x) => x.loc))}` : `Dirbame ${towns[0].loc} ir aplinkiniuose miestuose`} ask={(x) => `Darbai ${x.loc}`} />)}
 
   {works.length > 0 && (
     <section class:list={['hs-sec hs-sec--white hs-gallery', works.length === 1 && 'hs-gallery--single']} id="darbai" aria-labelledby="hs-works">

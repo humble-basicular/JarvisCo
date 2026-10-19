@@ -101,6 +101,83 @@ function faq(value) {
   return value.map((f, i) => ({ q: text(f?.q, `faq[${i}].q`, 160, { required: true }), a: text(f?.a, `faq[${i}].a`, 600, { required: true }) }));
 }
 
+/** Town URL part: lower case ASCII, words joined by "-" ("Kėdainiai" → "kedainiai", "Kauno r." → "kauno-r"). */
+export function townSlug(name) {
+  return name.toLocaleLowerCase('lt').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+/* Paths the client site (and /perziura/<slug>/…) already use. */
+const RESERVED_TOWN_SLUGS = new Set(['aciu', 'privatumo-politika', 'foto', 'robots-txt', 'sitemap-xml', 'index', '404', 'perziura', 'previews', 'pradzia']);
+
+/** Towns for town (GEO) pages. Only towns with their own `text` get a page (see the README); the
+ *  generator never fills a page by swapping the name in shared text. */
+function towns(value) {
+  if (value == null) return undefined;
+  if (!Array.isArray(value) || value.length > 12) throw new Error('towns must be a list of at most 12 {name, text?}');
+  const seen = new Set();
+  return value.map((raw, i) => {
+    const item = typeof raw === 'string' ? { name: raw } : raw;
+    if (!item || typeof item !== 'object' || Array.isArray(item)) throw new Error(`towns[${i}] must be a name or {name, text?}`);
+    const f = `towns[${i}]`;
+    const name = text(item.name, `${f}.name`, 60, { required: true });
+    const slug = item.slug == null ? townSlug(name) : text(item.slug, `${f}.slug`, 40, { required: true });
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length < 2 || slug.length > 40) throw new Error(`${f}.slug "${slug}" must be 2–40 characters a-z, 0-9 and "-"`);
+    if (RESERVED_TOWN_SLUGS.has(slug)) throw new Error(`${f}.slug "${slug}" is a reserved path`);
+    if (seen.has(slug)) throw new Error(`${f}: two towns have the slug "${slug}"`);
+    seen.add(slug);
+    const townFaq = faq(item.faq);
+    if (townFaq && townFaq.length > 4) throw new Error(`${f}.faq has more than 4 questions`);
+    const places = list(item.places, `${f}.places`, 12, 60);
+    const services = list(item.services, `${f}.services`, 8, 60);
+    const out = {
+      name, slug,
+      loc: text(item.loc, `${f}.loc`, 60),
+      text: text(item.text, `${f}.text`, 1000),
+      heading: text(item.heading, `${f}.heading`, 120),
+      tagline: text(item.tagline, `${f}.tagline`, 120),
+      lead: text(item.lead, `${f}.lead`, 300),
+      distance: text(item.distance, `${f}.distance`, 80),
+      note: text(item.note, `${f}.note`, 300),
+      places: places.length ? places : undefined,
+      services: services.length ? services : undefined,
+      faq: townFaq,
+    };
+    return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined));
+  });
+}
+
+/** Logo: a path (relative to the input JSON) or {path, line}. SVG or PNG; `line` is set under the name. */
+const LOGO_EXT = /\.(svg|png)$/i;
+function logo(value) {
+  if (value == null) return undefined;
+  const item = typeof value === 'string' ? { path: value } : value;
+  if (!item || typeof item !== 'object' || Array.isArray(item) || typeof item.path !== 'string') throw new Error('logo must be a path or {path, line}');
+  const path = text(item.path, 'logo.path', 300, { required: true });
+  if (!LOGO_EXT.test(path)) throw new Error('logo must be an .svg or .png file');
+  const line = text(item.line, 'logo.line', 60);
+  return { path, ...(line ? { line } : {}) };
+}
+
+/** A logo file is published on jarvisweb.lt and on the client's domain, and a browser that opens an SVG
+ *  directly runs its scripts. Accept only plain drawing SVGs (no script, event handler, external or
+ *  javascript: reference, foreignObject, entity) and real PNGs; both ≤ 200 KB. */
+export function checkLogoFile(buffer, ext) {
+  if (buffer.length > 200 * 1024) throw new Error('logo file is larger than 200 KB');
+  if (/^\.?png$/i.test(ext)) {
+    if (!buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) throw new Error('logo .png is not a PNG file');
+    return;
+  }
+  if (!/^\.?svg$/i.test(ext)) throw new Error('logo must be .svg or .png');
+  const svg = buffer.toString('utf8');
+  if (!/^\s*(?:<\?xml[^>]*\?>\s*)?(?:<!--[\s\S]*?-->\s*)*<svg[\s>]/i.test(svg)) throw new Error('logo .svg must start with <svg');
+  const bad = [
+    [/<script/i, '<script>'], [/<foreignObject/i, '<foreignObject>'], [/<!(?:ENTITY|DOCTYPE)/i, 'DOCTYPE/ENTITY'],
+    [/\son[a-z]+\s*=/i, 'an on… event attribute'], [/javascript:|(?<![\w-])data:|vbscript:/i, 'a script/data URL'],
+    [/(?:xlink:)?href\s*=\s*["']\s*(?!#)/i, 'an external href'], [/url\(\s*["']?\s*(?!#)/i, 'an external url()'],
+    [/@import/i, '@import'], [/<(?:iframe|embed|object|use)\b[^>]*\b(?:src|data)\s*=/i, 'an embedded document'],
+  ];
+  for (const [re, what] of bad) if (re.test(svg)) throw new Error(`logo .svg contains ${what}`);
+}
+
 /** Lithuanian national/international formats → E.164, else null. Keep in step with toE164 in src/templates/heating/content.ts. */
 export function toE164(phone) {
   const p = phone.trim();
@@ -132,6 +209,7 @@ export function normalize(raw) {
     services: services.length ? services : [...(sub.services ?? []), ...splitOther(sub.services_other)].slice(0, 12),
     standout: text(raw.standout, 'standout', 1000) ?? sub.standout ?? undefined,
     tagline: text(raw.tagline, 'tagline', 120),
+    lead: text(raw.lead, 'lead', 300),
     about: text(raw.about, 'about', 1000),
     email: text(raw.email, 'email', 120),
     hours: text(raw.hours, 'hours', 120),
@@ -143,6 +221,8 @@ export function normalize(raw) {
     qualifications: list(raw.qualifications, 'qualifications', 6, 160),
     prices: prices(raw.prices),
     priceNote: text(raw.priceNote, 'priceNote', 300),
+    logo: logo(raw.logo),
+    towns: towns(raw.towns),
   };
   if (!isPhone(data.phone)) throw new Error(`phone "${data.phone}" is not a phone number (digits, spaces, + - ( ), at least 8 digits)`);
   if (!toE164(data.phone)) throw new Error(`phone "${data.phone}" cannot be converted to +370… (use 8 6xx xxxxx, 06xx xxxxx, 6xx xxxxx or +370 6xx xxxxx)`);
@@ -170,7 +250,16 @@ export function validateSaved(saved) {
     for (const k of ['width', 'height']) if (!Number.isInteger(p[k]) || p[k] < 1 || p[k] > 20000) throw new Error(`photos[${i}].${k} must be a positive integer`);
     if (p.alt != null && typeof p.alt !== 'string') throw new Error(`photos[${i}].alt must be a string`);
   });
-  const { data } = normalize({ ...saved, photos: photos.map((p) => ({ path: p.src, alt: p.alt })) });
+  if (saved.logo != null && (typeof saved.logo !== 'object' || typeof saved.logo.src !== 'string')) throw new Error('logo must be {src, line}');
+  const { data } = normalize({ ...saved, photos: photos.map((p) => ({ path: p.src, alt: p.alt })), logo: saved.logo ? { path: saved.logo.src, line: saved.logo.line } : undefined });
   if (typeof saved.slug !== 'string') throw new Error('slug is missing');
-  return { ...data, slug: saved.slug, photos: photos.map((p) => ({ src: p.src, width: p.width, height: p.height, ...(p.alt ? { alt: p.alt } : {}) })) };
+  // The generator writes the logo as /previews/<slug>/logo.svg|png; nothing else is served.
+  if (data.logo && !new RegExp(`^/previews/${saved.slug.replace(/[^a-z0-9]/g, '')}/logo\\.(?:svg|png)$`).test(data.logo.path)) throw new Error(`logo.src must be /previews/${saved.slug}/logo.svg or .png`);
+  const { logo: savedLogo, ...rest } = data;
+  return {
+    ...rest,
+    ...(savedLogo ? { logo: { src: savedLogo.path, ...(savedLogo.line ? { line: savedLogo.line } : {}) } } : {}),
+    slug: saved.slug,
+    photos: photos.map((p) => ({ src: p.src, width: p.width, height: p.height, ...(p.alt ? { alt: p.alt } : {}) })),
+  };
 }

@@ -3,6 +3,7 @@
 import HeatingLayout from '../../HeatingLayout.astro';
 import HeatingSite from '../../HeatingSite.astro';
 import { jsonLd, pageDescription, pageTitle, toE164 } from '../../content';
+import { siteTownLinks } from '../../town-pages';
 import { loadBuild } from '../load';
 
 const { data, site } = loadBuild();
@@ -22,5 +23,5 @@ const photo = data.photos[0];
   jsonLd={jsonLd(data, site)}
   live={{ code: site.code, beacon: site.beaconEndpoint, tel: toE164(data.phone) }}
 >
-  <HeatingSite data={data} mode="live" site={site} />
+  <HeatingSite data={data} mode="live" site={site} towns={siteTownLinks(data, '')} />
 </HeatingLayout>

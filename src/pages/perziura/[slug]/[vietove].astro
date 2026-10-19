@@ -1,0 +1,30 @@
+---
+/* Town pages of a lead preview: /perziura/<slug>/<vietove>, one per town in previews/<slug>.json
+   that has its own text (town-pages.ts). Same template and rules as the preview home page:
+   PERŽIŪRA banner, noindex,nofollow, inert form, out of the sitemap. */
+import type { GetStaticPaths } from 'astro';
+import { brand } from '@data/content.js';
+import HeatingLayout from '../../../templates/heating/HeatingLayout.astro';
+import HeatingSite from '../../../templates/heating/HeatingSite.astro';
+import { pageDescription } from '../../../templates/heating/content';
+import { pagedTowns, siteTownLinks, siteTownPage } from '../../../templates/heating/town-pages';
+import type { SiteData } from '../../../templates/heating/types';
+import { validateSaved } from '../../../../scripts/preview/normalize.mjs';
+
+export const getStaticPaths = (() => {
+  const files = import.meta.glob<{ default: SiteData }>('../../../../previews/*.json', { eager: true });
+  return Object.entries(files).flatMap(([path, { default: raw }]) => {
+    let data: SiteData;
+    try { data = validateSaved(raw) as SiteData; } catch (e) { throw new Error(`${path}: ${(e as Error).message}`); }
+    return pagedTowns(data).map((t) => ({ params: { slug: data.slug, vietove: t.slug }, props: { data, vietove: t.slug } }));
+  });
+}) satisfies GetStaticPaths;
+
+const { data: home, vietove } = Astro.props;
+const { town, data } = siteTownPage(home, vietove);
+const base = `/perziura/${home.slug}`;
+const banner = { tag: 'PERŽIŪRA', note: 'Svetainės juodraštis, paruoštas jarvisweb.lt', href: brand.smsHref, label: 'Parašyti Matui' };
+---
+<HeatingLayout mode="preview" title={`${data.business} – ${town.name} – peržiūra`} description={pageDescription(data)} business={data.business} accent={data.accent} logo={data.logo?.src} banner={banner}>
+  <HeatingSite data={data} mode="preview" town={town} towns={siteTownLinks(home, base)} home={base} />
+</HeatingLayout>

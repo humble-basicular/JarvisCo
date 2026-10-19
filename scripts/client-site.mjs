@@ -7,9 +7,9 @@
    form and beacons at a local stub instead and marks the build "never deploy".
    Details: scripts/preview/README.md. */
 import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { toE164, validateSaved } from './preview/normalize.mjs';
+import { checkLogoFile, toE164, validateSaved } from './preview/normalize.mjs';
 
 const ROOT = realpathSync(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
 const PREVIEWS = join(ROOT, 'previews');
@@ -78,6 +78,14 @@ const photoFiles = data.photos.map((p, i) => {
   if (p.src !== `/previews/${slug}/${name}`) fail(`photo ${i + 1} is not in public/previews/${slug}/`);
   return { name, real: contained(realpathSync(contained(ROOT, join(ROOT, 'public', 'previews'), 'dir')), join(srcPhotos, name), 'file') };
 });
+// Logo (optional): public/previews/<slug>/logo.svg|png → /foto/logo.svg|png, checked again (the file may have been edited).
+const logoFile = data.logo ? (() => {
+  const name = data.logo.src.split('/').pop();
+  const real = contained(realpathSync(contained(ROOT, join(ROOT, 'public', 'previews'), 'dir')), join(srcPhotos, name), 'file');
+  try { checkLogoFile(readFileSync(real), extname(name)); } catch (e) { fail(e.message); }
+  return { name, real };
+})() : undefined;
+const towns = (data.towns ?? []).filter((t) => t.text).map((t) => t.slug);
 for (const p of [OUT, target, stage]) noSymlinks(p); // existing output dirs must be real directories
 
 // Photos: previews/<slug> photos (public/previews/<slug>/N.jpg) → /foto/N.jpg, same files as the preview.
@@ -92,9 +100,12 @@ const photos = data.photos.map((p, i) => {
   return { ...p, src: `/foto/${photoFiles[i].name}` };
 });
 
+if (logoFile) copyFileSync(logoFile.real, join(stage, 'public', 'foto', logoFile.name));
+const logo = logoFile ? { ...data.logo, src: `/foto/${logoFile.name}` } : undefined;
+
 const { submission, created, ...site } = data; // the lead's form answers never go into the published site
 const build = {
-  data: { ...site, photos },
+  data: { ...site, photos, ...(logo ? { logo } : {}) },
   site: {
     code,
     domain,
@@ -137,9 +148,16 @@ if (test) {
   if (/localhost|127\.0\.0\.1/.test(index)) fail('live build points at a local endpoint');
 }
 if (!index.includes(`<link rel="canonical" href="https://${domain}/">`)) fail('canonical missing in built index.html');
-for (const f of ['aciu/index.html', 'privatumo-politika/index.html', 'robots.txt', 'sitemap.xml']) if (!existsSync(join(target, f))) fail(`missing ${f}`);
+for (const f of ['aciu/index.html', 'privatumo-politika/index.html', 'robots.txt', 'sitemap.xml', ...towns.map((t) => `${t}/index.html`)]) if (!existsSync(join(target, f))) fail(`missing ${f}`);
+const sitemap = readFileSync(join(target, 'sitemap.xml'), 'utf8');
+for (const t of towns) {
+  if (!readFileSync(join(target, t, 'index.html'), 'utf8').includes(`<link rel="canonical" href="https://${domain}/${t}/">`)) fail(`canonical missing in ${t}/index.html`);
+  if (!sitemap.includes(`<loc>https://${domain}/${t}/</loc>`)) fail(`sitemap.xml does not list /${t}/`);
+  if (!index.includes(`href="/${t}/"`)) fail(`index.html does not link to /${t}/`);
+}
+if (logo && !index.includes(`src="${logo.src}"`)) fail('logo missing in built index.html');
 
 console.log(`Built ${relative(ROOT, target)}/ in ${((Date.now() - started) / 1000).toFixed(1)}s: ${readdirSync(target).join(', ')}`);
-console.log(`Site ${code} → https://${domain}/   form: ${build.site.formEndpoint}`);
+console.log(`Site ${code} → https://${domain}/   form: ${build.site.formEndpoint}${towns.length ? `   towns: ${towns.map((t) => `/${t}/`).join(' ')}` : ''}`);
 if (test) console.log('TEST BUILD (stub endpoints): never deploy this folder.');
 else console.log('Not deployed. Add the site code + origins to the Worker SITES var first, then upload this folder to the client host.');
