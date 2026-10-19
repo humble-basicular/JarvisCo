@@ -5,9 +5,9 @@ Lead: Codex GPT-6.1-Sol, explicit user override after Claude's session limit. Re
 
 | Stage | Owner / reviewer | Inputs → outputs | Owned files / branch | Acceptance / status |
 |---|---|---|---|---|
-| Recovery | Codex lead | previous run, board and saved artifacts → remaining-work list | coordination only | COMPLETE: implementation committed, screenshots and client test build exist; no delegated review yet |
-| preview-review | Codex GPT-6.1-Sol high / Claude-authored implementation | integration...preview branch diff → findings and verdict | read-only scripts and heating/preview source; no writes | ACTIVE, round 1; privacy, optional fields, demo parity, paths, indexing, inert preview |
-| preview-completion | Codex lead | findings, private profile and artifacts → fixes, drafts and handoff | existing preview branch/worktree (reassigned from Claude), code only after review stops; private artifacts; own handoff | PENDING; npm check, contract, image-size, local browser, real-data isolation; no deletions |
+| Recovery | Codex lead | previous run, board and saved artifacts → remaining-work list | coordination only | COMPLETE: recovered Claude implementation and existing private artifacts |
+| preview-review | Codex GPT-6.1-Sol high / Claude-authored implementation | integration...preview branch diff → findings and verdict | read-only scripts and heating/preview source; no writes | Round 1: changes requested (SVG namespace bypass, corrupt PNG, private coverage claim). Fixes complete; round 2 pending |
+| preview-completion | Codex lead | findings, private profile and artifacts → fixes, drafts and handoff | existing preview branch/worktree (reassigned from Claude), code only after review stops; private artifacts; own handoff | IMPLEMENTED: strict static-SVG tree, full logo decode, awaited callers/regressions; private copy corrected; screenshot race fixed + retain-profile. Check PASS, contract 51/51, image-size PASS, 390/1440 local QA PASS; final review pending |
 | preview-integration | Codex lead | approved branch → integration and report | main board, merge only; own handoff | PENDING; independent focused checks, final screenshots, domain checks, rollback/deploy plan; no deployment |
 
 No parallel edits. Review changed files only, maximum two rounds. Review of new Codex fixes goes to Claude if allowance is available; otherwise explicitly record the unverified provider review.
