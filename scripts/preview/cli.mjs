@@ -96,6 +96,7 @@ async function generate(file) {
     ...(data.priceNote ? { priceNote: data.priceNote } : {}),
     ...(logo ? { logo } : {}),
     ...(data.towns?.length ? { towns: data.towns } : {}),
+    ...(data.v3 ? { v3: data.v3 } : {}),
     photos,
     ...(submission ? { submission } : {}),
   };

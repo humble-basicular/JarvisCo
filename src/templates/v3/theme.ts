@@ -1,13 +1,20 @@
 /* Theme card for template v3 (design plan 2026-10-20, "Theme system").
    Every site = fixed rules (section order, hero form, call bar, one heading font,
    one divider style, filled icons) + one theme card chosen from the client's trade
-   archetype and feel. The card lives in previews/<slug>.json as `theme`; the human
-   copy is Drive Business/JarvisWeb/previews/<slug>/THEME.md. */
+   archetype and feel. The card lives in previews/<slug>.json under `v3.theme`.
+   Uniqueness comes from the card: palette, heading font, divider, badge shape and
+   glyph, hero layout and service layout. Pick a combination no other client has. */
 
 export type Archetype = 'water' | 'heat' | 'outdoor' | 'heavy' | 'electric' | 'clean' | 'craft';
 export type Divider = 'angle' | 'wave';
 export type LogoShape = 'round' | 'shield';
-export type HeadingFont = 'archivo-black';
+export type LogoGlyph = 'flame' | 'drop';
+export type HeadingFont = 'archivo-black' | 'barlow-condensed';
+/** photo = full-bleed photo behind copy + form (needs a sharp ≥1400 px photo);
+ *  panel = tinted photo texture, copy + pinned real work photos + form (phone photos). */
+export type HeroLayout = 'photo' | 'panel';
+/** tiles = one photo per service (needs a matching photo each); cards = filled icon cards. */
+export type ServiceLayout = 'tiles' | 'cards';
 
 export interface Theme {
   archetype: Archetype;
@@ -23,11 +30,14 @@ export interface Theme {
   paper: string;
   heading: HeadingFont;
   divider: Divider;
-  logo: { shape: LogoShape; ring: string; line: string };
+  hero: HeroLayout;
+  services: ServiceLayout;
+  logo: { shape: LogoShape; glyph: LogoGlyph; ring: string; line: string };
 }
 
-const HEADING_STACK: Record<HeadingFont, string> = {
+export const HEADING_STACK: Record<HeadingFont, string> = {
   'archivo-black': "'V3 Head','V3 Head Fallback',Impact,'Arial Black',sans-serif",
+  'barlow-condensed': "'V3 Head','V3 Head Fallback','Arial Narrow',Impact,sans-serif",
 };
 
 export function themeCss(t: Theme): string {

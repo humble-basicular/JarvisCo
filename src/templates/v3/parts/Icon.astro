@@ -1,6 +1,6 @@
 ---
-import { ICON, type IconName } from '../icons';
+import { EVENODD, ICON, type IconName } from '../icons';
 interface Props { name: IconName; class?: string }
 const { name, class: cls } = Astro.props;
 ---
-<svg class:list={['v3-ico', cls]} viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={ICON[name]} /></svg>
+<svg class:list={['v3-ico', cls]} viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={ICON[name]} fill-rule={EVENODD.has(name) ? 'evenodd' : undefined} /></svg>

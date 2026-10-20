@@ -2,8 +2,10 @@
 /* HTML shell for template v3. Preview only for now (noindex, PAVYZDYS banner, no tracking).
    Self-hosted fonts (fontsource, OFL), latin + latin-ext: Lithuanian letters live in latin-ext. */
 import './v3.css';
-import headLatin from '@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2?url';
-import headExt from '@fontsource/archivo-black/files/archivo-black-latin-ext-400-normal.woff2?url';
+import archivoLatin from '@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2?url';
+import archivoExt from '@fontsource/archivo-black/files/archivo-black-latin-ext-400-normal.woff2?url';
+import barlowLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2?url';
+import barlowExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-800-normal.woff2?url';
 import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
 import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
 import { themeCss, type Theme } from './theme';
@@ -11,17 +13,24 @@ import type { Banner } from '../heating/types';
 
 interface Props { title: string; description: string; theme: Theme; banner?: Banner }
 const { title, description, theme, banner } = Astro.props;
+/* One heading font per site (theme card); only that font's files are referenced. */
+const HEAD = {
+  'archivo-black': { latin: archivoLatin, ext: archivoExt, weight: '400', fallback: "local('Arial Black'),local('Arial-BoldMT'),local('Arial')", adjust: '98%' },
+  'barlow-condensed': { latin: barlowLatin, ext: barlowExt, weight: '800', fallback: "local('Arial Narrow Bold'),local('ArialNarrow-Bold'),local('Arial Bold')", adjust: '82%' },
+}[theme.heading];
+const headLatin = HEAD.latin;
+const headExt = HEAD.ext;
 
 const LATIN = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
 const EXT = 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
 const face = (family: string, src: string, range: string, weight: string) =>
   `@font-face{font-family:'${family}';font-style:normal;font-display:swap;font-weight:${weight};src:url(${src}) format('woff2');unicode-range:${range}}`;
 const fontCss = [
-  face('V3 Head', headLatin, LATIN, '400'),
-  face('V3 Head', headExt, EXT, '400'),
+  face('V3 Head', headLatin, LATIN, HEAD.weight),
+  face('V3 Head', headExt, EXT, HEAD.weight),
   face('V3 Sans', sansLatin, LATIN, '400 700'),
   face('V3 Sans', sansExt, EXT, '400 700'),
-  "@font-face{font-family:'V3 Head Fallback';src:local('Arial Black'),local('Arial-BoldMT'),local('Arial');size-adjust:98%}",
+  `@font-face{font-family:'V3 Head Fallback';src:${HEAD.fallback};size-adjust:${HEAD.adjust}}`,
   "@font-face{font-family:'V3 Sans Fallback';src:local('Arial'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:25%;line-gap-override:0%}",
 ].join('');
 const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="${theme.base}"/><circle cx="32" cy="32" r="20" fill="${theme.accent}"/><path d="M32.6 17c1.6 6 9.4 9.4 9.4 18a10 10 0 0 1-20 0c0-4.6 2.3-7.7 4.8-10.5.3 2.6 1.4 4.4 3.3 5.4-.6-5.2.2-9.6 2.5-12.9z" fill="#fff" transform="translate(32 33) scale(.8) translate(-32 -31)"/></svg>`)}`;
@@ -43,7 +52,7 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
     <style set:html={`${fontCss}:root{${themeCss(theme)}}`}></style>
   </head>
-  <body class={`v3 v3--${theme.archetype} v3--div-${theme.divider}`}>
+  <body class={`v3 v3--${theme.archetype} v3--div-${theme.divider} v3--head-${theme.heading}`}>
     {banner && (
       <div class="v3-banner" role="note">
         <span class="v3-banner__tag">{banner.tag}</span>

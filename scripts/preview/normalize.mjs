@@ -238,6 +238,96 @@ function isPhone(value) {
 }
 
 /** Top-level fields win; missing ones are filled from the form submission. */
+/* Template v3 block (src/templates/v3/content.ts V3Input + theme.ts Theme). Keep these lists in sync. */
+const V3_ENUMS = {
+  archetype: ['water', 'heat', 'outdoor', 'heavy', 'electric', 'clean', 'craft'],
+  heading: ['archivo-black', 'barlow-condensed'],
+  divider: ['angle', 'wave'],
+  hero: ['photo', 'panel'],
+  services: ['tiles', 'cards'],
+  shape: ['round', 'shield'],
+  glyph: ['flame', 'drop'],
+  link: ['google', 'facebook', 'paslaugos'],
+};
+const V3_ICONS = ['phone', 'camera', 'tag', 'calendar', 'wrench', 'verified', 'pin', 'clock', 'team', 'wallet', 'arrow', 'check', 'flame', 'mail', 'facebook', 'list', 'drop', 'radiator', 'floor', 'fan', 'washer', 'pump', 'quote', 'map'];
+const HEX = /^#[0-9a-f]{6}$/i;
+
+function oneOf(value, field, allowed) {
+  if (!allowed.includes(value)) throw new Error(`${field} must be one of ${allowed.join(', ')}`);
+  return value;
+}
+function obj(value, field) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${field} must be an object`);
+  return value;
+}
+function v3Items(value, field, min, max) {
+  if (!Array.isArray(value) || value.length < min || value.length > max) throw new Error(`${field} must be a list of ${min}–${max} items`);
+  return value.map((it, i) => ({
+    icon: oneOf(obj(it, `${field}[${i}]`).icon, `${field}[${i}].icon`, V3_ICONS),
+    title: text(it.title, `${field}[${i}].title`, 70, { required: true }),
+    text: text(it.text, `${field}[${i}].text`, 220, { required: true }),
+  }));
+}
+function index(value, field) {
+  if (value == null) return undefined;
+  if (!Number.isInteger(value) || value < 0 || value > 11) throw new Error(`${field} must be a photo index 0–11`);
+  return value;
+}
+function v3(value) {
+  if (value == null) return undefined;
+  const v = obj(value, 'v3');
+  const t = obj(v.theme, 'v3.theme');
+  const logo = obj(t.logo, 'v3.theme.logo');
+  const theme = {
+    archetype: oneOf(t.archetype, 'v3.theme.archetype', V3_ENUMS.archetype),
+    ...Object.fromEntries(['base', 'base2', 'accent', 'accentHi', 'paper'].map((k) => {
+      if (!HEX.test(t[k] ?? '')) throw new Error(`v3.theme.${k} must be #rrggbb`);
+      return [k, t[k].toLowerCase()];
+    })),
+    heading: oneOf(t.heading, 'v3.theme.heading', V3_ENUMS.heading),
+    divider: oneOf(t.divider, 'v3.theme.divider', V3_ENUMS.divider),
+    hero: oneOf(t.hero, 'v3.theme.hero', V3_ENUMS.hero),
+    services: oneOf(t.services, 'v3.theme.services', V3_ENUMS.services),
+    logo: {
+      shape: oneOf(logo.shape, 'v3.theme.logo.shape', V3_ENUMS.shape),
+      glyph: oneOf(logo.glyph, 'v3.theme.logo.glyph', V3_ENUMS.glyph),
+      ring: text(logo.ring, 'v3.theme.logo.ring', 32, { required: true }),
+      line: text(logo.line, 'v3.theme.logo.line', 60, { required: true }),
+    },
+  };
+  const h1 = obj(v.h1, 'v3.h1');
+  const pair = (x, f, a = 70, b = 220) => (x == null ? undefined : { title: text(obj(x, f).title, `${f}.title`, a, { required: true }), text: text(x.text, `${f}.text`, b, { required: true }) });
+  const opt = (k, max) => text(v[k], `v3.${k}`, max);
+  const photo = v.photo == null ? undefined : obj(v.photo, 'v3.photo');
+  const out = {
+    theme,
+    h1: { lead: text(h1.lead, 'v3.h1.lead', 60, { required: true }), hot: text(h1.hot, 'v3.h1.hot', 30, { required: true }), ...(h1.tail ? { tail: text(h1.tail, 'v3.h1.tail', 30) } : {}) },
+    pill: opt('pill', 90),
+    heroChecks: list(v.heroChecks, 'v3.heroChecks', 4, 50),
+    trust: v3Items(v.trust, 'v3.trust', 3, 5),
+    aboutTitle: text(v.aboutTitle, 'v3.aboutTitle', 90, { required: true }),
+    aboutChecks: list(v.aboutChecks, 'v3.aboutChecks', 4, 160),
+    stamp: v.stamp == null ? undefined : { title: text(obj(v.stamp, 'v3.stamp').title, 'v3.stamp.title', 40, { required: true }), text: text(v.stamp.text, 'v3.stamp.text', 50, { required: true }) },
+    quoteSub: opt('quoteSub', 160), formHint: opt('formHint', 80), attachLabel: opt('attachLabel', 60),
+    tilePhotos: v.tilePhotos == null ? undefined : (Array.isArray(v.tilePhotos) ? v.tilePhotos.map((x, i) => index(x, `v3.tilePhotos[${i}]`)) : (() => { throw new Error('v3.tilePhotos must be a list'); })()),
+    steps: v3Items(v.steps, 'v3.steps', 3, 5),
+    stepsTitle: opt('stepsTitle', 70), galleryNote: opt('galleryNote', 160),
+    promise: pair(v.promise, 'v3.promise', 60, 220),
+    areasTitle: opt('areasTitle', 90), areasText: opt('areasText', 220), townLabel: opt('townLabel', 40), baseLine: opt('baseLine', 60),
+    links: v.links == null ? undefined : (Array.isArray(v.links) ? v.links : []).map((l, i) => {
+      const kind = oneOf(obj(l, `v3.links[${i}]`).kind, `v3.links[${i}].kind`, V3_ENUMS.link);
+      if (l.url != null && !/^https:\/\/[^\s"<>]+$/.test(l.url)) throw new Error(`v3.links[${i}].url must be https://…`);
+      return { kind, ...(l.url ? { url: l.url } : {}) };
+    }),
+    ctaTitle: text(v.ctaTitle, 'v3.ctaTitle', 80, { required: true }),
+    ctaText: text(v.ctaText, 'v3.ctaText', 200, { required: true }),
+    photo: photo && Object.fromEntries(Object.entries({ hero: index(photo.hero, 'v3.photo.hero'), about: index(photo.about, 'v3.photo.about'), faq: index(photo.faq, 'v3.photo.faq'), cta: index(photo.cta, 'v3.photo.cta'),
+      pins: photo.pins == null ? undefined : (Array.isArray(photo.pins) && photo.pins.length <= 3 ? photo.pins.map((x, i) => index(x, `v3.photo.pins[${i}]`)) : (() => { throw new Error('v3.photo.pins must be a list of at most 3'); })()) }).filter(([, x]) => x !== undefined)),
+  };
+  if (!out.heroChecks.length) throw new Error('v3.heroChecks is required');
+  return JSON.parse(JSON.stringify(out)); // drop undefined keys
+}
+
 export function normalize(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('input must be a JSON object');
   const submission = validateSubmission(raw.submission);
@@ -266,6 +356,7 @@ export function normalize(raw) {
     priceNote: text(raw.priceNote, 'priceNote', 300),
     logo: logo(raw.logo),
     towns: towns(raw.towns),
+    v3: v3(raw.v3),
   };
   if (!isPhone(data.phone)) throw new Error(`phone "${data.phone}" is not a phone number (digits, spaces, + - ( ), at least 8 digits)`);
   if (!toE164(data.phone)) throw new Error(`phone "${data.phone}" cannot be converted to +370… (use 8 6xx xxxxx, 06xx xxxxx, 6xx xxxxx or +370 6xx xxxxx)`);

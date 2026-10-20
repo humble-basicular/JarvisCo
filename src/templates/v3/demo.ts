@@ -1,9 +1,9 @@
 /* v3 content of the labelled "Pavyzdys" heating demo (Šilumos ratas, fictional).
-   Same business facts as templates/heating/demo.ts; adds the theme card and the
-   v3 sections. Photos are the 2026-10-15 DI illustrations (heating/assets/PROVENANCE.md):
+   Same business facts as templates/heating/demo.ts, in the same shape a real client
+   has in previews/<slug>.json: SiteData + the `v3` block. Photos are the 2026-10-15 DI illustrations (heating/assets/PROVENANCE.md):
    allowed here as generic pictures; on client sites the gallery is real work only. */
 import { demo as base } from '../heating/demo';
-import type { IconName } from './icons';
+import type { V3Input } from './content';
 import type { Theme } from './theme';
 import installed from '../heating/assets/demo-boiler-installed-1536.webp?url';
 import installedMid from '../heating/assets/demo-boiler-installed-1024.webp?url';
@@ -41,42 +41,23 @@ export const theme: Theme = {
   paper: '#f4f1ec',
   heading: 'archivo-black',
   divider: 'angle',
-  logo: { shape: 'round', ring: 'Kaunas · šildymas', line: 'Šildymo meistrai · Kaunas' },
+  hero: 'photo',
+  services: 'tiles',
+  logo: { shape: 'round', glyph: 'flame', ring: 'Kaunas · šildymas', line: 'Šildymo meistrai · Kaunas' },
 };
 
+/* Photo order: 0 room, 1 installed, 2 underfloor, 3 radiator, 4 service (gallery order). */
 export const site = {
   ...base,
-  h1: { lead: 'Katilų remontas ir', hot: 'šildymas', tail: 'Kaune' },
-  heroLead: 'Dujinių katilų remontas, metinė priežiūra, katilų keitimas ir šilumos siurbliai. Kainą pasakome prieš atvykstant.',
-  heroChecks: ['Kaina – prieš darbus', 'Bosch, Vaillant, Viessmann ir kt.', 'Kaunas ir Kauno rajonas'],
-  trust: [
-    { icon: 'team', title: 'Du meistrai', text: 'iš Kauno' },
-    { icon: 'tag', title: 'Kaina iš anksto', text: 'prieš atvykstant' },
-    { icon: 'verified', title: '5 markės', text: 'Bosch, Vaillant ir kt.' },
-    { icon: 'pin', title: 'Kaunas', text: 'ir Kauno rajonas' },
-    { icon: 'clock', title: 'I–V 8–18', text: 'sezonu ir šeštadieniais' },
-  ] satisfies { icon: IconName; title: string; text: string }[],
-  aboutTitle: 'Du meistrai, kurie atvažiuoja patys',
-  aboutChecks: [
-    'Prieš darbus pasakome kainą, po darbų paaiškiname, ką padarėme.',
-    'Detales atsivežame arba užsakome patys, Jums nereikia jų ieškoti.',
-    'Po remonto paleidžiame sistemą ir patikriname, ar viskas veikia.',
+  lead: 'Dujinių katilų remontas, metinė priežiūra, katilų keitimas ir šilumos siurbliai. Kainą pasakome prieš atvykstant.',
+  services: [
+    { name: 'Katilų remontas ir priežiūra', text: 'Gedimai, klaidų kodai, metinė apžiūra' },
+    { name: 'Katilų keitimas', text: 'Parinkimas, išmontavimas, aprišimas' },
+    { name: 'Šilumos siurbliai', text: 'Oras–vanduo įrengimas ir priežiūra' },
+    { name: 'Grindinis šildymas', text: 'Kontūrai, kolektoriai, balansavimas' },
+    { name: 'Radiatoriai ir vamzdynai', text: 'Keitimas, plovimas, nuorinimas' },
   ],
-  tiles: [
-    { name: 'Katilų remontas ir priežiūra', text: 'Gedimai, klaidų kodai, metinė apžiūra', img: IMG.service },
-    { name: 'Katilų keitimas', text: 'Parinkimas, išmontavimas, aprišimas', img: IMG.installed },
-    { name: 'Šilumos siurbliai', text: 'Oras–vanduo įrengimas ir priežiūra', img: IMG.room },
-    { name: 'Grindinis šildymas', text: 'Kontūrai, kolektoriai, balansavimas', img: IMG.underfloor },
-    { name: 'Radiatoriai ir vamzdynai', text: 'Keitimas, plovimas, nuorinimas', img: IMG.radiator },
-  ],
-  steps: [
-    { icon: 'camera', title: 'Paskambinate arba atsiunčiate nuotrauką', text: 'Trumpai parašykite, kas atsitiko. Katilo ar klaidos ekrano nuotrauka padeda įvertinti iš karto.' },
-    { icon: 'tag', title: 'Pasakome kainą prieš atvykstant', text: 'Įvertiname darbą ir pasakome kainą ar jos ribas. Jokių staigmenų sąskaitoje.' },
-    { icon: 'calendar', title: 'Suderiname laiką ir dalis', text: 'Atvykstame sutartu laiku. Reikalingas dalis atsivežame arba užsakome patys.' },
-    { icon: 'wrench', title: 'Atliekame darbą ir išbandome', text: 'Paleidžiame sistemą, patikriname slėgį ir degimą, parodome, kas padaryta.' },
-    { icon: 'wallet', title: 'Atsiskaitote po darbo', text: 'Mokate už atliktą ir suderintą darbą. Papildomus darbus pirma aptariame su Jumis.' },
-  ] satisfies { icon: IconName; title: string; text: string }[],
-  gallery: [IMG.room, IMG.installed, IMG.underfloor, IMG.radiator, IMG.service],
+  photos: [IMG.room, IMG.installed, IMG.underfloor, IMG.radiator, IMG.service],
   faq: [
     { q: 'Kiek kainuoja iškvietimas?', a: 'Iškvietimas ir gedimo diagnostika Kaune – nuo 40 €. Tikslią remonto kainą pasakome nustatę gedimą, prieš pradėdami darbą.' },
     { q: 'Kokių markių katilus taisote?', a: 'Bosch, Vaillant, Viessmann, Baxi ir Protherm. Kitos markės? Parašykite modelį arba atsiųskite duomenų lentelės nuotrauką.' },
@@ -85,7 +66,47 @@ export const site = {
     { q: 'Kada daryti metinę katilo priežiūrą?', a: 'Prieš šildymo sezoną, rugpjūtį–spalį. Tada lengviau suderinti laiką ir katilas nesustos per pirmus šalčius.' },
     { q: 'Ką daryti, jei užuodžiu dujas?', a: 'Nejunkite ir neišjunkite elektros prietaisų, neuždekite ugnies, atidarykite langus, išeikite į lauką ir skambinkite ESO dujų avarinei tarnybai 1804 arba 112.' },
   ],
+};
+
+export const v3: V3Input = {
+  theme,
+  h1: { lead: 'Katilų remontas ir', hot: 'šildymas', tail: 'Kaune' },
+  pill: 'Kaunas · Garliava · Akademija · Raudondvaris',
+  heroChecks: ['Kaina – prieš darbus', 'Bosch, Vaillant, Viessmann ir kt.', 'Kaunas ir Kauno rajonas'],
+  trust: [
+    { icon: 'team', title: 'Du meistrai', text: 'iš Kauno' },
+    { icon: 'tag', title: 'Kaina iš anksto', text: 'prieš atvykstant' },
+    { icon: 'verified', title: '5 markės', text: 'Bosch, Vaillant ir kt.' },
+    { icon: 'pin', title: 'Kaunas', text: 'ir Kauno rajonas' },
+    { icon: 'clock', title: 'I–V 8–18', text: 'sezonu ir šeštadieniais' },
+  ],
+  aboutTitle: 'Du meistrai, kurie atvažiuoja patys',
+  aboutChecks: [
+    'Prieš darbus pasakome kainą, po darbų paaiškiname, ką padarėme.',
+    'Detales atsivežame arba užsakome patys, Jums nereikia jų ieškoti.',
+    'Po remonto paleidžiame sistemą ir patikriname, ar viskas veikia.',
+  ],
+  stamp: { title: 'Šildymo meistrai', text: 'Kaunas ir Kauno r.' },
+  quoteSub: 'Parašykite, kas atsitiko. Perskambinsime ir pasakysime kainą prieš atvykstant.',
+  formHint: 'Pvz. Vaillant katilas rodo klaidą F28',
+  attachLabel: 'Pridėti katilo ar klaidos nuotrauką',
+  tilePhotos: [4, 1, 0, 2, 3],
+  steps: [
+    { icon: 'camera', title: 'Paskambinate arba atsiunčiate nuotrauką', text: 'Trumpai parašykite, kas atsitiko. Katilo ar klaidos ekrano nuotrauka padeda įvertinti iš karto.' },
+    { icon: 'tag', title: 'Pasakome kainą prieš atvykstant', text: 'Įvertiname darbą ir pasakome kainą ar jos ribas. Jokių staigmenų sąskaitoje.' },
+    { icon: 'calendar', title: 'Suderiname laiką ir dalis', text: 'Atvykstame sutartu laiku. Reikalingas dalis atsivežame arba užsakome patys.' },
+    { icon: 'wrench', title: 'Atliekame darbą ir išbandome', text: 'Paleidžiame sistemą, patikriname slėgį ir degimą, parodome, kas padaryta.' },
+    { icon: 'wallet', title: 'Atsiskaitote po darbo', text: 'Mokate už atliktą ir suderintą darbą. Papildomus darbus pirma aptariame su Jumis.' },
+  ],
+  stepsTitle: 'Nuo skambučio iki šilto namo',
+  galleryNote: 'Pavyzdyje – DI iliustracijos. Kliento svetainėje čia būna tik tikros jo darbų nuotraukos.',
+  promise: { title: 'Kainą pasakome prieš darbus', text: 'Jei prireikia papildomų darbų ar detalių, pirma paskambiname ir suderiname su Jumis.' },
+  areasTitle: 'Kaunas, Jonava, Kėdainiai ir aplinkui',
+  areasText: 'Bazė – Kaune. Kiekvienas miestas turi savo puslapį su atvykimo laiku ir kainomis.',
+  townLabel: 'Katilų remontas',
+  baseLine: 'Kaunas ir Kauno rajonas',
+  links: [{ kind: 'google' }, { kind: 'facebook' }, { kind: 'paslaugos' }],
   ctaTitle: 'Sugedo katilas? Paskambinkite dabar.',
   ctaText: 'Pasakysime, kas galėjo atsitikti, ir kainą – dar prieš atvykstant.',
+  photo: { hero: 1, about: 0, faq: 3, cta: 2 },
 };
-export type V3Site = typeof site;

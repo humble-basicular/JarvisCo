@@ -48,8 +48,10 @@
 .v3-h1 { font-size: clamp(2.35rem, 5.2vw, 4.1rem); line-height: 1.02; text-transform: uppercase; color: #fff; text-wrap: balance; }
 .v3-h2 { font-size: clamp(1.85rem, 3.4vw, 2.75rem); line-height: 1.08; text-wrap: balance; }
 .v3-hot { color: var(--v3-accent-hi); }
-.v3-kicker { display: inline-flex; align-items: center; gap: .5rem; margin-bottom: .6rem; color: var(--v3-accent); font-weight: 700; font-size: 1rem; }
-.v3-kicker::before { content: ''; width: .7rem; height: .7rem; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 20%, transparent); }
+.v3-kicker { display: inline-flex; align-items: center; gap: .65rem; margin-bottom: .7rem; color: var(--v3-accent); font-weight: 800; font-size: .85rem; letter-spacing: .14em; text-transform: uppercase; }
+/* Kicker mark follows the divider style: two cut bars (angle) or a short wave (wave). */
+.v3-kicker::before { content: ''; flex: none; width: 1.7rem; height: .32rem; background: linear-gradient(90deg, currentColor 0 58%, transparent 58% 72%, currentColor 72%); transform: skewX(-32deg); }
+.v3--div-wave .v3-kicker::before { width: 2.1rem; height: .6rem; transform: none; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 10'%3E%3Cpath d='M2 6c3.5-4.5 6.5-4.5 10 0s6.5 4.5 10 0 6.5-4.5 10 0' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 10'%3E%3Cpath d='M2 6c3.5-4.5 6.5-4.5 10 0s6.5 4.5 10 0 6.5-4.5 10 0' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
 .v3 .v3-kicker--hi { color: var(--v3-accent-hi); }
 .v3-head { margin-bottom: 2.5rem; max-width: 44rem; }
 .v3-head--center { margin-inline: auto; text-align: center; }
@@ -128,7 +130,7 @@
 
 /* ---- Trust strip ---- */
 .v3-trust { background: var(--v3-accent); color: #fff; padding: .4rem 0 .6rem; }
-.v3-trust__list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
+.v3-trust__list { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 1rem; }
 .v3-trust li { display: flex; align-items: center; gap: .8rem; line-height: 1.2; }
 .v3-trust__ico { display: grid; place-items: center; width: 3.1rem; height: 3.1rem; flex: none; border-radius: 50%; background: #fff; color: var(--v3-accent); }
 .v3-trust__ico .v3-ico { width: 1.6rem; height: 1.6rem; }
@@ -184,8 +186,8 @@
 
 /* Process */
 .v3-steps { background: var(--v3-base); color: #fff; padding-block: clamp(2.5rem, 5vw, 4rem); position: relative; overflow: hidden; }
-.v3-steps::before { content: ''; position: absolute; right: -8rem; top: -8rem; width: 26rem; height: 26rem; border-radius: 50%; border: 60px solid color-mix(in srgb, var(--v3-accent) 14%, transparent); }
-.v3-steps__list { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.5rem; counter-reset: s; }
+.v3-steps::before { content: ''; position: absolute; right: 0; top: 0; width: min(34rem, 45%); height: 9rem; background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--v3-accent) 30%, transparent) 0 3px, transparent 3px 14px); clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%); opacity: .7; }
+.v3-steps__list { position: relative; display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 1.5rem; counter-reset: s; }
 .v3-steps__list li { position: relative; text-align: center; padding: 0 .25rem; }
 .v3-steps__list li:not(:last-child)::after { content: ''; position: absolute; top: 2.6rem; left: calc(50% + 3.4rem); right: calc(-50% + 3.4rem); border-top: 3px dashed color-mix(in srgb, var(--v3-accent-hi) 60%, transparent); }
 .v3-steps__list li:not(:last-child)::before { content: ''; position: absolute; top: calc(2.6rem - 6px); right: calc(-50% + 3rem); border: 7.5px solid transparent; border-left: 10px solid var(--v3-accent-hi); border-right: 0; }
@@ -215,7 +217,7 @@
 .v3-price td { text-align: right; white-space: nowrap; border-radius: 0 8px 8px 0; font: 1.3rem/1 var(--v3-head); color: var(--v3-accent); }
 .v3-prices__note { margin-top: .6rem; font-size: .9rem; color: var(--v3-muted); }
 .v3-promise { position: relative; padding: 2.25rem 2rem 2rem; background: var(--v3-base); color: #fff; border-radius: 14px; box-shadow: var(--v3-shadow); overflow: hidden; }
-.v3-promise::after { content: ''; position: absolute; right: -3rem; bottom: -3rem; width: 10rem; height: 10rem; border-radius: 50%; background: color-mix(in srgb, var(--v3-accent) 30%, transparent); }
+.v3-promise::after { content: ''; position: absolute; right: 0; bottom: 0; width: 9rem; height: 5rem; background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--v3-accent) 45%, transparent) 0 3px, transparent 3px 12px); clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%); }
 .v3-promise__ico { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 12px; background: var(--v3-accent); margin-bottom: 1.1rem; }
 .v3-promise__ico .v3-ico { width: 1.8rem; height: 1.8rem; }
 .v3-promise__title { font-size: 1.6rem; line-height: 1.1; text-transform: uppercase; margin-bottom: .7rem; }
@@ -257,11 +259,77 @@
 .v3-areas__also { margin-top: 1.1rem; font-weight: 600; }
 .v3-areas__unsure { margin-top: 1.2rem; font-size: .95rem; color: var(--v3-muted); }
 .v3-areas__unsure a { color: var(--v3-accent); font-weight: 700; }
-.v3-map svg { width: 100%; height: auto; display: block; border-radius: 18px; box-shadow: var(--v3-shadow); }
+.v3-map__frame { position: relative; aspect-ratio: 5 / 4; border-radius: 18px; overflow: hidden; box-shadow: var(--v3-shadow); background: var(--v3-base); }
+.v3-map__frame > svg { width: 100%; height: 100%; display: block; }
+.v3-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.v3-map__frame.is-live > svg { visibility: hidden; }
+.v3-map__load { position: absolute; left: 50%; bottom: 1.25rem; translate: -50% 0; box-shadow: var(--v3-shadow); white-space: nowrap; }
+.v3-map__km { font: 600 12px/1 var(--v3-sans); fill: var(--v3-accent-hi); opacity: .85; }
 .v3-map__label { font: 600 14px/1 var(--v3-sans); fill: #d4d4d8; }
 .v3-map__town { font: 18px/1 var(--v3-head); fill: #fff; letter-spacing: .03em; }
 .v3-map__big { font: 22px/1 var(--v3-head); fill: #fff; letter-spacing: .04em; }
 .v3-map figcaption { margin-top: .5rem; font-size: .8rem; color: var(--v3-muted); text-align: right; }
+.v3-cities a[aria-current] { box-shadow: inset 0 0 0 2px var(--v3-accent); }
+
+/* ---- Hero variant: panel (tinted photo texture + pinned real work photos) ---- */
+.v3-hero--panel .v3-hero__bg { filter: blur(3px) saturate(.7); transform: scale(1.04); }
+.v3-hero--panel::before { background: linear-gradient(100deg, color-mix(in srgb, var(--v3-base) 97%, transparent) 0%, color-mix(in srgb, var(--v3-base) 90%, transparent) 55%, color-mix(in srgb, var(--v3-base) 78%, transparent) 100%); }
+.v3-hero--panel .v3-hero__grid { align-items: start; }
+.v3-pins { margin-top: 2.2rem; }
+.v3-pins ul { display: flex; gap: 1rem; }
+.v3-pins li { width: clamp(6.5rem, 11vw, 9.5rem); aspect-ratio: 1; padding: .35rem; background: #fff; border-radius: 6px; box-shadow: 0 14px 30px -12px rgb(0 0 0 / .7); rotate: -3deg; }
+.v3-pins li:nth-child(2) { rotate: 2deg; translate: 0 .6rem; }
+.v3-pins li:nth-child(3) { rotate: -1deg; }
+.v3-pins img { width: 100%; height: 100% !important; object-fit: cover; border-radius: 3px; }
+.v3-pins figcaption { display: inline-flex; align-items: center; gap: .45rem; margin-top: 1.1rem; font-size: .9rem; font-weight: 600; color: #d9dbe2; }
+.v3-pins .v3-ico { color: var(--v3-accent-hi); }
+
+/* ---- Services variant: icon cards ---- */
+.v3-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+.v3-card { position: relative; display: flex; flex-direction: column; gap: .6rem; padding: 1.7rem 1.6rem 1.5rem; background: #fff; border-radius: var(--v3-r); border-bottom: 4px solid var(--v3-accent); box-shadow: 0 1px 0 var(--v3-line), 0 16px 34px -24px rgb(0 0 0 / .55); transition: transform .2s ease, box-shadow .2s ease; }
+.v3-card:hover { transform: translateY(-3px); box-shadow: 0 1px 0 var(--v3-line), 0 22px 40px -22px rgb(0 0 0 / .55); }
+.v3-card__ico { display: grid; place-items: center; width: 3.6rem; height: 3.6rem; margin-bottom: .4rem; border-radius: 12px; background: var(--v3-base); color: var(--v3-accent-hi); }
+.v3-card__ico .v3-ico { width: 1.9rem; height: 1.9rem; }
+.v3-card__name { font: 1.3rem/1.1 var(--v3-head); text-transform: uppercase; }
+.v3-card__text { color: var(--v3-muted); font-size: .97rem; line-height: 1.5; }
+.v3-card__go { display: inline-flex; align-items: center; gap: .4rem; margin-top: auto; padding-top: .6rem; color: var(--v3-accent); font-weight: 800; text-decoration: none; }
+.v3-card--cta { justify-content: center; align-items: center; text-align: center; background: var(--v3-accent); color: #fff; border-bottom-color: var(--v3-base); }
+.v3-card--cta .v3-card__text { color: #fff; opacity: .92; margin-bottom: .8rem; }
+
+/* ---- Town block (town pages) ---- */
+.v3-town__grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+.v3-town__text { margin-top: 1.1rem; font-size: 1.1rem; color: var(--v3-muted); }
+.v3-town__note { display: flex; gap: .7rem; margin-top: 1.4rem; padding: 1rem 1.2rem; background: var(--v3-paper); border-left: 4px solid var(--v3-accent); border-radius: 0 8px 8px 0; font-weight: 600; }
+.v3-town__note .v3-ico { color: var(--v3-accent); margin-top: .2rem; }
+.v3-town__back { margin-top: 1.4rem; }
+.v3-town__back a { display: inline-flex; align-items: center; gap: .5rem; font-weight: 800; color: var(--v3-accent); text-decoration: none; }
+.v3-town__back-ico { rotate: 180deg; }
+.v3-town__card { padding: 1.8rem; background: var(--v3-base); color: #fff; border-radius: 14px; box-shadow: var(--v3-shadow); }
+.v3-town__dist { display: flex; align-items: center; gap: .5rem; font-weight: 700; color: var(--v3-accent-hi); margin-bottom: 1.2rem; }
+.v3-town__h { font: 1rem/1 var(--v3-head); text-transform: uppercase; margin: .4rem 0 .9rem; }
+.v3-town__list { display: grid; gap: .7rem; margin-bottom: 1.4rem; font-weight: 600; }
+.v3-town__list li { display: flex; align-items: center; gap: .7rem; }
+.v3-town__places { display: flex; flex-wrap: wrap; gap: .5rem; }
+.v3-town__places li { padding: .4rem .8rem; border-radius: 999px; background: rgb(255 255 255 / .1); font-size: .9rem; }
+
+/* ---- Review (real quotes only) ---- */
+.v3-review { position: relative; margin-top: 2.5rem; padding: 2.2rem 2.4rem 2rem 6.2rem; background: var(--v3-paper); border-radius: 14px; border-left: 6px solid var(--v3-accent); }
+.v3-review__ico { position: absolute; left: 1.8rem; top: 2rem; display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--v3-accent); color: #fff; }
+.v3-review__ico .v3-ico { width: 1.7rem; height: 1.7rem; }
+.v3-review blockquote { margin: 0; font-size: 1.2rem; line-height: 1.55; font-weight: 500; }
+.v3-review figcaption { display: flex; flex-wrap: wrap; gap: .3rem 1rem; margin-top: 1rem; color: var(--v3-muted); font-size: .92rem; }
+.v3-review figcaption strong { color: var(--v3-ink); }
+
+/* ---- Heading font: condensed faces need more size, no negative tracking ---- */
+.v3--head-barlow-condensed :is(.v3-h1, .v3-h2, .v3-tile__name, .v3-card__name, .v3-brand__name, .v3-quote__title, .v3-promise__title, .v3-foot__name, .v3-trust strong) { font-weight: 800; letter-spacing: .005em; }
+.v3--head-barlow-condensed .v3-h1 { font-size: clamp(2.8rem, 6.4vw, 5.1rem); line-height: .98; }
+.v3--head-barlow-condensed .v3-h2 { font-size: clamp(2.2rem, 4vw, 3.3rem); line-height: 1.02; text-transform: uppercase; }
+.v3--head-barlow-condensed :is(.v3-card__name, .v3-tile__name) { font-size: 1.55rem; }
+.v3--head-barlow-condensed .v3-brand__name { font-size: 1.75rem; }
+.v3--head-barlow-condensed .v3-trust strong { font-size: 1.3rem; }
+.v3--head-barlow-condensed :is(.v3-cities strong, .v3-foot__h, .v3-town__h, .v3-price td, .v3-faq__call a) { font-weight: 800; }
+.v3--head-barlow-condensed .v3-cities strong { font-size: 1.45rem; }
+.v3--head-barlow-condensed .v3-badge__ring { font-weight: 800; }
 
 /* Final CTA band */
 .v3-cta { position: relative; isolation: isolate; overflow: hidden; color: #fff; text-align: center; padding: clamp(6rem, 11vw, 9rem) 0 clamp(4rem, 8vw, 6rem); }
@@ -297,10 +365,11 @@
   .v3-trust__list { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 1.2rem; }
   .v3-steps__list { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 2.5rem; }
   .v3-steps__list li::after, .v3-steps__list li::before { display: none; }
+  .v3-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .v3-foot__grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 60rem) {
-  .v3-hero__grid, .v3-about__grid, .v3-prices__grid, .v3-faq__grid, .v3-areas__grid { grid-template-columns: minmax(0, 1fr); }
+  .v3-hero__grid, .v3-about__grid, .v3-prices__grid, .v3-faq__grid, .v3-areas__grid, .v3-town__grid { grid-template-columns: minmax(0, 1fr); }
   .v3-quote { margin-top: 2.5rem; }
   .v3-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .v3-faq__media { position: relative; top: 0; max-width: 28rem; }
@@ -325,11 +394,18 @@
   .v3-hero__ctas .v3-btn { width: 100%; }
   .v3-quote { padding-inline: 1.25rem; }
   .v3-trust__list { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .v3-trust li:last-child { grid-column: span 2; }
+  .v3-trust li:last-child:nth-child(odd) { grid-column: span 2; }
   .v3-about__media { padding: 0 0 1.5rem 1.5rem; }
   .v3-about__stamp { padding: .6rem 1rem .6rem .6rem; }
   .v3-about__stamp .v3-badge { width: 3.2rem; height: 3.2rem; }
-  .v3-tiles { grid-template-columns: minmax(0, 1fr); }
+  .v3-tiles, .v3-cards { grid-template-columns: minmax(0, 1fr); }
+  .v3-card { padding: 1.4rem 1.3rem 1.3rem; }
+  .v3-pins ul { gap: .7rem; }
+  .v3-pins li { width: calc((100% - 1.4rem) / 3); }
+  .v3-review { padding: 4.6rem 1.3rem 1.4rem; }
+  .v3-review__ico { left: 1.3rem; top: 1.3rem; }
+  .v3-review blockquote { font-size: 1.05rem; }
+  .v3-map__load { font-size: .9rem; padding-inline: 1rem; }
   .v3-tile { min-height: 15rem; }
   .v3-steps__list { grid-template-columns: minmax(0, 1fr); row-gap: 0; text-align: left; }
   .v3-steps__list li { display: grid; grid-template-columns: 4rem 1fr; column-gap: 1.1rem; text-align: left; padding-bottom: 1.75rem; }

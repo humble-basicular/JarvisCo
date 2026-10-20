@@ -2,11 +2,15 @@
 /* Lead previews (funnel spec §8): one page per previews/<slug>.json written by
    `npm run preview -- <input.json>`. The slug is random, so pages are not
    guessable; they are noindex,nofollow and kept out of the sitemap. The page is
-   the heating template in `preview` mode: PERŽIŪRA banner, inert form. */
+   the heating template in `preview` mode: PERŽIŪRA banner, inert form. A preview with a
+   `v3` block (theme card + v3 copy) renders on template v3 instead. */
 import type { GetStaticPaths } from 'astro';
 import { brand } from '@data/content.js';
 import HeatingLayout from '../../templates/heating/HeatingLayout.astro';
 import HeatingSite from '../../templates/heating/HeatingSite.astro';
+import V3Layout from '../../templates/v3/V3Layout.astro';
+import V3Site from '../../templates/v3/V3Site.astro';
+import { siteTownLinks } from '../../templates/heating/town-pages';
 import { pageDescription, pageTitle } from '../../templates/heating/content';
 import { siteTownLinks } from '../../templates/heating/town-pages';
 import type { SiteData } from '../../templates/heating/types';
@@ -22,7 +26,14 @@ export const getStaticPaths = (() => {
 
 const { data } = Astro.props;
 const banner = { tag: 'PERŽIŪRA', note: 'Svetainės juodraštis, paruoštas jarvisweb.lt', href: brand.smsHref, label: 'Parašyti Matui' };
+const v3 = (data as SiteData & { v3?: import('../../templates/v3/content').V3Input }).v3;
 ---
+{v3 ? (
+<V3Layout title={`${data.business} – peržiūra`} description={pageDescription(data)} theme={v3.theme} banner={banner}>
+  <V3Site data={data} v3={v3} towns={siteTownLinks(data, `/perziura/${data.slug}`) ?? []} base={data.city} />
+</V3Layout>
+) : (
 <HeatingLayout mode="preview" title={`${data.business} – peržiūra`} description={pageDescription(data)} business={data.business} accent={data.accent} logo={data.logo?.src} banner={banner}>
   <HeatingSite data={data} mode="preview" towns={siteTownLinks(data, `/perziura/${data.slug}`)} />
 </HeatingLayout>
+)}

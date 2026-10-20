@@ -103,24 +103,18 @@ check('towns: ASCII slugs, unique, not reserved; only towns with text get a page
     assert.doesNotMatch(html, /href="(?:tel:|sms:|mailto:)|data-callback-form="|type="application\/ld\+json"/);
     assert.match(html, /PAVYZDYS/);
   });
-  // One visible statement by the photos plus a tag on the hero image replace per-photo captions;
-  // every image still says it is an AI illustration in its alt text.
-  check('demo: five illustrations disclosed; no invented reviews or qualifications', () => {
-    // The logo mark (header, footer) is decorative (alt=""), so only the photos count here.
-    const all = html.match(/<img [^>]*>/g) ?? [];
-    assert.ok(all.filter((img) => /alt=""/.test(img)).every((img) => /class="[^"]*(?:__mark--img|hs-hero__seal)/.test(img)), 'only the logo mark and seal are decorative');
-    const imgs = all.filter((img) => !/alt=""/.test(img));
-    assert.equal(imgs.length, 5);
-    assert.ok(imgs.every((img) => /alt="[^"]*\bDI\b[^"]*iliustracija/.test(img)), 'every alt names the DI illustration');
-    assert.equal((html.match(/class="hs-tag"[^>]*>DI iliustracija</g) ?? []).length, 1, 'hero tag');
-    assert.equal((html.match(/class="[^"]*hs-disclose[^"]*"[^>]*>[^<]*DI sukurtos iliustracijos, ne atlikti darbai/g) ?? []).length, 1, 'photo note');
-    assert.doesNotMatch(html, /id="zodis"|Atestatas|gamintojų mokymai|★|class="hs-quals"/);
+  // Template v3 (Jarvis 2026-10-20): no per-image DI tags; one note by the gallery + one footer line.
+  check('demo (v3): DI disclosed once by the gallery and once in the footer; no reviews or qualifications', () => {
+    assert.match(html, /class="v3 /);
+    assert.equal((html.match(/class="v3-gallery__note"[^>]*>Pavyzdyje – DI iliustracijos/g) ?? []).length, 1, 'gallery note');
+    assert.equal((html.match(/Dalis iliustracijų sukurta DI\./g) ?? []).length, 1, 'footer line');
+    assert.doesNotMatch(html, /class="v3-review"|Atestatas|gamintojų mokymai|★/);
   });
-  check('demo: large gallery (2×2) and responsive images', () => {
-    assert.equal((html.match(/class="hs-works__half"/g) ?? []).length, 4);
-    assert.ok((html.match(/<img [^>]*srcset="[^"]*768w/g) ?? []).length === 5, 'every image has a 768w source');
+  check('demo (v3): 2×2 gallery of five and responsive images', () => {
+    assert.equal((html.match(/<li class="v3-masonry__\d"/g) ?? []).length, 5);
+    const imgs = html.match(/<img [^>]*>/g) ?? [];
+    assert.ok(imgs.length >= 5 && imgs.every((img) => /srcset="[^"]*768w/.test(img)), 'every image has a 768w source');
   });
-  check('demo: single template, no direction-A markup', () => assert.doesNotMatch(html, /class="[^"]*\bhs-[ab]\b/));
   check('no leftover direction-B review route', () => assert.ok(!existsSync('dist/pavyzdys/sildymas-b/index.html')));
 }
 check('demo and previews excluded from sitemap', () => assert.doesNotMatch(readFileSync('dist/sitemap-0.xml', 'utf8'), /\/(?:pavyzdys|perziura)\//));
@@ -282,11 +276,13 @@ writeFileSync(resolve(accentEvidence, 'fixtures.json'), JSON.stringify(built, nu
       for (const t of paged) {
         const html = readFileSync(`dist/perziura/${data.slug}/${t.slug}/index.html`, 'utf8');
         assert.match(html, /content="noindex,nofollow"/);
-        assert.match(html, /hs-banner__tag">PERŽIŪRA</);
+        assert.match(html, /(?:hs|v3)-banner__tag">PERŽIŪRA</);
         assert.doesNotMatch(html, /href="(?:tel:|mailto:)/);
-        if (data.logo) assert.ok(html.includes(`src="${data.logo.src}"`));
+        // Template v3 draws the badge inline (theme card) instead of the uploaded logo file.
+        if (data.v3) assert.match(html, /class="v3-badge"/);
+        else if (data.logo) assert.ok(html.includes(`src="${data.logo.src}"`));
         assert.match(home, new RegExp(`href="/perziura/${data.slug}/${t.slug}"`));
-        h1s.add(html.match(/<h1[^>]*>([^<]*)</)[1]);
+        h1s.add(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1].replace(/<[^>]+>/g, ''));
       }
       assert.equal(h1s.size, paged.length);
       assert.doesNotMatch(sitemap, new RegExp(data.slug));

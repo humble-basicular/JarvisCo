@@ -1,49 +1,77 @@
 ---
 /* Template v3 page (design plan 2026-10-20, "Template v3: section order"):
-   header → photo hero with quote form → trust strip → about → service photo tiles →
-   5-step process → work gallery → prices → FAQ → areas + map → photo CTA band → footer.
+   header → hero with quote form → trust strip → [town block] → about → services →
+   process → work gallery (+ real review) → prices → FAQ → areas + map → photo CTA → footer.
+   Everything comes from SiteData + the `v3` block (content.ts); the theme card picks the
+   look (hero/services layout, font, divider, badge). Absent data → the part is not shown.
    Preview mode only: call links jump to the form, nothing dials, the form is inert
-   (no field names, nothing leaves the page). */
-import type { V3Site } from './demo';
-import type { Theme } from './theme';
-import type { TownLink } from '../heating/types';
+   (no field names, nothing leaves the page), outbound profile links are plain text. */
+import type { SiteData, TownLink, TownPage } from '../heating/types';
+import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, type V3Input, type V3Photo } from './content';
 import Badge from './parts/Badge.astro';
 import Divider from './parts/Divider.astro';
 import Icon from './parts/Icon.astro';
 
-interface Props { data: V3Site; theme: Theme; towns: TownLink[] }
-const { data, theme, towns } = Astro.props;
+interface Props {
+  data: Omit<SiteData, 'photos'> & { photos: V3Photo[] };
+  v3: V3Input;
+  towns: TownLink[];
+  /** Home page city (town pages re-point data.city to the town). */
+  base: string;
+  /** Town (GEO) page: swaps the H1 place, adds the town block. */
+  town?: TownPage;
+  /** Href of the home page (brand link on town pages). */
+  home?: string;
+  /** Labelled demo with DI illustrations: footer DI line. */
+  demo?: boolean;
+}
+const { data, v3, towns, base, town, home = '#pradzia', demo = false } = Astro.props;
+const theme = v3.theme;
 const tel = '#uzklausa';
 const d = theme.divider;
-const hero = data.photos[0];
+const P = data.photos;
+const at = (i: number | undefined, fallback: number) => P[i ?? fallback] ?? P[fallback % P.length] ?? P[0];
+const hero = at(v3.photo?.hero, 0);
+const aboutPhoto = at(v3.photo?.about, 4);
+const faqPhoto = at(v3.photo?.faq, 2);
+const ctaPhoto = at(v3.photo?.cta, 3);
+const pins = (v3.photo?.pins ?? [1, 2, 3]).map((i) => P[i]).filter(Boolean).slice(0, 3);
+const gallery = galleryPhotos(P);
+const services = data.services.map((s) => (typeof s === 'string' ? { name: s, text: '' } : { name: s.name, text: s.text ?? '' }));
 const year = new Date().getFullYear();
+const baseLine = v3.baseLine ?? `${base} ir aplink`;
+const h1 = town
+  ? (v3.h1.tail ? { ...v3.h1, tail: town.loc } : { ...v3.h1, hot: town.loc, tail: undefined })
+  : v3.h1;
+const pill = v3.pill ?? data.areas.slice(0, 4).join(' · ');
 const nav = [
   { href: '#paslaugos', label: 'Paslaugos' },
   { href: '#eiga', label: 'Kaip dirbame' },
   { href: '#darbai', label: 'Darbai' },
-  { href: '#kainos', label: 'Kainos' },
+  ...(data.prices?.length ? [{ href: '#kainos', label: 'Kainos' }] : []),
   { href: '#vietoves', label: 'Kur dirbame' },
 ];
-/* Schematic map positions (not to scale): Kaunas in the centre, towns around it. */
-const MAP: [string, number, number, 'city' | 'town' | 'place'][] = [
-  ['Kaunas', 230, 262, 'city'], ['Jonava', 384, 140, 'town'], ['Kėdainiai', 262, 64, 'town'],
-  ['Karmėlava', 318, 214, 'place'], ['Raudondvaris', 134, 212, 'place'], ['Garliava', 214, 348, 'place'],
-];
-const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
+const map = areaMap(base, towns.map((t) => t.name), town?.name);
+const mapSrc = map && `https://maps.google.com/maps?q=${encodeURIComponent(map.query)}&z=${map.zoom}&hl=lt&output=embed`;
+const nearby = (town ? town.places : data.areas.filter((a) => !towns.some((t) => t.name === a) && a !== base)).slice(0, 8);
+const MONTHS = ['sausio', 'vasario', 'kovo', 'balandžio', 'gegužės', 'birželio', 'liepos', 'rugpjūčio', 'rugsėjo', 'spalio', 'lapkričio', 'gruodžio'];
+const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]} m. ${MONTHS[+m[2] - 1]} ${+m[3]} d.` : undefined; };
+const review = data.reviews?.[0];
+const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => ({ src: p.src, srcset: p.srcset, sizes: p.srcset ? sizes : undefined, width: p.width, height: p.height, decoding: 'async', ...extra });
 ---
 <a class="v3-skip" href="#uzklausa">Pereiti prie užklausos formos</a>
 
 <div class="v3-util">
   <div class="v3-wrap v3-util__bar">
-    <p><Icon name="pin" />Kaunas ir Kauno rajonas</p>
-    <p class="v3-util__hours"><Icon name="clock" />{data.hours}</p>
-    <p class="v3-util__mail"><Icon name="mail" />{data.email}</p>
+    <p><Icon name="pin" />{baseLine}</p>
+    {data.hours && <p class="v3-util__hours"><Icon name="clock" />{data.hours}</p>}
+    {data.email ? <p class="v3-util__mail"><Icon name="mail" />{data.email}</p> : <p class="v3-util__mail"><Icon name="phone" />{data.phone}</p>}
   </div>
 </div>
 
 <header class="v3-top">
   <div class="v3-wrap v3-top__bar">
-    <a class="v3-brand" href="#pradzia" aria-label={`${data.business}, pradžia`}>
+    <a class="v3-brand" href={home} aria-label={`${data.business}, pradžia`}>
       <Badge name={data.business} theme={theme} uid="b-head" size={64} />
       <span class="v3-brand__text"><span class="v3-brand__name">{data.business}</span><span class="v3-brand__line">{theme.logo.line}</span></span>
     </a>
@@ -58,33 +86,39 @@ const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
 </header>
 
 <main id="pradzia">
-  <section class="v3-hero" aria-labelledby="v3-h1">
-    <img class="v3-hero__bg" src={hero.src} srcset={hero.srcset} sizes="100vw" width={hero.width} height={hero.height} alt="" fetchpriority="high" decoding="async" />
+  <section class:list={['v3-hero', `v3-hero--${theme.hero}`]} aria-labelledby="v3-h1">
+    <img class="v3-hero__bg" {...img(hero, '100vw')} alt="" fetchpriority="high" />
     <div class="v3-wrap v3-hero__grid">
       <div class="v3-hero__copy">
-        <p class="v3-pill"><Icon name="flame" />Kaunas · Garliava · Akademija · Raudondvaris</p>
-        <h1 id="v3-h1" class="v3-h1">{data.h1.lead} <span class="v3-hot">{data.h1.hot}</span> {data.h1.tail}</h1>
-        <p class="v3-hero__lead">{data.heroLead}</p>
+        <p class="v3-pill"><Icon name={theme.logo.glyph} />{town ? `${town.name} · ${town.places.slice(0, 3).join(' · ')}` : pill}</p>
+        <h1 id="v3-h1" class="v3-h1">{h1.lead} <span class="v3-hot">{h1.hot}</span>{h1.tail && ` ${h1.tail}`}</h1>
+        <p class="v3-hero__lead">{data.lead}</p>
         <div class="v3-hero__ctas">
           <a class="v3-btn v3-btn--accent v3-btn--lg" href={tel}><Icon name="phone" />Skambinti {data.phone}</a>
           <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa">Gauti kainą</a>
         </div>
         <ul class="v3-checks">
-          {data.heroChecks.map((c) => <li><Icon name="check" />{c}</li>)}
+          {v3.heroChecks.map((c) => <li><Icon name="check" />{c}</li>)}
         </ul>
+        {theme.hero === 'panel' && pins.length > 0 && (
+          <figure class="v3-pins">
+            <ul>{pins.map((p) => <li><img {...img(p, '10rem')} alt={p.alt ?? ''} loading="lazy" /></li>)}</ul>
+            <figcaption><Icon name="camera" />Tikros mūsų darbų nuotraukos</figcaption>
+          </figure>
+        )}
       </div>
 
       <div class="v3-quote" id="uzklausa">
         <div class="v3-quote__badge"><Badge name={data.business} theme={theme} uid="b-form" size={84} /></div>
         <h2 class="v3-quote__title">Gaukite kainą</h2>
-        <p class="v3-quote__sub">Parašykite, kas atsitiko. Perskambinsime ir pasakysime kainą prieš atvykstant.</p>
+        <p class="v3-quote__sub">{v3.quoteSub ?? 'Parašykite, ko reikia. Perskambinsime ir aptarsime darbą.'}</p>
         <form class="v3-form" data-inert-form action="#" method="get" novalidate>
           <label class="v3-field"><span>Vardas</span><input type="text" autocomplete="off" placeholder="Jūsų vardas" /></label>
           <label class="v3-field"><span>Telefonas</span><input type="tel" autocomplete="off" placeholder="+370 6.. ....." /></label>
-          <label class="v3-field"><span>Kas atsitiko?</span><textarea rows="2" placeholder="Pvz. Vaillant katilas rodo klaidą F28"></textarea></label>
-          <label class="v3-attach"><input type="file" accept="image/*,application/pdf" multiple /><Icon name="camera" /><span>Pridėti katilo ar klaidos nuotrauką</span></label>
+          <label class="v3-field"><span>Kokio darbo reikia?</span><textarea rows="2" placeholder={v3.formHint ?? 'Trumpai aprašykite darbą'}></textarea></label>
+          <label class="v3-attach"><input type="file" accept="image/*,application/pdf" multiple /><Icon name="camera" /><span>{v3.attachLabel ?? 'Pridėti nuotrauką'}</span></label>
           <button class="v3-btn v3-btn--accent v3-btn--block" type="submit">Gauti kainą<Icon name="arrow" /></button>
-          <p class="v3-form__note" data-inert-note hidden>Tai pavyzdys: forma niekur nesiunčia.</p>
+          <p class="v3-form__note" data-inert-note hidden>Tai peržiūra: forma niekur nesiunčia.</p>
         </form>
         <p class="v3-quote__or">arba skambinkite <a href={tel}>{data.phone}</a></p>
       </div>
@@ -93,38 +127,67 @@ const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
   </section>
 
   <section class="v3-trust" aria-label="Kodėl mes">
-    <ul class="v3-wrap v3-trust__list">
-      {data.trust.map((t) => (
+    <ul class="v3-wrap v3-trust__list" style={`--n:${v3.trust.length}`}>
+      {v3.trust.map((t) => (
         <li><span class="v3-trust__ico"><Icon name={t.icon} /></span><span><strong>{t.title}</strong><span>{t.text}</span></span></li>
       ))}
     </ul>
   </section>
   <Divider shape={d} from="accent" to="white" flip />
 
+  {town && (
+    <section class="v3-sec v3-town" id="aptarnavimas" aria-labelledby="v3-town">
+      <div class="v3-wrap v3-town__grid">
+        <div>
+          <p class="v3-kicker">{town.label ?? town.name}</p>
+          <h2 id="v3-town" class="v3-h2">{town.heading}</h2>
+          <p class="v3-town__text">{town.text}</p>
+          {town.note && <p class="v3-town__note"><Icon name="verified" />{town.note}</p>}
+          <p class="v3-town__back"><a href={home}><Icon name="arrow" class="v3-town__back-ico" />Visos paslaugos ir vietovės</a></p>
+        </div>
+        <aside class="v3-town__card">
+          {town.distance && <p class="v3-town__dist"><Icon name="pin" />{town.distance}</p>}
+          {!!town.services?.length && (
+            <>
+              <p class="v3-town__h">Dažni darbai {town.loc}</p>
+              <ul class="v3-town__list">{town.services.map((s) => <li><span class="v3-ticks__ico"><Icon name={serviceIcon(s)} /></span>{s}</li>)}</ul>
+            </>
+          )}
+          {town.places.length > 0 && (
+            <>
+              <p class="v3-town__h">Važiuojame ir į</p>
+              <ul class="v3-town__places">{town.places.map((p) => <li>{p}</li>)}</ul>
+            </>
+          )}
+        </aside>
+      </div>
+    </section>
+  )}
+
   <section class="v3-sec v3-about" aria-labelledby="v3-about">
     <div class="v3-wrap v3-about__grid">
       <div class="v3-about__media">
-        <img src={data.photos[4].src} srcset={data.photos[4].srcset} sizes="(min-width: 64rem) 34rem, 92vw" width={data.photos[4].width} height={data.photos[4].height} alt="Katilinė su katilu, siurbliu ir kolektoriumi" loading="lazy" decoding="async" />
+        <img {...img(aboutPhoto, '(min-width: 64rem) 34rem, 92vw')} alt={aboutPhoto.alt ?? ''} loading="lazy" />
         <div class="v3-about__stamp">
           <Badge name={data.business} theme={theme} uid="b-about" size={96} />
-          <p><strong>Šildymo meistrai</strong><span>Kaunas ir Kauno r.</span></p>
+          <p><strong>{v3.stamp?.title ?? data.business}</strong><span>{v3.stamp?.text ?? baseLine}</span></p>
         </div>
       </div>
       <div class="v3-about__copy">
         <p class="v3-kicker">Apie mus</p>
-        <h2 id="v3-about" class="v3-h2">{data.aboutTitle}</h2>
-        <p class="v3-about__text">{data.about}</p>
-        <ul class="v3-ticks">
-          {data.aboutChecks.map((c) => <li><span class="v3-ticks__ico"><Icon name="check" /></span>{c}</li>)}
-        </ul>
-        <div class="v3-find">
-          <p>Rasite mus:</p>
-          <ul>
-            <li><Icon name="pin" />Google Maps</li>
-            <li><Icon name="facebook" />Facebook</li>
-            <li><Icon name="verified" />Paslaugos.lt</li>
+        <h2 id="v3-about" class="v3-h2">{v3.aboutTitle}</h2>
+        {data.about && <p class="v3-about__text">{data.about}</p>}
+        {!!v3.aboutChecks?.length && (
+          <ul class="v3-ticks">
+            {v3.aboutChecks.map((c) => <li><span class="v3-ticks__ico"><Icon name="check" /></span>{c}</li>)}
           </ul>
-        </div>
+        )}
+        {!!v3.links?.length && (
+          <div class="v3-find">
+            <p>Rasite mus:</p>
+            <ul>{v3.links.map((l) => <li><Icon name={LINK_ICON[l.kind]} />{LINK_LABEL[l.kind]}</li>)}</ul>
+          </div>
+        )}
       </div>
     </div>
   </section>
@@ -135,32 +198,56 @@ const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
         <p class="v3-kicker">Paslaugos</p>
         <h2 id="v3-services" class="v3-h2">Ką atliekame</h2>
       </header>
-      <ul class="v3-tiles">
-        {data.tiles.map((s) => (
-          <li class="v3-tile">
-            <a href="#uzklausa">
-              <img src={s.img.src} srcset={s.img.srcset} sizes="(min-width: 64rem) 24rem, (min-width: 40rem) 46vw, 92vw" width={s.img.width} height={s.img.height} alt="" loading="lazy" decoding="async" />
-              <span class="v3-tile__body">
-                <span class="v3-tile__name">{s.name}</span>
-                <span class="v3-tile__text">{s.text}</span>
-              </span>
-              <span class="v3-tile__go"><Icon name="arrow" /></span>
-            </a>
+      {theme.services === 'tiles' ? (
+        <ul class="v3-tiles">
+          {services.map((s, i) => {
+            const p = at(v3.tilePhotos?.[i], i);
+            return (
+              <li class="v3-tile">
+                <a href="#uzklausa">
+                  <img {...img(p, '(min-width: 64rem) 24rem, (min-width: 40rem) 46vw, 92vw')} alt="" loading="lazy" />
+                  <span class="v3-tile__body">
+                    <span class="v3-tile__name">{s.name}</span>
+                    <span class="v3-tile__text">{s.text}</span>
+                  </span>
+                  <span class="v3-tile__go"><Icon name="arrow" /></span>
+                </a>
+              </li>
+            );
+          })}
+          <li class="v3-tile v3-tile--cta">
+            <div>
+              <Icon name="phone" class="v3-tile__big" />
+              <p class="v3-tile__name">Nerandate savo darbo?</p>
+              <p class="v3-tile__text">Paskambinkite – pasakysime, ar padėsime.</p>
+              <a class="v3-btn v3-btn--white" href={tel}>{data.phone}</a>
+            </div>
           </li>
-        ))}
-        <li class="v3-tile v3-tile--cta">
-          <div>
+        </ul>
+      ) : (
+        <ul class="v3-cards">
+          {services.map((s) => (
+            <li class="v3-card">
+              <span class="v3-card__ico"><Icon name={serviceIcon(s.name)} /></span>
+              <h3 class="v3-card__name">{s.name}</h3>
+              {s.text && <p class="v3-card__text">{s.text}</p>}
+              <a class="v3-card__go" href="#uzklausa">Aptarti darbą<Icon name="arrow" /></a>
+            </li>
+          ))}
+          <li class="v3-card v3-card--cta">
             <Icon name="phone" class="v3-tile__big" />
-            <p class="v3-tile__name">Nerandate savo darbo?</p>
-            <p class="v3-tile__text">Paskambinkite – pasakysime, ar padėsime.</p>
+            <p class="v3-card__name">Nerandate savo darbo?</p>
+            <p class="v3-card__text">Paskambinkite – pasakysime, ar padėsime.</p>
             <a class="v3-btn v3-btn--white" href={tel}>{data.phone}</a>
-          </div>
-        </li>
-      </ul>
-      <div class="v3-brands">
-        <p>Taisome ir prižiūrime:</p>
-        <ul>{data.brands!.map((b) => <li>{b}</li>)}</ul>
-      </div>
+          </li>
+        </ul>
+      )}
+      {!!data.brands?.length && (
+        <div class="v3-brands">
+          <p>Taisome ir prižiūrime:</p>
+          <ul>{data.brands.map((b) => <li>{b}</li>)}</ul>
+        </div>
+      )}
     </div>
   </section>
   <Divider shape={d} from="paper" to="base" />
@@ -169,10 +256,10 @@ const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
     <div class="v3-wrap">
       <header class="v3-head v3-head--center">
         <p class="v3-kicker v3-kicker--hi">Kaip dirbame</p>
-        <h2 id="v3-process" class="v3-h2">Nuo skambučio iki šilto namo</h2>
+        <h2 id="v3-process" class="v3-h2">{v3.stepsTitle ?? 'Nuo skambučio iki atlikto darbo'}</h2>
       </header>
-      <ol class="v3-steps__list">
-        {data.steps.map((s, i) => (
+      <ol class="v3-steps__list" style={`--n:${v3.steps.length}`}>
+        {v3.steps.map((s, i) => (
           <li>
             <span class="v3-steps__ico"><Icon name={s.icon} /><span class="v3-steps__n">{i + 1}</span></span>
             <h3>{s.title}</h3>
@@ -192,108 +279,128 @@ const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
           <p class="v3-kicker">Darbai</p>
           <h2 id="v3-works" class="v3-h2">Atlikti darbai</h2>
         </div>
-        <p class="v3-gallery__note">Pavyzdyje – DI iliustracijos. Kliento svetainėje čia būna tik tikros jo darbų nuotraukos.</p>
+        {v3.galleryNote && <p class="v3-gallery__note">{v3.galleryNote}</p>}
       </header>
       <ul class="v3-masonry">
-        {data.gallery.map((p, i) => (
+        {gallery.map((p, i) => (
           <li class={`v3-masonry__${i}`}>
-            <img src={p.src} srcset={p.srcset} sizes={i === 0 ? '(min-width: 64rem) 36rem, 92vw' : '(min-width: 64rem) 18rem, 46vw'} width={p.width} height={p.height} alt={p.alt} loading="lazy" decoding="async" />
+            <img {...img(p, i === 0 ? '(min-width: 64rem) 36rem, 92vw' : '(min-width: 64rem) 18rem, 46vw')} alt={p.alt ?? ''} loading="lazy" />
           </li>
         ))}
       </ul>
+      {review && (
+        <figure class="v3-review">
+          <span class="v3-review__ico"><Icon name="quote" /></span>
+          <blockquote><p>{review.text}</p></blockquote>
+          <figcaption><strong>{review.name}</strong>{[ltDate(review.date), review.source && `Šaltinis: ${review.source}`].filter(Boolean).map((x) => <span>{x}</span>)}</figcaption>
+        </figure>
+      )}
     </div>
   </section>
 
-  <section class="v3-sec v3-sec--paper v3-prices" id="kainos" aria-labelledby="v3-prices">
-    <div class="v3-wrap v3-prices__grid">
-      <div>
-        <p class="v3-kicker">Kainos</p>
-        <h2 id="v3-prices" class="v3-h2">Kainos be staigmenų</h2>
-        <table class="v3-price">
-          <tbody>
-            {data.prices!.map((p) => (
-              <tr><th scope="row">{p.name}{p.note && <span>{p.note}</span>}</th><td>{p.price}</td></tr>
+  {!!data.prices?.length && (
+    <section class="v3-sec v3-sec--paper v3-prices" id="kainos" aria-labelledby="v3-prices">
+      <div class="v3-wrap v3-prices__grid">
+        <div>
+          <p class="v3-kicker">Kainos</p>
+          <h2 id="v3-prices" class="v3-h2">Kainos be staigmenų</h2>
+          <table class="v3-price">
+            <tbody>
+              {data.prices.map((p) => (
+                <tr><th scope="row">{p.name}{p.note && <span>{p.note}</span>}</th><td>{p.price}</td></tr>
+              ))}
+            </tbody>
+          </table>
+          {data.priceNote && <p class="v3-prices__note">{data.priceNote}</p>}
+        </div>
+        {v3.promise && (
+          <aside class="v3-promise">
+            <span class="v3-promise__ico"><Icon name="tag" /></span>
+            <p class="v3-promise__title">{v3.promise.title}</p>
+            <p>{v3.promise.text}</p>
+            <a class="v3-btn v3-btn--accent" href="#uzklausa">Sužinoti kainą</a>
+          </aside>
+        )}
+      </div>
+    </section>
+  )}
+
+  {!!data.faq?.length && (
+    <section class="v3-sec v3-faq" id="duk" aria-labelledby="v3-faq">
+      <div class="v3-wrap v3-faq__grid">
+        <div class="v3-faq__media">
+          <img {...img(faqPhoto, '(min-width: 64rem) 28rem, 92vw')} alt="" loading="lazy" />
+          <div class="v3-faq__call">
+            <p>Neradote atsakymo?</p>
+            <a href={tel}><Icon name="phone" />{data.phone}</a>
+          </div>
+        </div>
+        <div>
+          <p class="v3-kicker">D.U.K.</p>
+          <h2 id="v3-faq" class="v3-h2">Dažniausi klausimai</h2>
+          <div class="v3-acc">
+            {data.faq.map((f, i) => (
+              <details open={i === 0}>
+                <summary>{f.q}<span class="v3-acc__plus" aria-hidden="true"></span></summary>
+                <p>{f.a}</p>
+              </details>
             ))}
-          </tbody>
-        </table>
-        <p class="v3-prices__note">{data.priceNote}</p>
-      </div>
-      <aside class="v3-promise">
-        <span class="v3-promise__ico"><Icon name="tag" /></span>
-        <p class="v3-promise__title">Kainą pasakome prieš darbus</p>
-        <p>Jei prireikia papildomų darbų ar detalių, pirma paskambiname ir suderiname su Jumis.</p>
-        <a class="v3-btn v3-btn--accent" href="#uzklausa">Sužinoti kainą</a>
-      </aside>
-    </div>
-  </section>
-
-  <section class="v3-sec v3-faq" id="duk" aria-labelledby="v3-faq">
-    <div class="v3-wrap v3-faq__grid">
-      <div class="v3-faq__media">
-        <img src={data.photos[2].src} srcset={data.photos[2].srcset} sizes="(min-width: 64rem) 28rem, 92vw" width={data.photos[2].width} height={data.photos[2].height} alt="" loading="lazy" decoding="async" />
-        <div class="v3-faq__call">
-          <p>Neradote atsakymo?</p>
-          <a href={tel}><Icon name="phone" />{data.phone}</a>
+          </div>
         </div>
       </div>
-      <div>
-        <p class="v3-kicker">D.U.K.</p>
-        <h2 id="v3-faq" class="v3-h2">Dažniausi klausimai</h2>
-        <div class="v3-acc">
-          {data.faq.map((f, i) => (
-            <details open={i === 0}>
-              <summary>{f.q}<span class="v3-acc__plus" aria-hidden="true"></span></summary>
-              <p>{f.a}</p>
-            </details>
-          ))}
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <section class="v3-sec v3-sec--paper v3-areas" id="vietoves" aria-labelledby="v3-areas">
     <div class="v3-wrap v3-areas__grid">
       <div>
         <p class="v3-kicker">Kur dirbame</p>
-        <h2 id="v3-areas" class="v3-h2">Kaunas, Jonava, Kėdainiai ir aplinkui</h2>
-        <p class="v3-areas__text">Bazė – Kaune. Kiekvienas miestas turi savo puslapį su atvykimo laiku ir kainomis.</p>
+        <h2 id="v3-areas" class="v3-h2">{v3.areasTitle ?? `${[base, ...towns.map((t) => t.name).filter((n) => n !== base)].slice(0, 3).join(', ')} ir aplinkui`}</h2>
+        {v3.areasText && <p class="v3-areas__text">{v3.areasText}</p>}
         <ul class="v3-cities" id="miestai">
           {towns.map((t) => (
-            <li><a href={t.href}><span class="v3-cities__ico"><Icon name="pin" /></span><span><strong>{t.name}</strong><span>Katilų remontas {t.loc}</span></span><Icon name="arrow" class="v3-cities__go" /></a></li>
+            <li><a href={t.href} aria-current={town?.name === t.name ? 'page' : undefined}><span class="v3-cities__ico"><Icon name="pin" /></span><span><strong>{t.name}</strong><span>{v3.townLabel ?? 'Darbai'} {t.loc}</span></span><Icon name="arrow" class="v3-cities__go" /></a></li>
           ))}
         </ul>
-        <p class="v3-areas__also">Taip pat: {nearby.join(' · ')}</p>
+        {nearby.length > 0 && <p class="v3-areas__also">Taip pat: {nearby.join(' · ')}</p>}
         <p class="v3-areas__unsure">Nerandate savo vietovės? <a href="#uzklausa">Parašykite</a> – pasakysime, ar atvyksime.</p>
       </div>
-      <figure class="v3-map" aria-label="Aptarnaujamos vietovės, schema">
-        <svg viewBox="0 0 500 400" role="img" aria-label="Schema: Kaunas centre, aplink Jonava, Kėdainiai, Karmėlava, Raudondvaris, Garliava">
-          <rect width="500" height="400" rx="18" fill="var(--v3-base)" />
-          <g fill="none" stroke="#ffffff" stroke-opacity=".08">
-            {Array.from({ length: 9 }, (_, i) => <path d={`M0 ${i * 50}H500`} />)}
-            {Array.from({ length: 11 }, (_, i) => <path d={`M${i * 50} 0V400`} />)}
-          </g>
-          <circle cx="230" cy="262" r="210" fill="var(--v3-accent)" fill-opacity=".06" stroke="var(--v3-accent-hi)" stroke-opacity=".35" stroke-dasharray="6 8" stroke-width="2" />
-          <circle cx="230" cy="262" r="110" fill="var(--v3-accent)" fill-opacity=".14" />
-          <path d="M-10 236 C60 226 110 214 160 230 C200 244 214 262 236 256 C282 242 320 196 384 140 C420 108 460 92 510 80" fill="none" stroke="#3b82c4" stroke-opacity=".55" stroke-width="9" stroke-linecap="round" />
-          {MAP.map(([name, x, y, kind]) => (
-            kind === 'city'
-              ? <g><circle cx={x} cy={y} r="17" fill="var(--v3-accent)" stroke="#fff" stroke-width="4" /><text x={x} y={y + 42} class="v3-map__big" text-anchor="middle">KAUNAS</text></g>
-              : kind === 'town'
-                ? <g><circle cx={x} cy={y} r="11" fill="var(--v3-accent-hi)" stroke="#fff" stroke-width="4" /><text x={x} y={y - 20} class="v3-map__town" text-anchor="middle">{name}</text></g>
-                : <g><circle cx={x} cy={y} r="6" fill="#fff" /><text x={x} y={y - 13} class="v3-map__label" text-anchor="middle">{name}</text></g>
-          ))}
-        </svg>
-        <figcaption>Schema, ne mastelis.</figcaption>
-      </figure>
+      {map && (
+        <figure class="v3-map" data-map>
+          <div class="v3-map__frame">
+            <svg viewBox="0 0 500 400" role="img" aria-label={`Žemėlapio schema: ${map.pins.map((p) => p.name).join(', ')}`}>
+              <rect width="500" height="400" fill="var(--v3-base)" />
+              <g fill="none" stroke="#ffffff" stroke-opacity=".07">
+                {Array.from({ length: 9 }, (_, i) => <path d={`M0 ${i * 50}H500`} />)}
+                {Array.from({ length: 11 }, (_, i) => <path d={`M${i * 50} 0V400`} />)}
+              </g>
+              {map.rings.map((r, i) => (
+                <g>
+                  <circle cx={map.base.x} cy={map.base.y} r={r.r} fill="none" stroke="var(--v3-accent-hi)" stroke-opacity=".4" stroke-dasharray="5 7" stroke-width="1.5" />
+                  <text x={map.base.x + r.r * 0.707 + 4} y={map.base.y + r.r * 0.707 + 14} class="v3-map__km">{r.km} km</text>
+                </g>
+              ))}
+              {map.pins.filter((p) => !p.base).map((p) => <path d={`M${map.base.x} ${map.base.y}L${p.x} ${p.y}`} stroke="#fff" stroke-opacity=".22" stroke-width="2" />)}
+              {map.pins.map((p) => (
+                p.base
+                  ? <g><circle cx={p.x} cy={p.y} r="15" fill="var(--v3-accent)" stroke="#fff" stroke-width="4" /><text x={p.x} y={p.y + 38} class="v3-map__big" text-anchor="middle">{p.name.toLocaleUpperCase('lt')}</text></g>
+                  : <g><circle cx={p.x} cy={p.y} r={p.current ? 12 : 9} fill={p.current ? '#fff' : 'var(--v3-accent-hi)'} stroke={p.current ? 'var(--v3-accent)' : '#fff'} stroke-width="4" /><text x={p.x} y={p.y - 18} class="v3-map__town" text-anchor="middle">{p.name}</text></g>
+              ))}
+            </svg>
+            <button class="v3-btn v3-btn--white v3-map__load" type="button" data-map-load data-src={mapSrc} data-title={`Google žemėlapis: ${map.query}`}><Icon name="map" />Rodyti Google žemėlapyje</button>
+          </div>
+          <figcaption>Apytikslė schema. Paspaudus įkeliamas Google žemėlapis.</figcaption>
+        </figure>
+      )}
     </div>
   </section>
 
   <section class="v3-cta" aria-labelledby="v3-cta">
-    <img class="v3-cta__bg" src={data.photos[3].src} srcset={data.photos[3].srcset} sizes="100vw" width={data.photos[3].width} height={data.photos[3].height} alt="" loading="lazy" decoding="async" />
+    <img class="v3-cta__bg" {...img(ctaPhoto, '100vw')} alt="" loading="lazy" />
     <Divider shape={d} from="photo" to="paper" />
     <div class="v3-wrap v3-cta__body">
-      <h2 id="v3-cta" class="v3-h2">{data.ctaTitle}</h2>
-      <p>{data.ctaText}</p>
+      <h2 id="v3-cta" class="v3-h2">{v3.ctaTitle}</h2>
+      <p>{v3.ctaText}</p>
       <div class="v3-hero__ctas v3-cta__ctas">
         <a class="v3-btn v3-btn--white v3-btn--lg" href={tel}><Icon name="phone" />{data.phone}</a>
         <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa">Gauti kainą</a>
@@ -312,7 +419,7 @@ const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
     </div>
     <div>
       <p class="v3-foot__h">Paslaugos</p>
-      <ul>{data.services.map((s) => <li><a href="#paslaugos">{typeof s === 'string' ? s : s.name}</a></li>)}</ul>
+      <ul>{services.map((s) => <li><a href="#paslaugos">{s.name}</a></li>)}</ul>
     </div>
     <div>
       <p class="v3-foot__h">Vietovės</p>
@@ -322,15 +429,15 @@ const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
       <p class="v3-foot__h">Kontaktai</p>
       <ul class="v3-foot__contact">
         <li><Icon name="phone" />{data.phone}</li>
-        <li><Icon name="mail" />{data.email}</li>
-        <li><Icon name="clock" />{data.hours}</li>
-        <li><Icon name="pin" />Kaunas ir Kauno rajonas</li>
+        {data.email && <li><Icon name="mail" />{data.email}</li>}
+        {data.hours && <li><Icon name="clock" />{data.hours}</li>}
+        <li><Icon name="pin" />{baseLine}</li>
       </ul>
     </div>
   </div>
   <div class="v3-wrap v3-foot__legal">
     <p>© {year} {data.business} · <span>Privatumo politika</span></p>
-    <p>Dalis iliustracijų sukurta DI. · Svetainė: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
+    <p>{demo && 'Dalis iliustracijų sukurta DI. · '}Svetainė: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
   </div>
 </footer>
 
@@ -346,5 +453,12 @@ const nearby = data.areas.filter((a) => !towns.some((t) => t.name === a));
     var dock = document.querySelector('[data-dock]');
     var q = document.getElementById('uzklausa');
     if (dock && q && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { dock.classList.toggle('is-hidden', es[0].isIntersecting); }).observe(q);
+    var b = document.querySelector('[data-map-load]');
+    if (b) b.addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = b.getAttribute('data-src'); f.title = b.getAttribute('data-title'); f.loading = 'lazy'; f.allowFullscreen = true;
+      f.referrerPolicy = 'no-referrer-when-downgrade';
+      b.parentNode.appendChild(f); b.parentNode.classList.add('is-live'); b.remove();
+    });
   })();
 </script>

@@ -136,3 +136,16 @@ The upload list adds new picks, supports per-file removal, and preserves files a
 - Legacy `client-site-symlink-test.mjs` and `client-site-form-test.mjs` delete their temporary filesystem fixtures/profile; skip those under a no-delete instruction. The latter also launches standalone Chrome. Use the retained-fixture and T3 alternatives above; do not relax the checks.
 
 Browser screenshots and checks cannot establish real iPhone/Android HEIC or screen-reader behavior. Lighthouse, production delivery and final legal/business facts require separate evidence before launch. Demo's deliberate `noindex` must not be removed to improve its SEO score.
+
+## Template v3 (`v3` block, optional)
+Add `"v3": {…}` to the input and the preview (home + town pages) renders on template v3
+instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.ts`; checked by
+`v3()` in `normalize.mjs`. Example: the demo in `src/templates/v3/demo.ts` (`v3`).
+- `theme`: the theme card (`src/templates/v3/theme.ts`). Make each client unique by combination:
+  palette, `heading` font, `divider`, `hero` (`photo` needs a sharp ≥1400 px photo; `panel` suits
+  phone photos), `services` (`tiles` needs one matching photo per service; else `cards`), `logo.shape`/`glyph`.
+- Copy: `h1`, `heroChecks`, `trust` (3–5), `aboutTitle`, `steps` (3–5), `ctaTitle`, `ctaText` are required;
+  only the client's own facts (no invented reviews, numbers, warranties).
+- `photo`: indexes into `photos` for hero, pins (panel hero), about, faq, cta.
+- Area map: base city + town pages are drawn from `GEO` in `content.ts` (add missing towns there);
+  the button loads the real Google map only on click (no Google request before that).

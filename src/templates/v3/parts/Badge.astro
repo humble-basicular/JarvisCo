@@ -1,30 +1,57 @@
 ---
 /* The client's badge logo (design plan: "a real badge/wordmark per client").
-   Inline SVG so the ring lettering uses the page's heading font. `round` = ring
-   with lettering around a flame mark (Heat archetype); other shapes come with the
-   next archetype that needs them. `uid` keeps the text-path ids unique per use. */
+   Inline SVG so the lettering uses the page's heading font. Shape and glyph come
+   from the theme card: `round` = ring lettering around the glyph; `shield` =
+   glyph on top, name on an accent ribbon, ring line below. Glyph `flame` (heat)
+   or `drop` (water + heat: a drop with a flame inside). `uid` keeps ids unique. */
 import type { Theme } from '../theme';
 
 interface Props { name: string; theme: Theme; uid: string; size?: number; class?: string }
 const { name, theme, uid, size = 72, class: cls } = Astro.props;
 const top = name.toLocaleUpperCase('lt');
 const bottom = theme.logo.ring.toLocaleUpperCase('lt');
+const { shape, glyph } = theme.logo;
+/* Shield ribbon: shrink long names so they stay inside the 150-unit band. */
+const nameSize = Math.min(30, Math.round(230 / Math.max(top.length, 4)));
+const SHIELD = 'M100 4 L186 30 V94 C186 146 150 180 100 197 C50 180 14 146 14 94 V30 Z';
+const SHIELD_IN = 'M100 15 L175 37.5 V94 C175 139 144 169 100 184.5 C56 169 25 139 25 94 V37.5 Z';
 ---
 <svg class:list={['v3-badge', cls]} viewBox="0 0 200 200" width={size} height={size} role="img" aria-label={`${name} logotipas`}>
-  <defs>
-    <path id={`${uid}-t`} d="M30 100 A70 70 0 0 1 170 100" />
-    <path id={`${uid}-b`} d="M18 100 A82 82 0 0 0 182 100" />
-  </defs>
-  <circle cx="100" cy="100" r="98" fill="var(--v3-base)" />
-  <circle cx="100" cy="100" r="90" fill="none" stroke="var(--v3-accent-hi)" stroke-width="3" />
-  <circle cx="100" cy="100" r="54" fill="var(--v3-accent)" />
-  <circle cx="100" cy="100" r="54" fill="none" stroke="#fff" stroke-width="3" />
-  <text class="v3-badge__ring" font-size="19" letter-spacing="2.4" fill="#fff"><textPath href={`#${uid}-t`} startOffset="50%" text-anchor="middle">{top}</textPath></text>
-  <text class="v3-badge__ring" font-size="13" letter-spacing="3" fill="var(--v3-accent-hi)"><textPath href={`#${uid}-b`} startOffset="50%" text-anchor="middle">{bottom}</textPath></text>
-  <circle cx="26" cy="100" r="4" fill="var(--v3-accent-hi)" />
-  <circle cx="174" cy="100" r="4" fill="var(--v3-accent-hi)" />
-  <g transform="translate(100 102) scale(2.15) translate(-32 -31)">
-    <path d="M32.6 17c1.6 6 9.4 9.4 9.4 18a10 10 0 0 1-20 0c0-4.6 2.3-7.7 4.8-10.5.3 2.6 1.4 4.4 3.3 5.4-.6-5.2.2-9.6 2.5-12.9z" fill="#fff" />
-    <path d="M32 31.5c2.3 2.6 4.2 4.6 4.2 7.4a4.2 4.2 0 0 1-8.4 0c0-2.8 1.9-4.8 4.2-7.4z" fill="var(--v3-accent)" />
+  {shape === 'round' ? (
+    <>
+      <defs>
+        <path id={`${uid}-t`} d="M30 100 A70 70 0 0 1 170 100" />
+        <path id={`${uid}-b`} d="M18 100 A82 82 0 0 0 182 100" />
+      </defs>
+      <circle cx="100" cy="100" r="98" fill="var(--v3-base)" />
+      <circle cx="100" cy="100" r="90" fill="none" stroke="var(--v3-accent-hi)" stroke-width="3" />
+      <circle cx="100" cy="100" r="54" fill="var(--v3-accent)" />
+      <circle cx="100" cy="100" r="54" fill="none" stroke="#fff" stroke-width="3" />
+      <text class="v3-badge__ring" font-size="19" letter-spacing="2.4" fill="#fff"><textPath href={`#${uid}-t`} startOffset="50%" text-anchor="middle">{top}</textPath></text>
+      <text class="v3-badge__ring" font-size="13" letter-spacing="3" fill="var(--v3-accent-hi)"><textPath href={`#${uid}-b`} startOffset="50%" text-anchor="middle">{bottom}</textPath></text>
+      <circle cx="26" cy="100" r="4" fill="var(--v3-accent-hi)" />
+      <circle cx="174" cy="100" r="4" fill="var(--v3-accent-hi)" />
+    </>
+  ) : (
+    <>
+      <path d={SHIELD} fill="var(--v3-base)" />
+      <path d={SHIELD_IN} fill="none" stroke="var(--v3-accent-hi)" stroke-width="3" />
+      <path d="M2 108 H198 L188 124 L198 140 H2 L12 124 Z" fill="var(--v3-accent)" />
+      <text class="v3-badge__ring" x="100" y={124 + nameSize * 0.36} font-size={nameSize} letter-spacing="1.5" fill="#fff" text-anchor="middle">{top}</text>
+      <text class="v3-badge__ring" x="100" y="160" font-size="11" fill="var(--v3-accent-hi)" text-anchor="middle" textLength={Math.min(112, bottom.length * 7)} lengthAdjust="spacingAndGlyphs">{bottom}</text>
+    </>
+  )}
+  <g transform={shape === 'round' ? 'translate(100 102) scale(2.15) translate(-32 -31)' : 'translate(100 62) scale(1.75) translate(-32 -31)'}>
+    {glyph === 'flame' ? (
+      <>
+        <path d="M32.6 17c1.6 6 9.4 9.4 9.4 18a10 10 0 0 1-20 0c0-4.6 2.3-7.7 4.8-10.5.3 2.6 1.4 4.4 3.3 5.4-.6-5.2.2-9.6 2.5-12.9z" fill="#fff" />
+        <path d="M32 31.5c2.3 2.6 4.2 4.6 4.2 7.4a4.2 4.2 0 0 1-8.4 0c0-2.8 1.9-4.8 4.2-7.4z" fill="var(--v3-accent)" />
+      </>
+    ) : (
+      <>
+        <path d="M32 13C26 21 20.5 27.5 20.5 35a11.5 11.5 0 0 0 23 0C43.5 27.5 38 21 32 13z" fill="#fff" />
+        <path d="M32.5 26.5c.8 3 4.7 4.7 4.7 9a5.2 5.2 0 0 1-10.4 0c0-2.4 1.2-4 2.5-5.4.2 1.3.7 2.2 1.7 2.7-.3-2.6.2-4.9 1.5-6.3z" fill="var(--v3-accent)" />
+      </>
+    )}
   </g>
 </svg>

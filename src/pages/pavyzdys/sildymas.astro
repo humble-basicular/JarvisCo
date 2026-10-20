@@ -1,14 +1,14 @@
 ---
 /* Demo heating site shown as the example on jarvisweb.lt (funnel spec §8). noindex.
-   Template v3 (design plan 2026-10-20); the town pages still use templates/heating. */
+   Template v3 (design plan 2026-10-20), same data shape as a real client preview. */
 import V3Layout from '../../templates/v3/V3Layout.astro';
 import V3Site from '../../templates/v3/V3Site.astro';
-import { site, theme } from '../../templates/v3/demo';
+import { site, v3 } from '../../templates/v3/demo';
 import { pageDescription } from '../../templates/heating/content';
 import { townLinks } from '../../templates/heating/towns';
 
 const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: '/noriu', label: '← Grįžti' };
 ---
-<V3Layout title={`${site.business} – katilų remontas ir šildymas Kaune | pavyzdys`} description={pageDescription(site)} theme={theme} banner={banner}>
-  <V3Site data={site} theme={theme} towns={townLinks()} />
+<V3Layout title={`${site.business} – katilų remontas ir šildymas Kaune | pavyzdys`} description={pageDescription(site)} theme={v3.theme} banner={banner}>
+  <V3Site data={site} v3={v3} towns={townLinks()} base="Kaunas" demo />
 </V3Layout>
