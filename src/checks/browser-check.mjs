@@ -152,7 +152,7 @@ try {
     assert(i < 99, 'No-JS fallback did not load');
     await sleep(50);
   }
-  assert.deepEqual(await evaluate(`({formHidden:!document.querySelector('[data-preview-form]').getClientRects().length,email:document.querySelector('noscript a[href^="mailto:"]').textContent,href:document.querySelector('noscript a[href^="mailto:"]').href})`), {formHidden:true,email:'jarvisworks.co@gmail.com',href:'mailto:jarvisworks.co@gmail.com'});
+  assert.deepEqual(await evaluate(`({formHidden:!document.querySelector('[data-preview-form]').getClientRects().length,email:document.querySelector('noscript a[href^="mailto:"]').textContent,href:document.querySelector('noscript a[href^="mailto:"]').href})`), {formHidden:true,email:'matas@jarvisweb.lt',href:'mailto:matas@jarvisweb.lt'});
   receipts.push({route:'/noriu',mode:'javascript-disabled',passed:true});
   const receipt = { at: new Date().toISOString(), browser:'headless Chrome / CDP, 390×844, DPR 1', network:'fetch and beacons stubbed before scripts; external URLs blocked', results:receipts };
   if (process.argv[3]) writeFileSync(process.argv[3], JSON.stringify(receipt, null, 2) + '\n');

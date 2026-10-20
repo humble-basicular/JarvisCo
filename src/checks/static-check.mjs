@@ -101,7 +101,7 @@ for (const route of ['/', '/sildymui', '/noriu', '/rezultatai']) {
     check(block && nodes(block).some((node) => attr(node, 'href') === brand.emailHref), `${route}: missing email in ${container}`);
   }
   check(el.some((node) => attr(node, 'href') === brand.emailHref && normalized(text(node)) === brand.email), `${route}: email address must be readable`);
-  check(/<noscript>(?:(?!<\/noscript>)[\s\S])*mailto:jarvisworks\.co@gmail\.com/.test(page.html), `${route}: noscript email fallback`);
+  check(/<noscript>(?:(?!<\/noscript>)[\s\S])*mailto:matas@jarvisweb\.lt/.test(page.html), `${route}: noscript email fallback`);
   check(attr(named('name')[0], 'value') === undefined, `${route}: name must not be prefilled`);
   check(attr(named('phone')[0], 'required') !== undefined, `${route}: phone must be required without JS (no code)`);
   check(attr(named('files')[0], 'multiple') !== undefined && attr(named('files')[0], 'capture') === undefined, `${route}: files must be multiple and not camera-only`);
