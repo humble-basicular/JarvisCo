@@ -1,14 +1,14 @@
 ---
-/* Demo heating site shown as the example on /noriu and in the agency hero (funnel spec §8). noindex.
-   The same template the generator uses for lead previews and client sites. */
-import HeatingLayout from '../../templates/heating/HeatingLayout.astro';
-import HeatingSite from '../../templates/heating/HeatingSite.astro';
-import { demo } from '../../templates/heating/demo';
+/* Demo heating site shown as the example on jarvisweb.lt (funnel spec §8). noindex.
+   Template v3 (design plan 2026-10-20); the town pages still use templates/heating. */
+import V3Layout from '../../templates/v3/V3Layout.astro';
+import V3Site from '../../templates/v3/V3Site.astro';
+import { site, theme } from '../../templates/v3/demo';
 import { pageDescription } from '../../templates/heating/content';
 import { townLinks } from '../../templates/heating/towns';
 
 const banner = { tag: 'PAVYZDYS', note: 'Šildymo meistro svetainės pavyzdys. Įmonė ir duomenys išgalvoti.', href: '/noriu', label: '← Grįžti' };
 ---
-<HeatingLayout mode="preview" title={`${demo.business} – šildymo sistemos | pavyzdys`} description={pageDescription(demo)} business={demo.business} accent={demo.accent} logo={demo.logo?.src} banner={banner}>
-  <HeatingSite data={demo} mode="preview" towns={townLinks()} />
-</HeatingLayout>
+<V3Layout title={`${site.business} – katilų remontas ir šildymas Kaune | pavyzdys`} description={pageDescription(site)} theme={theme} banner={banner}>
+  <V3Site data={site} theme={theme} towns={townLinks()} />
+</V3Layout>

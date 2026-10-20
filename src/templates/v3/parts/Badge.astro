@@ -1,0 +1,30 @@
+---
+/* The client's badge logo (design plan: "a real badge/wordmark per client").
+   Inline SVG so the ring lettering uses the page's heading font. `round` = ring
+   with lettering around a flame mark (Heat archetype); other shapes come with the
+   next archetype that needs them. `uid` keeps the text-path ids unique per use. */
+import type { Theme } from '../theme';
+
+interface Props { name: string; theme: Theme; uid: string; size?: number; class?: string }
+const { name, theme, uid, size = 72, class: cls } = Astro.props;
+const top = name.toLocaleUpperCase('lt');
+const bottom = theme.logo.ring.toLocaleUpperCase('lt');
+---
+<svg class:list={['v3-badge', cls]} viewBox="0 0 200 200" width={size} height={size} role="img" aria-label={`${name} logotipas`}>
+  <defs>
+    <path id={`${uid}-t`} d="M30 100 A70 70 0 0 1 170 100" />
+    <path id={`${uid}-b`} d="M18 100 A82 82 0 0 0 182 100" />
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="var(--v3-base)" />
+  <circle cx="100" cy="100" r="90" fill="none" stroke="var(--v3-accent-hi)" stroke-width="3" />
+  <circle cx="100" cy="100" r="54" fill="var(--v3-accent)" />
+  <circle cx="100" cy="100" r="54" fill="none" stroke="#fff" stroke-width="3" />
+  <text class="v3-badge__ring" font-size="19" letter-spacing="2.4" fill="#fff"><textPath href={`#${uid}-t`} startOffset="50%" text-anchor="middle">{top}</textPath></text>
+  <text class="v3-badge__ring" font-size="13" letter-spacing="3" fill="var(--v3-accent-hi)"><textPath href={`#${uid}-b`} startOffset="50%" text-anchor="middle">{bottom}</textPath></text>
+  <circle cx="26" cy="100" r="4" fill="var(--v3-accent-hi)" />
+  <circle cx="174" cy="100" r="4" fill="var(--v3-accent-hi)" />
+  <g transform="translate(100 102) scale(2.15) translate(-32 -31)">
+    <path d="M32.6 17c1.6 6 9.4 9.4 9.4 18a10 10 0 0 1-20 0c0-4.6 2.3-7.7 4.8-10.5.3 2.6 1.4 4.4 3.3 5.4-.6-5.2.2-9.6 2.5-12.9z" fill="#fff" />
+    <path d="M32 31.5c2.3 2.6 4.2 4.6 4.2 7.4a4.2 4.2 0 0 1-8.4 0c0-2.8 1.9-4.8 4.2-7.4z" fill="var(--v3-accent)" />
+  </g>
+</svg>
