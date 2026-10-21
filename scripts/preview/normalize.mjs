@@ -80,6 +80,7 @@ function reviews(value) {
       source: text(r?.source, `reviews[${i}].source`, 60),
       url,
       date: text(r?.date, `reviews[${i}].date`, 30),
+      rating: r?.rating == null ? undefined : (Number.isInteger(r.rating) && r.rating >= 1 && r.rating <= 5 ? r.rating : (() => { throw new Error(`reviews[${i}].rating must be a whole number 1–5`); })()),
     };
     return Object.fromEntries(Object.entries(out).filter(([, v]) => v));
   });
@@ -331,7 +332,7 @@ function v3(value) {
     })(),
     ctaTitle: text(v.ctaTitle, 'v3.ctaTitle', 80, { required: true }),
     ctaText: text(v.ctaText, 'v3.ctaText', 200, { required: true }),
-    photo: photo && Object.fromEntries(Object.entries({ hero: index(photo.hero, 'v3.photo.hero'), about: index(photo.about, 'v3.photo.about'), faq: index(photo.faq, 'v3.photo.faq'), cta: index(photo.cta, 'v3.photo.cta'),
+    photo: photo && Object.fromEntries(Object.entries({ hero: index(photo.hero, 'v3.photo.hero'), about: index(photo.about, 'v3.photo.about'), faq: index(photo.faq, 'v3.photo.faq'), cta: index(photo.cta, 'v3.photo.cta'), reviews: index(photo.reviews, 'v3.photo.reviews'),
       pins: photo.pins == null ? undefined : (Array.isArray(photo.pins) && photo.pins.length <= 3 ? photo.pins.map((x, i) => index(x, `v3.photo.pins[${i}]`)) : (() => { throw new Error('v3.photo.pins must be a list of at most 3'); })()) }).filter(([, x]) => x !== undefined)),
   };
   if (!out.heroChecks.length) throw new Error('v3.heroChecks is required');
@@ -400,6 +401,7 @@ function checkEmphasis(v3, photos, services) {
   };
   need(pick(v3.photo?.hero, 0), EMPHASIS_MIN_WIDTH.background, 'v3.photo.hero');
   need(pick(v3.photo?.cta, 3), EMPHASIS_MIN_WIDTH.background, 'v3.photo.cta');
+  need(pick(v3.photo?.reviews ?? v3.photo?.hero, 0), EMPHASIS_MIN_WIDTH.background, 'v3.photo.reviews');
   if (v3.theme.services === 'tiles') services.forEach((_, n) => {
     const i = v3.tilePhotos?.[n];
     if (i != null && !photos[i]) throw new Error(`v3.tilePhotos[${n}] points to photo ${i}, which does not exist`);

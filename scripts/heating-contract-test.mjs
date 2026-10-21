@@ -72,6 +72,16 @@ check('v3: emphasised hero/CTA/tile photos below the minimum width are refused',
 check('photos: AI illustrations need the v3 template (the heating gallery would show them as real work)', () => {
   assert.throws(() => normalize({ ...base, photos: [{ path: 'a.jpg', ai: true }] }), /need the v3 block/);
 });
+check('reviews: rating is optional, whole 1–5 only (never invented)', () => {
+  const r = (x) => normalize({ ...base, reviews: [{ name: 'A', text: 'B', ...x }] }).data.reviews[0];
+  assert.equal(r({}).rating, undefined);
+  assert.equal(r({ rating: 5 }).rating, 5);
+  for (const bad of [0, 6, 4.5, '5']) assert.throws(() => r({ rating: bad }), /rating/);
+});
+check('v3: reviews background is an emphasised slot', () => {
+  const photos = [ph(1, 900), ph(2, 1536, true), ph(3, 1536, true), ph(4, 1536, true)];
+  assert.throws(() => validateSaved({ ...base, slug: 'abcdefghjk', photos, v3: { ...V3_MIN, photo: { hero: 1, cta: 3, reviews: 0 }, tilePhotos: [2] } }), /v3\.photo\.reviews/);
+});
 check('v3: gbp links must be https, map zoom bounded', () => {
   const v3 = (x) => normalize({ ...base, v3: { ...V3_MIN, ...x } }).data.v3;
   assert.deepEqual(v3({ gbp: { url: 'https://g.page/x', reviewUrl: 'https://g.page/r/x/review' } }).gbp, { url: 'https://g.page/x', reviewUrl: 'https://g.page/r/x/review' });
@@ -144,7 +154,10 @@ check('towns: ASCII slugs, unique, not reserved; only towns with text get a page
     assert.match(html, /class="v3 /);
     assert.equal((html.match(/class="v3-gallery__note"[^>]*>Pavyzdyje – DI iliustracijos/g) ?? []).length, 1, 'gallery note');
     assert.equal((html.match(/Dalis iliustracijų sukurta DI\./g) ?? []).length, 1, 'footer line');
-    assert.doesNotMatch(html, /class="v3-review"|Atestatas|gamintojų mokymai|★/);
+    assert.doesNotMatch(html, /class="v3-review"|id="atsiliepimai"|Atestatas|gamintojų mokymai|★/);
+    // Every quote CTA opens the focused dialog; call links stay plain links.
+    assert.equal((html.match(/<dialog class="v3-modal"/g) ?? []).length, 1, 'one quote dialog');
+    assert.ok((html.match(/data-quote[ >]/g) ?? []).length >= 4, 'quote links marked');
   });
   check('demo (v3): 2×2 gallery of five and responsive images', () => {
     assert.equal((html.match(/<li class="v3-masonry__\d"/g) ?? []).length, 5);

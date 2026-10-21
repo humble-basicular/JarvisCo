@@ -307,13 +307,43 @@
 .v3-town__places li { padding: .4rem .8rem; border-radius: 999px; background: rgb(255 255 255 / .1); font-size: .9rem; }
 
 /* ---- Review (real quotes only) ---- */
-/* Reviews (real quotes only) + Google Business Profile links */
-.v3-reviews { background: #fff; }
-.v3-reviews__ctas { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
-.v3-reviews__soon { display: inline-flex; align-items: center; gap: .5rem; padding: .7rem 1rem; border: 1px dashed color-mix(in srgb, var(--v3-ink) 25%, transparent); border-radius: 999px; font-size: .9rem; color: var(--v3-muted); }
-.v3-reviews__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1.25rem; }
-.v3-reviews__list.is-single { grid-template-columns: 1fr; }
-.v3-review figcaption a { color: var(--v3-accent); font-weight: 600; }
+/* Reviews (real quotes only) on a photo, + Google Business Profile box */
+.v3-reviews { position: relative; isolation: isolate; overflow: hidden; color: #fff; padding: clamp(4rem, 8vw, 6.5rem) 0; }
+.v3-reviews__bg { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100% !important; object-fit: cover; }
+.v3-reviews::before { content: ''; position: absolute; inset: 0; z-index: -1; background: color-mix(in srgb, var(--v3-base) 72%, transparent); }
+.v3-reviews__head { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem; }
+.v3-reviews__kicker { display: inline-block; padding: .45rem .9rem; background: var(--v3-base); border-radius: 6px; font-size: .85rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.v3-reviews .v3-h2 { color: #fff; margin-top: .4rem; text-transform: uppercase; font-size: clamp(2.4rem, 5vw, 3.8rem); }
+.v3-reviews__rule { flex: 1; height: 3px; background: var(--v3-accent-hi); border-radius: 2px; align-self: center; margin-top: 2.2rem; }
+.v3-reviews__head .v3-btn { margin-top: 2.2rem; }
+.v3-reviews__list { list-style: none; margin: 0; padding: .25rem; display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 2.5rem) / 3); gap: 1.25rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.v3-reviews__list::-webkit-scrollbar { display: none; }
+.v3-reviews__list.is-1 { grid-auto-columns: min(100%, 40rem); justify-content: center; }
+.v3-reviews__list.is-2 { grid-auto-columns: calc((100% - 1.25rem) / 2); }
+.v3-rcard { scroll-snap-align: start; display: flex; flex-direction: column; gap: 1rem; padding: 1.6rem 1.7rem; background: #fff; color: var(--v3-ink); border-radius: 16px; box-shadow: 0 18px 40px -24px rgb(0 0 0 / .6); }
+.v3-rcard__stars { display: flex; align-items: center; gap: .5rem; color: #f2b01e; font-size: 1.35rem; line-height: 1; }
+.v3-rcard__stars strong { font-size: 1.3rem; }
+.v3-rcard blockquote { margin: 0; flex: 1; font-size: 1.05rem; line-height: 1.6; }
+.v3-rcard footer { display: flex; justify-content: space-between; align-items: end; gap: 1rem; font-size: .9rem; color: var(--v3-muted); }
+.v3-rcard footer > span { display: grid; gap: .1rem; }
+.v3-rcard footer strong { color: var(--v3-ink); }
+.v3-rcard footer a { color: var(--v3-accent); font-weight: 700; white-space: nowrap; }
+.v3-reviews__nav { display: flex; justify-content: center; gap: .75rem; margin-top: 1.25rem; }
+.v3-reviews__nav button { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 2px solid #fff; border-radius: 50%; background: transparent; color: #fff; cursor: pointer; }
+.v3-reviews__nav [data-reviews-prev] .v3-ico { transform: scaleX(-1); }
+.v3-reviews__google { max-width: 34rem; margin: 2.5rem auto 0; padding: 2rem 1.75rem; text-align: center; background: var(--v3-base); border: 2px solid #fff; border-radius: 14px; }
+.v3-reviews__gtitle { font-family: var(--v3-head); font-size: clamp(1.7rem, 3.4vw, 2.4rem); line-height: 1.05; text-transform: uppercase; }
+.v3--head-barlow-condensed .v3-reviews__gtitle { font-weight: 800; }
+.v3-reviews__gstars { margin: .6rem 0 1.3rem; color: #f2b01e; font-size: 2rem; letter-spacing: .15em; }
+.v3-reviews__soon { font-size: .95rem; color: #dcdce0; }
+.v3-reviews__all { display: inline-block; margin-top: 1rem; color: var(--v3-accent-hi); font-weight: 700; }
+
+/* Focused quote dialog (every "Gauti kainą" link) */
+.v3-modal { width: min(32rem, calc(100vw - 1.5rem)); max-height: calc(100dvh - 1rem); padding: 3.2rem .5rem 1rem; border: 0; background: transparent; overflow-y: auto; overscroll-behavior: contain; }
+.v3-modal::backdrop { background: rgb(5 12 22 / .82); }
+.v3-quote--modal { outline: 3px solid var(--v3-accent-hi); }
+.v3-modal__x { position: absolute; z-index: 2; right: .7rem; top: .7rem; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border: 3px solid #fff; border-radius: 50%; background: var(--v3-base); color: #fff; font-size: 1.4rem; line-height: 1; cursor: pointer; }
+.v3-find a { display: inline-flex; align-items: center; gap: inherit; color: inherit; text-decoration: none; }
 .v3-review { position: relative; padding: 2.2rem 2.4rem 2rem 6.2rem; background: var(--v3-paper); border-radius: 14px; border-left: 6px solid var(--v3-accent); }
 .v3-review__ico { position: absolute; left: 1.8rem; top: 2rem; display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--v3-accent); color: #fff; }
 .v3-review__ico .v3-ico { width: 1.7rem; height: 1.7rem; }
@@ -370,6 +400,7 @@
   .v3-foot__grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 60rem) {
+  .v3-reviews__list:not(.is-1) { grid-auto-columns: calc((100% - 1.25rem) / 2); }
   .v3-hero__grid, .v3-about__grid, .v3-prices__grid, .v3-faq__grid, .v3-areas__grid, .v3-town__grid { grid-template-columns: minmax(0, 1fr); }
   .v3-quote { margin-top: 2.5rem; }
   .v3-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -400,6 +431,11 @@
   .v3-about__stamp { padding: .6rem 1rem .6rem .6rem; }
   .v3-about__stamp .v3-badge { width: 3.2rem; height: 3.2rem; }
   .v3-tiles, .v3-cards { grid-template-columns: minmax(0, 1fr); }
+  .v3-reviews__head { flex-wrap: wrap; gap: 1rem; }
+  .v3-reviews__rule { display: none; }
+  .v3-reviews__head .v3-btn { margin-top: 0; }
+  .v3-reviews__list:not(.is-1) { grid-auto-columns: 88%; }
+  .v3-rcard { padding: 1.3rem; }
   .v3-card { padding: 1.4rem 1.3rem 1.3rem; }
   .v3-pins ul { gap: .7rem; }
   .v3-pins li { width: calc((100% - 1.4rem) / 3); }

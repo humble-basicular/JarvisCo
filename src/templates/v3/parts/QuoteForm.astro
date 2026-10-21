@@ -1,0 +1,23 @@
+---
+/* The quote card: hero form and the focused "Gauti kainą" dialog share it (labels wrap their
+   fields, so two copies need no ids). Preview: the form is inert (data-inert-form). */
+import Badge from './Badge.astro';
+import Icon from './Icon.astro';
+import type { Theme } from '../theme';
+import type { V3Input } from '../content';
+
+interface Props { business: string; phone: string; theme: Theme; v3: V3Input; tel: string; uid: string; titleId?: string }
+const { business, phone, theme, v3, tel, uid, titleId } = Astro.props;
+---
+<div class="v3-quote__badge"><Badge name={business} theme={theme} uid={uid} size={84} /></div>
+<h2 class="v3-quote__title" id={titleId}>Gaukite kainą</h2>
+<p class="v3-quote__sub">{v3.quoteSub ?? 'Parašykite, ko reikia. Perskambinsime ir aptarsime darbą.'}</p>
+<form class="v3-form" data-inert-form action="#" method="get" novalidate>
+  <label class="v3-field"><span>Vardas</span><input type="text" autocomplete="off" placeholder="Jūsų vardas" /></label>
+  <label class="v3-field"><span>Telefonas</span><input type="tel" autocomplete="off" placeholder="+370 6.. ....." /></label>
+  <label class="v3-field"><span>Kokio darbo reikia?</span><textarea rows="2" placeholder={v3.formHint ?? 'Trumpai aprašykite darbą'}></textarea></label>
+  <label class="v3-attach"><input type="file" accept="image/*,application/pdf" multiple /><Icon name="camera" /><span>{v3.attachLabel ?? 'Pridėti nuotrauką'}</span></label>
+  <button class="v3-btn v3-btn--accent v3-btn--block" type="submit">Gauti kainą<Icon name="arrow" /></button>
+  <p class="v3-form__note" data-inert-note hidden>Tai peržiūra: forma niekur nesiunčia.</p>
+</form>
+<p class="v3-quote__or">arba skambinkite <a href={tel}>{phone}</a></p>

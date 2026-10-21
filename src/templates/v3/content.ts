@@ -41,7 +41,7 @@ export interface V3Input {
   ctaText: string;
   /** Photo indexes (0-based) for the fixed photo slots. Hero, CTA and tile photos are emphasised:
    *  they must be sharp (see EMPHASIS_MIN_WIDTH) – a real high-resolution photo or an AI illustration. */
-  photo?: { hero?: number; pins?: number[]; about?: number; faq?: number; cta?: number };
+  photo?: { hero?: number; pins?: number[]; about?: number; faq?: number; cta?: number; reviews?: number };
   /** Google Business Profile: reviews link + "leave a review" link. Absent → review section shows a "coming" note. */
   gbp?: { url?: string; reviewUrl?: string };
   /** Google map pin: `query` = business name + address once the GBP exists; default = base town (or the town page's town). */

@@ -7,6 +7,7 @@
    Preview mode only: call links jump to the form, nothing dials, the form is inert
    (no field names, nothing leaves the page), outbound profile links are plain text. */
 import type { SiteData, TownLink, TownPage } from '../heating/types';
+import QuoteForm from './parts/QuoteForm.astro';
 import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, type V3Input, type V3Photo } from './content';
 import Badge from './parts/Badge.astro';
 import Divider from './parts/Divider.astro';
@@ -35,6 +36,7 @@ const hero = at(v3.photo?.hero, 0);
 const aboutPhoto = at(v3.photo?.about, 4);
 const faqPhoto = at(v3.photo?.faq, 2);
 const ctaPhoto = at(v3.photo?.cta, 3);
+const reviewsPhoto = at(v3.photo?.reviews ?? v3.photo?.hero, 0);
 const pins = (v3.photo?.pins ?? [1, 2, 3]).map((i) => P[i]).filter((p) => p && !p.ai).slice(0, 3);
 const gallery = galleryPhotos(P);
 const services = data.services.map((s) => (typeof s === 'string' ? { name: s, text: '' } : { name: s.name, text: s.text ?? '' }));
@@ -85,7 +87,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
     </nav>
     <div class="v3-top__ctas">
       <a class="v3-top__phone" href={tel}><span class="v3-top__phone-ico"><Icon name="phone" /></span><span><span class="v3-top__phone-label">Skambinkite</span><span class="v3-top__phone-num">{data.phone}</span></span></a>
-      <a class="v3-btn v3-btn--accent v3-top__quote" href="#uzklausa">Gauti kainą</a>
+      <a class="v3-btn v3-btn--accent v3-top__quote" href="#uzklausa" data-quote>Gauti kainą</a>
     </div>
   </div>
 </header>
@@ -100,7 +102,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
         <p class="v3-hero__lead">{data.lead}</p>
         <div class="v3-hero__ctas">
           <a class="v3-btn v3-btn--accent v3-btn--lg" href={tel}><Icon name="phone" />Skambinti {data.phone}</a>
-          <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa">Gauti kainą</a>
+          <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa" data-quote>Gauti kainą</a>
         </div>
         <ul class="v3-checks">
           {v3.heroChecks.map((c) => <li><Icon name="check" />{c}</li>)}
@@ -114,18 +116,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       </div>
 
       <div class="v3-quote" id="uzklausa">
-        <div class="v3-quote__badge"><Badge name={data.business} theme={theme} uid="b-form" size={84} /></div>
-        <h2 class="v3-quote__title">Gaukite kainą</h2>
-        <p class="v3-quote__sub">{v3.quoteSub ?? 'Parašykite, ko reikia. Perskambinsime ir aptarsime darbą.'}</p>
-        <form class="v3-form" data-inert-form action="#" method="get" novalidate>
-          <label class="v3-field"><span>Vardas</span><input type="text" autocomplete="off" placeholder="Jūsų vardas" /></label>
-          <label class="v3-field"><span>Telefonas</span><input type="tel" autocomplete="off" placeholder="+370 6.. ....." /></label>
-          <label class="v3-field"><span>Kokio darbo reikia?</span><textarea rows="2" placeholder={v3.formHint ?? 'Trumpai aprašykite darbą'}></textarea></label>
-          <label class="v3-attach"><input type="file" accept="image/*,application/pdf" multiple /><Icon name="camera" /><span>{v3.attachLabel ?? 'Pridėti nuotrauką'}</span></label>
-          <button class="v3-btn v3-btn--accent v3-btn--block" type="submit">Gauti kainą<Icon name="arrow" /></button>
-          <p class="v3-form__note" data-inert-note hidden>Tai peržiūra: forma niekur nesiunčia.</p>
-        </form>
-        <p class="v3-quote__or">arba skambinkite <a href={tel}>{data.phone}</a></p>
+        <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-form" />
       </div>
     </div>
     <Divider shape={d} from="photo" to="accent" />
@@ -190,7 +181,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
         {!!v3.links?.length && (
           <div class="v3-find">
             <p>Rasite mus:</p>
-            <ul>{v3.links.map((l) => <li><Icon name={LINK_ICON[l.kind]} />{LINK_LABEL[l.kind]}</li>)}</ul>
+            <ul>{v3.links.map((l) => <li>{l.url ? <a href={l.url} rel="noopener" target="_blank"><Icon name={LINK_ICON[l.kind]} />{LINK_LABEL[l.kind]}</a> : <><Icon name={LINK_ICON[l.kind]} />{LINK_LABEL[l.kind]}</>}</li>)}</ul>
           </div>
         )}
       </div>
@@ -209,7 +200,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
             const p = at(v3.tilePhotos?.[i], i);
             return (
               <li class="v3-tile">
-                <a href="#uzklausa">
+                <a href="#uzklausa" data-quote>
                   <img {...img(p, '(min-width: 64rem) 24rem, (min-width: 40rem) 46vw, 92vw')} alt="" loading="lazy" />
                   <span class="v3-tile__body">
                     <span class="v3-tile__name">{s.name}</span>
@@ -236,7 +227,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
               <span class="v3-card__ico"><Icon name={serviceIcon(s.name)} /></span>
               <h3 class="v3-card__name">{s.name}</h3>
               {s.text && <p class="v3-card__text">{s.text}</p>}
-              <a class="v3-card__go" href="#uzklausa">Aptarti darbą<Icon name="arrow" /></a>
+              <a class="v3-card__go" href="#uzklausa" data-quote>Aptarti darbą<Icon name="arrow" /></a>
             </li>
           ))}
           <li class="v3-card v3-card--cta">
@@ -272,7 +263,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
           </li>
         ))}
       </ol>
-      <p class="v3-steps__cta"><a class="v3-btn v3-btn--accent v3-btn--lg" href="#uzklausa">Pradėti nuo 1 žingsnio</a></p>
+      <p class="v3-steps__cta"><a class="v3-btn v3-btn--accent v3-btn--lg" href="#uzklausa" data-quote>Pradėti nuo 1 žingsnio</a></p>
     </div>
   </section>
   <Divider shape={d} from="base" to="white" flip />
@@ -296,32 +287,50 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
     </div>
   </section>
 
-  {/* Client sites only: the labelled demo carries no testimonials, not even the pending Google line. */}
+  {/* Client sites only: the labelled demo carries no testimonials, not even the pending Google box.
+     Real quotes only; stars only when the source shows a rating (review.rating). */}
   {!demo && (
-    <section class="v3-sec v3-reviews" id="atsiliepimai" aria-labelledby="v3-reviews">
+    <section class="v3-reviews" id="atsiliepimai" aria-labelledby="v3-reviews">
+      <img class="v3-reviews__bg" {...img(reviewsPhoto, '100vw')} alt="" loading="lazy" />
       <div class="v3-wrap">
-        <header class="v3-head v3-head--row">
+        <header class="v3-reviews__head">
           <div>
-            <p class="v3-kicker">Atsiliepimai</p>
-            <h2 id="v3-reviews" class="v3-h2">Ką sako klientai</h2>
+            <p class="v3-reviews__kicker">Ką sako klientai</p>
+            <h2 id="v3-reviews" class="v3-h2">Atsiliepimai</h2>
           </div>
-          <div class="v3-reviews__ctas">
-            {gbp.url && <a class="v3-btn v3-btn--dark" href={gbp.url} rel="noopener" target="_blank"><Icon name="pin" />Atsiliepimai Google</a>}
-            {gbp.reviewUrl && <a class="v3-btn v3-btn--accent" href={gbp.reviewUrl} rel="noopener" target="_blank"><Icon name="quote" />Palikti atsiliepimą</a>}
-            {!gbp.url && !gbp.reviewUrl && <p class="v3-reviews__soon"><Icon name="pin" />Google atsiliepimai – netrukus</p>}
-          </div>
+          <span class="v3-reviews__rule" aria-hidden="true"></span>
+          <a class="v3-btn v3-btn--white" href="#uzklausa" data-quote>Susisiekti<Icon name="arrow" /></a>
         </header>
-        {reviews.length > 0 && <ul class:list={['v3-reviews__list', reviews.length === 1 && 'is-single']}>
-          {reviews.map((r) => (
-            <li>
-              <figure class="v3-review">
-                <span class="v3-review__ico"><Icon name="quote" /></span>
-                <blockquote><p>{r.text}</p></blockquote>
-                <figcaption><strong>{r.name}</strong>{[r.place, ltDate(r.date)].filter(Boolean).map((x) => <span>{x}</span>)}{r.source && (r.url ? <a href={r.url} rel="noopener" target="_blank">Šaltinis: {r.source}</a> : <span>Šaltinis: {r.source}</span>)}</figcaption>
-              </figure>
-            </li>
-          ))}
-        </ul>}
+        {reviews.length > 0 && (
+          <div class="v3-reviews__slider">
+            <ul class:list={['v3-reviews__list', reviews.length < 3 && `is-${reviews.length}`]} data-reviews tabindex="0" aria-label="Atsiliepimai">
+              {reviews.map((r) => (
+                <li class="v3-rcard">
+                  {r.rating && <p class="v3-rcard__stars" aria-label={`Įvertinimas ${r.rating} iš 5`}><strong>{r.rating}</strong><span aria-hidden="true">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span></p>}
+                  <blockquote><p>{r.text}</p></blockquote>
+                  <footer>
+                    <span><strong>{r.name}</strong>{ltDate(r.date) && <span>{ltDate(r.date)}</span>}</span>
+                    {r.source && (r.url ? <a href={r.url} rel="noopener" target="_blank">{r.source}</a> : <span>{r.source}</span>)}
+                  </footer>
+                </li>
+              ))}
+            </ul>
+            {reviews.length > 3 && (
+              <p class="v3-reviews__nav">
+                <button type="button" data-reviews-prev aria-label="Ankstesni atsiliepimai"><Icon name="arrow" /></button>
+                <button type="button" data-reviews-next aria-label="Kiti atsiliepimai"><Icon name="arrow" /></button>
+              </p>
+            )}
+          </div>
+        )}
+        <div class="v3-reviews__google">
+          <p class="v3-reviews__gtitle">Įvertinkite mus Google</p>
+          <p class="v3-reviews__gstars" aria-hidden="true">★★★★★</p>
+          {gbp.reviewUrl
+            ? <a class="v3-btn v3-btn--accent v3-btn--lg" href={gbp.reviewUrl} rel="noopener" target="_blank">Palikti atsiliepimą</a>
+            : <p class="v3-reviews__soon">Google profilis ruošiamas – atsiliepimus galėsite palikti netrukus</p>}
+          {gbp.url && <a class="v3-reviews__all" href={gbp.url} rel="noopener" target="_blank">Visi atsiliepimai Google</a>}
+        </div>
       </div>
     </section>
   )}
@@ -346,7 +355,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
             <span class="v3-promise__ico"><Icon name="tag" /></span>
             <p class="v3-promise__title">{v3.promise.title}</p>
             <p>{v3.promise.text}</p>
-            <a class="v3-btn v3-btn--accent" href="#uzklausa">Sužinoti kainą</a>
+            <a class="v3-btn v3-btn--accent" href="#uzklausa" data-quote>Sužinoti kainą</a>
           </aside>
         )}
       </div>
@@ -391,7 +400,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
           ))}
         </ul>
         {nearby.length > 0 && <p class="v3-areas__also">Taip pat: {nearby.join(' · ')}</p>}
-        <p class="v3-areas__unsure">Nerandate savo vietovės? <a href="#uzklausa">Parašykite</a> – pasakysime, ar atvyksime.</p>
+        <p class="v3-areas__unsure">Nerandate savo vietovės? <a href="#uzklausa" data-quote>Parašykite</a> – pasakysime, ar atvyksime.</p>
       </div>
       <figure class="v3-map">
         <div class="v3-map__frame">
@@ -410,7 +419,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       <p>{v3.ctaText}</p>
       <div class="v3-hero__ctas v3-cta__ctas">
         <a class="v3-btn v3-btn--white v3-btn--lg" href={tel}><Icon name="phone" />{data.phone}</a>
-        <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa">Gauti kainą</a>
+        <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa" data-quote>Gauti kainą</a>
       </div>
     </div>
   </section>
@@ -448,15 +457,40 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
   </div>
 </footer>
 
+<dialog class="v3-modal" data-quote-modal aria-labelledby="v3-modal-title">
+  <div class="v3-quote v3-quote--modal">
+    <button class="v3-modal__x" type="button" data-quote-close aria-label="Uždaryti"><span aria-hidden="true">×</span></button>
+    <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-modal" titleId="v3-modal-title" />
+  </div>
+</dialog>
+
 <div class="v3-dock" data-dock role="group" aria-label="Greiti veiksmai">
   <a class="v3-btn v3-btn--accent" href={tel}><Icon name="phone" />Skambinti</a>
-  <a class="v3-btn v3-btn--dark" href="#uzklausa">Gauti kainą</a>
+  <a class="v3-btn v3-btn--dark" href="#uzklausa" data-quote>Gauti kainą</a>
 </div>
 
 <script is:inline>
   (function () {
-    var form = document.querySelector('[data-inert-form]');
-    if (form) form.addEventListener('submit', function (e) { e.preventDefault(); var n = form.querySelector('[data-inert-note]'); if (n) n.hidden = false; });
+    document.querySelectorAll('[data-inert-form]').forEach(function (form) {
+      form.addEventListener('submit', function (e) { e.preventDefault(); var n = form.querySelector('[data-inert-note]'); if (n) n.hidden = false; });
+    });
+    // Every "Gauti kainą" / "Aptarti darbą" link opens the focused quote dialog; without <dialog> it falls back to #uzklausa.
+    var modal = document.querySelector('[data-quote-modal]');
+    if (modal && typeof modal.showModal === 'function') {
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('[data-quote]');
+        if (!a) return;
+        e.preventDefault();
+        modal.showModal();
+        var f = modal.querySelector('input'); if (f) f.focus();
+      });
+      modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-quote-close]')) modal.close(); });
+    }
+    var list = document.querySelector('[data-reviews]');
+    if (list) [['[data-reviews-prev]', -1], ['[data-reviews-next]', 1]].forEach(function (b) {
+      var btn = document.querySelector(b[0]);
+      if (btn) btn.addEventListener('click', function () { list.scrollBy({ left: b[1] * list.clientWidth, behavior: 'smooth' }); });
+    });
     var dock = document.querySelector('[data-dock]');
     var q = document.getElementById('uzklausa');
     if (dock && q && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { dock.classList.toggle('is-hidden', es[0].isIntersecting); }).observe(q);
