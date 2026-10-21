@@ -331,6 +331,9 @@
 .v3-reviews__nav { display: flex; justify-content: center; gap: .75rem; margin-top: 1.25rem; }
 .v3-reviews__nav button { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 2px solid #fff; border-radius: 50%; background: transparent; color: #fff; cursor: pointer; }
 .v3-reviews__nav [data-reviews-prev] .v3-ico { transform: scaleX(-1); }
+.v3-reviews__nav[hidden] { display: none; }
+.v3-reviews__nav button:disabled { opacity: .35; cursor: default; }
+html.v3-locked { overflow: hidden; }
 .v3-reviews__google { max-width: 34rem; margin: 2.5rem auto 0; padding: 2rem 1.75rem; text-align: center; background: var(--v3-base); border: 2px solid #fff; border-radius: 14px; }
 .v3-reviews__gtitle { font-family: var(--v3-head); font-size: clamp(1.7rem, 3.4vw, 2.4rem); line-height: 1.05; text-transform: uppercase; }
 .v3--head-barlow-condensed .v3-reviews__gtitle { font-weight: 800; }

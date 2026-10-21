@@ -315,8 +315,8 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
                 </li>
               ))}
             </ul>
-            {reviews.length > 3 && (
-              <p class="v3-reviews__nav">
+            {reviews.length > 1 && (
+              <p class="v3-reviews__nav" data-reviews-nav hidden>
                 <button type="button" data-reviews-prev aria-label="Ankstesni atsiliepimai"><Icon name="arrow" /></button>
                 <button type="button" data-reviews-next aria-label="Kiti atsiliepimai"><Icon name="arrow" /></button>
               </p>
@@ -325,7 +325,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
         )}
         <div class="v3-reviews__google">
           <p class="v3-reviews__gtitle">Įvertinkite mus Google</p>
-          <p class="v3-reviews__gstars" aria-hidden="true">★★★★★</p>
+          {gbp.reviewUrl && <p class="v3-reviews__gstars" aria-hidden="true">☆☆☆☆☆</p>}
           {gbp.reviewUrl
             ? <a class="v3-btn v3-btn--accent v3-btn--lg" href={gbp.reviewUrl} rel="noopener" target="_blank">Palikti atsiliepimą</a>
             : <p class="v3-reviews__soon">Google profilis ruošiamas – atsiliepimus galėsite palikti netrukus</p>}
@@ -482,15 +482,29 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
         if (!a) return;
         e.preventDefault();
         modal.showModal();
+        document.documentElement.classList.add('v3-locked');
         var f = modal.querySelector('input'); if (f) f.focus();
       });
       modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-quote-close]')) modal.close(); });
+      modal.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); });
     }
+    // Review arrows: shown only while the cards overflow; disabled at either end.
     var list = document.querySelector('[data-reviews]');
-    if (list) [['[data-reviews-prev]', -1], ['[data-reviews-next]', 1]].forEach(function (b) {
-      var btn = document.querySelector(b[0]);
-      if (btn) btn.addEventListener('click', function () { list.scrollBy({ left: b[1] * list.clientWidth, behavior: 'smooth' }); });
-    });
+    var nav = document.querySelector('[data-reviews-nav]');
+    if (list && nav) {
+      var prev = nav.querySelector('[data-reviews-prev]'), next = nav.querySelector('[data-reviews-next]');
+      var sync = function () {
+        var max = list.scrollWidth - list.clientWidth;
+        nav.hidden = max < 2;
+        prev.disabled = list.scrollLeft < 2;
+        next.disabled = list.scrollLeft > max - 2;
+      };
+      prev.addEventListener('click', function () { list.scrollBy({ left: -list.clientWidth, behavior: 'smooth' }); });
+      next.addEventListener('click', function () { list.scrollBy({ left: list.clientWidth, behavior: 'smooth' }); });
+      list.addEventListener('scroll', sync, { passive: true });
+      window.addEventListener('resize', sync);
+      sync();
+    }
     var dock = document.querySelector('[data-dock]');
     var q = document.getElementById('uzklausa');
     if (dock && q && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { dock.classList.toggle('is-hidden', es[0].isIntersecting); }).observe(q);
