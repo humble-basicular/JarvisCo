@@ -15,6 +15,9 @@ export type HeadingFont = 'archivo-black' | 'barlow-condensed' | 'space-grotesk'
 export type HeroLayout = 'photo' | 'panel';
 /** tiles = one photo per service (needs a matching photo each); cards = filled icon cards. */
 export type ServiceLayout = 'tiles' | 'cards';
+/** "Kaip dirbame" layout: line = icon circles + dashed arrows (default); chevron = icon on a stem above
+ *  arrow ribbons; frames = numbered cards with camera-frame corners. Pick one no recent site used. */
+export type ProcessLayout = 'line' | 'chevron' | 'frames';
 
 export interface Theme {
   archetype: Archetype;
@@ -32,6 +35,7 @@ export interface Theme {
   divider: Divider;
   hero: HeroLayout;
   services: ServiceLayout;
+  process?: ProcessLayout;
   logo: { shape: LogoShape; glyph: LogoGlyph; ring: string; line: string };
 }
 

@@ -89,7 +89,6 @@ export const v3: V3Input = {
   stamp: { title: 'Šildymo meistrai', text: 'Kaunas ir Kauno r.' },
   quoteSub: 'Parašykite, kas atsitiko. Perskambinsime ir pasakysime kainą prieš atvykstant.',
   formHint: 'Pvz. Vaillant katilas rodo klaidą F28',
-  attachLabel: 'Pridėti katilo ar klaidos nuotrauką',
   tilePhotos: [4, 1, 0, 2, 3],
   steps: [
     { icon: 'camera', title: 'Paskambinate arba atsiunčiate nuotrauką', text: 'Trumpai parašykite, kas atsitiko. Katilo ar klaidos ekrano nuotrauka padeda įvertinti iš karto.' },

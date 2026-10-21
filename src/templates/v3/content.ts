@@ -23,7 +23,6 @@ export interface V3Input {
   stamp?: { title: string; text: string };
   quoteSub?: string;
   formHint?: string;
-  attachLabel?: string;
   /** `tiles` layout: photo index (0-based) per service, same order as `services`. */
   tilePhotos?: number[];
   steps: V3Item[];

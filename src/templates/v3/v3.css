@@ -485,3 +485,46 @@ html.v3-locked { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .v3 *, .v3 *::before, .v3 *::after { transition: none !important; }
 }
+
+/* ---- Process variants (theme.process). `line` is the base style above. ---- */
+.v3-steps--chevron .v3-steps__list { gap: .35rem; }
+.v3-steps--chevron .v3-steps__list li { display: flex; flex-direction: column; align-items: center; padding: 0; }
+.v3-steps--chevron .v3-steps__list li::before, .v3-steps--chevron .v3-steps__list li::after { display: none; }
+.v3-steps--chevron .v3-steps__ico { width: 6rem; height: 6rem; margin: 0; background: #fff; color: var(--v3-accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--v3-accent-hi) 75%, transparent); }
+.v3-steps--chevron .v3-steps__ico .v3-ico { width: 2.6rem; height: 2.6rem; }
+.v3-steps--chevron .v3-steps__n { background: var(--v3-accent-hi); color: var(--v3-base); }
+.v3-steps__stem { width: 3px; height: 1.5rem; background: #fff; }
+.v3-steps__tag { align-self: stretch; display: grid; place-items: center; min-height: 4.4rem; padding: .7rem 1.9rem .7rem 2.3rem; background: #fff; color: var(--v3-base); clip-path: polygon(0 0, calc(100% - 1.3rem) 0, 100% 50%, calc(100% - 1.3rem) 100%, 0 100%, 1.3rem 50%); }
+.v3-steps--chevron li:first-child .v3-steps__tag { padding-left: 1.4rem; clip-path: polygon(0 0, calc(100% - 1.3rem) 0, 100% 50%, calc(100% - 1.3rem) 100%, 0 100%); }
+.v3-steps--chevron .v3-steps__tag h3 { margin: 0; text-align: center; font-family: var(--v3-head); font-weight: 400; font-size: 1.02rem; line-height: 1.15; }
+.v3-steps--chevron .v3-steps__list p { margin-top: 1rem; text-align: center; padding-inline: .4rem; }
+
+.v3-steps--frames .v3-steps__list { gap: 1rem; }
+.v3-steps--frames .v3-steps__list li { counter-increment: s; text-align: left; padding: 1.5rem 1.3rem 1.4rem; background:
+  linear-gradient(var(--v3-accent-hi), var(--v3-accent-hi)) top left / 1.4rem 3px,
+  linear-gradient(var(--v3-accent-hi), var(--v3-accent-hi)) top left / 3px 1.4rem,
+  linear-gradient(var(--v3-accent-hi), var(--v3-accent-hi)) top right / 1.4rem 3px,
+  linear-gradient(var(--v3-accent-hi), var(--v3-accent-hi)) top right / 3px 1.4rem,
+  linear-gradient(var(--v3-accent-hi), var(--v3-accent-hi)) bottom left / 1.4rem 3px,
+  linear-gradient(var(--v3-accent-hi), var(--v3-accent-hi)) bottom left / 3px 1.4rem,
+  linear-gradient(var(--v3-accent-hi), var(--v3-accent-hi)) bottom right / 1.4rem 3px,
+  linear-gradient(var(--v3-accent-hi), var(--v3-accent-hi)) bottom right / 3px 1.4rem,
+  var(--v3-base2); background-repeat: no-repeat; }
+.v3-steps--frames .v3-steps__list li::after { display: none; }
+.v3-steps--frames .v3-steps__list li::before { content: '0' counter(s); display: block; position: static; border: 0; margin-bottom: .9rem; font: 2.6rem/1 var(--v3-head); color: var(--v3-accent-hi); letter-spacing: -.02em; }
+.v3-steps--frames .v3-steps__ico { position: absolute; top: 1.4rem; right: 1.3rem; width: 2.6rem; height: 2.6rem; margin: 0; background: var(--v3-accent); box-shadow: none; }
+.v3-steps--frames .v3-steps__ico .v3-ico { width: 1.35rem; height: 1.35rem; }
+.v3-steps--frames .v3-steps__n { display: none; }
+.v3-steps--frames .v3-steps__list h3 { margin-top: 0; }
+@media (max-width: 40rem) {
+  .v3-steps--chevron .v3-steps__list { row-gap: 1.6rem; }
+  .v3-steps--chevron .v3-steps__list li { display: grid; grid-template-columns: 4.4rem 1fr; column-gap: 1rem; align-items: center; padding-bottom: 0; }
+  .v3-steps--chevron .v3-steps__ico { width: 4.4rem; height: 4.4rem; grid-row: span 2; align-self: start; }
+  .v3-steps--chevron .v3-steps__ico .v3-ico { width: 1.9rem; height: 1.9rem; }
+  .v3-steps__stem { display: none; }
+  .v3-steps--chevron .v3-steps__tag { min-height: 3.2rem; place-items: center start; }
+  .v3-steps--chevron .v3-steps__tag h3 { text-align: left; }
+  .v3-steps--chevron .v3-steps__list p { margin-top: .5rem; text-align: left; padding: 0; }
+  .v3-steps--frames .v3-steps__list { row-gap: 1rem; }
+  .v3-steps--frames .v3-steps__list li { display: block; padding-bottom: 1.4rem; }
+}

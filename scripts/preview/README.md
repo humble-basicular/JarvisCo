@@ -149,6 +149,9 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
 - Theme options (2026-10-21 batch): `heading` `archivo-black` | `barlow-condensed` | `space-grotesk`;
   `divider` `angle` | `wave` | `zigzag` (electric) | `notch` (camera-frame step); `logo.glyph` `flame` | `drop` |
   `bolt` | `lens`. Extra card icons: `bolt`, `lens`, `wifi`, `shield`.
+- `theme.process` (optional): `line` (default; icon circles + dashed arrows), `chevron` (icon on a stem above arrow
+  ribbons), `frames` (numbered cards with camera-frame corners). Each site gets one no recent site used.
+- The quote form's upload button always says "Pridėti failus" (user 2026-10-21; `attachLabel` removed).
 - `clientLogo: {width, height}` (optional): show the client's own logo file (top-level `logo`, read on a light
   plate) in the header, about stamp and footer instead of the generated badge. Opt-in, so previews whose `logo`
   predates v3 (Nerijus, the demo) keep their badge. Width/height = the file's intrinsic size.

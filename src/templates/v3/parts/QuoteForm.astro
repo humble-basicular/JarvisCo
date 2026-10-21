@@ -16,7 +16,7 @@ const { business, phone, theme, v3, tel, uid, titleId, badge = true } = Astro.pr
   <label class="v3-field"><span>Vardas</span><input type="text" autocomplete="off" placeholder="Jūsų vardas" /></label>
   <label class="v3-field"><span>Telefonas</span><input type="tel" autocomplete="off" placeholder="+370 6.. ....." /></label>
   <label class="v3-field"><span>Kokio darbo reikia?</span><textarea rows="2" placeholder={v3.formHint ?? 'Trumpai aprašykite darbą'}></textarea></label>
-  <label class="v3-attach"><input type="file" accept="image/*,application/pdf" multiple /><Icon name="camera" /><span>{v3.attachLabel ?? 'Pridėti nuotrauką'}</span></label>
+  <label class="v3-attach"><input type="file" accept="image/*,application/pdf" multiple /><Icon name="camera" /><span>Pridėti failus</span></label>
   <button class="v3-btn v3-btn--accent v3-btn--block" type="submit">Gauti kainą<Icon name="arrow" /></button>
   <p class="v3-form__note" data-inert-note hidden>Tai peržiūra: forma niekur nesiunčia.</p>
 </form>

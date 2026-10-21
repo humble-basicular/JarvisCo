@@ -261,7 +261,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
   </section>
   <Divider shape={d} from="paper" to="base" />
 
-  <section class="v3-sec v3-steps" id="eiga" aria-labelledby="v3-process">
+  <section class={`v3-sec v3-steps v3-steps--${theme.process ?? 'line'}`} id="eiga" aria-labelledby="v3-process">
     <div class="v3-wrap">
       <header class="v3-head v3-head--center">
         <p class="v3-kicker v3-kicker--hi">Kaip dirbame</p>
@@ -269,11 +269,20 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       </header>
       <ol class="v3-steps__list" style={`--n:${v3.steps.length}`}>
         {v3.steps.map((s, i) => (
-          <li>
-            <span class="v3-steps__ico"><Icon name={s.icon} /><span class="v3-steps__n">{i + 1}</span></span>
-            <h3>{s.title}</h3>
-            <p>{s.text}</p>
-          </li>
+          theme.process === 'chevron' ? (
+            <li>
+              <span class="v3-steps__ico"><Icon name={s.icon} /><span class="v3-steps__n">{i + 1}</span></span>
+              <span class="v3-steps__stem" aria-hidden="true"></span>
+              <div class="v3-steps__tag"><h3>{s.title}</h3></div>
+              <p>{s.text}</p>
+            </li>
+          ) : (
+            <li>
+              <span class="v3-steps__ico"><Icon name={s.icon} /><span class="v3-steps__n">{i + 1}</span></span>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          )
         ))}
       </ol>
       <p class="v3-steps__cta"><a class="v3-btn v3-btn--accent v3-btn--lg" href="#uzklausa" data-quote>Pradėti nuo 1 žingsnio</a></p>
