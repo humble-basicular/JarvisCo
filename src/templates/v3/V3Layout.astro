@@ -37,7 +37,10 @@ const fontCss = [
   "@font-face{font-family:'V3 Sans Fallback';src:local('Arial'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:25%;line-gap-override:0%}",
 ].join('');
 const glyph = GLYPH[theme.logo.glyph];
-const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="${theme.base}"/><circle cx="32" cy="32" r="20" fill="${theme.accent}"/><path d="${glyph.main}" fill="#fff" fill-rule="evenodd" transform="translate(32 33) scale(.8) translate(-32 -31)"/></svg>`)}`;
+const plate = theme.logo.shape === 'square'
+  ? `<rect x="1" y="1" width="62" height="62" rx="12" fill="${theme.base}"/><rect x="8" y="8" width="48" height="48" rx="4" fill="${theme.accent}"/>`
+  : `<circle cx="32" cy="32" r="31" fill="${theme.base}"/><circle cx="32" cy="32" r="20" fill="${theme.accent}"/>`;
+const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">${plate}<path d="${glyph.main}" fill="#fff" fill-rule="evenodd" transform="translate(32 33) scale(.8) translate(-32 -31)"/></svg>`)}`;
 ---
 <!doctype html>
 <html lang="lt">

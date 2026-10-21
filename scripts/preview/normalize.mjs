@@ -246,7 +246,7 @@ const V3_ENUMS = {
   divider: ['angle', 'wave', 'zigzag', 'notch'],
   hero: ['photo', 'panel'],
   services: ['tiles', 'cards'],
-  shape: ['round', 'shield'],
+  shape: ['round', 'shield', 'square'],
   glyph: ['flame', 'drop', 'bolt', 'lens'],
   link: ['google', 'facebook', 'paslaugos'],
 };

@@ -7,7 +7,7 @@
 
 export type Archetype = 'water' | 'heat' | 'outdoor' | 'heavy' | 'electric' | 'clean' | 'craft';
 export type Divider = 'angle' | 'wave' | 'zigzag' | 'notch';
-export type LogoShape = 'round' | 'shield';
+export type LogoShape = 'round' | 'shield' | 'square';
 export type LogoGlyph = 'flame' | 'drop' | 'bolt' | 'lens';
 export type HeadingFont = 'archivo-black' | 'barlow-condensed' | 'space-grotesk';
 /** photo = full-bleed photo behind copy + form (needs a sharp ≥1400 px photo);

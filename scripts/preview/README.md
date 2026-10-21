@@ -156,7 +156,7 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
 - Photo quality rule (Jarvis 2026-10-21): emphasised slots – hero and CTA backgrounds (≥ 1400 px) and
   service tiles (≥ 1000 px) – take a sharp real photo or an AI illustration (`ai: true`). AI images show
   the type of work only (no faces, logos, text, vans or credentials), never enter the work gallery or hero
-  pins, and switch on a footer disclosure. `validateSaved` refuses a preview that breaks this.
+  pins (user decision 2026-10-21: client footers carry no AI note, only "Programavimas: jarvisweb.lt"). `validateSaved` refuses a preview that breaks this.
   The FAQ photo counts as emphasised too (≥ 1000 px). Width alone does not prove sharpness: photos
   taken from Paslaugos.lt are often upscaled phone shots – look at every emphasised photo at full
   size and use an AI illustration when it is soft (Nerijus FAQ photo replaced 2026-10-21).

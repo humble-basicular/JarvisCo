@@ -328,8 +328,8 @@ writeFileSync(resolve(accentEvidence, 'fixtures.json'), JSON.stringify(built, nu
         assert.match(html, /(?:hs|v3)-banner__tag">PERŽIŪRA</);
         assert.doesNotMatch(html, /href="(?:tel:|mailto:)/);
         // Template v3 draws the badge inline (theme card) unless v3.clientLogo opts into the uploaded logo file.
-        if (data.v3?.clientLogo) { assert.ok(html.includes(`src="${data.logo.src}"`)); assert.doesNotMatch(html, /class="v3-badge"/); }
-        else if (data.v3) assert.match(html, /class="v3-badge"/);
+        if (data.v3?.clientLogo) { assert.ok(html.includes(`src="${data.logo.src}"`)); assert.doesNotMatch(html, /class="v3-badge[ "]/); }
+        else if (data.v3) assert.match(html, /class="v3-badge[ "]/);
         else if (data.logo) assert.ok(html.includes(`src="${data.logo.src}"`));
         assert.match(home, new RegExp(`href="/perziura/${data.slug}/${t.slug}"`));
         h1s.add(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1].replace(/<[^>]+>/g, ''));

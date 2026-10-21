@@ -45,6 +45,8 @@ const baseLine = v3.baseLine ?? `${base} ir aplink`;
 /* The client's own logo (input `logo`) replaces the generated badge only when v3.clientLogo opts in. */
 const clientLogo = v3.clientLogo && data.logo?.src;
 const logoSize = { width: v3.clientLogo?.width, height: v3.clientLogo?.height };
+/* Two-tone wordmark for camel-case names ("MesElektra" → Mes + accent Elektra). */
+const nameSplit = data.business.match(/^(\p{Ll}*\p{Lu}\p{Ll}+)(\p{Lu}\p{L}+)$/u);
 const h1 = town
   ? (v3.h1.tail ? { ...v3.h1, tail: town.loc } : { ...v3.h1, hot: town.loc, tail: undefined })
   : v3.h1;
@@ -66,7 +68,6 @@ const MONTHS = ['sausio', 'vasario', 'kovo', 'balandžio', 'gegužės', 'biržel
 const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]} m. ${MONTHS[+m[2] - 1]} ${+m[3]} d.` : undefined; };
 const reviews = data.reviews ?? [];
 const gbp = v3.gbp ?? {};
-const hasAi = demo || P.some((p) => p.ai);
 const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => ({ src: p.src, srcset: p.srcset, sizes: p.srcset ? sizes : undefined, width: p.width, height: p.height, decoding: 'async', ...extra });
 ---
 <a class="v3-skip" href="#uzklausa">Pereiti prie užklausos formos</a>
@@ -90,7 +91,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       ) : (
         <>
           <Badge name={data.business} theme={theme} uid="b-head" size={64} />
-          <span class="v3-brand__text"><span class="v3-brand__name">{data.business}</span><span class="v3-brand__line">{theme.logo.line}</span></span>
+          <span class="v3-brand__text"><span class="v3-brand__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</span><span class="v3-brand__line">{theme.logo.line}</span></span>
         </>
       )}
     </a>
@@ -440,7 +441,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
 <footer class="v3-foot" id="kontaktai">
   <div class="v3-wrap v3-foot__grid">
     <div class="v3-foot__brand">
-      {clientLogo ? <span class="v3-logo-plate"><img src={clientLogo} alt={data.business} {...logoSize} /></span> : <><Badge name={data.business} theme={theme} uid="b-foot" size={112} /><p class="v3-foot__name">{data.business}</p></>}
+      {clientLogo ? <span class="v3-logo-plate"><img src={clientLogo} alt={data.business} {...logoSize} /></span> : <><Badge name={data.business} theme={theme} uid="b-foot" size={112} /><p class="v3-foot__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</p></>}
       <p>{theme.logo.line}</p>
       <a class="v3-btn v3-btn--accent" href={tel}><Icon name="phone" />{data.phone}</a>
     </div>
@@ -464,7 +465,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
   </div>
   <div class="v3-wrap v3-foot__legal">
     <p>© {year} {data.business} · <span>Privatumo politika</span></p>
-    <p>{demo ? 'Dalis iliustracijų sukurta DI. · ' : hasAi ? 'Paslaugų ir fono iliustracijos sukurtos DI – tai ne atlikti darbai. · ' : ''}Svetainė: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
+    <p>{demo && 'Dalis iliustracijų sukurta DI. · '}Programavimas: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
   </div>
 </footer>
 
