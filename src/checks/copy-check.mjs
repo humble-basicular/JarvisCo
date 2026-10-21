@@ -7,7 +7,7 @@ import { pages, text, textContent, normalized } from './html.mjs';
 const banned = [
   /NUOTRAUKA\s*:|CITATA\s*:/iu,
   /500\s*€|47\s*€/u, /11[\s,.]*362/u, /prenumerat|mėnesiniai planai/iu,
-  /atsiliepim|\/atsiliepimas/iu, /Kazlausk|Vaitkut|Petrausk|Stankevič|Jankausk/u,
+  /Kazlausk|Vaitkut|Petrausk|Stankevič|Jankausk/u,
   /TOP pozicij|5[,.]0\s*★|100\+|<\s*1\s*s/iu,
   /praleist[oaų]\s+skambuči|automatiz|automatinės SMS/iu,
   /three\.js|gsap|geriausi|revoliucin/iu, /!/u,
@@ -22,6 +22,9 @@ const banned = [
   // The 20 form inquiries are not attributed to Google (proof spec §9).
   /20\s+(?:formos\s+)?užklausų[^.\d]{0,40}(?:iš|per)\s+Google/iu,
 ];
+// The agency's own pages carry no testimonials. Client previews (/perziura/) may: the generator renders
+// only real quotes supplied by the client, plus the Google Business Profile review section (2026-10-21).
+const agencyOnly = [/atsiliepim|\/atsiliepimas/iu];
 const allowed = [`${v4.price.amount} ${v4.price.unit}`, offer.comparison, offer.year.lead, `${offer.year.rows[0].value} ${offer.year.rows[0].detail}`];
 const mustBlock = ['NUOTRAUKA: trūksta', 'CITATA: trūksta', '47 €/mėn.', '49 € / mėn.', 'garantuojame pirmą vietą', '20 užklausų iš Google', 'mėnesinis planas', 'Paslaugos.lt, 1551.lt'];
 for (const value of allowed) {
@@ -59,7 +62,7 @@ for (const page of built) {
   const labels = page.nodes.flatMap((node) => (node.attrs ?? [])
     .filter((a) => ['alt', 'aria-label', 'title', 'placeholder', 'data-caption', 'data-messages', 'content'].includes(a.name))
     .map((a) => a.value)).join(' ');
-  for (const re of banned) {
+  for (const re of page.path.startsWith('perziura/') ? banned : [...banned, ...agencyOnly]) {
     const match = normalized(`${visible} ${labels}`).match(re);
     if (match) errors.push(`${page.file}: forbidden ${JSON.stringify(match[0])}`);
   }

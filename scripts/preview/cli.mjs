@@ -50,7 +50,11 @@ async function generate(file) {
     await checkLogoFile(readFileSync(logoFile), extname(logoFile));
   }
 
-  const slug = newSlug();
+  // `--slug <existing>` rebuilds an already shared preview in place (same link for the client).
+  const keep = args.includes('--slug') ? args[args.indexOf('--slug') + 1] : undefined;
+  if (keep !== undefined && !/^[2-9a-hjkmnp-z]{10}$/.test(keep)) throw new Error('--slug must be an existing 10-character preview slug');
+  if (keep !== undefined && !existsSync(join(ROOT, 'previews', `${keep}.json`))) throw new Error(`--slug ${keep}: previews/${keep}.json does not exist`);
+  const slug = keep ?? newSlug();
   const outDir = join(ROOT, 'public', 'previews', slug);
   const photos = [];
   let logo;
@@ -68,7 +72,7 @@ async function generate(file) {
       const name = `${i + 1}.jpg`;
       // Rotate by EXIF, ≤ 1600 px, JPEG, metadata (GPS etc.) stripped.
       const info = await sharp(p.file).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 80, mozjpeg: true }).toFile(join(outDir, name));
-      photos.push({ src: `/previews/${slug}/${name}`, width: info.width, height: info.height, ...(p.alt ? { alt: p.alt } : {}) });
+      photos.push({ src: `/previews/${slug}/${name}`, width: info.width, height: info.height, ...(p.alt ? { alt: p.alt } : {}), ...(p.ai ? { ai: true } : {}) });
     }
   }
 

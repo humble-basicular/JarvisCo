@@ -1,7 +1,7 @@
 ---
 /* Template v3 page (design plan 2026-10-20, "Template v3: section order"):
    header → hero with quote form → trust strip → [town block] → about → services →
-   process → work gallery (+ real review) → prices → FAQ → areas + map → photo CTA → footer.
+   process → work gallery → reviews (+ Google profile links) → prices → FAQ → areas + map → photo CTA → footer.
    Everything comes from SiteData + the `v3` block (content.ts); the theme card picks the
    look (hero/services layout, font, divider, badge). Absent data → the part is not shown.
    Preview mode only: call links jump to the form, nothing dials, the form is inert
@@ -35,7 +35,7 @@ const hero = at(v3.photo?.hero, 0);
 const aboutPhoto = at(v3.photo?.about, 4);
 const faqPhoto = at(v3.photo?.faq, 2);
 const ctaPhoto = at(v3.photo?.cta, 3);
-const pins = (v3.photo?.pins ?? [1, 2, 3]).map((i) => P[i]).filter(Boolean).slice(0, 3);
+const pins = (v3.photo?.pins ?? [1, 2, 3]).map((i) => P[i]).filter((p) => p && !p.ai).slice(0, 3);
 const gallery = galleryPhotos(P);
 const services = data.services.map((s) => (typeof s === 'string' ? { name: s, text: '' } : { name: s.name, text: s.text ?? '' }));
 const year = new Date().getFullYear();
@@ -52,11 +52,17 @@ const nav = [
   { href: '#vietoves', label: 'Kur dirbame' },
 ];
 const map = areaMap(base, towns.map((t) => t.name), town?.name);
-const mapSrc = map && `https://maps.google.com/maps?q=${encodeURIComponent(map.query)}&z=${map.zoom}&hl=lt&output=embed`;
+/* Live Google map straight away (no click-to-load). Pin = v3.map.query (GBP name + address once it exists), else the town. */
+const mapQuery = town ? `${town.name}, Lietuva` : v3.map?.query ?? `${base}, Lietuva`;
+const mapZoom = (!town && v3.map?.zoom) || (town ? 12 : map?.zoom ?? 11);
+const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=${mapZoom}&hl=lt&output=embed`;
 const nearby = (town ? town.places : data.areas.filter((a) => !towns.some((t) => t.name === a) && a !== base)).slice(0, 8);
 const MONTHS = ['sausio', 'vasario', 'kovo', 'balandžio', 'gegužės', 'birželio', 'liepos', 'rugpjūčio', 'rugsėjo', 'spalio', 'lapkričio', 'gruodžio'];
 const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]} m. ${MONTHS[+m[2] - 1]} ${+m[3]} d.` : undefined; };
-const review = data.reviews?.[0];
+const reviews = data.reviews ?? [];
+const gbp = v3.gbp ?? {};
+const showReviews = reviews.length > 0 || !!gbp.url || !!gbp.reviewUrl;
+const hasAi = demo || P.some((p) => p.ai);
 const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => ({ src: p.src, srcset: p.srcset, sizes: p.srcset ? sizes : undefined, width: p.width, height: p.height, decoding: 'async', ...extra });
 ---
 <a class="v3-skip" href="#uzklausa">Pereiti prie užklausos formos</a>
@@ -288,15 +294,37 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
           </li>
         ))}
       </ul>
-      {review && (
-        <figure class="v3-review">
-          <span class="v3-review__ico"><Icon name="quote" /></span>
-          <blockquote><p>{review.text}</p></blockquote>
-          <figcaption><strong>{review.name}</strong>{[ltDate(review.date), review.source && `Šaltinis: ${review.source}`].filter(Boolean).map((x) => <span>{x}</span>)}</figcaption>
-        </figure>
-      )}
     </div>
   </section>
+
+  {showReviews && (
+    <section class="v3-sec v3-reviews" id="atsiliepimai" aria-labelledby="v3-reviews">
+      <div class="v3-wrap">
+        <header class="v3-head v3-head--row">
+          <div>
+            <p class="v3-kicker">Atsiliepimai</p>
+            <h2 id="v3-reviews" class="v3-h2">Ką sako klientai</h2>
+          </div>
+          <div class="v3-reviews__ctas">
+            {gbp.url && <a class="v3-btn v3-btn--dark" href={gbp.url} rel="noopener" target="_blank"><Icon name="pin" />Atsiliepimai Google</a>}
+            {gbp.reviewUrl && <a class="v3-btn v3-btn--accent" href={gbp.reviewUrl} rel="noopener" target="_blank"><Icon name="quote" />Palikti atsiliepimą</a>}
+            {!gbp.url && !gbp.reviewUrl && <p class="v3-reviews__soon"><Icon name="pin" />Google atsiliepimai – netrukus</p>}
+          </div>
+        </header>
+        <ul class:list={['v3-reviews__list', reviews.length === 1 && 'is-single']}>
+          {reviews.map((r) => (
+            <li>
+              <figure class="v3-review">
+                <span class="v3-review__ico"><Icon name="quote" /></span>
+                <blockquote><p>{r.text}</p></blockquote>
+                <figcaption><strong>{r.name}</strong>{[r.place, ltDate(r.date)].filter(Boolean).map((x) => <span>{x}</span>)}{r.source && (r.url ? <a href={r.url} rel="noopener" target="_blank">Šaltinis: {r.source}</a> : <span>Šaltinis: {r.source}</span>)}</figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
 
   {!!data.prices?.length && (
     <section class="v3-sec v3-sec--paper v3-prices" id="kainos" aria-labelledby="v3-prices">
@@ -365,33 +393,12 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
         {nearby.length > 0 && <p class="v3-areas__also">Taip pat: {nearby.join(' · ')}</p>}
         <p class="v3-areas__unsure">Nerandate savo vietovės? <a href="#uzklausa">Parašykite</a> – pasakysime, ar atvyksime.</p>
       </div>
-      {map && (
-        <figure class="v3-map" data-map>
-          <div class="v3-map__frame">
-            <svg viewBox="0 0 500 400" role="img" aria-label={`Žemėlapio schema: ${map.pins.map((p) => p.name).join(', ')}`}>
-              <rect width="500" height="400" fill="var(--v3-base)" />
-              <g fill="none" stroke="#ffffff" stroke-opacity=".07">
-                {Array.from({ length: 9 }, (_, i) => <path d={`M0 ${i * 50}H500`} />)}
-                {Array.from({ length: 11 }, (_, i) => <path d={`M${i * 50} 0V400`} />)}
-              </g>
-              {map.rings.map((r, i) => (
-                <g>
-                  <circle cx={map.base.x} cy={map.base.y} r={r.r} fill="none" stroke="var(--v3-accent-hi)" stroke-opacity=".4" stroke-dasharray="5 7" stroke-width="1.5" />
-                  <text x={map.base.x + r.r * 0.707 + 4} y={map.base.y + r.r * 0.707 + 14} class="v3-map__km">{r.km} km</text>
-                </g>
-              ))}
-              {map.pins.filter((p) => !p.base).map((p) => <path d={`M${map.base.x} ${map.base.y}L${p.x} ${p.y}`} stroke="#fff" stroke-opacity=".22" stroke-width="2" />)}
-              {map.pins.map((p) => (
-                p.base
-                  ? <g><circle cx={p.x} cy={p.y} r="15" fill="var(--v3-accent)" stroke="#fff" stroke-width="4" /><text x={p.x} y={p.y + 38} class="v3-map__big" text-anchor="middle">{p.name.toLocaleUpperCase('lt')}</text></g>
-                  : <g><circle cx={p.x} cy={p.y} r={p.current ? 12 : 9} fill={p.current ? '#fff' : 'var(--v3-accent-hi)'} stroke={p.current ? 'var(--v3-accent)' : '#fff'} stroke-width="4" /><text x={p.x} y={p.y - 18} class="v3-map__town" text-anchor="middle">{p.name}</text></g>
-              ))}
-            </svg>
-            <button class="v3-btn v3-btn--white v3-map__load" type="button" data-map-load data-src={mapSrc} data-title={`Google žemėlapis: ${map.query}`}><Icon name="map" />Rodyti Google žemėlapyje</button>
-          </div>
-          <figcaption>Apytikslė schema. Paspaudus įkeliamas Google žemėlapis.</figcaption>
-        </figure>
-      )}
+      <figure class="v3-map">
+        <div class="v3-map__frame">
+          <iframe src={mapSrc} title={`Google žemėlapis: ${mapQuery}`} loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        </div>
+        <figcaption><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`} rel="noopener" target="_blank">Atidaryti Google Maps</a></figcaption>
+      </figure>
     </div>
   </section>
 
@@ -437,7 +444,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
   </div>
   <div class="v3-wrap v3-foot__legal">
     <p>© {year} {data.business} · <span>Privatumo politika</span></p>
-    <p>{demo && 'Dalis iliustracijų sukurta DI. · '}Svetainė: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
+    <p>{demo ? 'Dalis iliustracijų sukurta DI. · ' : hasAi ? 'Paslaugų ir fono iliustracijos sukurtos DI – tai ne atlikti darbai. · ' : ''}Svetainė: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
   </div>
 </footer>
 
@@ -453,12 +460,5 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
     var dock = document.querySelector('[data-dock]');
     var q = document.getElementById('uzklausa');
     if (dock && q && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { dock.classList.toggle('is-hidden', es[0].isIntersecting); }).observe(q);
-    var b = document.querySelector('[data-map-load]');
-    if (b) b.addEventListener('click', function () {
-      var f = document.createElement('iframe');
-      f.src = b.getAttribute('data-src'); f.title = b.getAttribute('data-title'); f.loading = 'lazy'; f.allowFullscreen = true;
-      f.referrerPolicy = 'no-referrer-when-downgrade';
-      b.parentNode.appendChild(f); b.parentNode.classList.add('is-live'); b.remove();
-    });
   })();
 </script>

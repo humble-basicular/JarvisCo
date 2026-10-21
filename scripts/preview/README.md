@@ -31,7 +31,7 @@ Then edit the texts in `previews/<slug>.json` if needed (they are plain JSON) an
 | `areas` | string[] | ≤ 12 items, each ≤ 60 chars. Falls back to `submission.area` + `submission.area_other` (comma-separated) |
 | `services` | (string \| `{name, text?}`)[] | ≤ 12 items, names ≤ 60 chars, supplied descriptions ≤ 400 chars. Falls back to `submission.services` + `submission.services_other`. At least one is required |
 | `standout` | string | Optional, ≤ 1000 chars. One bullet per line, `;` or sentence. Falls back to `submission.standout` |
-| `photos` | (string \| `{path, alt}`)[] | Optional, ≤ 12. Paths are relative to the input JSON. The first photo is the hero image |
+| `photos` | (string \| `{path, alt, ai?}`)[] | Optional: ≤ 12 real photos + ≤ 12 AI illustrations (`ai: true`). Paths are relative to the input JSON. The first photo is the hero image unless `v3.photo.hero` says otherwise |
 | `tagline` | string | Optional, ≤ 120 chars. The H1; otherwise derived from supplied services + city |
 | `lead` | string | Optional, ≤ 300 chars. The sentence under the H1; otherwise `<business> – <first services>. <where>` |
 | `logo` | string \| `{path, line?}` | Optional. Path (relative to the input JSON, inside its folder, no symlink) to a square `.svg` or `.png` read on a light background; `line` (≤ 60) is set under the name. Shown in the header, on the hero photo seal, in the footer, as the tab icon and (real sites) on the About panel. SVGs must be static drawings (paths, shapes, text and local gradients/references; no CSS, animation, prefixed elements or alternate namespaces): no script, `on…` handler, foreignObject, DOCTYPE/entity, `@import`, `javascript:`/`data:` or external `href`/`url()`; PNGs and SVGs must fully decode; ≤ 200 KB and ≤ 16,777,216 decoded pixels (`checkLogoFile` in `normalize.mjs`, checked again by `client-site.mjs`) |
@@ -147,5 +147,14 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
 - Copy: `h1`, `heroChecks`, `trust` (3–5), `aboutTitle`, `steps` (3–5), `ctaTitle`, `ctaText` are required;
   only the client's own facts (no invented reviews, numbers, warranties).
 - `photo`: indexes into `photos` for hero, pins (panel hero), about, faq, cta.
-- Area map: base city + town pages are drawn from `GEO` in `content.ts` (add missing towns there);
-  the button loads the real Google map only on click (no Google request before that).
+- Photo quality rule (Jarvis 2026-10-21): emphasised slots – hero and CTA backgrounds (≥ 1400 px) and
+  service tiles (≥ 1000 px) – take a sharp real photo or an AI illustration (`ai: true`). AI images show
+  the type of work only (no faces, logos, text, vans or credentials), never enter the work gallery or hero
+  pins, and switch on a footer disclosure. `validateSaved` refuses a preview that breaks this.
+- Reviews: real quotes from `reviews` get their own section (`#atsiliepimai`); `v3.gbp.url` / `v3.gbp.reviewUrl`
+  (https) add "Atsiliepimai Google" / "Palikti atsiliepimą" buttons. Without them the section shows
+  "Google atsiliepimai – netrukus".
+- Map: a live Google map loads with the page (no click step), pinned on the base town (town pages: that
+  town). Once the Google Business Profile exists set `v3.map.query` to its name + address (optional `zoom` 5–18).
+  The live site's privacy policy must then mention the Google Maps embed.
+- Rebuilding an already shared preview: `npm run preview -- <input.json> --slug <slug>` keeps the link.

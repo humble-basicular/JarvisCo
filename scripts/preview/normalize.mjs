@@ -270,7 +270,7 @@ function v3Items(value, field, min, max) {
 }
 function index(value, field) {
   if (value == null) return undefined;
-  if (!Number.isInteger(value) || value < 0 || value > 11) throw new Error(`${field} must be a photo index 0–11`);
+  if (!Number.isInteger(value) || value < 0 || value > 23) throw new Error(`${field} must be a photo index 0–23`);
   return value;
 }
 function v3(value) {
@@ -319,6 +319,16 @@ function v3(value) {
       if (l.url != null && !/^https:\/\/[^\s"<>]+$/.test(l.url)) throw new Error(`v3.links[${i}].url must be https://…`);
       return { kind, ...(l.url ? { url: l.url } : {}) };
     }),
+    gbp: v.gbp == null ? undefined : (() => {
+      const g = obj(v.gbp, 'v3.gbp');
+      for (const k of ['url', 'reviewUrl']) if (g[k] != null && !/^https:\/\/[^\s"<>]+$/.test(g[k])) throw new Error(`v3.gbp.${k} must be https://…`);
+      return { ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}) };
+    })(),
+    map: v.map == null ? undefined : (() => {
+      const m = obj(v.map, 'v3.map');
+      if (m.zoom != null && (!Number.isInteger(m.zoom) || m.zoom < 5 || m.zoom > 18)) throw new Error('v3.map.zoom must be an integer 5–18');
+      return { ...(m.query ? { query: text(m.query, 'v3.map.query', 120) } : {}), ...(m.zoom ? { zoom: m.zoom } : {}) };
+    })(),
     ctaTitle: text(v.ctaTitle, 'v3.ctaTitle', 80, { required: true }),
     ctaText: text(v.ctaText, 'v3.ctaText', 200, { required: true }),
     photo: photo && Object.fromEntries(Object.entries({ hero: index(photo.hero, 'v3.photo.hero'), about: index(photo.about, 'v3.photo.about'), faq: index(photo.faq, 'v3.photo.faq'), cta: index(photo.cta, 'v3.photo.cta'),
@@ -365,13 +375,30 @@ export function normalize(raw) {
   if (!data.areas.length) data.areas = [data.city];
   if (!data.services.length) throw new Error('services (or submission.services / services_other) is required');
   const photos = raw.photos ?? [];
-  if (!Array.isArray(photos) || photos.length > 12) throw new Error('photos must be a list of at most 12 paths');
+  // Up to 12 real work photos plus up to 12 AI illustrations ({path, alt, ai: true}) for emphasised slots.
+  if (!Array.isArray(photos) || photos.length > 24) throw new Error('photos must be a list of at most 24 paths');
   data.photos = photos.map((p, i) => {
     const item = typeof p === 'string' ? { path: p } : p;
-    if (!item || typeof item.path !== 'string') throw new Error(`photos[${i}] must be a path or {path, alt}`);
-    return { path: item.path, alt: text(item.alt, `photos[${i}].alt`, 160) };
+    if (!item || typeof item.path !== 'string') throw new Error(`photos[${i}] must be a path or {path, alt, ai}`);
+    if (item.ai != null && typeof item.ai !== 'boolean') throw new Error(`photos[${i}].ai must be true or false`);
+    return { path: item.path, alt: text(item.alt, `photos[${i}].alt`, 160), ...(item.ai ? { ai: true } : {}) };
   });
+  if (data.photos.filter((p) => !p.ai).length > 12) throw new Error('at most 12 real photos (AI illustrations are separate)');
+  if (data.photos.filter((p) => p.ai).length > 12) throw new Error('at most 12 AI illustrations');
   return { data, submission };
+}
+
+/* Emphasised slots (hero and CTA backgrounds, service tiles) must be sharp: a real high-resolution
+   photo or an AI illustration of the trade. Keep in sync with EMPHASIS_MIN_WIDTH in src/templates/v3/content.ts. */
+const EMPHASIS_MIN_WIDTH = { background: 1400, tile: 1000 };
+function checkEmphasis(v3, photos) {
+  const pick = (i, fallback) => photos[i ?? fallback] ?? photos[fallback % photos.length] ?? photos[0];
+  const need = (p, min, slot) => {
+    if (p && p.width < min) throw new Error(`${slot} photo ${p.src} is ${p.width} px wide; emphasised slots need ≥ ${min} px – use a sharp real photo or an AI illustration (ai: true)`);
+  };
+  need(pick(v3.photo?.hero, 0), EMPHASIS_MIN_WIDTH.background, 'v3.photo.hero');
+  need(pick(v3.photo?.cta, 3), EMPHASIS_MIN_WIDTH.background, 'v3.photo.cta');
+  if (v3.theme.services === 'tiles') v3.tilePhotos?.forEach((i, n) => need(photos[i], EMPHASIS_MIN_WIDTH.tile, `v3.tilePhotos[${n}]`));
 }
 
 /** A saved previews/<slug>.json (what the CLI wrote): the same checks as normalize(), plus the photo records. */
@@ -385,15 +412,16 @@ export function validateSaved(saved) {
     if (p.alt != null && typeof p.alt !== 'string') throw new Error(`photos[${i}].alt must be a string`);
   });
   if (saved.logo != null && (typeof saved.logo !== 'object' || typeof saved.logo.src !== 'string')) throw new Error('logo must be {src, line}');
-  const { data } = normalize({ ...saved, photos: photos.map((p) => ({ path: p.src, alt: p.alt })), logo: saved.logo ? { path: saved.logo.src, line: saved.logo.line } : undefined });
+  const { data } = normalize({ ...saved, photos: photos.map((p) => ({ path: p.src, alt: p.alt, ai: p.ai })), logo: saved.logo ? { path: saved.logo.src, line: saved.logo.line } : undefined });
   if (typeof saved.slug !== 'string') throw new Error('slug is missing');
   // The generator writes the logo as /previews/<slug>/logo.svg|png; nothing else is served.
   if (data.logo && !new RegExp(`^/previews/${saved.slug.replace(/[^a-z0-9]/g, '')}/logo\\.(?:svg|png)$`).test(data.logo.path)) throw new Error(`logo.src must be /previews/${saved.slug}/logo.svg or .png`);
+  if (data.v3 && photos.length) checkEmphasis(data.v3, photos);
   const { logo: savedLogo, ...rest } = data;
   return {
     ...rest,
     ...(savedLogo ? { logo: { src: savedLogo.path, ...(savedLogo.line ? { line: savedLogo.line } : {}) } } : {}),
     slug: saved.slug,
-    photos: photos.map((p) => ({ src: p.src, width: p.width, height: p.height, ...(p.alt ? { alt: p.alt } : {}) })),
+    photos: photos.map((p) => ({ src: p.src, width: p.width, height: p.height, ...(p.alt ? { alt: p.alt } : {}), ...(p.ai ? { ai: true } : {}) })),
   };
 }

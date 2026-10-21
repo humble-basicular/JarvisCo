@@ -39,9 +39,17 @@ export interface V3Input {
   links?: { kind: V3LinkKind; url?: string }[];
   ctaTitle: string;
   ctaText: string;
-  /** Photo indexes (0-based) for the fixed photo slots. */
+  /** Photo indexes (0-based) for the fixed photo slots. Hero, CTA and tile photos are emphasised:
+   *  they must be sharp (see EMPHASIS_MIN_WIDTH) – a real high-resolution photo or an AI illustration. */
   photo?: { hero?: number; pins?: number[]; about?: number; faq?: number; cta?: number };
+  /** Google Business Profile: reviews link + "leave a review" link. Absent → review section shows a "coming" note. */
+  gbp?: { url?: string; reviewUrl?: string };
+  /** Google map pin: `query` = business name + address once the GBP exists; default = base town (or the town page's town). */
+  map?: { query?: string; zoom?: number };
 }
+
+/** Minimum pixel width for emphasised photo slots (hero/CTA background, service tiles). */
+export const EMPHASIS_MIN_WIDTH = { background: 1400, tile: 1000 } as const;
 
 /** Photos as V3Site uses them (previews have no srcset). */
 export type V3Photo = SitePhoto & { srcset?: string };
@@ -59,7 +67,10 @@ const SERVICE_ICON: [RegExp, IconName][] = [
 export const serviceIcon = (name: string): IconName => SERVICE_ICON.find(([re]) => re.test(name))?.[1] ?? 'wrench';
 
 /** Gallery: big photo + rows of 4 (desktop) / 2 (mobile), so no row is left half empty. */
-export const galleryPhotos = <T>(photos: T[]): T[] => photos.slice(0, photos.length < 5 ? photos.length : 1 + Math.floor((photos.length - 1) / 4) * 4);
+export const galleryPhotos = <T extends { ai?: boolean }>(all: T[]): T[] => {
+  const photos = all.filter((p) => !p.ai); // the work gallery shows real jobs only
+  return photos.slice(0, photos.length < 5 ? photos.length : 1 + Math.floor((photos.length - 1) / 4) * 4);
+};
 
 export const LINK_LABEL: Record<V3LinkKind, string> = { google: 'Google Maps', facebook: 'Facebook', paslaugos: 'Paslaugos.lt' };
 export const LINK_ICON: Record<V3LinkKind, IconName> = { google: 'pin', facebook: 'facebook', paslaugos: 'verified' };

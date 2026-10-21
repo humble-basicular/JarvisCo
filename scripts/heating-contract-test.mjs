@@ -44,6 +44,36 @@ check('fixture accents: dark and blue keep white text, light switches to ink', (
 check('unsafe review URL is rejected', () => assert.throws(() => normalize({ ...base, reviews: [{ name: 'Test', text: 'Test', url: 'javascript:alert(1)' }] }), /https/));
 check('saved image dimensions are validated', () => assert.throws(() => validateSaved({ ...base, slug: 'test', photos: [{ src: '/x.jpg', width: 0, height: 10 }] }), /positive integer/));
 
+// Photo rules (Jarvis 2026-10-21): emphasised slots sharp or AI; AI illustrations flagged and kept out of the work gallery.
+check('photos: ai flag kept, 12 real + 12 AI limit', () => {
+  const real = Array.from({ length: 12 }, (_, i) => `r${i}.jpg`);
+  const ai = Array.from({ length: 12 }, (_, i) => ({ path: `a${i}.jpg`, ai: true }));
+  assert.equal(normalize({ ...base, photos: [...real, ...ai] }).data.photos.filter((p) => p.ai).length, 12);
+  assert.throws(() => normalize({ ...base, photos: [...real, 'r12.jpg'] }), /12 real/);
+  assert.throws(() => normalize({ ...base, photos: [{ path: 'a.jpg', ai: 'yes' }] }), /ai must be/);
+});
+const V3_MIN = {
+  theme: { archetype: 'heat', base: '#111111', base2: '#222222', accent: '#b8430a', accentHi: '#fbbf24', paper: '#f4f4f4', heading: 'archivo-black', divider: 'angle', hero: 'photo', services: 'tiles', logo: { shape: 'round', glyph: 'flame', ring: 'Testas', line: 'Testas' } },
+  h1: { lead: 'Sintetinis', hot: 'testas' }, heroChecks: ['Taškas'], aboutTitle: 'Apie', ctaTitle: 'Skambinkite', ctaText: 'Tekstas',
+  trust: [1, 2, 3].map((i) => ({ icon: 'check', title: `T${i}`, text: 'Tekstas' })), steps: [1, 2, 3].map((i) => ({ icon: 'check', title: `S${i}`, text: 'Tekstas' })),
+};
+const ph = (n, width, ai) => ({ src: `/previews/abcdefghjk/${n}.jpg`, width, height: 900, ...(ai ? { ai: true } : {}) });
+check('v3: emphasised hero/CTA/tile photos below the minimum width are refused', () => {
+  const photos = [ph(1, 900), ph(2, 900), ph(3, 1536, true), ph(4, 1536, true), ph(5, 1536, true)];
+  const saved = (v3) => ({ ...base, slug: 'abcdefghjk', photos, v3: { ...V3_MIN, ...v3 } });
+  assert.ok(validateSaved(saved({ photo: { hero: 2, cta: 3 }, tilePhotos: [4] })).photos[2].ai);
+  assert.throws(() => validateSaved(saved({ photo: { hero: 0, cta: 3 }, tilePhotos: [4] })), /v3\.photo\.hero.*AI illustration/);
+  assert.throws(() => validateSaved(saved({ photo: { hero: 2, cta: 1 }, tilePhotos: [4] })), /v3\.photo\.cta/);
+  assert.throws(() => validateSaved(saved({ photo: { hero: 2, cta: 3 }, tilePhotos: [0] })), /v3\.tilePhotos\[0\]/);
+});
+check('v3: gbp links must be https, map zoom bounded', () => {
+  const v3 = (x) => normalize({ ...base, v3: { ...V3_MIN, ...x } }).data.v3;
+  assert.deepEqual(v3({ gbp: { url: 'https://g.page/x', reviewUrl: 'https://g.page/r/x/review' } }).gbp, { url: 'https://g.page/x', reviewUrl: 'https://g.page/r/x/review' });
+  assert.throws(() => v3({ gbp: { url: 'http://g.page/x' } }), /v3\.gbp\.url/);
+  assert.throws(() => v3({ map: { zoom: 30 } }), /v3\.map\.zoom/);
+  assert.equal(v3({ map: { query: 'Įmonė, Gatvė 1, Kaunas' } }).map.query, 'Įmonė, Gatvė 1, Kaunas');
+});
+
 // Optional `logo` and `towns` (both absent → nothing changes).
 check('logo: path or {path, line}; only .svg/.png; saved src must be the generator path', () => {
   assert.deepEqual(normalize({ ...base, logo: 'logo.svg' }).data.logo, { path: 'logo.svg' });
