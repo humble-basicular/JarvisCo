@@ -6,10 +6,10 @@ import Icon from './Icon.astro';
 import type { Theme } from '../theme';
 import type { V3Input } from '../content';
 
-interface Props { business: string; phone: string; theme: Theme; v3: V3Input; tel: string; uid: string; titleId?: string }
-const { business, phone, theme, v3, tel, uid, titleId } = Astro.props;
+interface Props { business: string; phone: string; theme: Theme; v3: V3Input; tel: string; uid: string; titleId?: string; /** false when the client's own logo replaces the generated badge */ badge?: boolean }
+const { business, phone, theme, v3, tel, uid, titleId, badge = true } = Astro.props;
 ---
-<div class="v3-quote__badge"><Badge name={business} theme={theme} uid={uid} size={84} /></div>
+{badge && <div class="v3-quote__badge"><Badge name={business} theme={theme} uid={uid} size={84} /></div>}
 <h2 class="v3-quote__title" id={titleId}>Gaukite kainą</h2>
 <p class="v3-quote__sub">{v3.quoteSub ?? 'Parašykite, ko reikia. Perskambinsime ir aptarsime darbą.'}</p>
 <form class="v3-form" data-inert-form action="#" method="get" novalidate>

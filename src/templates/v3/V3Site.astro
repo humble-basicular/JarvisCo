@@ -128,7 +128,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       </div>
 
       <div class="v3-quote" id="uzklausa">
-        <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-form" />
+        <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-form"  badge={!clientLogo} />
       </div>
     </div>
     <Divider shape={d} from="photo" to="accent" />
@@ -471,7 +471,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
 <dialog class="v3-modal" data-quote-modal aria-labelledby="v3-modal-title">
   <div class="v3-quote v3-quote--modal">
     <button class="v3-modal__x" type="button" data-quote-close aria-label="Uždaryti"><span aria-hidden="true">×</span></button>
-    <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-modal" titleId="v3-modal-title" />
+    <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-modal" titleId="v3-modal-title"  badge={!clientLogo} />
   </div>
 </dialog>
 

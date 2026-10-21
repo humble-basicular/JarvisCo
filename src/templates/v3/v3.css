@@ -62,6 +62,7 @@
 .v3-logo-plate img { height: 2.4rem; width: auto; max-width: 12rem; object-fit: contain; }
 .v3-logo-plate--stamp { padding: .45rem .6rem; }
 .v3-logo-plate--stamp img { height: 1.6rem; max-width: 6.5rem; }
+.v3-about__media .v3-logo-plate img { position: static; aspect-ratio: auto; width: auto; box-shadow: none; border-radius: 0; object-fit: contain; }
 .v3-head { margin-bottom: 2.5rem; max-width: 44rem; }
 .v3-head--center { margin-inline: auto; text-align: center; }
 .v3-head--center .v3-kicker { justify-content: center; }
@@ -80,7 +81,7 @@
 .v3-brand__name { font-size: 1.4rem; text-transform: uppercase; }
 .v3-brand__line { font-size: .8125rem; color: var(--v3-muted); font-weight: 600; margin-top: .2rem; }
 .v3-nav { display: flex; gap: 1.6rem; margin-left: auto; font-weight: 600; font-size: .975rem; }
-.v3-nav a { text-decoration: none; padding-block: .4rem; border-bottom: 2px solid transparent; }
+.v3-nav a { text-decoration: none; white-space: nowrap; padding-block: .4rem; border-bottom: 2px solid transparent; }
 .v3-nav a:hover { border-color: var(--v3-accent); }
 .v3-top__ctas { display: flex; align-items: center; gap: 1.1rem; }
 .v3-top__phone { display: flex; align-items: center; gap: .6rem; text-decoration: none; line-height: 1.1; }
@@ -179,6 +180,7 @@
 .v3-tile:hover img { transform: scale(1.05); }
 .v3-tile__body { position: relative; z-index: 2; display: grid; gap: .35rem; padding-right: 3.5rem; }
 .v3-tile__name { font-size: 1.35rem; line-height: 1.1; text-transform: uppercase; }
+.v3-top__quote { white-space: nowrap; }
 .v3-tile__text { font-size: .95rem; color: #dcdce0; }
 .v3-tile__go { position: absolute; z-index: 2; right: 1.3rem; bottom: 1.4rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--v3-accent); transition: transform .2s ease; }
 .v3-tile:hover .v3-tile__go { transform: translateX(3px); }
@@ -371,6 +373,7 @@ html.v3-locked { overflow: hidden; }
 .v3--head-barlow-condensed .v3-brand__name { font-size: 1.75rem; }
 .v3--head-space-grotesk :is(.v3-h1, .v3-h2, .v3-tile__name, .v3-card__name, .v3-brand__name, .v3-quote__title, .v3-promise__title, .v3-foot__name, .v3-trust strong) { font-weight: 700; letter-spacing: -.03em; }
 .v3--head-space-grotesk .v3-h1 { line-height: 1; }
+.v3--head-space-grotesk :is(.v3-tile__name, .v3-trust strong, .v3-foot__h) { letter-spacing: 0; }
 .v3--head-space-grotesk .v3-h2 { letter-spacing: -.035em; }
 .v3--head-space-grotesk :is(.v3-cities strong, .v3-foot__h, .v3-town__h, .v3-price td, .v3-faq__call a, .v3-reviews__gtitle, .v3-about__stamp strong) { font-weight: 700; }
 .v3--head-barlow-condensed .v3-trust strong { font-size: 1.3rem; }
@@ -392,6 +395,7 @@ html.v3-locked { overflow: hidden; }
 .v3-foot__grid { display: grid; grid-template-columns: 1.3fr 1.2fr .9fr 1.3fr; gap: 2.5rem; }
 .v3-foot__brand { display: grid; justify-items: start; gap: .5rem; }
 .v3-foot__brand .v3-btn { margin-top: .8rem; }
+.v3-foot__brand:has(.v3-logo-plate) { align-content: start; }
 .v3-foot__name { font-size: 1.5rem; color: #fff; text-transform: uppercase; margin-top: .4rem; }
 .v3-foot__h { font: 1rem/1 var(--v3-head); color: #fff; text-transform: uppercase; margin-bottom: 1.1rem; padding-bottom: .7rem; border-bottom: 3px solid var(--v3-accent); display: inline-block; }
 .v3-foot ul { display: grid; gap: .55rem; }
