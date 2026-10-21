@@ -25,7 +25,11 @@ export const ICON = {
   pump: 'M2 5h20v12.5H2zM9 7.2a4.05 4.05 0 1 0 0 8.1 4.05 4.05 0 0 0 0-8.1zM9 10.2a1.05 1.05 0 1 1 0 2.1 1.05 1.05 0 0 1 0-2.1zM15 8h4.5v1.6H15zM15 10.5h4.5v1.6H15zM15 13h4.5v1.6H15zM4 17.5h3V20H4zM17 17.5h3V20h-3z',
   quote: 'M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z',
   map: 'M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5a.5.5 0 0 0 .5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5a.5.5 0 0 0-.5-.5zM15 19l-6-2.11V5l6 2.11V19z',
+  bolt: 'M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z',
+  lens: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zm0 3a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z',
+  wifi: 'M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z',
+  shield: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z',
 } as const;
 export type IconName = keyof typeof ICON;
 /** Icons drawn with holes: rendered with fill-rule evenodd. */
-export const EVENODD = new Set<IconName>(['washer', 'pump', 'map']);
+export const EVENODD = new Set<IconName>(['washer', 'pump', 'map', 'lens']);

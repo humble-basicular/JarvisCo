@@ -146,6 +146,12 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
   phone photos), `services` (`tiles` needs one matching photo per service; else `cards`), `logo.shape`/`glyph`.
 - Copy: `h1`, `heroChecks`, `trust` (3–5), `aboutTitle`, `steps` (3–5), `ctaTitle`, `ctaText` are required;
   only the client's own facts (no invented reviews, numbers, warranties).
+- Theme options (2026-10-21 batch): `heading` `archivo-black` | `barlow-condensed` | `space-grotesk`;
+  `divider` `angle` | `wave` | `zigzag` (electric) | `notch` (camera-frame step); `logo.glyph` `flame` | `drop` |
+  `bolt` | `lens`. Extra card icons: `bolt`, `lens`, `wifi`, `shield`.
+- `clientLogo: {width, height}` (optional): show the client's own logo file (top-level `logo`, read on a light
+  plate) in the header, about stamp and footer instead of the generated badge. Opt-in, so previews whose `logo`
+  predates v3 (Nerijus, the demo) keep their badge. Width/height = the file's intrinsic size.
 - `photo`: indexes into `photos` for hero, pins (panel hero), about, faq, cta.
 - Photo quality rule (Jarvis 2026-10-21): emphasised slots – hero and CTA backgrounds (≥ 1400 px) and
   service tiles (≥ 1000 px) – take a sharp real photo or an AI illustration (`ai: true`). AI images show

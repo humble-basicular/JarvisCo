@@ -44,6 +44,9 @@ export interface V3Input {
   photo?: { hero?: number; pins?: number[]; about?: number; faq?: number; cta?: number; reviews?: number };
   /** Google Business Profile: reviews link + "leave a review" link. Absent → review section shows a "coming" note. */
   gbp?: { url?: string; reviewUrl?: string };
+  /** Show the client's own logo file (top-level `logo`, read on a light plate) instead of the generated badge.
+   *  Opt-in so existing previews keep their badge; width/height = the file's intrinsic size. */
+  clientLogo?: { width: number; height: number };
   /** Google map pin: `query` = business name + address once the GBP exists; default = base town (or the town page's town). */
   map?: { query?: string; zoom?: number };
 }

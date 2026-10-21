@@ -242,15 +242,15 @@ function isPhone(value) {
 /* Template v3 block (src/templates/v3/content.ts V3Input + theme.ts Theme). Keep these lists in sync. */
 const V3_ENUMS = {
   archetype: ['water', 'heat', 'outdoor', 'heavy', 'electric', 'clean', 'craft'],
-  heading: ['archivo-black', 'barlow-condensed'],
-  divider: ['angle', 'wave'],
+  heading: ['archivo-black', 'barlow-condensed', 'space-grotesk'],
+  divider: ['angle', 'wave', 'zigzag', 'notch'],
   hero: ['photo', 'panel'],
   services: ['tiles', 'cards'],
   shape: ['round', 'shield'],
-  glyph: ['flame', 'drop'],
+  glyph: ['flame', 'drop', 'bolt', 'lens'],
   link: ['google', 'facebook', 'paslaugos'],
 };
-const V3_ICONS = ['phone', 'camera', 'tag', 'calendar', 'wrench', 'verified', 'pin', 'clock', 'team', 'wallet', 'arrow', 'check', 'flame', 'mail', 'facebook', 'list', 'drop', 'radiator', 'floor', 'fan', 'washer', 'pump', 'quote', 'map'];
+const V3_ICONS = ['phone', 'camera', 'tag', 'calendar', 'wrench', 'verified', 'pin', 'clock', 'team', 'wallet', 'arrow', 'check', 'flame', 'mail', 'facebook', 'list', 'drop', 'radiator', 'floor', 'fan', 'washer', 'pump', 'quote', 'map', 'bolt', 'lens', 'wifi', 'shield'];
 const HEX = /^#[0-9a-f]{6}$/i;
 
 function oneOf(value, field, allowed) {
@@ -325,6 +325,12 @@ function v3(value) {
       for (const k of ['url', 'reviewUrl']) if (g[k] != null && !/^https:\/\/[^\s"<>]+$/.test(g[k])) throw new Error(`v3.gbp.${k} must be https://…`);
       return { ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}) };
     })(),
+    // Use the client's own logo file (top-level `logo`) instead of the generated badge; intrinsic size for the <img>.
+    clientLogo: v.clientLogo == null ? undefined : (() => {
+      const c = obj(v.clientLogo, 'v3.clientLogo');
+      for (const k of ['width', 'height']) if (!Number.isInteger(c[k]) || c[k] < 1 || c[k] > 4000) throw new Error(`v3.clientLogo.${k} must be an integer 1–4000`);
+      return { width: c.width, height: c.height };
+    })(),
     map: v.map == null ? undefined : (() => {
       const m = obj(v.map, 'v3.map');
       if (m.zoom != null && (!Number.isInteger(m.zoom) || m.zoom < 5 || m.zoom > 18)) throw new Error('v3.map.zoom must be an integer 5–18');
@@ -371,6 +377,7 @@ export function normalize(raw) {
   };
   if (!isPhone(data.phone)) throw new Error(`phone "${data.phone}" is not a phone number (digits, spaces, + - ( ), at least 8 digits)`);
   if (!toE164(data.phone)) throw new Error(`phone "${data.phone}" cannot be converted to +370… (use 8 6xx xxxxx, 06xx xxxxx, 6xx xxxxx or +370 6xx xxxxx)`);
+  if (data.v3?.clientLogo && !data.logo) throw new Error('v3.clientLogo needs a top-level logo file');
   if (!data.city && !data.areas.length) throw new Error('city or areas is required');
   data.city ??= data.areas[0];
   if (!data.areas.length) data.areas = [data.city];

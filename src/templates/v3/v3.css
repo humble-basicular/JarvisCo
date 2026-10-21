@@ -53,6 +53,15 @@
 .v3-kicker::before { content: ''; flex: none; width: 1.7rem; height: .32rem; background: linear-gradient(90deg, currentColor 0 58%, transparent 58% 72%, currentColor 72%); transform: skewX(-32deg); }
 .v3--div-wave .v3-kicker::before { width: 2.1rem; height: .6rem; transform: none; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 10'%3E%3Cpath d='M2 6c3.5-4.5 6.5-4.5 10 0s6.5 4.5 10 0 6.5-4.5 10 0' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 10'%3E%3Cpath d='M2 6c3.5-4.5 6.5-4.5 10 0s6.5 4.5 10 0 6.5-4.5 10 0' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
 .v3 .v3-kicker--hi { color: var(--v3-accent-hi); }
+.v3--div-zigzag .v3-kicker::before { width: 2.1rem; height: .6rem; transform: none; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 10'%3E%3Cpath d='M2 7 L8 3 L14 7 L20 3 L26 7 L32 3' fill='none' stroke='%23000' stroke-width='3' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 10'%3E%3Cpath d='M2 7 L8 3 L14 7 L20 3 L26 7 L32 3' fill='none' stroke='%23000' stroke-width='3' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+/* Notch: a camera-frame corner. */
+.v3--div-notch .v3-kicker::before { width: .9rem; height: .9rem; transform: none; background: none; border: solid currentColor; border-width: 3px 0 0 3px; }
+/* Client logo (own artwork, read on a light background). */
+.v3-brand__logo { height: 2.6rem; width: auto; max-width: 11rem; object-fit: contain; }
+.v3-logo-plate { display: inline-flex; align-items: center; padding: .7rem 1rem; background: #fff; border-radius: calc(var(--v3-r) * .6); }
+.v3-logo-plate img { height: 2.4rem; width: auto; max-width: 12rem; }
+.v3-logo-plate--stamp { padding: .45rem .6rem; }
+.v3-logo-plate--stamp img { height: 1.6rem; max-width: 6.5rem; }
 .v3-head { margin-bottom: 2.5rem; max-width: 44rem; }
 .v3-head--center { margin-inline: auto; text-align: center; }
 .v3-head--center .v3-kicker { justify-content: center; }
@@ -360,6 +369,10 @@ html.v3-locked { overflow: hidden; }
 .v3--head-barlow-condensed .v3-h2 { font-size: clamp(2.2rem, 4vw, 3.3rem); line-height: 1.02; text-transform: uppercase; }
 .v3--head-barlow-condensed :is(.v3-card__name, .v3-tile__name) { font-size: 1.55rem; }
 .v3--head-barlow-condensed .v3-brand__name { font-size: 1.75rem; }
+.v3--head-space-grotesk :is(.v3-h1, .v3-h2, .v3-tile__name, .v3-card__name, .v3-brand__name, .v3-quote__title, .v3-promise__title, .v3-foot__name, .v3-trust strong) { font-weight: 700; letter-spacing: -.03em; }
+.v3--head-space-grotesk .v3-h1 { line-height: 1; }
+.v3--head-space-grotesk .v3-h2 { letter-spacing: -.035em; }
+.v3--head-space-grotesk :is(.v3-cities strong, .v3-foot__h, .v3-town__h, .v3-price td, .v3-faq__call a, .v3-reviews__gtitle, .v3-about__stamp strong) { font-weight: 700; }
 .v3--head-barlow-condensed .v3-trust strong { font-size: 1.3rem; }
 .v3--head-barlow-condensed :is(.v3-cities strong, .v3-foot__h, .v3-town__h, .v3-price td, .v3-faq__call a) { font-weight: 800; }
 .v3--head-barlow-condensed .v3-cities strong { font-size: 1.45rem; }
@@ -419,6 +432,8 @@ html.v3-locked { overflow: hidden; }
   .v3-brand .v3-badge { width: 48px; height: 48px; }
   .v3-brand__name { font-size: 1.1rem; }
   .v3-brand__line { font-size: .75rem; }
+  .v3-brand__logo { height: 2rem; max-width: 8rem; }
+  .v3-brand__logo + .v3-brand__text { display: none; }
   .v3-top__phone > span:last-child, .v3-top__quote { display: none; }
   .v3-top__phone-ico { width: 2.9rem; height: 2.9rem; background: var(--v3-accent); color: #fff; }
   .v3-hero { padding-top: 2.25rem; }

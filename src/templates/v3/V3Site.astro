@@ -42,6 +42,9 @@ const gallery = galleryPhotos(P);
 const services = data.services.map((s) => (typeof s === 'string' ? { name: s, text: '' } : { name: s.name, text: s.text ?? '' }));
 const year = new Date().getFullYear();
 const baseLine = v3.baseLine ?? `${base} ir aplink`;
+/* The client's own logo (input `logo`) replaces the generated badge only when v3.clientLogo opts in. */
+const clientLogo = v3.clientLogo && data.logo?.src;
+const logoSize = { width: v3.clientLogo?.width, height: v3.clientLogo?.height };
 const h1 = town
   ? (v3.h1.tail ? { ...v3.h1, tail: town.loc } : { ...v3.h1, hot: town.loc, tail: undefined })
   : v3.h1;
@@ -79,8 +82,17 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
 <header class="v3-top">
   <div class="v3-wrap v3-top__bar">
     <a class="v3-brand" href={home} aria-label={`${data.business}, pradžia`}>
-      <Badge name={data.business} theme={theme} uid="b-head" size={64} />
-      <span class="v3-brand__text"><span class="v3-brand__name">{data.business}</span><span class="v3-brand__line">{theme.logo.line}</span></span>
+      {clientLogo ? (
+        <>
+          <img class="v3-brand__logo" src={clientLogo} alt={data.business} {...logoSize} />
+          <span class="v3-brand__text"><span class="v3-brand__line">{theme.logo.line}</span></span>
+        </>
+      ) : (
+        <>
+          <Badge name={data.business} theme={theme} uid="b-head" size={64} />
+          <span class="v3-brand__text"><span class="v3-brand__name">{data.business}</span><span class="v3-brand__line">{theme.logo.line}</span></span>
+        </>
+      )}
     </a>
     <nav class="v3-nav" aria-label="Svetainės skyriai">
       {nav.map((n) => <a href={n.href}>{n.label}</a>)}
@@ -165,7 +177,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       <div class="v3-about__media">
         <img {...img(aboutPhoto, '(min-width: 64rem) 34rem, 92vw')} alt={aboutPhoto.alt ?? ''} loading="lazy" />
         <div class="v3-about__stamp">
-          <Badge name={data.business} theme={theme} uid="b-about" size={96} />
+          {clientLogo ? <span class="v3-logo-plate v3-logo-plate--stamp"><img src={clientLogo} alt="" {...logoSize} /></span> : <Badge name={data.business} theme={theme} uid="b-about" size={96} />}
           <p><strong>{v3.stamp?.title ?? data.business}</strong><span>{v3.stamp?.text ?? baseLine}</span></p>
         </div>
       </div>
@@ -428,8 +440,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
 <footer class="v3-foot" id="kontaktai">
   <div class="v3-wrap v3-foot__grid">
     <div class="v3-foot__brand">
-      <Badge name={data.business} theme={theme} uid="b-foot" size={112} />
-      <p class="v3-foot__name">{data.business}</p>
+      {clientLogo ? <span class="v3-logo-plate"><img src={clientLogo} alt={data.business} {...logoSize} /></span> : <><Badge name={data.business} theme={theme} uid="b-foot" size={112} /><p class="v3-foot__name">{data.business}</p></>}
       <p>{theme.logo.line}</p>
       <a class="v3-btn v3-btn--accent" href={tel}><Icon name="phone" />{data.phone}</a>
     </div>

@@ -6,9 +6,11 @@ import archivoLatin from '@fontsource/archivo-black/files/archivo-black-latin-40
 import archivoExt from '@fontsource/archivo-black/files/archivo-black-latin-ext-400-normal.woff2?url';
 import barlowLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2?url';
 import barlowExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-800-normal.woff2?url';
+import groteskLatin from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url';
+import groteskExt from '@fontsource/space-grotesk/files/space-grotesk-latin-ext-700-normal.woff2?url';
 import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
 import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
-import { themeCss, type Theme } from './theme';
+import { GLYPH, themeCss, type Theme } from './theme';
 import type { Banner } from '../heating/types';
 
 interface Props { title: string; description: string; theme: Theme; banner?: Banner }
@@ -17,6 +19,7 @@ const { title, description, theme, banner } = Astro.props;
 const HEAD = {
   'archivo-black': { latin: archivoLatin, ext: archivoExt, weight: '400', fallback: "local('Arial Black'),local('Arial-BoldMT'),local('Arial')", adjust: '98%' },
   'barlow-condensed': { latin: barlowLatin, ext: barlowExt, weight: '800', fallback: "local('Arial Narrow Bold'),local('ArialNarrow-Bold'),local('Arial Bold')", adjust: '82%' },
+  'space-grotesk': { latin: groteskLatin, ext: groteskExt, weight: '700', fallback: "local('Arial Bold'),local('Arial-BoldMT'),local('Arial')", adjust: '100%' },
 }[theme.heading];
 const headLatin = HEAD.latin;
 const headExt = HEAD.ext;
@@ -33,7 +36,8 @@ const fontCss = [
   `@font-face{font-family:'V3 Head Fallback';src:${HEAD.fallback};size-adjust:${HEAD.adjust}}`,
   "@font-face{font-family:'V3 Sans Fallback';src:local('Arial'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:25%;line-gap-override:0%}",
 ].join('');
-const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="${theme.base}"/><circle cx="32" cy="32" r="20" fill="${theme.accent}"/><path d="M32.6 17c1.6 6 9.4 9.4 9.4 18a10 10 0 0 1-20 0c0-4.6 2.3-7.7 4.8-10.5.3 2.6 1.4 4.4 3.3 5.4-.6-5.2.2-9.6 2.5-12.9z" fill="#fff" transform="translate(32 33) scale(.8) translate(-32 -31)"/></svg>`)}`;
+const glyph = GLYPH[theme.logo.glyph];
+const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="${theme.base}"/><circle cx="32" cy="32" r="20" fill="${theme.accent}"/><path d="${glyph.main}" fill="#fff" fill-rule="evenodd" transform="translate(32 33) scale(.8) translate(-32 -31)"/></svg>`)}`;
 ---
 <!doctype html>
 <html lang="lt">
