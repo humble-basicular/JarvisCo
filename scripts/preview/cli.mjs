@@ -113,15 +113,30 @@ async function generate(file) {
   }
   mkdirSync(join(ROOT, 'previews'), { recursive: true });
   const target = join(ROOT, 'previews', `${slug}.json`);
+  const json = `${JSON.stringify(out, null, 2)}\n`;
   if (keep) {
+    // Everything new is complete on disk before the live files change; each swap step is a rename and
+    // is undone in reverse order if a later one fails (the JSON rename replaces the old file atomically).
+    const stagedJson = `${writeDir}.json`;
+    writeFileSync(stagedJson, json);
     const backup = join(ROOT, 'previews', 'backups', `${slug}-${stamp}`);
     mkdirSync(backup, { recursive: true });
     copyFileSync(target, join(backup, `${slug}.json`));
-    if (existsSync(outDir)) renameSync(outDir, join(backup, 'assets'));
-    if (existsSync(writeDir)) renameSync(writeDir, outDir);
+    const oldAssets = join(backup, 'assets');
+    const done = [];
+    try {
+      if (existsSync(outDir)) { renameSync(outDir, oldAssets); done.push('old'); }
+      if (existsSync(writeDir)) { renameSync(writeDir, outDir); done.push('new'); }
+      renameSync(stagedJson, target);
+    } catch (e) {
+      if (done.includes('new')) renameSync(outDir, writeDir);
+      if (done.includes('old')) renameSync(oldAssets, outDir);
+      throw new Error(`${e.message} (rolled back: the previous preview is unchanged; new files stay in ${relative(ROOT, writeDir)})`);
+    }
     console.log(`Previous version kept in ${relative(ROOT, backup)}/`);
+  } else {
+    writeFileSync(target, json);
   }
-  writeFileSync(target, `${JSON.stringify(out, null, 2)}\n`);
 
   console.log(`Wrote ${relative(ROOT, target)}${photos.length || logo ? ` and ${photos.length} photo(s)${logo ? ' + logo' : ''} in ${relative(ROOT, outDir)}/` : ''}`);
   for (const t of out.towns?.filter((x) => x.text) ?? []) console.log(`Town:   http://localhost:4321/perziura/${slug}/${t.slug}`);
