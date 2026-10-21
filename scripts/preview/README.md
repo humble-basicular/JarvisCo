@@ -151,6 +151,9 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
   service tiles (≥ 1000 px) – take a sharp real photo or an AI illustration (`ai: true`). AI images show
   the type of work only (no faces, logos, text, vans or credentials), never enter the work gallery or hero
   pins, and switch on a footer disclosure. `validateSaved` refuses a preview that breaks this.
+  The FAQ photo counts as emphasised too (≥ 1000 px). Width alone does not prove sharpness: photos
+  taken from Paslaugos.lt are often upscaled phone shots – look at every emphasised photo at full
+  size and use an AI illustration when it is soft (Nerijus FAQ photo replaced 2026-10-21).
 - Reviews: real quotes from `reviews` get their own section (`#atsiliepimai`); `v3.gbp.url` / `v3.gbp.reviewUrl`
   (https) add "Atsiliepimai Google" / "Palikti atsiliepimą" buttons. Without them the section shows
   "Google atsiliepimai – netrukus".

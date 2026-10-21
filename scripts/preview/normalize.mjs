@@ -402,6 +402,7 @@ function checkEmphasis(v3, photos, services) {
   need(pick(v3.photo?.hero, 0), EMPHASIS_MIN_WIDTH.background, 'v3.photo.hero');
   need(pick(v3.photo?.cta, 3), EMPHASIS_MIN_WIDTH.background, 'v3.photo.cta');
   need(pick(v3.photo?.reviews ?? v3.photo?.hero, 0), EMPHASIS_MIN_WIDTH.background, 'v3.photo.reviews');
+  need(pick(v3.photo?.faq, 2), EMPHASIS_MIN_WIDTH.tile, 'v3.photo.faq'); // large framed photo by the FAQ (Jarvis 2026-10-21)
   if (v3.theme.services === 'tiles') services.forEach((_, n) => {
     const i = v3.tilePhotos?.[n];
     if (i != null && !photos[i]) throw new Error(`v3.tilePhotos[${n}] points to photo ${i}, which does not exist`);
