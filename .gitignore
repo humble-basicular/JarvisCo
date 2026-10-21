@@ -26,6 +26,8 @@ Thumbs.db
 
 # offer v2: real lead previews, client sites (inputs, photos, builds)
 /previews/*.json
+/previews/backups/
+/previews/staging/
 /public/previews/
 /client-sites/
 

@@ -61,7 +61,6 @@ const MONTHS = ['sausio', 'vasario', 'kovo', 'balandžio', 'gegužės', 'biržel
 const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]} m. ${MONTHS[+m[2] - 1]} ${+m[3]} d.` : undefined; };
 const reviews = data.reviews ?? [];
 const gbp = v3.gbp ?? {};
-const showReviews = reviews.length > 0 || !!gbp.url || !!gbp.reviewUrl;
 const hasAi = demo || P.some((p) => p.ai);
 const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => ({ src: p.src, srcset: p.srcset, sizes: p.srcset ? sizes : undefined, width: p.width, height: p.height, decoding: 'async', ...extra });
 ---
@@ -297,7 +296,8 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
     </div>
   </section>
 
-  {showReviews && (
+  {/* Client sites only: the labelled demo carries no testimonials, not even the pending Google line. */}
+  {!demo && (
     <section class="v3-sec v3-reviews" id="atsiliepimai" aria-labelledby="v3-reviews">
       <div class="v3-wrap">
         <header class="v3-head v3-head--row">
@@ -311,7 +311,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
             {!gbp.url && !gbp.reviewUrl && <p class="v3-reviews__soon"><Icon name="pin" />Google atsiliepimai – netrukus</p>}
           </div>
         </header>
-        <ul class:list={['v3-reviews__list', reviews.length === 1 && 'is-single']}>
+        {reviews.length > 0 && <ul class:list={['v3-reviews__list', reviews.length === 1 && 'is-single']}>
           {reviews.map((r) => (
             <li>
               <figure class="v3-review">
@@ -321,7 +321,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
               </figure>
             </li>
           ))}
-        </ul>
+        </ul>}
       </div>
     </section>
   )}
@@ -395,7 +395,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       </div>
       <figure class="v3-map">
         <div class="v3-map__frame">
-          <iframe src={mapSrc} title={`Google žemėlapis: ${mapQuery}`} loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          <iframe src={mapSrc} title={`Google žemėlapis: ${mapQuery}`} loading="eager" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
         </div>
         <figcaption><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`} rel="noopener" target="_blank">Atidaryti Google Maps</a></figcaption>
       </figure>

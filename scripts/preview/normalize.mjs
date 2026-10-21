@@ -385,20 +385,26 @@ export function normalize(raw) {
   });
   if (data.photos.filter((p) => !p.ai).length > 12) throw new Error('at most 12 real photos (AI illustrations are separate)');
   if (data.photos.filter((p) => p.ai).length > 12) throw new Error('at most 12 AI illustrations');
+  // Only template v3 keeps AI images out of the work gallery and discloses them.
+  if (!data.v3 && data.photos.some((p) => p.ai)) throw new Error('AI illustrations (ai: true) need the v3 block');
   return { data, submission };
 }
 
 /* Emphasised slots (hero and CTA backgrounds, service tiles) must be sharp: a real high-resolution
    photo or an AI illustration of the trade. Keep in sync with EMPHASIS_MIN_WIDTH in src/templates/v3/content.ts. */
 const EMPHASIS_MIN_WIDTH = { background: 1400, tile: 1000 };
-function checkEmphasis(v3, photos) {
+function checkEmphasis(v3, photos, services) {
   const pick = (i, fallback) => photos[i ?? fallback] ?? photos[fallback % photos.length] ?? photos[0];
   const need = (p, min, slot) => {
     if (p && p.width < min) throw new Error(`${slot} photo ${p.src} is ${p.width} px wide; emphasised slots need ≥ ${min} px – use a sharp real photo or an AI illustration (ai: true)`);
   };
   need(pick(v3.photo?.hero, 0), EMPHASIS_MIN_WIDTH.background, 'v3.photo.hero');
   need(pick(v3.photo?.cta, 3), EMPHASIS_MIN_WIDTH.background, 'v3.photo.cta');
-  if (v3.theme.services === 'tiles') v3.tilePhotos?.forEach((i, n) => need(photos[i], EMPHASIS_MIN_WIDTH.tile, `v3.tilePhotos[${n}]`));
+  if (v3.theme.services === 'tiles') services.forEach((_, n) => {
+    const i = v3.tilePhotos?.[n];
+    if (i != null && !photos[i]) throw new Error(`v3.tilePhotos[${n}] points to photo ${i}, which does not exist`);
+    need(pick(i, n), EMPHASIS_MIN_WIDTH.tile, `v3.tilePhotos[${n}]`);
+  });
 }
 
 /** A saved previews/<slug>.json (what the CLI wrote): the same checks as normalize(), plus the photo records. */
@@ -416,7 +422,7 @@ export function validateSaved(saved) {
   if (typeof saved.slug !== 'string') throw new Error('slug is missing');
   // The generator writes the logo as /previews/<slug>/logo.svg|png; nothing else is served.
   if (data.logo && !new RegExp(`^/previews/${saved.slug.replace(/[^a-z0-9]/g, '')}/logo\\.(?:svg|png)$`).test(data.logo.path)) throw new Error(`logo.src must be /previews/${saved.slug}/logo.svg or .png`);
-  if (data.v3 && photos.length) checkEmphasis(data.v3, photos);
+  if (data.v3 && photos.length) checkEmphasis(data.v3, photos, data.services);
   const { logo: savedLogo, ...rest } = data;
   return {
     ...rest,

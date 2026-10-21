@@ -156,5 +156,8 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
   "Google atsiliepimai – netrukus".
 - Map: a live Google map loads with the page (no click step), pinned on the base town (town pages: that
   town). Once the Google Business Profile exists set `v3.map.query` to its name + address (optional `zoom` 5–18).
-  The live site's privacy policy must then mention the Google Maps embed.
+  Previews only (user decision 2026-10-21). Before a live launch: the embed sends visitor data to Google
+  without consent; the launch gate needs a consent decision (load on existing Maps consent, otherwise a
+  first-party pin map + outbound Google link) and a real privacy policy. Unresolved; do not ship as is.
+- AI photos are refused without the `v3` block (the heating renderer would show them as real work).
 - Rebuilding an already shared preview: `npm run preview -- <input.json> --slug <slug>` keeps the link.

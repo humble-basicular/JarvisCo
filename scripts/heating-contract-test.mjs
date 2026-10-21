@@ -45,18 +45,18 @@ check('unsafe review URL is rejected', () => assert.throws(() => normalize({ ...
 check('saved image dimensions are validated', () => assert.throws(() => validateSaved({ ...base, slug: 'test', photos: [{ src: '/x.jpg', width: 0, height: 10 }] }), /positive integer/));
 
 // Photo rules (Jarvis 2026-10-21): emphasised slots sharp or AI; AI illustrations flagged and kept out of the work gallery.
-check('photos: ai flag kept, 12 real + 12 AI limit', () => {
-  const real = Array.from({ length: 12 }, (_, i) => `r${i}.jpg`);
-  const ai = Array.from({ length: 12 }, (_, i) => ({ path: `a${i}.jpg`, ai: true }));
-  assert.equal(normalize({ ...base, photos: [...real, ...ai] }).data.photos.filter((p) => p.ai).length, 12);
-  assert.throws(() => normalize({ ...base, photos: [...real, 'r12.jpg'] }), /12 real/);
-  assert.throws(() => normalize({ ...base, photos: [{ path: 'a.jpg', ai: 'yes' }] }), /ai must be/);
-});
 const V3_MIN = {
   theme: { archetype: 'heat', base: '#111111', base2: '#222222', accent: '#b8430a', accentHi: '#fbbf24', paper: '#f4f4f4', heading: 'archivo-black', divider: 'angle', hero: 'photo', services: 'tiles', logo: { shape: 'round', glyph: 'flame', ring: 'Testas', line: 'Testas' } },
   h1: { lead: 'Sintetinis', hot: 'testas' }, heroChecks: ['Taškas'], aboutTitle: 'Apie', ctaTitle: 'Skambinkite', ctaText: 'Tekstas',
   trust: [1, 2, 3].map((i) => ({ icon: 'check', title: `T${i}`, text: 'Tekstas' })), steps: [1, 2, 3].map((i) => ({ icon: 'check', title: `S${i}`, text: 'Tekstas' })),
 };
+check('photos: ai flag kept, 12 real + 12 AI limit', () => {
+  const real = Array.from({ length: 12 }, (_, i) => `r${i}.jpg`);
+  const ai = Array.from({ length: 12 }, (_, i) => ({ path: `a${i}.jpg`, ai: true }));
+  assert.equal(normalize({ ...base, v3: V3_MIN, photos: [...real, ...ai] }).data.photos.filter((p) => p.ai).length, 12);
+  assert.throws(() => normalize({ ...base, photos: [...real, 'r12.jpg'] }), /12 real/);
+  assert.throws(() => normalize({ ...base, photos: [{ path: 'a.jpg', ai: 'yes' }] }), /ai must be/);
+});
 const ph = (n, width, ai) => ({ src: `/previews/abcdefghjk/${n}.jpg`, width, height: 900, ...(ai ? { ai: true } : {}) });
 check('v3: emphasised hero/CTA/tile photos below the minimum width are refused', () => {
   const photos = [ph(1, 900), ph(2, 900), ph(3, 1536, true), ph(4, 1536, true), ph(5, 1536, true)];
@@ -65,6 +65,12 @@ check('v3: emphasised hero/CTA/tile photos below the minimum width are refused',
   assert.throws(() => validateSaved(saved({ photo: { hero: 0, cta: 3 }, tilePhotos: [4] })), /v3\.photo\.hero.*AI illustration/);
   assert.throws(() => validateSaved(saved({ photo: { hero: 2, cta: 1 }, tilePhotos: [4] })), /v3\.photo\.cta/);
   assert.throws(() => validateSaved(saved({ photo: { hero: 2, cta: 3 }, tilePhotos: [0] })), /v3\.tilePhotos\[0\]/);
+  // Rendered fallbacks count too: no tilePhotos → service 0 renders photo 0 (900 px).
+  assert.throws(() => validateSaved(saved({ photo: { hero: 2, cta: 3 } })), /v3\.tilePhotos\[0\]/);
+  assert.throws(() => validateSaved(saved({ photo: { hero: 2, cta: 3 }, tilePhotos: [9] })), /does not exist/);
+});
+check('photos: AI illustrations need the v3 template (the heating gallery would show them as real work)', () => {
+  assert.throws(() => normalize({ ...base, photos: [{ path: 'a.jpg', ai: true }] }), /need the v3 block/);
 });
 check('v3: gbp links must be https, map zoom bounded', () => {
   const v3 = (x) => normalize({ ...base, v3: { ...V3_MIN, ...x } }).data.v3;

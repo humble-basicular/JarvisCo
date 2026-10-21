@@ -5,12 +5,12 @@
    `npm run preview` without a file still serves dist/ (astro preview). */
 import { spawn } from 'node:child_process';
 import { randomInt } from 'node:crypto';
-import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-import { checkLogoFile, normalize } from './normalize.mjs';
+import { checkLogoFile, normalize, validateSaved } from './normalize.mjs';
 const args = process.argv.slice(2);
 const input = args.find((a) => a.endsWith('.json'));
 
@@ -56,22 +56,26 @@ async function generate(file) {
   if (keep !== undefined && !existsSync(join(ROOT, 'previews', `${keep}.json`))) throw new Error(`--slug ${keep}: previews/${keep}.json does not exist`);
   const slug = keep ?? newSlug();
   const outDir = join(ROOT, 'public', 'previews', slug);
+  // A rebuild writes into a staging folder (git-ignored, not served), is validated as a whole, and only
+  // then swaps in; the previous JSON and assets move to previews/backups/ (nothing is deleted).
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const writeDir = keep ? join(ROOT, 'previews', 'staging', `${slug}-${stamp}`) : outDir;
   const photos = [];
   let logo;
   if (logoFile) {
     // Copied as is (already checked): /previews/<slug>/logo.svg|png.
     const name = `logo${extname(logoFile).toLowerCase()}`;
-    mkdirSync(outDir, { recursive: true });
-    copyFileSync(logoFile, join(outDir, name));
+    mkdirSync(writeDir, { recursive: true });
+    copyFileSync(logoFile, join(writeDir, name));
     logo = { src: `/previews/${slug}/${name}`, ...(data.logo.line ? { line: data.logo.line } : {}) };
   }
   if (data.photos.length) {
     const { default: sharp } = await import('sharp');
-    mkdirSync(outDir, { recursive: true });
+    mkdirSync(writeDir, { recursive: true });
     for (const [i, p] of data.photos.entries()) {
       const name = `${i + 1}.jpg`;
       // Rotate by EXIF, ≤ 1600 px, JPEG, metadata (GPS etc.) stripped.
-      const info = await sharp(p.file).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 80, mozjpeg: true }).toFile(join(outDir, name));
+      const info = await sharp(p.file).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 80, mozjpeg: true }).toFile(join(writeDir, name));
       photos.push({ src: `/previews/${slug}/${name}`, width: info.width, height: info.height, ...(p.alt ? { alt: p.alt } : {}), ...(p.ai ? { ai: true } : {}) });
     }
   }
@@ -104,8 +108,19 @@ async function generate(file) {
     photos,
     ...(submission ? { submission } : {}),
   };
+  try { validateSaved(JSON.parse(JSON.stringify(out))); } catch (e) {
+    throw new Error(`${e.message}${keep ? ` (nothing replaced; staged files left in ${relative(ROOT, writeDir)})` : ''}`);
+  }
   mkdirSync(join(ROOT, 'previews'), { recursive: true });
   const target = join(ROOT, 'previews', `${slug}.json`);
+  if (keep) {
+    const backup = join(ROOT, 'previews', 'backups', `${slug}-${stamp}`);
+    mkdirSync(backup, { recursive: true });
+    copyFileSync(target, join(backup, `${slug}.json`));
+    if (existsSync(outDir)) renameSync(outDir, join(backup, 'assets'));
+    if (existsSync(writeDir)) renameSync(writeDir, outDir);
+    console.log(`Previous version kept in ${relative(ROOT, backup)}/`);
+  }
   writeFileSync(target, `${JSON.stringify(out, null, 2)}\n`);
 
   console.log(`Wrote ${relative(ROOT, target)}${photos.length || logo ? ` and ${photos.length} photo(s)${logo ? ' + logo' : ''} in ${relative(ROOT, outDir)}/` : ''}`);
