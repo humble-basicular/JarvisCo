@@ -164,3 +164,8 @@ Closeout handoff: `.agents/handoffs/2026-10-17-2105-codex-release-closeout.md`, 
 
 ## Offer 59 — 2026-10-22 (Claude Sonnet 5.5 medium, under lead 6b717988; NOT deployed)
 Branch `offer-59` / `../JarvisCo-worktrees/offer-59` (from live source previews-batch-20261021 f8fff54; there is no `main`). Price 59 €/mėn.; 39 € only as founder price; one constant `FOUNDER_SLOTS_LEFT` in `src/data/founder.js` (default 0 = "5 vietos (užimtos)"). Check PASS at N=0/1/3/5 (41 pages). Review Claude2 Sonnet 5.5 medium: r1 changes requested, r2 approved. Unmerged, ready; waits for Matas to confirm €59 + slot count and say "deploy". Handoff in the branch: `.agents/handoffs/2026-10-22-0845-claude-offer-59.md` (commit 6e7075e).
+
+## RELEASED — 2026-10-22 09:58 (Claude Opus 5.5, thread mcp:c2a59981; Matas: "until i have 10 lets do 49 a month, Go ahead")
+- Source `offer-49` c686114 (= offer-59 46ab643+cd0abad on f8fff54 + 49 €/mėn. for #6–10 and founder line "Pirmieji 5 meistrai jau prisijungė…"). Review Codex2 GPT-6.1-Sol medium: approved, no findings.
+- Worktree deploy dpl_GXadcTtGBrFNbRP2PuQL2ThHQRmT Blocked by Vercel (commit-author permission); release via git archive → /tmp/jarvisweb-deploy-202610220955 + 3 previews, npm run check PASS. Production dpl_FiANPaTTmGKkV76BwosWVxHWWXLM aliased jarvisweb.lt. Rollback: promote dpl_2tRAePKpNXtJ3fFeJp5Co1YXMrSt.
+- Live: 6 URLs 200, JSON-LD 49, no "59 €", /taisykles 49 €, previews noindex. Not verified: real phone. Handoff `.agents/handoffs/2026-10-22-1000-claude-offer-49-released.md` (branch offer-49).
