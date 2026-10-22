@@ -1,8 +1,9 @@
 ---
 import LegalPage from '@components/LegalPage.astro';
 import { brand, offer } from '@data/content.js';
+import { founderNote } from '@data/founder.js';
 ---
-<LegalPage title="Taisyklės" description="Svetainės jarvisweb.lt naudojimo taisyklės ir pasiūlymo sąlygos." updated="2026-10-17">
+<LegalPage title="Taisyklės" description="Svetainės jarvisweb.lt naudojimo taisyklės ir pasiūlymo sąlygos." updated="2026-10-22">
   <h2>Kas teikia paslaugą</h2>
   <p>
     {brand.owner}, {brand.status.toLowerCase()}, {brand.city}. El. paštas
@@ -13,7 +14,7 @@ import { brand, offer } from '@data/content.js';
   <p>
     Šioje svetainėje aprašyta svetainės sukūrimo paslauga: {offer.includes.map((x) => x[0].toLowerCase() + x.slice(1)).join('; ')}.
     Svetainė nemokama pirmąsias 60 dienų nuo paleidimo; po jų atsiunčiu rezultatų ataskaitą, ir Jūs nusprendžiate, ar tęsti. Domeną (~15 € per metus)
-    apmokate Jūs, ir jis registruojamas Jūsų vardu. Vėliau mokestis – 59 € per mėnesį (pirmiems 5 klientams galioja steigėjų kaina – 39 € per mėnesį); sutarta kaina nesikeičia, kol naudojatės paslauga. Mokestis mokamas mėnesiui į
+    apmokate Jūs, ir jis registruojamas Jūsų vardu. Vėliau mokestis – 59 € per mėnesį{founderNote}; sutarta kaina nesikeičia, kol naudojatės paslauga. Mokestis mokamas mėnesiui į
     priekį pavedimu. Atsisakyti galite bet kada SMS žinute ar skambučiu. Tikslią apimtį ir sąlygas nurodau
     rašytiniame pasiūlyme prieš paleidimą. Sutartis sudaroma tik Jums sutikus su tuo pasiūlymu.
   </p>

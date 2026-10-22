@@ -25,7 +25,7 @@ const banned = [
 // The agency's own pages carry no testimonials. Client previews (/perziura/) may: the generator renders
 // only real quotes supplied by the client, plus the Google Business Profile review section (2026-10-21).
 const agencyOnly = [/atsiliepim|\/atsiliepimas/iu];
-const allowed = [`${v4.price.amount} ${v4.price.unit}`, v4.founderLaunch.open, v4.founderLaunch.full, offer.comparison, offer.year.lead, `${offer.year.rows[0].value} ${offer.year.rows[0].detail}`];
+const allowed = [`${v4.price.amount} ${v4.price.unit}`, v4.price.launch, offer.comparison, offer.year.lead, `${offer.year.rows[0].value} ${offer.year.rows[0].detail}`];
 const mustBlock = ['NUOTRAUKA: trūksta', 'CITATA: trūksta', '47 €/mėn.', '49 € / mėn.', 'garantuojame pirmą vietą', '20 užklausų iš Google', 'mėnesinis planas', 'Paslaugos.lt, 1551.lt'];
 for (const value of allowed) {
   const re = banned.find((pattern) => pattern.test(value));
@@ -73,8 +73,8 @@ for (const page of built) {
   // 39 € is the founder price for the first five only: every mention must say so, and 59 € is the standard price shown (2026-10-22).
   if (!page.path.startsWith('perziura/')) {
     const flat39 = normalized(visible);
-    for (const m of flat39.matchAll(/(?<![\d,.])39\s?€/gu)) {
-      if (!/steigėj|pirmiems 5|pirmiesiems 5/iu.test(flat39.slice(Math.max(0, m.index - 140), m.index + 140))) errors.push(`${page.file}: "39 €" without founder-price context at …${flat39.slice(m.index, m.index + 50)}`);
+    for (const m of flat39.matchAll(/(?<![\d,.])39\s?(?:€|eur)/giu)) {
+      if (!/steigėj|pirmiems 5|pirmiesiems 5/iu.test(flat39.slice(Math.max(0, m.index - 80), m.index + 80))) errors.push(`${page.file}: "39 €" without founder-price context at …${flat39.slice(m.index, m.index + 50)}`);
     }
   }
   if (V4_PAGES.has(page.path)) {

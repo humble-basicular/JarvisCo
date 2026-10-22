@@ -8,6 +8,7 @@
    ===================================================================== */
 
 import { TRACKING_PREFIXES } from './tracking.js';
+import { founderNote } from './founder.js';
 
 const PHONE = '+370 676 99395';
 const PHONE_E164 = '+37067699395';
@@ -121,7 +122,7 @@ export const offer = {
     { label: 'Sukūrimas', value: '0 €' },
     { label: 'Domenas', value: '~15 € per metus, registruojamas Jūsų vardu' },
     { label: 'Talpinimas', value: '0 € pirmąsias 60 dienų nuo paleidimo' },
-    { label: 'Mėnesinis mokestis', value: '59 €, jei po 60 dienų nuspręsite tęsti (pirmiems 5 klientams – 39 €)' },
+    { label: 'Mėnesinis mokestis', value: `59 €, jei po 60 dienų nuspręsite tęsti${founderNote}` },
   ],
   ownership: 'Domenas registruojamas Jūsų vardu. Jei atsisakote, domenas, Google profilis, nuotraukos ir tekstai lieka Jums.',
   // Verified in Jarvis's Paslaugos.lt account: €49.99/month, 2026-10-06.
@@ -131,7 +132,7 @@ export const offer = {
     title: 'Per pirmus metus',
     lead: 'Paslaugos.lt PRO kainuoja apie 50 € kas mėnesį (patikrinta 2026-10-06).',
     rows: [
-      { label: 'Paslaugos.lt PRO', value: '~600 €', detail: '12 mėn. × ~50 €', share: 100 },
+      { label: 'Paslaugos.lt PRO', value: '~600 €', detail: '12 mėn. × ~50 €', share: 99 },
       { label: 'Svetainė', value: '~605 €', detail: '15 € domenas + 10 mėn. × 59 €', share: 100 },
     ],
     note: 'Tai suma, jei po 60 nemokamų dienų nuspręsite tęsti. Jei ne, atsisakote ir mokate tik už domeną. Paslaugos.lt atsisakyti nereikia: svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
@@ -197,7 +198,7 @@ export const faq = {
     },
     {
       q: 'Kodėl pradžia nemokama?',
-      a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Pirmąsias 60 dienų nuo paleidimo mokate tik už domeną (~15 € per metus). Tada gaunate ataskaitą ir nusprendžiate, ar tęsti už 59 € per mėnesį (pirmiems 5 klientams – 39 €).',
+      a: `Nes sunku patikėti svetaine, kol nematai rezultato. Pirmąsias 60 dienų nuo paleidimo mokate tik už domeną (~15 € per metus). Tada gaunate ataskaitą ir nusprendžiate, ar tęsti už 59 € per mėnesį${founderNote}.`,
     },
   ],
 };
