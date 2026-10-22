@@ -13,7 +13,7 @@ const profile = mkdtempSync(join(tmpdir(), 'ovf-'));
 const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', '--remote-debugging-port=9335', `--user-data-dir=${profile}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let target;
-for (let i = 0; i < 40 && !target; i++) { try { target = (await (await fetch('http://localhost:9335/json')).json()).find((t) => t.type === 'page'); } catch { await sleep(250); } }
+for (let i = 0; i < 120 && !target; i++) { try { target = (await (await fetch('http://localhost:9335/json')).json()).find((t) => t.type === 'page'); } catch { await sleep(250); } }
 const ws = new WebSocket(target.webSocketDebuggerUrl);
 await new Promise((r) => ws.addEventListener('open', r));
 let n = 0; const waiting = new Map();
