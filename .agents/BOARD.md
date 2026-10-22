@@ -162,6 +162,34 @@ Scope: finish already-authorized deployment of 8494583; no new features, deletio
 
 Closeout handoff: `.agents/handoffs/2026-10-17-2105-codex-release-closeout.md`, committed on release-finish-20261017 at d55cbfe and integrated here. No product changes or repeat deployment. Review list-price estimate $0.1332508 complete; thread total/per-accepted-stage cost incomplete, unavailable.
 
+## Design v3 round 2 — 2026-10-21 (lead Claude Opus 5.5, autonomous)
+User design direction (Nerijus as example): service photo tiles like the heating demo; hero/CTA backgrounds and other emphasised photos sharp or AI-generated (AI shows the trade only, never posing as a real job); review section leading to the future Google Business Profile; Google map loads immediately with a defined pin. Routing read from ~/AI-Core/core/ROUTING.md; allowance Codex 29%/53%, Claude 15%/53%.
+| Stage | Owner / model | Branch / worktree | Owned files | Status |
+|---|---|---|---|---|
+| nerijus-ai-images | Codex GPT-6.1-Sol medium (imagegen, no paid API) | none; Drive `Business/JarvisWeb/previews/nerijus-ns139/ai-images/` | those 10 JPEGs | COMPLETE, lead visually checked |
+| v3-design-r2 | Lead Claude Opus 5.5 | `design-v3-r2` / `../JarvisCo-worktrees/design-v3-r2` (from design-v3 d56cd35) | src/templates/v3/**, heating/types.ts, perziura/[slug].astro, scripts/preview/**, copy-check, heating-contract-test, .gitignore | 0a3cc44 → 156b335 → 78d6635; npm run check PASS, contract 54/54 PASS, rollback fault test PASS. Not merged into design-v3 |
+| v3-design-r2-review | Codex GPT-6.1-Sol medium | read-only | findings only | R1 changes requested (5 fixed, consent kept by user decision); R2 changes requested (rollback) → fixed by lead, verified by fault injection; review limit reached |
+Nerijus private input updated in Drive (backup `input/preview-input-before-photos-2026-10-21.json`); preview rebuilt in place (`--slug 486rd84se6`) in the r2 worktree only, served locally on :4337. No deploy, send, CRM write, deletion or spend.
+
+Open user decision: Google map loads without consent (previews only); live launch needs a consent approach + real privacy policy. Handoff: `.agents/handoffs/2026-10-21-0935-claude-v3-design-r2.md`.
+| v3-design-r3 (reviews section like reference, focused quote dialog, Paslaugos link, gallery note removed) | Lead Claude Opus 5.5 / design-v3-r2 | 93009a0 → fix commit after Codex GPT-6.1-Sol medium review (changes requested: Google-box stars, scroll lock, pager) ; check PASS, contract 56/56 PASS, dialog + scroll lock browser-verified | Not merged; pager with 2–3 reviews not browser-tested (Nerijus has 1 review) |
+
+## RELEASED — 2026-10-21 10:00 (Claude Opus 5.5 lead, user said "deploy")
+- Source `design-v3-r2` 1384059 (contains every accepted commit since the 17 Oct release: 60-day offer, results rebrand, proof links, preview generator, contact email, design v3 + r2/r3). git archive → /tmp/jarvisweb-deploy-202610210955 + ONLY preview 486rd84se6 → npm ci, npm run check PASS, vercel pull/build --prod, deploy --prebuilt --prod.
+- Production `dpl_7gujvtsKqvfNM9xFnwnmyR3mPv46` aliased jarvisweb.lt. Rollback: `dpl_DtawfRVHVh5PTgeVFxKw4nvcAF5G` (18 Oct).
+- Live checks: /, /rezultatai, /pavyzdys/sildymas, /noriu, /sildymui, /perziura/486rd84se6 + 6 towns, preview photos, sitemap 200; preview noindex,nofollow, not in sitemap; home/results text diff vs before = only email jarvisworks.co@gmail.com → matas@jarvisweb.lt; /p/a2345 302 → /rezultatai. Worker not redeployed (tracking/src change from 2f19429 not live; redirect already works).
+- Not verified: real phone; Lighthouse; Worker parity for 2f19429.
+
+## Preview batch LaiKam + MesElektra — 2026-10-21 (lead Claude Opus 5.5, autonomous)
+Branch `previews-batch-20261021` / `../JarvisCo-worktrees/previews-batch` (from design-v3-r2 1384059). Template commit 6be29ce (bolt/lens glyphs, zigzag/notch dividers, Space Grotesk, opt-in `v3.clientLogo`); Codex GPT-6.1-Sol medium review active. Previews are local and git-ignored; no deploy. Full table: WebAgency Biz `.agents/BOARD.md`.
+
+## RELEASED — 2026-10-21 14:40 (Claude Opus 5.5 lead, user: "gali viską pushint to prod pas mane preview")
+- Source `previews-batch-20261021` f8fff54 (= design-v3-r2 1384059 + v3 template additions: glyphs, dividers, Space Grotesk, opt-in client logo, square badge, two-tone wordmark, footer "Programavimas: jarvisweb.lt", process layouts line/chevron/frames, upload label "Pridėti failus"). git archive → /tmp/jarvisweb-deploy-202610211437 + ONLY previews 486rd84se6 (Nerijus, rebuilt in place), ejgb7a33zs (LaiKam), cg6j485ktf (MesElektra) → npm ci, npm run check PASS (41 pages), vercel pull/build --prod, deploy --prebuilt --prod.
+- Production `dpl_2tRAePKpNXtJ3fFeJp5Co1YXMrSt` aliased jarvisweb.lt. Rollback: promote `dpl_7gujvtsKqvfNM9xFnwnmyR3mPv46`.
+- Live checks: /, /rezultatai, /pavyzdys/sildymas, /noriu, /sildymui, 3 preview homes + sample towns 200; previews noindex,nofollow, not in sitemap-0.xml; per-site process class, "Pridėti failus", footer credit confirmed. /sitemap.xml 404 is pre-existing (robots.txt points to /sitemap-index.xml, 200).
+- Reviews: Codex approved 6be29ce..f2864b6; f8fff54 reviewed by Claude Sonnet 5.5 (Codex at usage limit) — approved; Codex cross-check of f8fff54 still pending. Branch not merged into an integration branch.
+- Not verified: real phone, Google map in a browser, Lighthouse.
+
 ## Offer 59 — 2026-10-22 (Claude Sonnet 5.5 medium, under lead 6b717988; NOT deployed)
 Branch `offer-59` / `../JarvisCo-worktrees/offer-59` (from live source previews-batch-20261021 f8fff54; there is no `main`). Price 59 €/mėn.; 39 € only as founder price; one constant `FOUNDER_SLOTS_LEFT` in `src/data/founder.js` (default 0 = "5 vietos (užimtos)"). Check PASS at N=0/1/3/5 (41 pages). Review Claude2 Sonnet 5.5 medium: r1 changes requested, r2 approved. Unmerged, ready; waits for Matas to confirm €59 + slot count and say "deploy". Handoff in the branch: `.agents/handoffs/2026-10-22-0845-claude-offer-59.md` (commit 6e7075e).
 
@@ -169,3 +197,25 @@ Branch `offer-59` / `../JarvisCo-worktrees/offer-59` (from live source previews-
 - Source `offer-49` c686114 (= offer-59 46ab643+cd0abad on f8fff54 + 49 €/mėn. for #6–10 and founder line "Pirmieji 5 meistrai jau prisijungė…"). Review Codex2 GPT-6.1-Sol medium: approved, no findings.
 - Worktree deploy dpl_GXadcTtGBrFNbRP2PuQL2ThHQRmT Blocked by Vercel (commit-author permission); release via git archive → /tmp/jarvisweb-deploy-202610220955 + 3 previews, npm run check PASS. Production dpl_FiANPaTTmGKkV76BwosWVxHWWXLM aliased jarvisweb.lt. Rollback: promote dpl_2tRAePKpNXtJ3fFeJp5Co1YXMrSt.
 - Live: 6 URLs 200, JSON-LD 49, no "59 €", /taisykles 49 €, previews noindex. Not verified: real phone. Handoff `.agents/handoffs/2026-10-22-1000-claude-offer-49-released.md` (branch offer-49).
+
+## Mobile v3 + Šilta srovė — 2026-10-22 (Claude Opus 5.5 lead, 04 thread; NOT deployed)
+Branch `mobile-v3-20261022` / `../JarvisCo-worktrees/mobile-v3` (from offer-49 = live source). 43e939d menu sheet, overflow clip, one-column trust strip on phones, floating action bar after the hero; review Codex2 GPT-6.1-Sol medium → changes requested (3×P2) → fixed in follow-up commit, browser-verified, not re-reviewed. Nerijus preview rebuilt in place with the Šilta srovė brand (proposal logo-compact-color, palette, Archivo); input backup `preview-input-before-silta-srove-2026-10-22.json`. Checks: npm run check PASS (41 pages), contract 58/58, 360/390 px scrollWidth = viewport on 3 previews + demo + town page. Deploy waits for the user's word.
+
+## INCIDENT + rollback — 2026-10-22 13:39–13:41 (Claude Opus 5.5, preview-batch thread)
+- Deployed `previews-batch-20261021` 80d4a64 (phone-overflow fix) as dpl_47XpTEuvb8ztjsYcJ52q9NcQ1krJ without first checking that live source had moved to `offer-49`; it briefly reverted the 49 € offer. Rolled back ~2 min later: `vercel promote dpl_FiANPaTTmGKkV76BwosWVxHWWXLM` (offer-49). Verified: `vercel inspect jarvisweb.lt` = dpl_FiANP…, homepage shows "49 € per mėnesį". dpl_47Xp… must never be promoted.
+- Lesson: before any deploy, compare against the newest RELEASED section here and build from that source.
+- `previews-batch-20261021` is now behind live source; do not deploy from it.
+
+### Request → owner of `mobile-v3-20261022` (Claude 04 thread)
+- `scripts/overflow-check.mjs` (commit 80d4a64 on previews-batch-20261021) audits every preview home + town page at 320/360/390/414/768 px. Against mobile-v3 98a2bde it reports 12 overflows, all MesElektra `cg6j485ktf`: at 320 px `.v3-top__ctas`/`.v3-top__menu` (322), `.v3-price` table (327), H1 `.v3-hot` "Agluonėnuose"/"Kretingalėje"; at 360 px "Agluonėnuose". 390 px (the user's screenshot) is clean on mobile-v3.
+- 80d4a64 has fixes for the H1 (`clamp(1.75rem, 9.2vw, 2.35rem)` + overflow-wrap) and price table (tighter cells; td may wrap ≤ 22.5rem). Cherry-pick or adapt them plus the script, then rerun it before asking the user to deploy.
+
+## RELEASED — 2026-10-22 13:51 (Claude Opus 5.5, preview-batch thread; Matas: "ok push to prod, ill check it")
+- Source `mobile-v3-320-20261022` 6398399 / `../JarvisCo-worktrees/mobile-v3-320` = mobile-v3 98a2bde (offer-49 + menu sheet, one-column trust strip, dock, Šilta srovė Nerijus) + 7b942a9 (cherry-pick of 80d4a64: overflow-check script, H1/price fixes) + 6398399 (dropped 80d4a64's stacked trust layout in favour of mobile-v3's; 320 px header buttons). Previews copied from the mobile-v3 worktree (Nerijus = Šilta srovė rebuild).
+- The Request above to the mobile-v3 owner is resolved by this branch; mobile-v3 itself is unchanged.
+- Release: git archive → /tmp/jarvisweb-deploy-202610221350-m320 + 3 previews; npm run check PASS (41 pages); contract 58/58; overflow-check 0/145 locally and on production. Production dpl_F28BMJe1L79XHky3N1BtdZP5memt aliased jarvisweb.lt. Rollback: promote dpl_FiANPaTTmGKkV76BwosWVxHWWXLM (offer-49).
+- Live: 12 URLs 200; homepage "49 € per mėnesį", no "59 €"; previews noindex,nofollow, absent from sitemap-0.xml. Not reviewed by the other engine (6398399 is CSS-only); not verified on a real phone.
+
+## Incident — 2026-10-22 14:29 (Claude Opus 5.5, 04 thread; Matas: "deploy all")
+- Deployed mobile-v3 98a2bde as dpl_CP3kqhQ8EqAZTTFgS686PKuoe8Fd without first reading the 13:51 RELEASED section; it briefly removed the 320 px fixes (7b942a9, 6398399). Rolled back within ~3 min: `vercel promote dpl_F28BMJe1L79XHky3N1BtdZP5memt`. Verified: `vercel inspect jarvisweb.lt` = dpl_F28…; /, /pavyzdys/sildymas, 3 previews 200; "9.2vw" H1 fix present on /perziura/cg6j485ktf. dpl_CP3k… must never be promoted.
+- Live source is `mobile-v3-320-20261022` 6398399 (contains all of mobile-v3). Do not deploy from `mobile-v3-20261022`.
