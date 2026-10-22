@@ -13,8 +13,8 @@ const banned = [
   /three\.js|gsap|geriausi|revoliucin/iu, /!/u,
   /20\s+(?:formos\s+)?užklausų\s+per\s+3/iu,
   // Old monthly offer; the Paslaugos.lt "~50 € kas mėnesį" comparison stays allowed.
-  // Offer v2 (plan §1) allows exactly one standard monthly price: 59 € (39 € only as the founder price for the first five).
-  /(?<!\b(?:39|59)\s?)€\s?\/\s?mėn/u, /mėnesin\w*\s+plan/iu,
+  // Offer v2 (plan §1) allows exactly one standard monthly price: 49 € (39 € only as the founder price for the first five).
+  /(?<!\b(?:39|49)\s?)€\s?\/\s?mėn/u, /mėnesin\w*\s+plan/iu,
   // No rank guarantees (plan §1).
   /garantuo\w*\s+(?:pirm|TOP|viet)/iu,
   // 1551.lt is a business directory, not an inquiry portal (hero plan D7).
@@ -26,7 +26,7 @@ const banned = [
 // only real quotes supplied by the client, plus the Google Business Profile review section (2026-10-21).
 const agencyOnly = [/atsiliepim|\/atsiliepimas/iu];
 const allowed = [`${v4.price.amount} ${v4.price.unit}`, v4.price.launch, offer.comparison, offer.year.lead, `${offer.year.rows[0].value} ${offer.year.rows[0].detail}`];
-const mustBlock = ['NUOTRAUKA: trūksta', 'CITATA: trūksta', '47 €/mėn.', '49 € / mėn.', 'garantuojame pirmą vietą', '20 užklausų iš Google', 'mėnesinis planas', 'Paslaugos.lt, 1551.lt'];
+const mustBlock = ['NUOTRAUKA: trūksta', 'CITATA: trūksta', '47 €/mėn.', '59 € / mėn.', 'garantuojame pirmą vietą', '20 užklausų iš Google', 'mėnesinis planas', 'Paslaugos.lt, 1551.lt'];
 for (const value of allowed) {
   const re = banned.find((pattern) => pattern.test(value));
   if (re) throw new Error(`copy-check: ${re} blocks allowed copy ${JSON.stringify(value)}`);
@@ -70,7 +70,7 @@ for (const page of built) {
   if (headings.has(page.path) && normalized(title ? textContent(title) : '') !== headings.get(page.path)) {
     errors.push(`${page.file}: H1 textContent ${JSON.stringify(title && normalized(textContent(title)))}`);
   }
-  // 39 € is the founder price for the first five only: every mention must say so, and 59 € is the standard price shown (2026-10-22).
+  // 39 € is the founder price for the first five only: every mention must say so, and 49 € is the standard price shown (2026-10-22).
   if (!page.path.startsWith('perziura/')) {
     const flat39 = normalized(visible);
     for (const m of flat39.matchAll(/(?<![\d,.])39\s?(?:€|eur)/giu)) {

@@ -200,7 +200,7 @@ export const how = {
     { title: 'Forma, 2 min.', text: 'Atsakote į kelis klausimus apie savo darbą.' },
     { title: 'Peržiūra per 48 val.', text: 'Atsiunčiu nuorodą į Jūsų svetainės peržiūrą. Nepatinka – tiesiog neatsakote.' },
     { title: 'Domenas ir paleidimas', text: 'Patinka – registruoju domeną Jūsų vardu (~15 € per metus, mokate Jūs). Paleidžiu svetainę ir Google verslo profilį.' },
-    { title: 'Po 60 dienų – ataskaita', text: 'Atsiunčiu ataskaitą: kiek žmonių rado svetainę Google, paspaudė „Skambinti“ ir parašė. Tęsiate už 59 € per mėnesį arba atsisakote, ir tai nieko nekainuoja.' },
+    { title: 'Po 60 dienų – ataskaita', text: 'Atsiunčiu ataskaitą: kiek žmonių rado svetainę Google, paspaudė „Skambinti“ ir parašė. Tęsiate už 49 € per mėnesį arba atsisakote, ir tai nieko nekainuoja.' },
   ],
 };
 
@@ -236,10 +236,10 @@ export const examples = {
 
 export const price = {
   label: 'Kaina',
-  amount: '59 €',
+  amount: '49 €',
   unit: '/ mėn.',
   when: 'tik jei po 60 dienų nuspręsite tęsti.',
-  // Jarvis 2026-10-22: 39 € is the founder price for the first 5 clients only (slot rule A2); everyone else pays 59 €, locked while subscribed.
+  // Jarvis 2026-10-22: 39 € is the founder price for the first 5 clients only (slot rule A2); clients #6–10 pay 49 € (Matas 2026-10-22), locked while subscribed.
   // The founder line follows FOUNDER_SLOTS_LEFT in ./founder.js (edit only that number).
   launch: founderLaunch,
   before: `${ZERO} ${DOMAIN}`,
@@ -272,7 +272,7 @@ export const faq = {
   items: [
     { q: 'Darbo per valias, kam man?', a: 'Svetainė nebūtinai reiškia daugiau darbo. Daugiau užklausų – daugiau pasirinkimo, kuriuos darbus imti. O ramesniu sezonu ji jau būna Google.' },
     { q: 'Turėjau svetainę, nieko nedavė', a: 'Dažniausiai tokia svetainė tiesiog niekam nerodoma: nėra Google verslo profilio, nėra puslapių pagal paslaugas ir miestus. Čia jie įeina. Ir pirmąsias 60 dienų mėnesio mokesčio nėra, todėl rezultatą pamatysite prieš mokėdami.' },
-    { q: 'Kas, jei neatneš užklausų?', a: `Pirmąsias 60 dienų nuo paleidimo mėnesio mokesčio nėra – mokate tik už domeną (~15 € per metus). Tada atsiunčiu ataskaitą. Jei rezultatas netenkina, atsisakote, ir tai nieko nekainuoja. Jei liksite, toliau – 59 € per mėnesį${founderNote}.` },
+    { q: 'Kas, jei neatneš užklausų?', a: `Pirmąsias 60 dienų nuo paleidimo mėnesio mokesčio nėra – mokate tik už domeną (~15 € per metus). Tada atsiunčiu ataskaitą. Jei rezultatas netenkina, atsisakote, ir tai nieko nekainuoja. Jei liksite, toliau – 49 € per mėnesį${founderNote}.` },
     { q: 'Ar būsiu pirmas Google?', a: 'To pažadėti negaliu, ir niekas sąžiningai negali. Padarau tai, kas priklauso nuo manęs: greita svetainė, puslapiai pagal paslaugas ir miestus, Google verslo profilis. Kaip sekasi, matysite mėnesio ataskaitoje.' },
     { q: 'Kas, jei atsisakysiu?', a: 'Parašote SMS arba paskambinate. Per bandomąjį laikotarpį tai nieko nekainuoja. Vėliau svetainė veikia iki apmokėto mėnesio pabaigos ir tada išjungiama. Domenas, Google profilis, Jūsų nuotraukos ir tekstai lieka Jums.' },
     { q: 'Kodėl nemokamai pradžiai?', a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Rizikuoju savo laiku: jei po 60 dienų rezultatai Jūsų netenkins, nieko neuždirbu. Jūs mokate tik už domeną, ir jis lieka Jūsų vardu.' },
