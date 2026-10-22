@@ -565,3 +565,24 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
   .v3-steps--frames .v3-steps__list { row-gap: 1rem; }
   .v3-steps--frames .v3-steps__list li { display: block; padding-bottom: 1.4rem; }
 }
+
+/* No sideways scroll on phones. Long Lithuanian words (IŠSILAVINIMAS, AGLUONĖNUOSE) must fit the
+   column: text may shrink and wrap, never push the page wider than the screen. The body clip is the
+   last guard; the rules above it fix the causes so nothing is cut off. */
+body.v3 { overflow-x: clip; }
+.v3-trust li > span:last-child { min-width: 0; }
+.v3-trust strong, .v3-h1, .v3-h2 { overflow-wrap: break-word; }
+@media (max-width: 40rem) {
+  .v3-h1 { font-size: clamp(1.75rem, 9.2vw, 2.35rem); }
+  .v3-trust li { flex-direction: column; align-items: flex-start; gap: .6rem; }
+  .v3-trust__ico { width: 2.7rem; height: 2.7rem; }
+  .v3-trust__ico .v3-ico { width: 1.4rem; height: 1.4rem; }
+  .v3-trust strong, .v3--head-barlow-condensed .v3-trust strong { font-size: clamp(.85rem, 4.1vw, 1.05rem); }
+}
+@media (max-width: 40rem) {
+  .v3-price th, .v3-price td { padding: .85rem .75rem; }
+  .v3-price td { font-size: 1rem; }
+}
+@media (max-width: 22.5rem) {
+  .v3-price td { white-space: normal; text-wrap: balance; }
+}
