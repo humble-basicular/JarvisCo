@@ -503,7 +503,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
     </nav>
     <div class="v3-menu__ctas">
       <a class="v3-btn v3-btn--accent v3-btn--lg" href="#uzklausa" data-quote>Gauti kainą<Icon name="arrow" /></a>
-      <a class="v3-btn v3-btn--ghost v3-btn--lg" href={tel}><Icon name="phone" />{data.phone}</a>
+      <a class="v3-btn v3-btn--ghost v3-btn--lg" href={tel} data-menu-link><Icon name="phone" />{data.phone}</a>
     </div>
     <p class="v3-menu__base"><Icon name="pin" />{baseLine}</p>
   </div>
@@ -562,14 +562,25 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       sync();
     }
     // Mobile action bar: appears only after the hero buttons scroll away, hides again over the quote form.
+    // Geometry check on load, scroll and resize (an observer alone misses instant anchor jumps).
     var dock = document.querySelector('[data-dock]');
     var heroCtas = document.querySelector('.v3-hero__ctas');
     var q = document.getElementById('uzklausa');
-    if (dock && heroCtas && 'IntersectionObserver' in window) {
-      var past = false, overForm = false;
-      var syncDock = function () { dock.classList.toggle('is-hidden', !past || overForm); };
-      new IntersectionObserver(function (es) { var en = es[0]; past = !en.isIntersecting && en.boundingClientRect.top < 0; syncDock(); }).observe(heroCtas);
-      if (q) new IntersectionObserver(function (es) { overForm = es[0].isIntersecting; syncDock(); }, { threshold: 0.25 }).observe(q);
+    if (dock && heroCtas) {
+      var queued = false;
+      var syncDock = function () {
+        queued = false;
+        var past = heroCtas.getBoundingClientRect().bottom < 0;
+        var r = q && q.getBoundingClientRect();
+        var overForm = !!r && r.top < innerHeight * 0.75 && r.bottom > innerHeight * 0.25;
+        dock.classList.toggle('is-hidden', !past || overForm);
+      };
+      var queue = function () { if (!queued) { queued = true; requestAnimationFrame(syncDock); } };
+      addEventListener('scroll', queue, { passive: true });
+      addEventListener('resize', queue);
+      addEventListener('pageshow', queue);
+      addEventListener('hashchange', queue);
+      syncDock();
     }
   })();
 </script>

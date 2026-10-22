@@ -520,6 +520,7 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
 }
 @media (prefers-reduced-motion: reduce) {
   .v3 *, .v3 *::before, .v3 *::after { transition: none !important; }
+  .v3-menu[open] .v3-menu__panel { animation: none; }
 }
 
 /* ---- Process variants (theme.process). `line` is the base style above. ---- */
