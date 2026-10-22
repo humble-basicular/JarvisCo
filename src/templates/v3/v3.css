@@ -484,7 +484,7 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
   .v3-quote { padding-inline: 1.25rem; }
   .v3-trust__list { grid-template-columns: minmax(0, 1fr); row-gap: .85rem; padding-block: .4rem; }
   .v3-trust li { gap: .9rem; }
-  .v3-trust li > span { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .45rem; }
+  .v3-trust li > span:not(.v3-trust__ico) { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .45rem; }
   .v3-trust strong { font-size: 1.05rem; }
   .v3-about__media { padding: 0 0 1.5rem 1.5rem; }
   .v3-about__stamp { padding: .6rem 1rem .6rem .6rem; }
