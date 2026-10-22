@@ -51,6 +51,11 @@ const h1 = town
   ? (v3.h1.tail ? { ...v3.h1, tail: town.loc } : { ...v3.h1, hot: town.loc, tail: undefined })
   : v3.h1;
 const pill = v3.pill ?? data.areas.slice(0, 4).join(' · ');
+const menuNav = () => [
+  ...nav,
+  ...(!demo ? [{ href: '#atsiliepimai', label: 'Atsiliepimai' }] : []),
+  ...(data.faq?.length ? [{ href: '#duk', label: 'D.U.K.' }] : []),
+];
 const nav = [
   { href: '#paslaugos', label: 'Paslaugos' },
   { href: '#eiga', label: 'Kaip dirbame' },
@@ -101,6 +106,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
     <div class="v3-top__ctas">
       <a class="v3-top__phone" href={tel}><span class="v3-top__phone-ico"><Icon name="phone" /></span><span><span class="v3-top__phone-label">Skambinkite</span><span class="v3-top__phone-num">{data.phone}</span></span></a>
       <a class="v3-btn v3-btn--accent v3-top__quote" href="#uzklausa" data-quote>Gauti kainą</a>
+      <button class="v3-top__menu" type="button" data-menu-open aria-haspopup="dialog" aria-controls="v3-menu" aria-label="Atidaryti meniu"><Icon name="menu" /></button>
     </div>
   </div>
 </header>
@@ -485,9 +491,27 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
   </div>
 </dialog>
 
-<div class="v3-dock" data-dock role="group" aria-label="Greiti veiksmai">
+{/* Mobile/tablet menu: full-screen sheet opened by the header menu button. */}
+<dialog class="v3-menu" id="v3-menu" data-menu aria-label="Meniu">
+  <div class="v3-menu__panel">
+    <div class="v3-menu__top">
+      <p class="v3-menu__brand"><strong>{data.business}</strong><span>{theme.logo.line}</span></p>
+      <button class="v3-menu__x" type="button" data-menu-close aria-label="Uždaryti meniu"><Icon name="close" /></button>
+    </div>
+    <nav class="v3-menu__nav" aria-label="Meniu">
+      {menuNav().map((n, i) => <a href={n.href} data-menu-link><span class="v3-menu__no">{String(i + 1).padStart(2, '0')}</span><span class="v3-menu__label">{n.label}</span><Icon name="arrow" /></a>)}
+    </nav>
+    <div class="v3-menu__ctas">
+      <a class="v3-btn v3-btn--accent v3-btn--lg" href="#uzklausa" data-quote>Gauti kainą<Icon name="arrow" /></a>
+      <a class="v3-btn v3-btn--ghost v3-btn--lg" href={tel}><Icon name="phone" />{data.phone}</a>
+    </div>
+    <p class="v3-menu__base"><Icon name="pin" />{baseLine}</p>
+  </div>
+</dialog>
+
+<div class="v3-dock is-hidden" data-dock role="group" aria-label="Greiti veiksmai">
   <a class="v3-btn v3-btn--accent" href={tel}><Icon name="phone" />Skambinti</a>
-  <a class="v3-btn v3-btn--dark" href="#uzklausa" data-quote>Gauti kainą</a>
+  <a class="v3-btn v3-btn--white" href="#uzklausa" data-quote>Gauti kainą<Icon name="arrow" /></a>
 </div>
 
 <script is:inline>
@@ -496,12 +520,23 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       form.addEventListener('submit', function (e) { e.preventDefault(); var n = form.querySelector('[data-inert-note]'); if (n) n.hidden = false; });
     });
     // Every "Gauti kainą" / "Aptarti darbą" link opens the focused quote dialog; without <dialog> it falls back to #uzklausa.
+    var menu = document.querySelector('[data-menu]');
     var modal = document.querySelector('[data-quote-modal]');
+    if (menu && typeof menu.showModal === 'function') {
+      document.querySelectorAll('[data-menu-open]').forEach(function (b) {
+        b.addEventListener('click', function () { menu.showModal(); document.documentElement.classList.add('v3-locked'); });
+      });
+      menu.addEventListener('click', function (e) {
+        if (e.target === menu || e.target.closest('[data-menu-close]') || e.target.closest('[data-menu-link]')) menu.close();
+      });
+      menu.addEventListener('close', function () { if (!(modal && modal.open)) document.documentElement.classList.remove('v3-locked'); });
+    }
     if (modal && typeof modal.showModal === 'function') {
       document.addEventListener('click', function (e) {
         var a = e.target.closest && e.target.closest('[data-quote]');
         if (!a) return;
         e.preventDefault();
+        if (menu && menu.open) menu.close();
         modal.showModal();
         document.documentElement.classList.add('v3-locked');
         var f = modal.querySelector('input'); if (f) f.focus();
@@ -526,8 +561,15 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       window.addEventListener('resize', sync);
       sync();
     }
+    // Mobile action bar: appears only after the hero buttons scroll away, hides again over the quote form.
     var dock = document.querySelector('[data-dock]');
+    var heroCtas = document.querySelector('.v3-hero__ctas');
     var q = document.getElementById('uzklausa');
-    if (dock && q && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { dock.classList.toggle('is-hidden', es[0].isIntersecting); }).observe(q);
+    if (dock && heroCtas && 'IntersectionObserver' in window) {
+      var past = false, overForm = false;
+      var syncDock = function () { dock.classList.toggle('is-hidden', !past || overForm); };
+      new IntersectionObserver(function (es) { var en = es[0]; past = !en.isIntersecting && en.boundingClientRect.top < 0; syncDock(); }).observe(heroCtas);
+      if (q) new IntersectionObserver(function (es) { overForm = es[0].isIntersecting; syncDock(); }, { threshold: 0.25 }).observe(q);
+    }
   })();
 </script>
