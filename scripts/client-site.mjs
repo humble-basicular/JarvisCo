@@ -1,15 +1,16 @@
 #!/usr/bin/env node
-/* Live client site: a standalone static build of the heating template.
+/* Live client site: a standalone static build of the input template (Heating or v3).
    node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain> [--test <origin>]
    Reads a previews/<slug>.json (made by `npm run preview -- <input.json>`),
    writes client-sites/<slug>/ (index, aciu, privatumo-politika, robots.txt,
    sitemap.xml, photos). The form posts to the Worker (spec §3); --test points
    form and beacons at a local stub instead and marks the build "never deploy".
    Details: scripts/preview/README.md. */
-import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkLogoFile, toE164, validateSaved } from './preview/normalize.mjs';
+import { validateLaunchConfig } from '../src/templates/v3/build-config.mjs';
 
 const ROOT = realpathSync(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
 const PREVIEWS = join(ROOT, 'previews');
@@ -45,16 +46,17 @@ function contained(root, path, kind) {
 }
 
 const argv = process.argv.slice(2);
-const flag = (name) => { const i = argv.indexOf(`--${name}`); return i < 0 ? undefined : argv[i + 1]; };
-const input = argv.find((a) => a.endsWith('.json'));
+const flag = (name) => { const i = argv.indexOf(`--${name}`); if (i < 0) return undefined; if (!argv[i + 1] || argv[i + 1].startsWith('--')) fail(`--${name} needs a value`); return argv[i + 1]; };
+const input = argv[0]?.endsWith('.json') ? argv[0] : undefined;
 const code = flag('site');
 const domain = flag('domain')?.toLowerCase();
 const test = flag('test');
+const configFile = flag('config');
 const TEST_MARKER = 'TEST-BUILD-DO-NOT-DEPLOY.txt';
 // Opt-in audit mode retains all staging artifacts and refuses existing output.
 const retainBuild = argv.includes('--retain-build');
 
-if (!input || !code || !domain) fail('usage: node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain> [--test http://localhost:4330]');
+if (!input || !code || !domain) fail('usage: node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain> [--test http://localhost:4330] [--config <private-launch-config.json>]');
 if (!SITE_CODE.test(code)) fail(`--site "${code}" must match ${SITE_CODE}`);
 if (!DOMAIN.test(domain)) fail(`--domain "${domain}" must be a bare host name like example.lt (no scheme, no path)`);
 if (test && !/^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}$/.test(test)) fail('--test must be http://localhost:<port>');
@@ -69,6 +71,12 @@ if (!SLUG.test(data.slug)) fail('slug must be a 10-character generated slug');
 if (!toE164(data.phone)) fail(`phone "${data.phone}" cannot be converted to +370…`);
 if (join(PREVIEWS, `${data.slug}.json`) !== file) fail('file name must be <slug>.json');
 
+let launch;
+if (data.v3) {
+  try {
+    launch = validateLaunchConfig(configFile ? JSON.parse(readFileSync(resolve(configFile), 'utf8')) : undefined, { code, domain, test: !!test });
+  } catch (e) { fail(e.message); }
+}
 const slug = data.slug;
 const target = join(OUT, slug);
 const stage = join(OUT, `.build-${slug}`);
@@ -92,7 +100,17 @@ for (const p of [OUT, target, stage]) noSymlinks(p); // existing output dirs mus
 const removeStage = () => { noSymlinks(stage); if (inside(OUT, stage) && stage !== OUT) rmSync(stage, { recursive: true, force: true }); };
 if (retainBuild) {
   if (existsSync(stage) || existsSync(target)) fail('--retain-build requires fresh stage and output paths');
-} else removeStage();
+} else {
+  // Preserve existing untracked outputs/staging before Astro replaces them.
+  for (const dir of [stage, target].filter(existsSync)) {
+    const backup = join(OUT, 'backups', `${Date.now()}-${process.pid}-${dir === stage ? 'stage' : 'site'}-${slug}`);
+    noSymlinks(backup);
+    mkdirSync(dirname(backup), { recursive: true });
+    cpSync(dir, backup, { recursive: true, dereference: false });
+    console.log(`Preserved ${shown(dir)} at ${shown(backup)}`);
+  }
+  removeStage();
+}
 mkdirSync(join(stage, 'public', 'foto'), { recursive: true });
 noSymlinks(join(stage, 'public', 'foto'));
 const photos = data.photos.map((p, i) => {
@@ -103,12 +121,13 @@ const photos = data.photos.map((p, i) => {
 if (logoFile) copyFileSync(logoFile.real, join(stage, 'public', 'foto', logoFile.name));
 const logo = logoFile ? { ...data.logo, src: `/foto/${logoFile.name}` } : undefined;
 
-const { submission, created, ...site } = data; // the lead's form answers never go into the published site
+const { submission, created, legal, ...site } = data; // the lead's form answers never go into the published site
 const build = {
-  data: { ...site, photos, ...(logo ? { logo } : {}) },
+  data: { ...site, ...(!data.v3 && legal ? { legal } : {}), photos, ...(logo ? { logo } : {}), ...(data.v3 ? { v3: { ...data.v3, map: { ...data.v3.map, query: `${data.city}, Lietuva` } } } : {}) },
   site: {
     code,
     domain,
+    ...(launch ?? {}),
     formEndpoint: test ? `${test}/t/form` : 'https://www.jarvisweb.lt/t/form',
     beaconEndpoint: test ? `${test}/t/e` : 'https://www.jarvisweb.lt/t/e',
     ...(test ? { testBuild: true } : {}),
@@ -123,7 +142,7 @@ try {
   await astroBuild({
     root: ROOT,
     configFile: false,
-    srcDir: join(ROOT, 'src/templates/heating/site'),
+    srcDir: join(ROOT, data.v3 ? 'src/templates/v3/site' : 'src/templates/heating/site'),
     publicDir: join(stage, 'public'),
     outDir: target,
     cacheDir: join(stage, 'cache'),
@@ -156,6 +175,8 @@ for (const t of towns) {
   if (!index.includes(`href="/${t}/"`)) fail(`index.html does not link to /${t}/`);
 }
 if (logo && !index.includes(`src="${logo.src}"`)) fail('logo missing in built index.html');
+
+if (data.v3) writeFileSync(join(target, 'build-manifest.json'), JSON.stringify({ version: 1, template: 'v3', mode: test ? 'test' : 'production', domain, code, formEndpoint: build.site.formEndpoint, configurationValidated: !!launch?.privacy && !test, mapMode: launch.mapMode }, null, 2) + '\n');
 
 console.log(`Built ${relative(ROOT, target)}/ in ${((Date.now() - started) / 1000).toFixed(1)}s: ${readdirSync(target).join(', ')}`);
 console.log(`Site ${code} → https://${domain}/   form: ${build.site.formEndpoint}${towns.length ? `   towns: ${towns.map((t) => `/${t}/`).join(' ')}` : ''}`);

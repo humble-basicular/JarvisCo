@@ -9,7 +9,31 @@ import type { SitePhoto } from '../heating/types';
 export interface V3Item { icon: IconName; title: string; text: string }
 export type V3LinkKind = 'google' | 'facebook' | 'paslaugos';
 
+/** Private launch configuration is validated by client-site.mjs; never inferred from preview facts. */
+export interface V3Privacy {
+  controller: { name: string; email: string; code?: string };
+  processor: { name: string; email: string };
+  retention: string;
+  legalBasis: string;
+  rights: string;
+  hosting: string;
+  updatedAt: string;
+}
+export interface V3LiveSite {
+  code: string;
+  domain: string;
+  formEndpoint: string;
+  testBuild?: boolean;
+  mapMode: 'consent' | 'disabled';
+  privacy?: V3Privacy;
+}
+
 export interface V3Input {
+  /** Opt-in branding/copy changes. Absent flags preserve existing previews. */
+  hideTagline?: boolean;
+  largeWordmark?: boolean;
+  hidePendingGoogle?: boolean;
+  priceFootnote?: string;
   theme: Theme;
   /** H1 = lead + accent word + tail; on town pages the tail becomes the town ("Pasvalyje"). */
   h1: { lead: string; hot: string; tail?: string };
@@ -45,7 +69,7 @@ export interface V3Input {
   gbp?: { url?: string; reviewUrl?: string };
   /** Show the client's own logo file (top-level `logo`, read on a light plate) instead of the generated badge.
    *  Opt-in so existing previews keep their badge; width/height = the file's intrinsic size. */
-  clientLogo?: { width: number; height: number };
+  clientLogo?: { width: number; height: number; showName?: boolean; formBadge?: boolean };
   /** Google map pin: `query` = business name + address once the GBP exists; default = base town (or the town page's town). */
   map?: { query?: string; zoom?: number };
 }

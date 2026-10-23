@@ -460,7 +460,6 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
   .v3-quote { margin-top: 2.5rem; }
   .v3-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .v3-faq__media { position: relative; top: 0; max-width: 28rem; }
-  .v3-util__hours { display: none !important; }
   .v3-about__stamp { right: 0; }
 }
 @media (max-width: 40rem) {
@@ -579,4 +578,32 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
   .v3-brand, .v3-brand__text { min-width: 0; }
   .v3-top__ctas { gap: .4rem; }
   .v3-top__phone-ico, .v3-top__menu { width: 2.6rem; height: 2.6rem; }
+}
+
+/* Opt-in client branding and standalone form states. */
+.v3-brand--large .v3-brand__name { font-size: 1.85rem; }
+.v3-brand--named .v3-brand__logo { height: 4rem; width: 4rem; max-width: none; }
+.v3-brand--named .v3-brand__text { display: grid; }
+.v3-quote__badge--client { border-radius: 8px; overflow: hidden; background: white; }
+.v3-quote__badge--client img { width: 84px; height: 84px; object-fit: contain; }
+.v3-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.v3-files-hint { color: var(--v3-muted); font-size: .8rem; }
+.v3-files { display: grid; gap: .5rem; }
+.v3-files[hidden], .v3-form-error[hidden] { display: none; }
+.v3-files .hs-file { display: flex; gap: .5rem; align-items: center; border: 1px solid var(--v3-line); border-radius: 6px; padding: .5rem; font-size: .8rem; }
+.v3-files .hs-file__thumb { width: 2rem; flex: none; }
+.v3-files .hs-file__meta { display: grid; min-width: 0; overflow-wrap: anywhere; }
+.v3-files .hs-file__rm { margin-left: auto; border: 0; cursor: pointer; padding: .5rem; }
+.v3-files .hs-file__err, .v3-files .is-bad, .v3-form .is-bad { color: #a11717; }
+.v3-form-error { padding: .75rem; border: 2px solid #a11717; border-radius: 6px; color: #841010; font-size: .9rem; }
+.v3-form-error a { font-weight: 700; }
+.v3-form button:disabled { opacity: .65; cursor: wait; }
+.v3-map-consent { display: grid; place-content: center; justify-items: center; gap: 1rem; padding: 2rem; text-align: center; }
+.v3-page { padding-block: 3rem; max-width: 52rem; }
+.v3-page :is(h1,h2,p) { margin-bottom: 1.25rem; }
+.v3-page h1 { font-family: var(--v3-head); font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1.15; }
+.v3-page h2 { margin-top: 2rem; font-size: 1.3rem; }
+@media (max-width: 40rem) {
+  .v3-brand--large .v3-brand__name { font-size: 1.2rem; }
+  .v3-brand--named .v3-brand__logo { height: 2.75rem; width: 2.75rem; }
 }

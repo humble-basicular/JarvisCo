@@ -13,8 +13,8 @@ import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-
 import { GLYPH, themeCss, type Theme } from './theme';
 import type { Banner } from '../heating/types';
 
-interface Props { title: string; description: string; theme: Theme; banner?: Banner }
-const { title, description, theme, banner } = Astro.props;
+interface Props { title: string; description: string; theme: Theme; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string }
+const { title, description, theme, banner, canonical, site, robots, logo } = Astro.props;
 /* One heading font per site (theme card); only that font's files are referenced. */
 const HEAD = {
   'archivo-black': { latin: archivoLatin, ext: archivoExt, weight: '400', fallback: "local('Arial Black'),local('Arial-BoldMT'),local('Arial')", adjust: '98%' },
@@ -48,18 +48,19 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="robots" content="noindex,nofollow" />
+    <meta name="robots" content={site && !site.testBuild ? robots ?? 'index,follow' : 'noindex,nofollow'} />
+    {canonical && <link rel="canonical" href={canonical} />}
     <meta name="referrer" content="no-referrer" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content={theme.base} />
-    <link rel="icon" href={favicon} />
+    <link rel="icon" href={logo ?? favicon} />
     <link rel="preload" href={headLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={headExt} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
     <style set:html={`${fontCss}:root{${themeCss(theme)}}`}></style>
   </head>
-  <body class={`v3 v3--${theme.archetype} v3--div-${theme.divider} v3--head-${theme.heading}`}>
+  <body data-site={site?.code} data-build-mode={site ? site.testBuild ? 'test' : 'production' : 'preview'} class={`v3 v3--${theme.archetype} v3--div-${theme.divider} v3--head-${theme.heading}`}>
     {banner && (
       <div class="v3-banner" role="note">
         <span class="v3-banner__tag">{banner.tag}</span>

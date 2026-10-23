@@ -9,7 +9,7 @@
 import type { SiteData, TownLink, TownPage } from '../heating/types';
 import { toE164 } from '../heating/content';
 import QuoteForm from './parts/QuoteForm.astro';
-import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, type V3Input, type V3Photo } from './content';
+import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, type V3Input, type V3Photo, type V3LiveSite } from './content';
 import Badge from './parts/Badge.astro';
 import Divider from './parts/Divider.astro';
 import Icon from './parts/Icon.astro';
@@ -26,8 +26,9 @@ interface Props {
   home?: string;
   /** Labelled demo with DI illustrations: footer DI line. */
   demo?: boolean;
+  site?: V3LiveSite;
 }
-const { data, v3, towns, base, town, home = '#pradzia', demo = false } = Astro.props;
+const { data, v3, towns, base, town, home = '#pradzia', demo = false, site } = Astro.props;
 const theme = v3.theme;
 const phone = toE164(data.phone);
 const tel = !demo && phone ? `tel:${phone}` : '#uzklausa';
@@ -89,16 +90,16 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
 
 <header class="v3-top">
   <div class="v3-wrap v3-top__bar">
-    <a class="v3-brand" href={home} aria-label={`${data.business}, pradžia`}>
+    <a class:list={["v3-brand", v3.largeWordmark && "v3-brand--large", v3.clientLogo?.showName && "v3-brand--named"]} href={home} aria-label={`${data.business}, pradžia`}>
       {clientLogo ? (
         <>
           <img class="v3-brand__logo" src={clientLogo} alt={data.business} {...logoSize} />
-          <span class="v3-brand__text"><span class="v3-brand__line">{theme.logo.line}</span></span>
+          <span class="v3-brand__text">{v3.clientLogo?.showName && <span class="v3-brand__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</span>}{!v3.hideTagline && <span class="v3-brand__line">{theme.logo.line}</span>}</span>
         </>
       ) : (
         <>
           <Badge name={data.business} theme={theme} uid="b-head" size={64} />
-          <span class="v3-brand__text"><span class="v3-brand__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</span><span class="v3-brand__line">{theme.logo.line}</span></span>
+          <span class="v3-brand__text"><span class="v3-brand__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</span>{!v3.hideTagline && <span class="v3-brand__line">{theme.logo.line}</span>}</span>
         </>
       )}
     </a>
@@ -137,7 +138,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       </div>
 
       <div class="v3-quote" id="uzklausa">
-        <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-form"  badge={!clientLogo} />
+        <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-form"  badge={!clientLogo} clientLogo={clientLogo && v3.clientLogo?.formBadge ? { src: clientLogo, ...logoSize } : undefined} site={site} />
       </div>
     </div>
     <Divider shape={d} from="photo" to="accent" />
@@ -319,7 +320,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
 
   {/* Client sites only: the labelled demo carries no testimonials, not even the pending Google box.
      Real quotes only; stars only when the source shows a rating (review.rating). */}
-  {!demo && (
+  {!demo && (reviews.length > 0 || gbp.url || gbp.reviewUrl || !v3.hidePendingGoogle) && (
     <section class="v3-reviews" id="atsiliepimai" aria-labelledby="v3-reviews">
       <img class="v3-reviews__bg" {...img(reviewsPhoto, '100vw')} alt="" loading="lazy" />
       <div class="v3-wrap">
@@ -353,14 +354,14 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
             )}
           </div>
         )}
-        <div class="v3-reviews__google">
+        {(!v3.hidePendingGoogle || gbp.url || gbp.reviewUrl) && <div class="v3-reviews__google">
           <p class="v3-reviews__gtitle">Įvertinkite mus Google</p>
           {gbp.reviewUrl && <p class="v3-reviews__gstars" aria-hidden="true">☆☆☆☆☆</p>}
           {gbp.reviewUrl
             ? <a class="v3-btn v3-btn--accent v3-btn--lg" href={gbp.reviewUrl} rel="noopener" target="_blank">Palikti atsiliepimą</a>
             : <p class="v3-reviews__soon">Google profilis ruošiamas – atsiliepimus galėsite palikti netrukus</p>}
           {gbp.url && <a class="v3-reviews__all" href={gbp.url} rel="noopener" target="_blank">Visi atsiliepimai Google</a>}
-        </div>
+        </div>}
       </div>
     </section>
   )}
@@ -379,6 +380,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
             </tbody>
           </table>
           {data.priceNote && <p class="v3-prices__note">{data.priceNote}</p>}
+          {v3.priceFootnote && <p class="v3-prices__note v3-prices__footnote">* {v3.priceFootnote}</p>}
         </div>
         {v3.promise && (
           <aside class="v3-promise">
@@ -434,7 +436,9 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
       </div>
       <figure class="v3-map">
         <div class="v3-map__frame">
-          <iframe src={mapSrc} title={`Google žemėlapis: ${mapQuery}`} loading="eager" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          {!site ? <iframe src={mapSrc} title={`Google žemėlapis: ${mapQuery}`} loading="eager" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+            : site.mapMode === 'consent' ? <div class="v3-map-consent"><p>Žemėlapį teikia Google. Jį įjungus duomenys perduodami Google.</p><button type="button" class="v3-btn v3-btn--accent" data-map-src={mapSrc} data-map-title={`Google žemėlapis: ${mapQuery}`}>Rodyti žemėlapį</button><a href="/privatumo-politika/">Privatumo politika</a></div>
+            : <p class="v3-map-consent">{baseLine}</p>}
         </div>
         <figcaption><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`} rel="noopener" target="_blank">Atidaryti Google Maps</a></figcaption>
       </figure>
@@ -459,7 +463,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
   <div class="v3-wrap v3-foot__grid">
     <div class="v3-foot__brand">
       {clientLogo ? <span class="v3-logo-plate"><img src={clientLogo} alt={data.business} {...logoSize} /></span> : <><Badge name={data.business} theme={theme} uid="b-foot" size={112} /><p class="v3-foot__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</p></>}
-      <p>{theme.logo.line}</p>
+      {!v3.hideTagline && <p>{theme.logo.line}</p>}
       <a class="v3-btn v3-btn--accent" href={tel}><Icon name="phone" />{data.phone}</a>
     </div>
     <div>
@@ -481,15 +485,15 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
     </div>
   </div>
   <div class="v3-wrap v3-foot__legal">
-    <p>© {year} {data.business} · <span>Privatumo politika</span></p>
-    <p>{demo && 'Dalis iliustracijų sukurta DI. · '}Programavimas: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
+    <p>© {year} {data.business} · {site ? <a href="/privatumo-politika/">Privatumo politika</a> : <span>Privatumo politika</span>}</p>
+    <p>{(demo || (site && P.some((p) => p.ai))) && 'Dalis iliustracijų sukurta DI. · '}Programavimas: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
   </div>
 </footer>
 
 <dialog class="v3-modal" data-quote-modal aria-labelledby="v3-modal-title">
   <div class="v3-quote v3-quote--modal">
     <button class="v3-modal__x" type="button" data-quote-close aria-label="Uždaryti"><span aria-hidden="true">×</span></button>
-    <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-modal" titleId="v3-modal-title"  badge={!clientLogo} />
+    <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-modal" titleId="v3-modal-title"  badge={!clientLogo} clientLogo={clientLogo && v3.clientLogo?.formBadge ? { src: clientLogo, ...logoSize } : undefined} site={site} />
   </div>
 </dialog>
 
@@ -497,7 +501,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
 <dialog class="v3-menu" id="v3-menu" data-menu aria-label="Meniu">
   <div class="v3-menu__panel">
     <div class="v3-menu__top">
-      <p class="v3-menu__brand"><strong>{data.business}</strong><span>{theme.logo.line}</span></p>
+      <p class="v3-menu__brand"><strong>{data.business}</strong>{!v3.hideTagline && <span>{theme.logo.line}</span>}</p>
       <button class="v3-menu__x" type="button" data-menu-close aria-label="Uždaryti meniu"><Icon name="close" /></button>
     </div>
     <nav class="v3-menu__nav" aria-label="Meniu">
@@ -518,6 +522,16 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
 
 <script is:inline>
   (function () {
+    document.querySelectorAll('[data-map-src]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var frame = document.createElement('iframe');
+        frame.src = button.getAttribute('data-map-src');
+        frame.title = button.getAttribute('data-map-title');
+        frame.referrerPolicy = 'no-referrer';
+        frame.allowFullscreen = true;
+        button.parentElement.replaceWith(frame);
+      });
+    });
     document.querySelectorAll('[data-inert-form]').forEach(function (form) {
       form.addEventListener('submit', function (e) { e.preventDefault(); var n = form.querySelector('[data-inert-note]'); if (n) n.hidden = false; });
     });
@@ -541,7 +555,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
         if (menu && menu.open) menu.close();
         modal.showModal();
         document.documentElement.classList.add('v3-locked');
-        var f = modal.querySelector('input'); if (f) f.focus();
+        var f = modal.querySelector('input:not([type=hidden]):not([tabindex="-1"])'); if (f) f.focus();
       });
       modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-quote-close]')) modal.close(); });
       modal.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); });

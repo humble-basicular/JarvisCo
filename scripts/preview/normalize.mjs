@@ -147,13 +147,13 @@ function towns(value) {
 }
 
 /** Logo: a path (relative to the input JSON) or {path, line}. SVG or PNG; `line` is set under the name. */
-const LOGO_EXT = /\.(svg|png)$/i;
+const LOGO_EXT = /\.(svg|png|jpe?g)$/i;
 function logo(value) {
   if (value == null) return undefined;
   const item = typeof value === 'string' ? { path: value } : value;
   if (!item || typeof item !== 'object' || Array.isArray(item) || typeof item.path !== 'string') throw new Error('logo must be a path or {path, line}');
   const path = text(item.path, 'logo.path', 300, { required: true });
-  if (!LOGO_EXT.test(path)) throw new Error('logo must be an .svg or .png file');
+  if (!LOGO_EXT.test(path)) throw new Error('logo must be an .svg or .png or .jpg file');
   const line = text(item.line, 'logo.line', 60);
   return { path, ...(line ? { line } : {}) };
 }
@@ -163,6 +163,11 @@ function logo(value) {
  *  javascript: reference, foreignObject, entity) and real PNGs; both ≤ 200 KB. */
 export async function checkLogoFile(buffer, ext) {
   if (buffer.length > 200 * 1024) throw new Error('logo file is larger than 200 KB');
+  if (/^\.?jpe?g$/i.test(ext)) {
+    if (buffer[0] !== 0xff || buffer[1] !== 0xd8 || buffer[2] !== 0xff) throw new Error('logo .jpg is not a JPEG file');
+    await decodeLogo(buffer, 'jpeg');
+    return;
+  }
   if (/^\.?png$/i.test(ext)) {
     if (!buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) throw new Error('logo .png is not a PNG file');
     await decodeLogo(buffer, 'png');
@@ -301,9 +306,17 @@ function v3(value) {
   const h1 = obj(v.h1, 'v3.h1');
   const pair = (x, f, a = 70, b = 220) => (x == null ? undefined : { title: text(obj(x, f).title, `${f}.title`, a, { required: true }), text: text(x.text, `${f}.text`, b, { required: true }) });
   const opt = (k, max) => text(v[k], `v3.${k}`, max);
+  const optBool = (k) => {
+    if (v[k] != null && typeof v[k] !== 'boolean') throw new Error(`v3.${k} must be a boolean`);
+    return v[k];
+  };
   const photo = v.photo == null ? undefined : obj(v.photo, 'v3.photo');
   const out = {
     theme,
+    hideTagline: optBool('hideTagline'),
+    largeWordmark: optBool('largeWordmark'),
+    hidePendingGoogle: optBool('hidePendingGoogle'),
+    priceFootnote: opt('priceFootnote', 240),
     h1: { lead: text(h1.lead, 'v3.h1.lead', 60, { required: true }), hot: text(h1.hot, 'v3.h1.hot', 30, { required: true }), ...(h1.tail ? { tail: text(h1.tail, 'v3.h1.tail', 30) } : {}) },
     pill: opt('pill', 90),
     heroChecks: list(v.heroChecks, 'v3.heroChecks', 4, 50),
@@ -331,7 +344,8 @@ function v3(value) {
     clientLogo: v.clientLogo == null ? undefined : (() => {
       const c = obj(v.clientLogo, 'v3.clientLogo');
       for (const k of ['width', 'height']) if (!Number.isInteger(c[k]) || c[k] < 1 || c[k] > 4000) throw new Error(`v3.clientLogo.${k} must be an integer 1–4000`);
-      return { width: c.width, height: c.height };
+      for (const k of ['showName', 'formBadge']) if (c[k] != null && typeof c[k] !== 'boolean') throw new Error(`v3.clientLogo.${k} must be a boolean`);
+      return { width: c.width, height: c.height, ...(c.showName != null ? { showName: c.showName } : {}), ...(c.formBadge != null ? { formBadge: c.formBadge } : {}) };
     })(),
     map: v.map == null ? undefined : (() => {
       const m = obj(v.map, 'v3.map');
@@ -433,7 +447,7 @@ export function validateSaved(saved) {
   const { data } = normalize({ ...saved, photos: photos.map((p) => ({ path: p.src, alt: p.alt, ai: p.ai })), logo: saved.logo ? { path: saved.logo.src, line: saved.logo.line } : undefined });
   if (typeof saved.slug !== 'string') throw new Error('slug is missing');
   // The generator writes the logo as /previews/<slug>/logo.svg|png; nothing else is served.
-  if (data.logo && !new RegExp(`^/previews/${saved.slug.replace(/[^a-z0-9]/g, '')}/logo\\.(?:svg|png)$`).test(data.logo.path)) throw new Error(`logo.src must be /previews/${saved.slug}/logo.svg or .png`);
+  if (data.logo && !new RegExp(`^/previews/${saved.slug.replace(/[^a-z0-9]/g, '')}/logo\\.(?:svg|png|jpe?g)$`).test(data.logo.path)) throw new Error(`logo.src must be /previews/${saved.slug}/logo.svg or .png or .jpg`);
   if (data.v3 && photos.length) checkEmphasis(data.v3, photos, data.services);
   const { logo: savedLogo, ...rest } = data;
   return {

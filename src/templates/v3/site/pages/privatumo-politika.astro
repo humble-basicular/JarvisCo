@@ -1,0 +1,24 @@
+---
+import V3Layout from '../../V3Layout.astro';
+import { loadBuild } from '../load';
+const { data, site } = loadBuild();
+const p = site.privacy;
+---
+<V3Layout title={`Privatumo politika – ${data.business}`} description="Užklausos duomenų tvarkymas" theme={data.v3.theme} site={site} logo={data.logo?.src} canonical={`https://${site.domain}/privatumo-politika/`}>
+  <main class="v3-wrap v3-page">
+    <h1>Privatumo politika</h1>
+    {p ? <>
+      <p>Atnaujinta: {p.updatedAt}.</p>
+      <h2>Kas tvarko duomenis</h2>
+      <p>Duomenų valdytojas: {p.controller.name}{p.controller.code && `, kodas ${p.controller.code}`}. Kontaktas: {p.controller.email}.</p>
+      <p>Formos duomenų tvarkytojas: {p.processor.name}. Kontaktas: {p.processor.email}.</p>
+      <h2>Kokius duomenis renkame</h2>
+      <p>Kad atsakytume į užklausą, renkame telefono numerį ir Jūsų pateiktą vardą, darbo aprašymą bei failus. Šiuos duomenis siunčiame formos tvarkytojui ir perduodame paslaugos teikėjui.</p>
+      <h2>Teisinis pagrindas ir saugojimas</h2><p>{p.legalBasis}</p><p>{p.retention}</p>
+      <h2>Svetainės priegloba</h2><p>{p.hosting}</p>
+      {site.mapMode === 'consent' && <><h2>Google žemėlapis</h2><p>Google žemėlapis įkeliamas tik paspaudus „Rodyti žemėlapį“. Įjungus žemėlapį Google gauna Jūsų ryšio duomenis, įskaitant IP adresą. Daugiau: <a href="https://policies.google.com/privacy" rel="noopener">Google privatumo politika</a>.</p></>}
+      <h2>Jūsų teisės</h2><p>{p.rights}</p>
+    </> : <p>Bandomasis puslapis. Duomenų valdytojo ir privatumo informacija dar nepatvirtinta. Šios svetainės publikuoti negalima.</p>}
+    <p><a href="/">← Į pradžią</a></p>
+  </main>
+</V3Layout>
