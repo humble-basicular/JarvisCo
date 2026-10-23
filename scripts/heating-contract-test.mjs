@@ -8,6 +8,7 @@ import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 import { checkLogoFile, normalize, townSlug, validateSaved } from './preview/normalize.mjs';
+import { toE164 } from '../src/templates/heating/content.ts';
 import { accentTokens, contrast, BG, INK } from '../src/templates/heating/accent.ts';
 import { CONTRAST_AUDIT as AUDIT, chrome, serve, sleep } from './heating-cdp.mjs';
 
@@ -322,11 +323,24 @@ writeFileSync(resolve(accentEvidence, 'fixtures.json'), JSON.stringify(built, nu
     check(`preview ${data.slug}: ${paged.length} town pages noindex, PERŽIŪRA, logo, unique H1, linked, not in sitemap`, () => {
       const home = readFileSync(`dist/perziura/${data.slug}/index.html`, 'utf8');
       const h1s = new Set();
+      const checkContact = (html) => {
+        assert.doesNotMatch(html, /href="mailto:/);
+        if (!data.v3) { assert.doesNotMatch(html, /href="tel:/); return; }
+        const tel = `tel:${toE164(data.phone)}`;
+        const calls = [...html.matchAll(/<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)]
+          .filter(([, href, text]) => href.startsWith('tel:') || text.includes(data.phone) || /Skambinti/.test(text));
+        assert.ok(calls.length >= 9, 'header, hero, services, quote forms, CTA, menu and dock call links exist');
+        for (const [, href] of calls) assert.equal(href, tel, 'every call link dials the supplied number');
+        assert.match(html, /Neradote reikiamos paslaugos\?/);
+        assert.match(html, /Paskambinkite – aptarsime, kuo galime padėti\./);
+        assert.doesNotMatch(html, /Nerandate savo darbo\?/);
+      };
+      checkContact(home);
       for (const t of paged) {
         const html = readFileSync(`dist/perziura/${data.slug}/${t.slug}/index.html`, 'utf8');
         assert.match(html, /content="noindex,nofollow"/);
         assert.match(html, /(?:hs|v3)-banner__tag">PERŽIŪRA</);
-        assert.doesNotMatch(html, /href="(?:tel:|mailto:)/);
+        checkContact(html);
         // Template v3 draws the badge inline (theme card) unless v3.clientLogo opts into the uploaded logo file.
         if (data.v3?.clientLogo) { assert.ok(html.includes(`src="${data.logo.src}"`)); assert.doesNotMatch(html, /class="v3-badge[ "]/); }
         else if (data.v3) assert.match(html, /class="v3-badge[ "]/);
