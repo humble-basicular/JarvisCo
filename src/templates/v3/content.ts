@@ -23,6 +23,8 @@ export interface V3LiveSite {
   code: string;
   domain: string;
   formEndpoint: string;
+  /** Anonymous call-tap / form-open counts (src/scripts/inquiry-track.ts). */
+  beaconEndpoint: string;
   testBuild?: boolean;
   mapMode: 'consent' | 'disabled';
   privacy?: V3Privacy;

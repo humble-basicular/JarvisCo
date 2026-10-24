@@ -486,7 +486,7 @@ const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => (
   </div>
   <div class="v3-wrap v3-foot__legal">
     <p>© {year} {data.business} · {site ? <a href="/privatumo-politika/">Privatumo politika</a> : <span>Privatumo politika</span>}</p>
-    <p>{(demo || (site && P.some((p) => p.ai))) && 'Dalis iliustracijų sukurta DI. · '}Programavimas: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
+    <p>{demo && 'Dalis iliustracijų sukurta DI. · '}Programavimas: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
   </div>
 </footer>
 

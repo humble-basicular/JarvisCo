@@ -7,7 +7,9 @@ const fact = (value, field, max = 2000) => {
   return value.trim();
 };
 const mail = (value, field) => { const out = fact(value, field, 254); if (!email.test(out)) throw new Error(`launch config: ${field} must be an email`); return out; };
-export function validateLaunchConfig(raw, { code, domain, test = false }) {
+/* pendingWorker: a launch candidate built before the infra stage registers the Worker site.
+   The config must say worker.configured=false; the manifest records it and the deploy check refuses it. */
+export function validateLaunchConfig(raw, { code, domain, test = false, pendingWorker = false }) {
   if (!raw) {
     if (test) return { mapMode: 'disabled' };
     throw new Error('v3 production requires --config <private-launch-config.json> (privacy, map mode, Worker configuration and recipients)');
@@ -25,8 +27,8 @@ export function validateLaunchConfig(raw, { code, domain, test = false }) {
   if (p.controller?.address != null || p.processor?.address != null) throw new Error('launch config: address publication is not supported; omit private addresses');
   if (!test) {
     const w = raw.worker;
-    if (!w || w.configured !== true || w.site !== code || !Array.isArray(w.origins) || !w.origins.includes(`https://${domain}`) || !w.origins.every((x) => { try { const u = new URL(x); return u.protocol === 'https:' && u.origin === x; } catch { return false; } })) throw new Error('launch config: confirmed Worker site/origins must match this build');
+    if (!w || w.configured !== !pendingWorker || w.site !== code || !Array.isArray(w.origins) || !w.origins.includes(`https://${domain}`) || !w.origins.every((x) => { try { const u = new URL(x); return u.protocol === 'https:' && u.origin === x; } catch { return false; } })) throw new Error('launch config: confirmed Worker site/origins must match this build');
     if (!Array.isArray(w.recipients) || !w.recipients.length || !w.recipients.every((x) => typeof x === 'string' && email.test(x) && !pending.test(x))) throw new Error('launch config: confirmed notification recipients are required');
   }
-  return { privacy, mapMode: raw.mapMode };
+  return { privacy, mapMode: raw.mapMode, workerRegistered: !test && !pendingWorker };
 }

@@ -12,6 +12,7 @@ import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-san
 import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
 import { GLYPH, themeCss, type Theme } from './theme';
 import type { Banner } from '../heating/types';
+import Tracking from '../heating/parts/Tracking.astro';
 
 interface Props { title: string; description: string; theme: Theme; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string }
 const { title, description, theme, banner, canonical, site, robots, logo } = Astro.props;
@@ -59,6 +60,7 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     <link rel="preload" href={headExt} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
     <style set:html={`${fontCss}:root{${themeCss(theme)}}`}></style>
+    {site && <Tracking site={site.code} endpoint={site.beaconEndpoint} />}
   </head>
   <body data-site={site?.code} data-build-mode={site ? site.testBuild ? 'test' : 'production' : 'preview'} class={`v3 v3--${theme.archetype} v3--div-${theme.divider} v3--head-${theme.heading}`}>
     {banner && (

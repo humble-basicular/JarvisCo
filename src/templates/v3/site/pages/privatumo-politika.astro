@@ -14,6 +14,7 @@ const p = site.privacy;
       <p>Formos duomenų tvarkytojas: {p.processor.name}. Kontaktas: {p.processor.email}.</p>
       <h2>Kokius duomenis renkame</h2>
       <p>Kad atsakytume į užklausą, renkame telefono numerį ir Jūsų pateiktą vardą, darbo aprašymą bei failus. Šiuos duomenis siunčiame formos tvarkytojui ir perduodame paslaugos teikėjui.</p>
+      <p>Skambučio mygtuko paspaudimas, formos atidarymas ir išsiuntimas užfiksuojami kaip anoniminiai įvykiai: puslapis, mygtuko vieta, laikas, įrenginio tipas (telefonas ar kompiuteris) ir iš kur atėjote (paieška, kita svetainė ar tiesiogiai). IP adreso, slapukų ir kitų asmens duomenų prie jų nesaugome. Svetainė nenaudoja slapukų ir reklaminės stebėsenos.</p>
       <h2>Teisinis pagrindas ir saugojimas</h2><p>{p.legalBasis}</p><p>{p.retention}</p>
       <h2>Svetainės priegloba</h2><p>{p.hosting}</p>
       {site.mapMode === 'consent' && <><h2>Google žemėlapis</h2><p>Google žemėlapis įkeliamas tik paspaudus „Rodyti žemėlapį“. Įjungus žemėlapį Google gauna Jūsų ryšio duomenis, įskaitant IP adresą. Daugiau: <a href="https://policies.google.com/privacy" rel="noopener">Google privatumo politika</a>.</p></>}

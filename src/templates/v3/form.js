@@ -175,7 +175,7 @@
           // Local navigation receipt, not server-side proof or an idempotency key.
           var receipt = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
           try { sessionStorage.setItem(receiptKey, receipt); } catch (e) {}
-          location.assign('/aciu?receipt=' + encodeURIComponent(receipt));
+          location.assign('/aciu/?receipt=' + encodeURIComponent(receipt));
         } else if (r.res.status >= 400 && r.res.status < 500) {
           fail(messages[r.json && r.json.error] ? messages[r.json.error] + ' ' + FAILED : FAILED);
         } else fail(UNKNOWN, true);

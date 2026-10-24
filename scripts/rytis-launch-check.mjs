@@ -4,7 +4,7 @@
    Optional private artifact checks read expected copy from the supplied input;
    no customer identities, prices, photos or generated JSON live in this test. */
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
@@ -81,7 +81,7 @@ await check('success requires a server receipt; rejected requests keep input and
   const h = harness(); h.set({ status: 400, body: { error: 'invalid' } }); await h.submit();
   assert.equal(h.forms[0].error.hidden, false); assert.equal(h.forms[0].fields.message.value, 'Synthetic request'); assert.ok(h.forms.every((f) => !f.button.disabled));
   h.set({ status: 200, body: { ok: true, id: 'synthetic-receipt' } }); await h.submit();
-  assert.equal(h.posted.length, 2); assert.equal(h.posted[1].kind, 'site_inquiry'); assert.match(h.destinations[0], /^\/aciu\?receipt=/); assert.ok(h.storage.get('hs-receipt:synthetic'));
+  assert.equal(h.posted.length, 2); assert.equal(h.posted[1].kind, 'site_inquiry'); assert.match(h.destinations[0], /^\/aciu\/\?receipt=/); assert.ok(h.storage.get('hs-receipt:synthetic'));
 });
 await check('500, network failure and 200 without receipt lock both forms against duplicate POST', async () => {
   for (const result of [{ status: 500, body: {} }, new Error('offline'), { status: 200, body: { ok: true } }]) {
@@ -97,6 +97,8 @@ const photoDir = resolve('public/previews', slug); mkdirSync(photoDir, { recursi
 await sharp({ create: { width: 1600, height: 1000, channels: 3, background: '#8c9195' } }).jpeg().toFile(join(photoDir, '1.jpg'));
 const fixture = { ...base, slug, towns: [{ name: 'Jonava', slug: 'jonava', loc: 'Jonavoje', text: 'Synthetic town-specific copy.', heading: 'Synthetic town' }], photos: [{ src: `/previews/${slug}/1.jpg`, width: 1600, height: 1000 }] };
 const input = resolve('previews', `${slug}.json`); writeFileSync(input, JSON.stringify(fixture));
+// The synthetic preview must never stay in previews/ or public/previews/ (a later site build would publish it).
+process.on('exit', () => { rmSync(input, { force: true }); rmSync(photoDir, { recursive: true, force: true }); });
 const cfg = join(fixtureDir, 'synthetic-config.json'); writeFileSync(cfg, JSON.stringify(config));
 const out = resolve('client-sites', slug);
 const build = (...args) => spawnSync(process.execPath, ['scripts/client-site.mjs', input, '--site', 'synthetic', '--domain', 'example.lt', ...args], { encoding: 'utf8' });
@@ -113,6 +115,16 @@ await check('synthetic production build has validated config, canonical towns, s
     assert.equal(attr(f, 'action'), 'https://www.jarvisweb.lt/t/form'); const fields = walk(f).filter((n) => attr(n, 'name')).map((n) => attr(n, 'name')); assert.deepEqual(fields.sort(), ['files', 'kind', 'message', 'name', 'phone', 'site', 'website'].sort());
   }
   const thanks = read(join(out, 'aciu/index.html')); assert.match(thanks, /data-aciu-neutral/); assert.match(thanks, /data-aciu-ok hidden/); assert.match(thanks, /data-aciu-error hidden/); assert.match(thanks, /sessionStorage\.removeItem/);
+});
+await check('launch candidate (--pending-worker) is refused by deploy-check until the Worker site is registered; tracking + no AI footer note', () => {
+  const pcfg = join(fixtureDir, 'synthetic-pending.json'); writeFileSync(pcfg, JSON.stringify({ ...config, worker: { ...config.worker, configured: false } }));
+  assert.equal(build('--config', pcfg).status, 1, 'configured=false needs --pending-worker');
+  assert.equal(build('--config', cfg, '--pending-worker').status, 1, 'configured=true is not a candidate');
+  const result = build('--config', pcfg, '--pending-worker'); assert.equal(result.status, 0, result.stderr);
+  assert.equal(JSON.parse(read(join(out, 'build-manifest.json'))).workerRegistered, false);
+  const strict = deploy(); assert.notEqual(strict.status, 0); assert.match(strict.stderr, /not registered/);
+  const loose = spawnSync(process.execPath, ['scripts/client-site-deploy-check.mjs', out, '--allow-pending-worker'], { encoding: 'utf8' }); assert.equal(loose.status, 0, loose.stderr); assert.match(loose.stdout, /PENDING/);
+  const html = read(join(out, 'index.html')); assert.match(html, /<meta name="jw-site" content="synthetic"/); assert.match(html, /<meta name="jw-endpoint" content="https:\/\/www\.jarvisweb\.lt\/t\/e"/); assert.doesNotMatch(html, /sukurta DI/);
 });
 await check('other previews and demo remain inert with their prior branding and Google behavior', () => {
   for (const f of readdirSync('previews').filter((x) => x.endsWith('.json'))) {

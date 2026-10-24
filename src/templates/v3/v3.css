@@ -460,6 +460,7 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
   .v3-quote { margin-top: 2.5rem; }
   .v3-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .v3-faq__media { position: relative; top: 0; max-width: 28rem; }
+  .v3-util__hours { display: none !important; }
   .v3-about__stamp { right: 0; }
 }
 @media (max-width: 40rem) {

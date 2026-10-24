@@ -55,10 +55,13 @@ const configFile = flag('config');
 const TEST_MARKER = 'TEST-BUILD-DO-NOT-DEPLOY.txt';
 // Opt-in audit mode retains all staging artifacts and refuses existing output.
 const retainBuild = argv.includes('--retain-build');
+// Launch candidate before the infra stage registers the Worker site (config worker.configured=false).
+const pendingWorker = argv.includes('--pending-worker');
 
-if (!input || !code || !domain) fail('usage: node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain> [--test http://localhost:4330] [--config <private-launch-config.json>]');
+if (!input || !code || !domain) fail('usage: node scripts/client-site.mjs previews/<slug>.json --site <code> --domain <domain> [--test http://localhost:4330] [--config <private-launch-config.json> [--pending-worker]]');
 if (!SITE_CODE.test(code)) fail(`--site "${code}" must match ${SITE_CODE}`);
 if (!DOMAIN.test(domain)) fail(`--domain "${domain}" must be a bare host name like example.lt (no scheme, no path)`);
+if (pendingWorker && (test || !configFile)) fail('--pending-worker needs --config and no --test');
 if (test && !/^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}$/.test(test)) fail('--test must be http://localhost:<port>');
 
 // Everything is validated before the first filesystem change.
@@ -74,7 +77,7 @@ if (join(PREVIEWS, `${data.slug}.json`) !== file) fail('file name must be <slug>
 let launch;
 if (data.v3) {
   try {
-    launch = validateLaunchConfig(configFile ? JSON.parse(readFileSync(resolve(configFile), 'utf8')) : undefined, { code, domain, test: !!test });
+    launch = validateLaunchConfig(configFile ? JSON.parse(readFileSync(resolve(configFile), 'utf8')) : undefined, { code, domain, test: !!test, pendingWorker });
   } catch (e) { fail(e.message); }
 }
 const slug = data.slug;
@@ -176,9 +179,10 @@ for (const t of towns) {
 }
 if (logo && !index.includes(`src="${logo.src}"`)) fail('logo missing in built index.html');
 
-if (data.v3) writeFileSync(join(target, 'build-manifest.json'), JSON.stringify({ version: 1, template: 'v3', mode: test ? 'test' : 'production', domain, code, formEndpoint: build.site.formEndpoint, configurationValidated: !!launch?.privacy && !test, mapMode: launch.mapMode }, null, 2) + '\n');
+if (data.v3) writeFileSync(join(target, 'build-manifest.json'), JSON.stringify({ version: 1, template: 'v3', mode: test ? 'test' : 'production', domain, code, formEndpoint: build.site.formEndpoint, configurationValidated: !!launch?.privacy && !test, workerRegistered: !!launch?.workerRegistered, mapMode: launch.mapMode }, null, 2) + '\n');
 
 console.log(`Built ${relative(ROOT, target)}/ in ${((Date.now() - started) / 1000).toFixed(1)}s: ${readdirSync(target).join(', ')}`);
 console.log(`Site ${code} → https://${domain}/   form: ${build.site.formEndpoint}${towns.length ? `   towns: ${towns.map((t) => `/${t}/`).join(' ')}` : ''}`);
 if (test) console.log('TEST BUILD (stub endpoints): never deploy this folder.');
+if (pendingWorker) console.log(`LAUNCH CANDIDATE: register Worker site "${code}" first, then rebuild without --pending-worker.`);
 else console.log('Not deployed. Add the site code + origins to the Worker SITES var first, then upload this folder to the client host.');
