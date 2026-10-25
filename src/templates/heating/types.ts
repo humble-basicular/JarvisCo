@@ -3,10 +3,11 @@
    preview page and the live client site. Every optional field drives one
    section: absent data → the section is not rendered (nothing is invented). */
 
-export interface SitePhoto { src: string; width: number; height: number; alt?: string; srcset?: string }
+/** `ai`: an AI illustration of the trade (never a real job): kept out of the work gallery and pins, disclosed in the footer. */
+export interface SitePhoto { src: string; width: number; height: number; alt?: string; srcset?: string; ai?: boolean }
 export interface SiteService { name: string; text?: string }
 /** Only rendered when real quotes are in the input (never invented). */
-export interface SiteReview { text: string; name: string; place?: string; source?: string; url?: string; date?: string }
+export interface SiteReview { text: string; name: string; place?: string; source?: string; url?: string; date?: string; /** 1–5, only as shown by the source. */ rating?: number }
 /** One row of the price/terms table, e.g. {name: 'Iškvietimas Kaune', price: 'nuo 40 €'}. */
 export interface SitePrice { name: string; price: string; note?: string }
 

@@ -1,0 +1,77 @@
+---
+/* HTML shell for template v3. Preview only for now (noindex, PAVYZDYS banner, no tracking).
+   Self-hosted fonts (fontsource, OFL), latin + latin-ext: Lithuanian letters live in latin-ext. */
+import './v3.css';
+import archivoLatin from '@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2?url';
+import archivoExt from '@fontsource/archivo-black/files/archivo-black-latin-ext-400-normal.woff2?url';
+import barlowLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2?url';
+import barlowExt from '@fontsource/barlow-condensed/files/barlow-condensed-latin-ext-800-normal.woff2?url';
+import groteskLatin from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url';
+import groteskExt from '@fontsource/space-grotesk/files/space-grotesk-latin-ext-700-normal.woff2?url';
+import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
+import { GLYPH, themeCss, type Theme } from './theme';
+import type { Banner } from '../heating/types';
+import Tracking from '../heating/parts/Tracking.astro';
+
+interface Props { title: string; description: string; theme: Theme; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string }
+const { title, description, theme, banner, canonical, site, robots, logo } = Astro.props;
+/* One heading font per site (theme card); only that font's files are referenced. */
+const HEAD = {
+  'archivo-black': { latin: archivoLatin, ext: archivoExt, weight: '400', fallback: "local('Arial Black'),local('Arial-BoldMT'),local('Arial')", adjust: '98%' },
+  'barlow-condensed': { latin: barlowLatin, ext: barlowExt, weight: '800', fallback: "local('Arial Narrow Bold'),local('ArialNarrow-Bold'),local('Arial Bold')", adjust: '82%' },
+  'space-grotesk': { latin: groteskLatin, ext: groteskExt, weight: '700', fallback: "local('Arial Bold'),local('Arial-BoldMT'),local('Arial')", adjust: '100%' },
+}[theme.heading];
+const headLatin = HEAD.latin;
+const headExt = HEAD.ext;
+
+const LATIN = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
+const EXT = 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
+const face = (family: string, src: string, range: string, weight: string) =>
+  `@font-face{font-family:'${family}';font-style:normal;font-display:swap;font-weight:${weight};src:url(${src}) format('woff2');unicode-range:${range}}`;
+const fontCss = [
+  face('V3 Head', headLatin, LATIN, HEAD.weight),
+  face('V3 Head', headExt, EXT, HEAD.weight),
+  face('V3 Sans', sansLatin, LATIN, '400 700'),
+  face('V3 Sans', sansExt, EXT, '400 700'),
+  `@font-face{font-family:'V3 Head Fallback';src:${HEAD.fallback};size-adjust:${HEAD.adjust}}`,
+  "@font-face{font-family:'V3 Sans Fallback';src:local('Arial'),local('Helvetica Neue'),local('Roboto');size-adjust:96%;ascent-override:96%;descent-override:25%;line-gap-override:0%}",
+].join('');
+const glyph = GLYPH[theme.logo.glyph];
+const plate = theme.logo.shape === 'square'
+  ? `<rect x="1" y="1" width="62" height="62" rx="12" fill="${theme.base}"/><rect x="8" y="8" width="48" height="48" rx="4" fill="${theme.accent}"/>`
+  : `<circle cx="32" cy="32" r="31" fill="${theme.base}"/><circle cx="32" cy="32" r="20" fill="${theme.accent}"/>`;
+const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">${plate}<path d="${glyph.main}" fill="#fff" fill-rule="evenodd" transform="translate(32 33) scale(.8) translate(-32 -31)"/></svg>`)}`;
+---
+<!doctype html>
+<html lang="lt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="robots" content={site && !site.testBuild ? robots ?? 'index,follow' : 'noindex,nofollow'} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {/* Previews hide their secret /perziura/<slug> URL. Live sites must keep Origin on the form POST and
+        beacons to the Worker (no-referrer sends "Origin: null", which the Worker rejects). */}
+    <meta name="referrer" content={site ? 'strict-origin-when-cross-origin' : 'no-referrer'} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={theme.base} />
+    <link rel="icon" href={logo ?? favicon} />
+    <link rel="preload" href={headLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={headExt} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
+    <style set:html={`${fontCss}:root{${themeCss(theme)}}`}></style>
+    {site && <Tracking site={site.code} endpoint={site.beaconEndpoint} />}
+  </head>
+  <body data-site={site?.code} data-build-mode={site ? site.testBuild ? 'test' : 'production' : 'preview'} class={`v3 v3--${theme.archetype} v3--div-${theme.divider} v3--head-${theme.heading}`}>
+    {banner && (
+      <div class="v3-banner" role="note">
+        <span class="v3-banner__tag">{banner.tag}</span>
+        <span class="v3-banner__note">{banner.note}</span>
+        <a class="v3-banner__link" href={banner.href}>{banner.label}</a>
+      </div>
+    )}
+    <slot />
+  </body>
+</html>

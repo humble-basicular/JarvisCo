@@ -31,7 +31,7 @@ Then edit the texts in `previews/<slug>.json` if needed (they are plain JSON) an
 | `areas` | string[] | ≤ 12 items, each ≤ 60 chars. Falls back to `submission.area` + `submission.area_other` (comma-separated) |
 | `services` | (string \| `{name, text?}`)[] | ≤ 12 items, names ≤ 60 chars, supplied descriptions ≤ 400 chars. Falls back to `submission.services` + `submission.services_other`. At least one is required |
 | `standout` | string | Optional, ≤ 1000 chars. One bullet per line, `;` or sentence. Falls back to `submission.standout` |
-| `photos` | (string \| `{path, alt}`)[] | Optional, ≤ 12. Paths are relative to the input JSON. The first photo is the hero image |
+| `photos` | (string \| `{path, alt, ai?}`)[] | Optional: ≤ 12 real photos + ≤ 12 AI illustrations (`ai: true`). Paths are relative to the input JSON. The first photo is the hero image unless `v3.photo.hero` says otherwise |
 | `tagline` | string | Optional, ≤ 120 chars. The H1; otherwise derived from supplied services + city |
 | `lead` | string | Optional, ≤ 300 chars. The sentence under the H1; otherwise `<business> – <first services>. <where>` |
 | `logo` | string \| `{path, line?}` | Optional. Path (relative to the input JSON, inside its folder, no symlink) to a square `.svg` or `.png` read on a light background; `line` (≤ 60) is set under the name. Shown in the header, on the hero photo seal, in the footer, as the tab icon and (real sites) on the About panel. SVGs must be static drawings (paths, shapes, text and local gradients/references; no CSS, animation, prefixed elements or alternate namespaces): no script, `on…` handler, foreignObject, DOCTYPE/entity, `@import`, `javascript:`/`data:` or external `href`/`url()`; PNGs and SVGs must fully decode; ≤ 200 KB and ≤ 16,777,216 decoded pixels (`checkLogoFile` in `normalize.mjs`, checked again by `client-site.mjs`) |
@@ -131,8 +131,46 @@ The upload list adds new picks, supports per-file removal, and preserves files a
 - `node scripts/screenshot.mjs <local-url> <out-prefix> --retain-profile`: 390/1440 full-page PNGs; retains Chrome's temporary profile without cleanup.
 - `npm run check`: production build, copy, JS budget and static checks. Under a no-delete constraint, rename an existing `dist/` into an ignored audit folder before rebuilding (Astro normally replaces output).
 - `node scripts/heating-contract-test.mjs`: validates optional data (including `logo`/`towns` and the logo file check), demo honesty/indexing, five symlink attack cases, a logo + towns client-site fixture, and any local preview with towns in `dist/`. Retains fixtures and moves adversarial preview/photo inputs into the printed ignored evidence folder; never deletes them.
+- `node scripts/overflow-check.mjs http://localhost:<port> <slug...>` (with `preview-form-stub.mjs` serving `dist`): every v3 preview home and town page at 320/360/390/414/768 px; fails if the page scrolls sideways or any text runs past the right edge. Run it after any v3 CSS or copy change.
 - `node scripts/image-size-test.mjs`: header parser cases, in memory.
 - `scripts/heating-browser-check.js`: evaluate its complete expression through T3 `preview_evaluate` on a local `--test` client build served by `preview-form-stub.mjs`. Checks submission, upload, error, uncertainty, receipt and beacon behavior against the local stub only; no browser launch or filesystem cleanup. Synthetic iframe state is removed afterward.
 - Legacy `client-site-symlink-test.mjs` and `client-site-form-test.mjs` delete their temporary filesystem fixtures/profile; skip those under a no-delete instruction. The latter also launches standalone Chrome. Use the retained-fixture and T3 alternatives above; do not relax the checks.
 
 Browser screenshots and checks cannot establish real iPhone/Android HEIC or screen-reader behavior. Lighthouse, production delivery and final legal/business facts require separate evidence before launch. Demo's deliberate `noindex` must not be removed to improve its SEO score.
+
+## Template v3 (`v3` block, optional)
+Add `"v3": {…}` to the input and the preview (home + town pages) renders on template v3
+instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.ts`; checked by
+`v3()` in `normalize.mjs`. Example: the demo in `src/templates/v3/demo.ts` (`v3`).
+- `theme`: the theme card (`src/templates/v3/theme.ts`). Make each client unique by combination:
+  palette, `heading` font, `divider`, `hero` (`photo` needs a sharp ≥1400 px photo; `panel` suits
+  phone photos), `services` (`tiles` needs one matching photo per service; else `cards`), `logo.shape`/`glyph`.
+- Copy: `h1`, `heroChecks`, `trust` (3–5), `aboutTitle`, `steps` (3–5), `ctaTitle`, `ctaText` are required;
+  only the client's own facts (no invented reviews, numbers, warranties).
+- Theme options (2026-10-21 batch): `heading` `archivo-black` | `barlow-condensed` | `space-grotesk`;
+  `divider` `angle` | `wave` | `zigzag` (electric) | `notch` (camera-frame step) | `grass` (lawn edge, 2026-10-25); `logo.glyph` `flame` | `drop` |
+  `bolt` | `lens`. Extra card icons: `bolt`, `lens`, `wifi`, `shield`.
+- `theme.process` (optional): `line` (default; icon circles + dashed arrows), `chevron` (icon on a stem above arrow
+  ribbons), `frames` (numbered cards with camera-frame corners). Each site gets one no recent site used.
+- The quote form's upload button always says "Pridėti failus" (user 2026-10-21; `attachLabel` removed).
+- `clientLogo: {width, height}` (optional): show the client's own logo file (top-level `logo`, read on a light
+  plate) in the header, about stamp and footer instead of the generated badge. Opt-in, so previews whose `logo`
+  predates v3 (Nerijus, the demo) keep their badge. Width/height = the file's intrinsic size.
+- `photo`: indexes into `photos` for hero, pins (panel hero), about, faq, cta.
+- Photo quality rule (Jarvis 2026-10-21): emphasised slots – hero and CTA backgrounds (≥ 1400 px) and
+  service tiles (≥ 1000 px) – take a sharp real photo or an AI illustration (`ai: true`). AI images show
+  the type of work only (no faces, logos, text, vans or credentials), never enter the work gallery or hero
+  pins (user decision 2026-10-21: client footers carry no AI note, only "Programavimas: jarvisweb.lt"). `validateSaved` refuses a preview that breaks this.
+  The FAQ photo counts as emphasised too (≥ 1000 px). Width alone does not prove sharpness: photos
+  taken from Paslaugos.lt are often upscaled phone shots – look at every emphasised photo at full
+  size and use an AI illustration when it is soft (Nerijus FAQ photo replaced 2026-10-21).
+- Reviews: real quotes from `reviews` get their own section (`#atsiliepimai`); `v3.gbp.url` / `v3.gbp.reviewUrl`
+  (https) add "Atsiliepimai Google" / "Palikti atsiliepimą" buttons. Without them the section shows
+  "Google atsiliepimai – netrukus".
+- Map: a live Google map loads with the page (no click step), pinned on the base town (town pages: that
+  town). Once the Google Business Profile exists set `v3.map.query` to its name + address (optional `zoom` 5–18).
+  Previews only (user decision 2026-10-21). Before a live launch: the embed sends visitor data to Google
+  without consent; the launch gate needs a consent decision (load on existing Maps consent, otherwise a
+  first-party pin map + outbound Google link) and a real privacy policy. Unresolved; do not ship as is.
+- AI photos are refused without the `v3` block (the heating renderer would show them as real work).
+- Rebuilding an already shared preview: `npm run preview -- <input.json> --slug <slug>` keeps the link.

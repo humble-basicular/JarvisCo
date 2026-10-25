@@ -1,0 +1,31 @@
+---
+import V3Layout from '../../V3Layout.astro';
+import { toE164 } from '../../../heating/content';
+import { loadBuild } from '../load';
+const { data, site } = loadBuild();
+const tel = `tel:${toE164(data.phone)}`;
+---
+<V3Layout title={`Užklausos būsena – ${data.business}`} description="Užklausos būsena" theme={data.v3.theme} site={site} logo={data.logo?.src} robots="noindex,follow" canonical={`https://${site.domain}/aciu/`}>
+  <main class="v3-wrap v3-page">
+    <div data-aciu-neutral><h1>Užklausos būsena</h1><p>Jei negavote patvirtinimo, paskambinkite tiesiai: <a href={tel}>{data.phone}</a>.</p></div>
+    <div data-aciu-ok hidden><h1>{site.testBuild ? 'Bandomoji užklausa gauta' : 'Užklausa gauta'}</h1><p>{site.testBuild ? 'Užklausą priėmė tik vietinis testas.' : 'Susisieksime su Jumis dėl darbo ir kainos.'}</p><p>Jei reikia greičiau, paskambinkite: <a href={tel}>{data.phone}</a>.</p></div>
+    <div data-aciu-error hidden><h1>Nepavyko išsiųsti</h1><p>Paskambinkite tiesiai: <a href={tel}>{data.phone}</a>.</p></div>
+    <p><a href="/">← Į pradžią</a></p>
+  </main>
+  <script is:inline>
+    (function () {
+      var error = /[?&]klaida=1/.test(location.search);
+      var receipt = new URLSearchParams(location.search).get('receipt');
+      var received = false;
+      try {
+        var key = 'hs-receipt:' + document.body.getAttribute('data-site');
+        received = !!receipt && receipt !== 'received' && sessionStorage.getItem(key) === receipt;
+        sessionStorage.removeItem(key);
+      } catch (e) {}
+      if (error || received) {
+        document.querySelector('[data-aciu-neutral]').hidden = true;
+        document.querySelector(error ? '[data-aciu-error]' : '[data-aciu-ok]').hidden = false;
+      }
+    })();
+  </script>
+</V3Layout>

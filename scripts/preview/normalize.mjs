@@ -80,6 +80,7 @@ function reviews(value) {
       source: text(r?.source, `reviews[${i}].source`, 60),
       url,
       date: text(r?.date, `reviews[${i}].date`, 30),
+      rating: r?.rating == null ? undefined : (Number.isInteger(r.rating) && r.rating >= 1 && r.rating <= 5 ? r.rating : (() => { throw new Error(`reviews[${i}].rating must be a whole number 1–5`); })()),
     };
     return Object.fromEntries(Object.entries(out).filter(([, v]) => v));
   });
@@ -146,13 +147,13 @@ function towns(value) {
 }
 
 /** Logo: a path (relative to the input JSON) or {path, line}. SVG or PNG; `line` is set under the name. */
-const LOGO_EXT = /\.(svg|png)$/i;
+const LOGO_EXT = /\.(svg|png|jpe?g)$/i;
 function logo(value) {
   if (value == null) return undefined;
   const item = typeof value === 'string' ? { path: value } : value;
   if (!item || typeof item !== 'object' || Array.isArray(item) || typeof item.path !== 'string') throw new Error('logo must be a path or {path, line}');
   const path = text(item.path, 'logo.path', 300, { required: true });
-  if (!LOGO_EXT.test(path)) throw new Error('logo must be an .svg or .png file');
+  if (!LOGO_EXT.test(path)) throw new Error('logo must be an .svg or .png or .jpg file');
   const line = text(item.line, 'logo.line', 60);
   return { path, ...(line ? { line } : {}) };
 }
@@ -162,6 +163,11 @@ function logo(value) {
  *  javascript: reference, foreignObject, entity) and real PNGs; both ≤ 200 KB. */
 export async function checkLogoFile(buffer, ext) {
   if (buffer.length > 200 * 1024) throw new Error('logo file is larger than 200 KB');
+  if (/^\.?jpe?g$/i.test(ext)) {
+    if (buffer[0] !== 0xff || buffer[1] !== 0xd8 || buffer[2] !== 0xff) throw new Error('logo .jpg is not a JPEG file');
+    await decodeLogo(buffer, 'jpeg');
+    return;
+  }
   if (/^\.?png$/i.test(ext)) {
     if (!buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) throw new Error('logo .png is not a PNG file');
     await decodeLogo(buffer, 'png');
@@ -210,6 +216,16 @@ export async function checkLogoFile(buffer, ext) {
   await decodeLogo(buffer, 'svg');
 }
 
+/** Bytes to publish for a checked logo. JPEG/PNG are re-encoded so EXIF/GPS, XMP, ICC and text
+ *  chunks never reach a public URL (sharp drops metadata unless asked to keep it); EXIF
+ *  orientation is applied first. SVG passes as is: the allowlist above has no metadata element. */
+export async function cleanLogo(buffer, ext) {
+  if (/^\.?svg$/i.test(ext)) return buffer;
+  const { default: sharp } = await import('sharp');
+  const image = sharp(buffer, { limitInputPixels: 16_777_216 }).rotate();
+  return /^\.?jpe?g$/i.test(ext) ? image.jpeg({ quality: 92, mozjpeg: true }).toBuffer() : image.png({ compressionLevel: 9 }).toBuffer();
+}
+
 async function decodeLogo(buffer, format) {
   try {
     const { default: sharp } = await import('sharp');
@@ -238,6 +254,123 @@ function isPhone(value) {
 }
 
 /** Top-level fields win; missing ones are filled from the form submission. */
+/* Template v3 block (src/templates/v3/content.ts V3Input + theme.ts Theme). Keep these lists in sync. */
+const V3_ENUMS = {
+  archetype: ['water', 'heat', 'outdoor', 'heavy', 'electric', 'clean', 'craft'],
+  heading: ['archivo-black', 'barlow-condensed', 'space-grotesk'],
+  divider: ['angle', 'wave', 'zigzag', 'notch', 'grass'],
+  hero: ['photo', 'panel'],
+  services: ['tiles', 'cards'],
+  process: ['line', 'chevron', 'frames'],
+  shape: ['round', 'shield', 'square'],
+  glyph: ['flame', 'drop', 'bolt', 'lens', 'rope'],
+  link: ['google', 'facebook', 'paslaugos'],
+};
+const V3_ICONS = ['phone', 'camera', 'tag', 'calendar', 'wrench', 'verified', 'pin', 'clock', 'team', 'wallet', 'arrow', 'check', 'flame', 'mail', 'facebook', 'list', 'drop', 'radiator', 'floor', 'fan', 'washer', 'pump', 'quote', 'map', 'bolt', 'lens', 'wifi', 'shield'];
+const HEX = /^#[0-9a-f]{6}$/i;
+
+function oneOf(value, field, allowed) {
+  if (!allowed.includes(value)) throw new Error(`${field} must be one of ${allowed.join(', ')}`);
+  return value;
+}
+function obj(value, field) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${field} must be an object`);
+  return value;
+}
+function v3Items(value, field, min, max) {
+  if (!Array.isArray(value) || value.length < min || value.length > max) throw new Error(`${field} must be a list of ${min}–${max} items`);
+  return value.map((it, i) => ({
+    icon: oneOf(obj(it, `${field}[${i}]`).icon, `${field}[${i}].icon`, V3_ICONS),
+    title: text(it.title, `${field}[${i}].title`, 70, { required: true }),
+    text: text(it.text, `${field}[${i}].text`, 220, { required: true }),
+  }));
+}
+function index(value, field) {
+  if (value == null) return undefined;
+  if (!Number.isInteger(value) || value < 0 || value > 23) throw new Error(`${field} must be a photo index 0–23`);
+  return value;
+}
+function v3(value) {
+  if (value == null) return undefined;
+  const v = obj(value, 'v3');
+  const t = obj(v.theme, 'v3.theme');
+  const logo = obj(t.logo, 'v3.theme.logo');
+  const theme = {
+    archetype: oneOf(t.archetype, 'v3.theme.archetype', V3_ENUMS.archetype),
+    ...Object.fromEntries(['base', 'base2', 'accent', 'accentHi', 'paper'].map((k) => {
+      if (!HEX.test(t[k] ?? '')) throw new Error(`v3.theme.${k} must be #rrggbb`);
+      return [k, t[k].toLowerCase()];
+    })),
+    heading: oneOf(t.heading, 'v3.theme.heading', V3_ENUMS.heading),
+    divider: oneOf(t.divider, 'v3.theme.divider', V3_ENUMS.divider),
+    hero: oneOf(t.hero, 'v3.theme.hero', V3_ENUMS.hero),
+    services: oneOf(t.services, 'v3.theme.services', V3_ENUMS.services),
+    process: t.process == null ? undefined : oneOf(t.process, 'v3.theme.process', V3_ENUMS.process),
+    logo: {
+      shape: oneOf(logo.shape, 'v3.theme.logo.shape', V3_ENUMS.shape),
+      glyph: oneOf(logo.glyph, 'v3.theme.logo.glyph', V3_ENUMS.glyph),
+      ring: text(logo.ring, 'v3.theme.logo.ring', 32, { required: true }),
+      line: text(logo.line, 'v3.theme.logo.line', 60, { required: true }),
+    },
+  };
+  const h1 = obj(v.h1, 'v3.h1');
+  const pair = (x, f, a = 70, b = 220) => (x == null ? undefined : { title: text(obj(x, f).title, `${f}.title`, a, { required: true }), text: text(x.text, `${f}.text`, b, { required: true }) });
+  const opt = (k, max) => text(v[k], `v3.${k}`, max);
+  const optBool = (k) => {
+    if (v[k] != null && typeof v[k] !== 'boolean') throw new Error(`v3.${k} must be a boolean`);
+    return v[k];
+  };
+  const photo = v.photo == null ? undefined : obj(v.photo, 'v3.photo');
+  const out = {
+    theme,
+    hideTagline: optBool('hideTagline'),
+    largeWordmark: optBool('largeWordmark'),
+    hidePendingGoogle: optBool('hidePendingGoogle'),
+    priceFootnote: opt('priceFootnote', 240),
+    h1: { lead: text(h1.lead, 'v3.h1.lead', 60, { required: true }), hot: text(h1.hot, 'v3.h1.hot', 30, { required: true }), ...(h1.tail ? { tail: text(h1.tail, 'v3.h1.tail', 30) } : {}) },
+    pill: opt('pill', 90),
+    heroChecks: list(v.heroChecks, 'v3.heroChecks', 4, 50),
+    trust: v3Items(v.trust, 'v3.trust', 3, 5),
+    aboutTitle: text(v.aboutTitle, 'v3.aboutTitle', 90, { required: true }),
+    aboutChecks: list(v.aboutChecks, 'v3.aboutChecks', 4, 160),
+    stamp: v.stamp == null ? undefined : { title: text(obj(v.stamp, 'v3.stamp').title, 'v3.stamp.title', 40, { required: true }), text: text(v.stamp.text, 'v3.stamp.text', 50, { required: true }) },
+    quoteSub: opt('quoteSub', 160), formHint: opt('formHint', 80),
+    tilePhotos: v.tilePhotos == null ? undefined : (Array.isArray(v.tilePhotos) ? v.tilePhotos.map((x, i) => index(x, `v3.tilePhotos[${i}]`)) : (() => { throw new Error('v3.tilePhotos must be a list'); })()),
+    steps: v3Items(v.steps, 'v3.steps', 3, 5),
+    stepsTitle: opt('stepsTitle', 70), galleryNote: opt('galleryNote', 160),
+    promise: pair(v.promise, 'v3.promise', 60, 220),
+    areasTitle: opt('areasTitle', 90), areasText: opt('areasText', 220), townLabel: opt('townLabel', 40), baseLine: opt('baseLine', 60),
+    links: v.links == null ? undefined : (Array.isArray(v.links) ? v.links : []).map((l, i) => {
+      const kind = oneOf(obj(l, `v3.links[${i}]`).kind, `v3.links[${i}].kind`, V3_ENUMS.link);
+      if (l.url != null && !/^https:\/\/[^\s"<>]+$/.test(l.url)) throw new Error(`v3.links[${i}].url must be https://…`);
+      return { kind, ...(l.url ? { url: l.url } : {}) };
+    }),
+    gbp: v.gbp == null ? undefined : (() => {
+      const g = obj(v.gbp, 'v3.gbp');
+      for (const k of ['url', 'reviewUrl']) if (g[k] != null && !/^https:\/\/[^\s"<>]+$/.test(g[k])) throw new Error(`v3.gbp.${k} must be https://…`);
+      return { ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}) };
+    })(),
+    // Use the client's own logo file (top-level `logo`) instead of the generated badge; intrinsic size for the <img>.
+    clientLogo: v.clientLogo == null ? undefined : (() => {
+      const c = obj(v.clientLogo, 'v3.clientLogo');
+      for (const k of ['width', 'height']) if (!Number.isInteger(c[k]) || c[k] < 1 || c[k] > 4000) throw new Error(`v3.clientLogo.${k} must be an integer 1–4000`);
+      for (const k of ['showName', 'formBadge']) if (c[k] != null && typeof c[k] !== 'boolean') throw new Error(`v3.clientLogo.${k} must be a boolean`);
+      return { width: c.width, height: c.height, ...(c.showName != null ? { showName: c.showName } : {}), ...(c.formBadge != null ? { formBadge: c.formBadge } : {}) };
+    })(),
+    map: v.map == null ? undefined : (() => {
+      const m = obj(v.map, 'v3.map');
+      if (m.zoom != null && (!Number.isInteger(m.zoom) || m.zoom < 5 || m.zoom > 18)) throw new Error('v3.map.zoom must be an integer 5–18');
+      return { ...(m.query ? { query: text(m.query, 'v3.map.query', 120) } : {}), ...(m.zoom ? { zoom: m.zoom } : {}) };
+    })(),
+    ctaTitle: text(v.ctaTitle, 'v3.ctaTitle', 80, { required: true }),
+    ctaText: text(v.ctaText, 'v3.ctaText', 200, { required: true }),
+    photo: photo && Object.fromEntries(Object.entries({ hero: index(photo.hero, 'v3.photo.hero'), about: index(photo.about, 'v3.photo.about'), faq: index(photo.faq, 'v3.photo.faq'), cta: index(photo.cta, 'v3.photo.cta'), reviews: index(photo.reviews, 'v3.photo.reviews'),
+      pins: photo.pins == null ? undefined : (Array.isArray(photo.pins) && photo.pins.length <= 3 ? photo.pins.map((x, i) => index(x, `v3.photo.pins[${i}]`)) : (() => { throw new Error('v3.photo.pins must be a list of at most 3'); })()) }).filter(([, x]) => x !== undefined)),
+  };
+  if (!out.heroChecks.length) throw new Error('v3.heroChecks is required');
+  return JSON.parse(JSON.stringify(out)); // drop undefined keys
+}
+
 export function normalize(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('input must be a JSON object');
   const submission = validateSubmission(raw.submission);
@@ -266,21 +399,48 @@ export function normalize(raw) {
     priceNote: text(raw.priceNote, 'priceNote', 300),
     logo: logo(raw.logo),
     towns: towns(raw.towns),
+    v3: v3(raw.v3),
   };
   if (!isPhone(data.phone)) throw new Error(`phone "${data.phone}" is not a phone number (digits, spaces, + - ( ), at least 8 digits)`);
   if (!toE164(data.phone)) throw new Error(`phone "${data.phone}" cannot be converted to +370… (use 8 6xx xxxxx, 06xx xxxxx, 6xx xxxxx or +370 6xx xxxxx)`);
+  if (data.v3?.clientLogo && !data.logo) throw new Error('v3.clientLogo needs a top-level logo file');
   if (!data.city && !data.areas.length) throw new Error('city or areas is required');
   data.city ??= data.areas[0];
   if (!data.areas.length) data.areas = [data.city];
   if (!data.services.length) throw new Error('services (or submission.services / services_other) is required');
   const photos = raw.photos ?? [];
-  if (!Array.isArray(photos) || photos.length > 12) throw new Error('photos must be a list of at most 12 paths');
+  // Up to 12 real work photos plus up to 12 AI illustrations ({path, alt, ai: true}) for emphasised slots.
+  if (!Array.isArray(photos) || photos.length > 24) throw new Error('photos must be a list of at most 24 paths');
   data.photos = photos.map((p, i) => {
     const item = typeof p === 'string' ? { path: p } : p;
-    if (!item || typeof item.path !== 'string') throw new Error(`photos[${i}] must be a path or {path, alt}`);
-    return { path: item.path, alt: text(item.alt, `photos[${i}].alt`, 160) };
+    if (!item || typeof item.path !== 'string') throw new Error(`photos[${i}] must be a path or {path, alt, ai}`);
+    if (item.ai != null && typeof item.ai !== 'boolean') throw new Error(`photos[${i}].ai must be true or false`);
+    return { path: item.path, alt: text(item.alt, `photos[${i}].alt`, 160), ...(item.ai ? { ai: true } : {}) };
   });
+  if (data.photos.filter((p) => !p.ai).length > 12) throw new Error('at most 12 real photos (AI illustrations are separate)');
+  if (data.photos.filter((p) => p.ai).length > 12) throw new Error('at most 12 AI illustrations');
+  // Only template v3 keeps AI images out of the work gallery and discloses them.
+  if (!data.v3 && data.photos.some((p) => p.ai)) throw new Error('AI illustrations (ai: true) need the v3 block');
   return { data, submission };
+}
+
+/* Emphasised slots (hero and CTA backgrounds, service tiles) must be sharp: a real high-resolution
+   photo or an AI illustration of the trade. Keep in sync with EMPHASIS_MIN_WIDTH in src/templates/v3/content.ts. */
+const EMPHASIS_MIN_WIDTH = { background: 1400, tile: 1000 };
+function checkEmphasis(v3, photos, services) {
+  const pick = (i, fallback) => photos[i ?? fallback] ?? photos[fallback % photos.length] ?? photos[0];
+  const need = (p, min, slot) => {
+    if (p && p.width < min) throw new Error(`${slot} photo ${p.src} is ${p.width} px wide; emphasised slots need ≥ ${min} px – use a sharp real photo or an AI illustration (ai: true)`);
+  };
+  need(pick(v3.photo?.hero, 0), EMPHASIS_MIN_WIDTH.background, 'v3.photo.hero');
+  need(pick(v3.photo?.cta, 3), EMPHASIS_MIN_WIDTH.background, 'v3.photo.cta');
+  need(pick(v3.photo?.reviews ?? v3.photo?.hero, 0), EMPHASIS_MIN_WIDTH.background, 'v3.photo.reviews');
+  need(pick(v3.photo?.faq, 2), EMPHASIS_MIN_WIDTH.tile, 'v3.photo.faq'); // large framed photo by the FAQ (Jarvis 2026-10-21)
+  if (v3.theme.services === 'tiles') services.forEach((_, n) => {
+    const i = v3.tilePhotos?.[n];
+    if (i != null && !photos[i]) throw new Error(`v3.tilePhotos[${n}] points to photo ${i}, which does not exist`);
+    need(pick(i, n), EMPHASIS_MIN_WIDTH.tile, `v3.tilePhotos[${n}]`);
+  });
 }
 
 /** A saved previews/<slug>.json (what the CLI wrote): the same checks as normalize(), plus the photo records. */
@@ -294,15 +454,16 @@ export function validateSaved(saved) {
     if (p.alt != null && typeof p.alt !== 'string') throw new Error(`photos[${i}].alt must be a string`);
   });
   if (saved.logo != null && (typeof saved.logo !== 'object' || typeof saved.logo.src !== 'string')) throw new Error('logo must be {src, line}');
-  const { data } = normalize({ ...saved, photos: photos.map((p) => ({ path: p.src, alt: p.alt })), logo: saved.logo ? { path: saved.logo.src, line: saved.logo.line } : undefined });
+  const { data } = normalize({ ...saved, photos: photos.map((p) => ({ path: p.src, alt: p.alt, ai: p.ai })), logo: saved.logo ? { path: saved.logo.src, line: saved.logo.line } : undefined });
   if (typeof saved.slug !== 'string') throw new Error('slug is missing');
   // The generator writes the logo as /previews/<slug>/logo.svg|png; nothing else is served.
-  if (data.logo && !new RegExp(`^/previews/${saved.slug.replace(/[^a-z0-9]/g, '')}/logo\\.(?:svg|png)$`).test(data.logo.path)) throw new Error(`logo.src must be /previews/${saved.slug}/logo.svg or .png`);
+  if (data.logo && !new RegExp(`^/previews/${saved.slug.replace(/[^a-z0-9]/g, '')}/logo\\.(?:svg|png|jpe?g)$`).test(data.logo.path)) throw new Error(`logo.src must be /previews/${saved.slug}/logo.svg or .png or .jpg`);
+  if (data.v3 && photos.length) checkEmphasis(data.v3, photos, data.services);
   const { logo: savedLogo, ...rest } = data;
   return {
     ...rest,
     ...(savedLogo ? { logo: { src: savedLogo.path, ...(savedLogo.line ? { line: savedLogo.line } : {}) } } : {}),
     slug: saved.slug,
-    photos: photos.map((p) => ({ src: p.src, width: p.width, height: p.height, ...(p.alt ? { alt: p.alt } : {}) })),
+    photos: photos.map((p) => ({ src: p.src, width: p.width, height: p.height, ...(p.alt ? { alt: p.alt } : {}), ...(p.ai ? { ai: true } : {}) })),
   };
 }

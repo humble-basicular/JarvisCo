@@ -8,6 +8,7 @@
    ===================================================================== */
 
 import { TRACKING_PREFIXES } from './tracking.js';
+import { founderNote } from './founder.js';
 
 const PHONE = '+370 676 99395';
 const PHONE_E164 = '+37067699395';
@@ -25,8 +26,8 @@ export const brand = {
   telHref: `tel:${PHONE_E164}`,
   // `?&body=` works on both Android and iOS (spec §3.4).
   smsHref: `sms:${PHONE_E164}?&body=${encodeURIComponent(SMS_BODY)}`,
-  email: 'jarvisworks.co@gmail.com',
-  emailHref: 'mailto:jarvisworks.co@gmail.com',
+  email: 'matas@jarvisweb.lt',
+  emailHref: 'mailto:matas@jarvisweb.lt',
   gbp: 'https://www.google.com/maps/place/JarvisCo/@55.1680551,22.5645915,8z/data=!4m6!3m5!1s0x46e725ccf8f540d9:0x58d0ee5e75771802!8m2!3d55.1736006!4d23.8832615!16s%2Fg%2F11npf5rgkj',
   facebook: 'https://www.facebook.com/profile.php?id=61562921045681',
   instagram: 'https://www.instagram.com/jarvisworks_co/',
@@ -121,7 +122,7 @@ export const offer = {
     { label: 'Sukūrimas', value: '0 €' },
     { label: 'Domenas', value: '~15 € per metus, registruojamas Jūsų vardu' },
     { label: 'Talpinimas', value: '0 € pirmąsias 60 dienų nuo paleidimo' },
-    { label: 'Mėnesinis mokestis', value: '39 €, jei po 60 dienų nuspręsite tęsti' },
+    { label: 'Mėnesinis mokestis', value: `49 €, jei po 60 dienų nuspręsite tęsti${founderNote}` },
   ],
   ownership: 'Domenas registruojamas Jūsų vardu. Jei atsisakote, domenas, Google profilis, nuotraukos ir tekstai lieka Jums.',
   // Verified in Jarvis's Paslaugos.lt account: €49.99/month, 2026-10-06.
@@ -132,7 +133,7 @@ export const offer = {
     lead: 'Paslaugos.lt PRO kainuoja apie 50 € kas mėnesį (patikrinta 2026-10-06).',
     rows: [
       { label: 'Paslaugos.lt PRO', value: '~600 €', detail: '12 mėn. × ~50 €', share: 100 },
-      { label: 'Svetainė', value: '~405 €', detail: '15 € domenas + 10 mėn. × 39 €', share: 68 },
+      { label: 'Svetainė', value: '~505 €', detail: '15 € domenas + 10 mėn. × 49 €', share: 84 },
     ],
     note: 'Tai suma, jei po 60 nemokamų dienų nuspręsite tęsti. Jei ne, atsisakote ir mokate tik už domeną. Paslaugos.lt atsisakyti nereikia: svetainė – papildomas kanalas, kur klientai kreipiasi tiesiogiai Jums.',
   },
@@ -197,7 +198,7 @@ export const faq = {
     },
     {
       q: 'Kodėl pradžia nemokama?',
-      a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Pirmąsias 60 dienų nuo paleidimo mokate tik už domeną (~15 € per metus). Tada gaunate ataskaitą ir nusprendžiate, ar tęsti už 39 € per mėnesį.',
+      a: `Nes sunku patikėti svetaine, kol nematai rezultato. Pirmąsias 60 dienų nuo paleidimo mokate tik už domeną (~15 € per metus). Tada gaunate ataskaitą ir nusprendžiate, ar tęsti už 49 € per mėnesį${founderNote}.`,
     },
   ],
 };
@@ -361,7 +362,7 @@ export const resultsPage = {
     ogImage: '/assets/og-rezultatai-v4.png',
     title: '20 užklausų per 2 mėnesius – rezultatai ir kaina | jarvisweb.lt',
     description:
-      'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Originalios ekrano kopijos; svetainė nemokama pirmąsias 60 dienų, vėliau 39 € per mėnesį.',
+      'Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė 20 formos užklausų. Originalios ekrano kopijos; svetainė nemokama pirmąsias 60 dienų, vėliau 49 € per mėnesį.',
   },
   hero: {
     eyebrow: 'Rezultatai · arbcut.lt',
@@ -376,7 +377,7 @@ export const resultsPage = {
 export { TRACKING_PREFIXES };
 
 export const footer = {
-  blurb: 'Svetainės vietiniam paslaugų verslui. Pirmąsias 60 dienų nemokamai; vėliau 39 € per mėnesį.',
+  blurb: 'Svetainės vietiniam paslaugų verslui. Pirmąsias 60 dienų nemokamai; vėliau 49 € per mėnesį.',
   contactsTitle: 'Kontaktai',
   linksTitle: 'Puslapiai',
   socialTitle: 'Sekite',

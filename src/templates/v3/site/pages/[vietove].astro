@@ -1,0 +1,16 @@
+---
+import V3Layout from '../../V3Layout.astro';
+import V3Site from '../../V3Site.astro';
+import formScript from '../../form.js?raw';
+import { pageDescription } from '../../../heating/content';
+import { pagedTowns, siteTownLinks, siteTownPage } from '../../../heating/town-pages';
+import { loadBuild } from '../load';
+export function getStaticPaths() { return pagedTowns(loadBuild().data).map((t) => ({ params: { vietove: t.slug } })); }
+const { data: home, site } = loadBuild();
+const { town, data } = siteTownPage(home, Astro.params.vietove!);
+const v3Page = { ...data, faq: [...(data.faq === home.faq ? [] : data.faq ?? []), ...(home.faq ?? [])].slice(0, 6) };
+---
+<V3Layout title={`${data.business} – ${town.name}`} description={pageDescription(data)} theme={home.v3.theme} site={site} logo={data.logo?.src} canonical={`https://${site.domain}/${Astro.params.vietove}/`}>
+  <V3Site data={v3Page} v3={home.v3} site={site} town={town} towns={siteTownLinks(home, '') ?? []} base={home.city} home="/" />
+  <script is:inline set:html={formScript}></script>
+</V3Layout>

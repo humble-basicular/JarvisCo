@@ -1,0 +1,10 @@
+---
+/* One divider style per site (theme.divider). `to` = the colour class of the section below;
+   `flip` mirrors it so consecutive dividers do not all lean the same way. */
+import { DIVIDER_PATH, type Divider } from '../theme';
+interface Props { shape: Divider; to: 'base' | 'accent' | 'white' | 'paper'; from: 'base' | 'accent' | 'white' | 'paper' | 'photo'; flip?: boolean }
+const { shape, to, from, flip } = Astro.props;
+---
+<div class:list={['v3-div', `v3-div--from-${from}`, `v3-div--to-${to}`, flip && 'v3-div--flip']} aria-hidden="true">
+  <svg viewBox="0 0 1440 64" preserveAspectRatio="none"><path d={DIVIDER_PATH[shape]} /></svg>
+</div>

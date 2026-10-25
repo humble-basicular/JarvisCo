@@ -8,6 +8,7 @@ import { MAIN_CTA } from '../data/v4.js';
 import arbcut from '../data/arbcut-proof.json' with { type: 'json' };
 import { BEACON_ENDPOINT, EVENT_TYPES, FORM_ENDPOINT, STORAGE_KEY, TRACKING_PREFIXES } from '../data/tracking.js';
 import { pages, attr, text, textContent, normalized, nodes } from './html.mjs';
+import { toE164 } from '../templates/heating/content.ts';
 
 const built = pages();
 const origin = brand.url;
@@ -101,7 +102,7 @@ for (const route of ['/', '/sildymui', '/noriu', '/rezultatai']) {
     check(block && nodes(block).some((node) => attr(node, 'href') === brand.emailHref), `${route}: missing email in ${container}`);
   }
   check(el.some((node) => attr(node, 'href') === brand.emailHref && normalized(text(node)) === brand.email), `${route}: email address must be readable`);
-  check(/<noscript>(?:(?!<\/noscript>)[\s\S])*mailto:jarvisworks\.co@gmail\.com/.test(page.html), `${route}: noscript email fallback`);
+  check(/<noscript>(?:(?!<\/noscript>)[\s\S])*mailto:matas@jarvisweb\.lt/.test(page.html), `${route}: noscript email fallback`);
   check(attr(named('name')[0], 'value') === undefined, `${route}: name must not be prefilled`);
   check(attr(named('phone')[0], 'required') !== undefined, `${route}: phone must be required without JS (no code)`);
   check(attr(named('files')[0], 'multiple') !== undefined && attr(named('files')[0], 'capture') === undefined, `${route}: files must be multiple and not camera-only`);
@@ -141,7 +142,10 @@ for (const [route, page] of routes) {
     check(!page.nodes.some((node) => node.tagName === 'form' && (attr(node, 'method') ?? 'get').toLowerCase() === 'post'), `${route}: preview form must not post`);
     check(!page.nodes.some((node) => node.tagName === 'meta' && ['jw-site', 'jw-endpoint'].includes(attr(node, 'name'))) && !page.nodes.some((node) => node.tagName === 'script' && attr(node, 'type') === 'module'), `${route}: previews carry no inquiry tracking`);
     const dial = page.nodes.filter((node) => /^(tel|sms):/.test(attr(node, 'href') ?? ''));
-    check(dial.every((node) => attr(node, 'href') === brand.smsHref), `${route}: preview may only link to Matas's SMS, never dial the business`);
+    const slug = route.match(/^\/perziura\/([^/]+)/)?.[1];
+    const input = slug ? JSON.parse(readFileSync(join('previews', `${slug}.json`), 'utf8')) : null;
+    const phone = input?.v3 ? toE164(input.phone) : null;
+    check(dial.every((node) => attr(node, 'href') === brand.smsHref || (phone && attr(node, 'href') === `tel:${phone}`)), `${route}: only approved v3 business calls and Matas's SMS are allowed`);
   }
 }
 // Demo town (GEO) pages: three pages, each with its own title, description and H1, all noindex + PAVYZDYS,

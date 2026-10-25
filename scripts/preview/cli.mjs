@@ -5,12 +5,12 @@
    `npm run preview` without a file still serves dist/ (astro preview). */
 import { spawn } from 'node:child_process';
 import { randomInt } from 'node:crypto';
-import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-import { checkLogoFile, normalize } from './normalize.mjs';
+import { checkLogoFile, cleanLogo, normalize, validateSaved } from './normalize.mjs';
 const args = process.argv.slice(2);
 const input = args.find((a) => a.endsWith('.json'));
 
@@ -50,25 +50,33 @@ async function generate(file) {
     await checkLogoFile(readFileSync(logoFile), extname(logoFile));
   }
 
-  const slug = newSlug();
+  // `--slug <existing>` rebuilds an already shared preview in place (same link for the client).
+  const keep = args.includes('--slug') ? args[args.indexOf('--slug') + 1] : undefined;
+  if (keep !== undefined && !/^[2-9a-hjkmnp-z]{10}$/.test(keep)) throw new Error('--slug must be an existing 10-character preview slug');
+  if (keep !== undefined && !existsSync(join(ROOT, 'previews', `${keep}.json`))) throw new Error(`--slug ${keep}: previews/${keep}.json does not exist`);
+  const slug = keep ?? newSlug();
   const outDir = join(ROOT, 'public', 'previews', slug);
+  // A rebuild writes into a staging folder (git-ignored, not served), is validated as a whole, and only
+  // then swaps in; the previous JSON and assets move to previews/backups/ (nothing is deleted).
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const writeDir = keep ? join(ROOT, 'previews', 'staging', `${slug}-${stamp}`) : outDir;
   const photos = [];
   let logo;
   if (logoFile) {
-    // Copied as is (already checked): /previews/<slug>/logo.svg|png.
+    // Checked above; JPEG/PNG metadata stripped: /previews/<slug>/logo.svg|png|jpg.
     const name = `logo${extname(logoFile).toLowerCase()}`;
-    mkdirSync(outDir, { recursive: true });
-    copyFileSync(logoFile, join(outDir, name));
+    mkdirSync(writeDir, { recursive: true });
+    writeFileSync(join(writeDir, name), await cleanLogo(readFileSync(logoFile), extname(logoFile)));
     logo = { src: `/previews/${slug}/${name}`, ...(data.logo.line ? { line: data.logo.line } : {}) };
   }
   if (data.photos.length) {
     const { default: sharp } = await import('sharp');
-    mkdirSync(outDir, { recursive: true });
+    mkdirSync(writeDir, { recursive: true });
     for (const [i, p] of data.photos.entries()) {
       const name = `${i + 1}.jpg`;
       // Rotate by EXIF, ≤ 1600 px, JPEG, metadata (GPS etc.) stripped.
-      const info = await sharp(p.file).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 80, mozjpeg: true }).toFile(join(outDir, name));
-      photos.push({ src: `/previews/${slug}/${name}`, width: info.width, height: info.height, ...(p.alt ? { alt: p.alt } : {}) });
+      const info = await sharp(p.file).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 80, mozjpeg: true }).toFile(join(writeDir, name));
+      photos.push({ src: `/previews/${slug}/${name}`, width: info.width, height: info.height, ...(p.alt ? { alt: p.alt } : {}), ...(p.ai ? { ai: true } : {}) });
     }
   }
 
@@ -96,12 +104,39 @@ async function generate(file) {
     ...(data.priceNote ? { priceNote: data.priceNote } : {}),
     ...(logo ? { logo } : {}),
     ...(data.towns?.length ? { towns: data.towns } : {}),
+    ...(data.v3 ? { v3: data.v3 } : {}),
     photos,
     ...(submission ? { submission } : {}),
   };
+  try { validateSaved(JSON.parse(JSON.stringify(out))); } catch (e) {
+    throw new Error(`${e.message}${keep ? ` (nothing replaced; staged files left in ${relative(ROOT, writeDir)})` : ''}`);
+  }
   mkdirSync(join(ROOT, 'previews'), { recursive: true });
   const target = join(ROOT, 'previews', `${slug}.json`);
-  writeFileSync(target, `${JSON.stringify(out, null, 2)}\n`);
+  const json = `${JSON.stringify(out, null, 2)}\n`;
+  if (keep) {
+    // Everything new is complete on disk before the live files change; each swap step is a rename and
+    // is undone in reverse order if a later one fails (the JSON rename replaces the old file atomically).
+    const stagedJson = `${writeDir}.json`;
+    writeFileSync(stagedJson, json);
+    const backup = join(ROOT, 'previews', 'backups', `${slug}-${stamp}`);
+    mkdirSync(backup, { recursive: true });
+    copyFileSync(target, join(backup, `${slug}.json`));
+    const oldAssets = join(backup, 'assets');
+    const done = [];
+    try {
+      if (existsSync(outDir)) { renameSync(outDir, oldAssets); done.push('old'); }
+      if (existsSync(writeDir)) { renameSync(writeDir, outDir); done.push('new'); }
+      renameSync(stagedJson, target);
+    } catch (e) {
+      if (done.includes('new')) renameSync(outDir, writeDir);
+      if (done.includes('old')) renameSync(oldAssets, outDir);
+      throw new Error(`${e.message} (rolled back: the previous preview is unchanged; new files stay in ${relative(ROOT, writeDir)})`);
+    }
+    console.log(`Previous version kept in ${relative(ROOT, backup)}/`);
+  } else {
+    writeFileSync(target, json);
+  }
 
   console.log(`Wrote ${relative(ROOT, target)}${photos.length || logo ? ` and ${photos.length} photo(s)${logo ? ' + logo' : ''} in ${relative(ROOT, outDir)}/` : ''}`);
   for (const t of out.towns?.filter((x) => x.text) ?? []) console.log(`Town:   http://localhost:4321/perziura/${slug}/${t.slug}`);

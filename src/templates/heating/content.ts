@@ -17,7 +17,7 @@ export const PROCESSOR = {
   city: 'Kaunas',
   site: 'jarvisweb.lt',
   siteUrl: 'https://jarvisweb.lt',
-  email: 'jarvisworks.co@gmail.com',
+  email: 'matas@jarvisweb.lt',
   retention: 'Cloudflare serveriuose užklausos ir failai ištrinami automatiškai po 12 mėnesių.',
 };
 export const FORM_ENDPOINT = 'https://www.jarvisweb.lt/t/form';

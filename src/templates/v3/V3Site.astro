@@ -1,0 +1,605 @@
+---
+/* Template v3 page (design plan 2026-10-20, "Template v3: section order"):
+   header → hero with quote form → trust strip → [town block] → about → services →
+   process → work gallery → reviews (+ Google profile links) → prices → FAQ → areas + map → photo CTA → footer.
+   Everything comes from SiteData + the `v3` block (content.ts); the theme card picks the
+   look (hero/services layout, font, divider, badge). Absent data → the part is not shown.
+   Client preview call links dial directly; demo call links remain inert. The form is inert
+   (no field names, nothing leaves the page), outbound profile links are plain text. */
+import type { SiteData, TownLink, TownPage } from '../heating/types';
+import { toE164 } from '../heating/content';
+import QuoteForm from './parts/QuoteForm.astro';
+import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, type V3Input, type V3Photo, type V3LiveSite } from './content';
+import Badge from './parts/Badge.astro';
+import Divider from './parts/Divider.astro';
+import Icon from './parts/Icon.astro';
+import { ICON, type IconName } from './icons';
+
+interface Props {
+  data: Omit<SiteData, 'photos'> & { photos: V3Photo[] };
+  v3: V3Input;
+  towns: TownLink[];
+  /** Home page city (town pages re-point data.city to the town). */
+  base: string;
+  /** Town (GEO) page: swaps the H1 place, adds the town block. */
+  town?: TownPage;
+  /** Href of the home page (brand link on town pages). */
+  home?: string;
+  /** Labelled demo with DI illustrations: footer DI line. */
+  demo?: boolean;
+  site?: V3LiveSite;
+}
+const { data, v3, towns, base, town, home = '#pradzia', demo = false, site } = Astro.props;
+const theme = v3.theme;
+const phone = toE164(data.phone);
+const tel = !demo && phone ? `tel:${phone}` : '#uzklausa';
+const d = theme.divider;
+const P = data.photos;
+const at = (i: number | undefined, fallback: number) => P[i ?? fallback] ?? P[fallback % P.length] ?? P[0];
+const hero = at(v3.photo?.hero, 0);
+const aboutPhoto = at(v3.photo?.about, 4);
+const faqPhoto = at(v3.photo?.faq, 2);
+const ctaPhoto = at(v3.photo?.cta, 3);
+const reviewsPhoto = at(v3.photo?.reviews ?? v3.photo?.hero, 0);
+const pins = (v3.photo?.pins ?? [1, 2, 3]).map((i) => P[i]).filter((p) => p && !p.ai).slice(0, 3);
+const gallery = galleryPhotos(P);
+const services = data.services.map((s) => (typeof s === 'string' ? { name: s, text: '' } : { name: s.name, text: s.text ?? '' }));
+const year = new Date().getFullYear();
+const baseLine = v3.baseLine ?? `${base} ir aplink`;
+/* The client's own logo (input `logo`) replaces the generated badge only when v3.clientLogo opts in. */
+const clientLogo = v3.clientLogo && data.logo?.src;
+const logoSize = { width: v3.clientLogo?.width, height: v3.clientLogo?.height };
+/* Two-tone wordmark for camel-case names ("MesElektra" → Mes + accent Elektra). */
+const nameSplit = data.business.match(/^(\p{Ll}*\p{Lu}\p{Ll}+)(\p{Lu}\p{L}+)$/u);
+const h1 = town
+  ? (v3.h1.tail ? { ...v3.h1, tail: town.loc } : { ...v3.h1, hot: town.loc, tail: undefined })
+  : v3.h1;
+const pill = v3.pill ?? data.areas.slice(0, 4).join(' · ');
+const menuNav = () => [
+  ...nav,
+  ...(!demo ? [{ href: '#atsiliepimai', label: 'Atsiliepimai' }] : []),
+  ...(data.faq?.length ? [{ href: '#duk', label: 'D.U.K.' }] : []),
+];
+const nav = [
+  { href: '#paslaugos', label: 'Paslaugos' },
+  { href: '#eiga', label: 'Kaip dirbame' },
+  { href: '#darbai', label: 'Darbai' },
+  ...(data.prices?.length ? [{ href: '#kainos', label: 'Kainos' }] : []),
+  { href: '#vietoves', label: 'Kur dirbame' },
+];
+const map = areaMap(base, towns.map((t) => t.name), town?.name);
+/* Live Google map straight away (no click-to-load). Pin = v3.map.query (GBP name + address once it exists), else the town. */
+const mapQuery = town ? `${town.name}, Lietuva` : v3.map?.query ?? `${base}, Lietuva`;
+const mapZoom = (!town && v3.map?.zoom) || (town ? 12 : map?.zoom ?? 11);
+const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=${mapZoom}&hl=lt&output=embed`;
+const nearby = (town ? town.places : data.areas.filter((a) => !towns.some((t) => t.name === a) && a !== base)).slice(0, 8);
+const MONTHS = ['sausio', 'vasario', 'kovo', 'balandžio', 'gegužės', 'birželio', 'liepos', 'rugpjūčio', 'rugsėjo', 'spalio', 'lapkričio', 'gruodžio'];
+const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]} m. ${MONTHS[+m[2] - 1]} ${+m[3]} d.` : undefined; };
+const reviews = data.reviews ?? [];
+const gbp = v3.gbp ?? {};
+const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => ({ src: p.src, srcset: p.srcset, sizes: p.srcset ? sizes : undefined, width: p.width, height: p.height, decoding: 'async', ...extra });
+// Badge glyphs without a 24 px line icon (rope) fall back to the shield in the hero pill.
+const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconName : 'shield';
+---
+<a class="v3-skip" href="#uzklausa">Pereiti prie užklausos formos</a>
+
+<div class="v3-util">
+  <div class="v3-wrap v3-util__bar">
+    <p><Icon name="pin" />{baseLine}</p>
+    {data.hours && <p class="v3-util__hours"><Icon name="clock" />{data.hours}</p>}
+    {data.email ? <p class="v3-util__mail"><Icon name="mail" />{data.email}</p> : <p class="v3-util__mail"><Icon name="phone" />{data.phone}</p>}
+  </div>
+</div>
+
+<header class="v3-top">
+  <div class="v3-wrap v3-top__bar">
+    <a class:list={["v3-brand", v3.largeWordmark && "v3-brand--large", v3.clientLogo?.showName && "v3-brand--named"]} href={home} aria-label={`${data.business}, pradžia`}>
+      {clientLogo ? (
+        <>
+          <img class="v3-brand__logo" src={clientLogo} alt={data.business} {...logoSize} />
+          <span class="v3-brand__text">{v3.clientLogo?.showName && <span class="v3-brand__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</span>}{!v3.hideTagline && <span class="v3-brand__line">{theme.logo.line}</span>}</span>
+        </>
+      ) : (
+        <>
+          <Badge name={data.business} theme={theme} uid="b-head" size={64} />
+          <span class="v3-brand__text"><span class="v3-brand__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</span>{!v3.hideTagline && <span class="v3-brand__line">{theme.logo.line}</span>}</span>
+        </>
+      )}
+    </a>
+    <nav class="v3-nav" aria-label="Svetainės skyriai">
+      {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+    </nav>
+    <div class="v3-top__ctas">
+      <a class="v3-top__phone" href={tel}><span class="v3-top__phone-ico"><Icon name="phone" /></span><span><span class="v3-top__phone-label">Skambinkite</span><span class="v3-top__phone-num">{data.phone}</span></span></a>
+      <a class="v3-btn v3-btn--accent v3-top__quote" href="#uzklausa" data-quote>Gauti kainą</a>
+      <button class="v3-top__menu" type="button" data-menu-open aria-haspopup="dialog" aria-controls="v3-menu" aria-label="Atidaryti meniu"><Icon name="menu" /></button>
+    </div>
+  </div>
+</header>
+
+<main id="pradzia">
+  <section class:list={['v3-hero', `v3-hero--${theme.hero}`]} aria-labelledby="v3-h1">
+    <img class="v3-hero__bg" {...img(hero, '100vw')} alt="" fetchpriority="high" />
+    <div class="v3-wrap v3-hero__grid">
+      <div class="v3-hero__copy">
+        <p class="v3-pill"><Icon name={pillIcon} />{town ? `${town.name} · ${town.places.slice(0, 3).join(' · ')}` : pill}</p>
+        <h1 id="v3-h1" class="v3-h1">{h1.lead} <span class="v3-hot">{h1.hot}</span>{h1.tail && ` ${h1.tail}`}</h1>
+        <p class="v3-hero__lead">{data.lead}</p>
+        <div class="v3-hero__ctas">
+          <a class="v3-btn v3-btn--accent v3-btn--lg" href={tel}><Icon name="phone" />Skambinti {data.phone}</a>
+          <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa" data-quote>Gauti kainą</a>
+        </div>
+        <ul class="v3-checks">
+          {v3.heroChecks.map((c) => <li><Icon name="check" />{c}</li>)}
+        </ul>
+        {theme.hero === 'panel' && pins.length > 0 && (
+          <figure class="v3-pins">
+            <ul>{pins.map((p) => <li><img {...img(p, '10rem')} alt={p.alt ?? ''} loading="lazy" /></li>)}</ul>
+            <figcaption><Icon name="camera" />Tikros mūsų darbų nuotraukos</figcaption>
+          </figure>
+        )}
+      </div>
+
+      <div class="v3-quote" id="uzklausa">
+        <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-form"  badge={!clientLogo} clientLogo={clientLogo && v3.clientLogo?.formBadge ? { src: clientLogo, ...logoSize } : undefined} site={site} />
+      </div>
+    </div>
+    <Divider shape={d} from="photo" to="accent" />
+  </section>
+
+  <section class="v3-trust" aria-label="Kodėl mes">
+    <ul class="v3-wrap v3-trust__list" style={`--n:${v3.trust.length}`}>
+      {v3.trust.map((t) => (
+        <li><span class="v3-trust__ico"><Icon name={t.icon} /></span><span><strong>{t.title}</strong><span>{t.text}</span></span></li>
+      ))}
+    </ul>
+  </section>
+  <Divider shape={d} from="accent" to="white" flip />
+
+  {town && (
+    <section class="v3-sec v3-town" id="aptarnavimas" aria-labelledby="v3-town">
+      <div class="v3-wrap v3-town__grid">
+        <div>
+          <p class="v3-kicker">{town.label ?? town.name}</p>
+          <h2 id="v3-town" class="v3-h2">{town.heading}</h2>
+          <p class="v3-town__text">{town.text}</p>
+          {town.note && <p class="v3-town__note"><Icon name="verified" />{town.note}</p>}
+          <p class="v3-town__back"><a href={home}><Icon name="arrow" class="v3-town__back-ico" />Visos paslaugos ir vietovės</a></p>
+        </div>
+        <aside class="v3-town__card">
+          {town.distance && <p class="v3-town__dist"><Icon name="pin" />{town.distance}</p>}
+          {!!town.services?.length && (
+            <>
+              <p class="v3-town__h">Dažni darbai {town.loc}</p>
+              <ul class="v3-town__list">{town.services.map((s) => <li><span class="v3-ticks__ico"><Icon name={serviceIcon(s)} /></span>{s}</li>)}</ul>
+            </>
+          )}
+          {town.places.length > 0 && (
+            <>
+              <p class="v3-town__h">Važiuojame ir į</p>
+              <ul class="v3-town__places">{town.places.map((p) => <li>{p}</li>)}</ul>
+            </>
+          )}
+        </aside>
+      </div>
+    </section>
+  )}
+
+  <section class="v3-sec v3-about" aria-labelledby="v3-about">
+    <div class="v3-wrap v3-about__grid">
+      <div class="v3-about__media">
+        <img {...img(aboutPhoto, '(min-width: 64rem) 34rem, 92vw')} alt={aboutPhoto.alt ?? ''} loading="lazy" />
+        <div class="v3-about__stamp">
+          {clientLogo ? <span class="v3-logo-plate v3-logo-plate--stamp"><img src={clientLogo} alt="" {...logoSize} /></span> : <Badge name={data.business} theme={theme} uid="b-about" size={96} />}
+          <p><strong>{v3.stamp?.title ?? data.business}</strong><span>{v3.stamp?.text ?? baseLine}</span></p>
+        </div>
+      </div>
+      <div class="v3-about__copy">
+        <p class="v3-kicker">Apie mus</p>
+        <h2 id="v3-about" class="v3-h2">{v3.aboutTitle}</h2>
+        {data.about && <p class="v3-about__text">{data.about}</p>}
+        {!!v3.aboutChecks?.length && (
+          <ul class="v3-ticks">
+            {v3.aboutChecks.map((c) => <li><span class="v3-ticks__ico"><Icon name="check" /></span>{c}</li>)}
+          </ul>
+        )}
+        {!!v3.links?.length && (
+          <div class="v3-find">
+            <p>Rasite mus:</p>
+            <ul>{v3.links.map((l) => <li>{l.url ? <a href={l.url} rel="noopener" target="_blank"><Icon name={LINK_ICON[l.kind]} />{LINK_LABEL[l.kind]}</a> : <><Icon name={LINK_ICON[l.kind]} />{LINK_LABEL[l.kind]}</>}</li>)}</ul>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="v3-sec v3-sec--paper" id="paslaugos" aria-labelledby="v3-services">
+    <div class="v3-wrap">
+      <header class="v3-head">
+        <p class="v3-kicker">Paslaugos</p>
+        <h2 id="v3-services" class="v3-h2">Ką atliekame</h2>
+      </header>
+      {theme.services === 'tiles' ? (
+        <ul class="v3-tiles">
+          {services.map((s, i) => {
+            const p = at(v3.tilePhotos?.[i], i);
+            return (
+              <li class="v3-tile">
+                <a href="#uzklausa" data-quote>
+                  <img {...img(p, '(min-width: 64rem) 24rem, (min-width: 40rem) 46vw, 92vw')} alt="" loading="lazy" />
+                  <span class="v3-tile__body">
+                    <span class="v3-tile__name">{s.name}</span>
+                    <span class="v3-tile__text">{s.text}</span>
+                  </span>
+                  <span class="v3-tile__go"><Icon name="arrow" /></span>
+                </a>
+              </li>
+            );
+          })}
+          <li class="v3-tile v3-tile--cta">
+            <div>
+              <Icon name="phone" class="v3-tile__big" />
+              <p class="v3-tile__name">Neradote reikiamos paslaugos?</p>
+              <p class="v3-tile__text">Paskambinkite – aptarsime, kuo galime padėti.</p>
+              <a class="v3-btn v3-btn--white" href={tel}>{data.phone}</a>
+            </div>
+          </li>
+        </ul>
+      ) : (
+        <ul class="v3-cards">
+          {services.map((s) => (
+            <li class="v3-card">
+              <span class="v3-card__ico"><Icon name={serviceIcon(s.name)} /></span>
+              <h3 class="v3-card__name">{s.name}</h3>
+              {s.text && <p class="v3-card__text">{s.text}</p>}
+              <a class="v3-card__go" href="#uzklausa" data-quote>Aptarti darbą<Icon name="arrow" /></a>
+            </li>
+          ))}
+          <li class="v3-card v3-card--cta">
+            <Icon name="phone" class="v3-tile__big" />
+            <p class="v3-card__name">Neradote reikiamos paslaugos?</p>
+            <p class="v3-card__text">Paskambinkite – aptarsime, kuo galime padėti.</p>
+            <a class="v3-btn v3-btn--white" href={tel}>{data.phone}</a>
+          </li>
+        </ul>
+      )}
+      {!!data.brands?.length && (
+        <div class="v3-brands">
+          <p>Taisome ir prižiūrime:</p>
+          <ul>{data.brands.map((b) => <li>{b}</li>)}</ul>
+        </div>
+      )}
+    </div>
+  </section>
+  <Divider shape={d} from="paper" to="base" />
+
+  <section class={`v3-sec v3-steps v3-steps--${theme.process ?? 'line'}`} id="eiga" aria-labelledby="v3-process">
+    <div class="v3-wrap">
+      <header class="v3-head v3-head--center">
+        <p class="v3-kicker v3-kicker--hi">Kaip dirbame</p>
+        <h2 id="v3-process" class="v3-h2">{v3.stepsTitle ?? 'Nuo skambučio iki atlikto darbo'}</h2>
+      </header>
+      <ol class="v3-steps__list" style={`--n:${v3.steps.length}`}>
+        {v3.steps.map((s, i) => (
+          theme.process === 'chevron' ? (
+            <li>
+              <span class="v3-steps__ico"><Icon name={s.icon} /><span class="v3-steps__n">{i + 1}</span></span>
+              <span class="v3-steps__stem" aria-hidden="true"></span>
+              <div class="v3-steps__tag"><h3>{s.title}</h3></div>
+              <p>{s.text}</p>
+            </li>
+          ) : (
+            <li>
+              <span class="v3-steps__ico"><Icon name={s.icon} /><span class="v3-steps__n">{i + 1}</span></span>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          )
+        ))}
+      </ol>
+      <p class="v3-steps__cta"><a class="v3-btn v3-btn--accent v3-btn--lg" href="#uzklausa" data-quote>Pradėti nuo 1 žingsnio</a></p>
+    </div>
+  </section>
+  <Divider shape={d} from="base" to="white" flip />
+
+  <section class="v3-sec v3-gallery" id="darbai" aria-labelledby="v3-works">
+    <div class="v3-wrap">
+      <header class="v3-head v3-head--row">
+        <div>
+          <p class="v3-kicker">Darbai</p>
+          <h2 id="v3-works" class="v3-h2">Atlikti darbai</h2>
+        </div>
+        {v3.galleryNote && <p class="v3-gallery__note">{v3.galleryNote}</p>}
+      </header>
+      <ul class="v3-masonry">
+        {gallery.map((p, i) => (
+          <li class={`v3-masonry__${i}`}>
+            <img {...img(p, i === 0 ? '(min-width: 64rem) 36rem, 92vw' : '(min-width: 64rem) 18rem, 46vw')} alt={p.alt ?? ''} loading="lazy" />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  {/* Client sites only: the labelled demo carries no testimonials, not even the pending Google box.
+     Real quotes only; stars only when the source shows a rating (review.rating). */}
+  {!demo && (reviews.length > 0 || gbp.url || gbp.reviewUrl || !v3.hidePendingGoogle) && (
+    <section class="v3-reviews" id="atsiliepimai" aria-labelledby="v3-reviews">
+      <img class="v3-reviews__bg" {...img(reviewsPhoto, '100vw')} alt="" loading="lazy" />
+      <div class="v3-wrap">
+        <header class="v3-reviews__head">
+          <div>
+            <p class="v3-reviews__kicker">Ką sako klientai</p>
+            <h2 id="v3-reviews" class="v3-h2">Atsiliepimai</h2>
+          </div>
+          <span class="v3-reviews__rule" aria-hidden="true"></span>
+          <a class="v3-btn v3-btn--white" href="#uzklausa" data-quote>Susisiekti<Icon name="arrow" /></a>
+        </header>
+        {reviews.length > 0 && (
+          <div class="v3-reviews__slider">
+            <ul class:list={['v3-reviews__list', reviews.length < 3 && `is-${reviews.length}`]} data-reviews tabindex="0" aria-label="Atsiliepimai">
+              {reviews.map((r) => (
+                <li class="v3-rcard">
+                  {r.rating && <p class="v3-rcard__stars" aria-label={`Įvertinimas ${r.rating} iš 5`}><strong>{r.rating}</strong><span aria-hidden="true">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span></p>}
+                  <blockquote><p>{r.text}</p></blockquote>
+                  <footer>
+                    <span><strong>{r.name}</strong>{ltDate(r.date) && <span>{ltDate(r.date)}</span>}</span>
+                    {r.source && (r.url ? <a href={r.url} rel="noopener" target="_blank">{r.source}</a> : <span>{r.source}</span>)}
+                  </footer>
+                </li>
+              ))}
+            </ul>
+            {reviews.length > 1 && (
+              <p class="v3-reviews__nav" data-reviews-nav hidden>
+                <button type="button" data-reviews-prev aria-label="Ankstesni atsiliepimai"><Icon name="arrow" /></button>
+                <button type="button" data-reviews-next aria-label="Kiti atsiliepimai"><Icon name="arrow" /></button>
+              </p>
+            )}
+          </div>
+        )}
+        {(!v3.hidePendingGoogle || gbp.url || gbp.reviewUrl) && <div class="v3-reviews__google">
+          <p class="v3-reviews__gtitle">Įvertinkite mus Google</p>
+          {gbp.reviewUrl && <p class="v3-reviews__gstars" aria-hidden="true">☆☆☆☆☆</p>}
+          {gbp.reviewUrl
+            ? <a class="v3-btn v3-btn--accent v3-btn--lg" href={gbp.reviewUrl} rel="noopener" target="_blank">Palikti atsiliepimą</a>
+            : <p class="v3-reviews__soon">Google profilis ruošiamas – atsiliepimus galėsite palikti netrukus</p>}
+          {gbp.url && <a class="v3-reviews__all" href={gbp.url} rel="noopener" target="_blank">Visi atsiliepimai Google</a>}
+        </div>}
+      </div>
+    </section>
+  )}
+
+  {!!data.prices?.length && (
+    <section class="v3-sec v3-sec--paper v3-prices" id="kainos" aria-labelledby="v3-prices">
+      <div class="v3-wrap v3-prices__grid">
+        <div>
+          <p class="v3-kicker">Kainos</p>
+          <h2 id="v3-prices" class="v3-h2">Kainos be staigmenų</h2>
+          <table class="v3-price">
+            <tbody>
+              {data.prices.map((p) => (
+                <tr><th scope="row">{p.name}{p.note && <span>{p.note}</span>}</th><td>{p.price}</td></tr>
+              ))}
+            </tbody>
+          </table>
+          {data.priceNote && <p class="v3-prices__note">{data.priceNote}</p>}
+          {v3.priceFootnote && <p class="v3-prices__note v3-prices__footnote">* {v3.priceFootnote}</p>}
+        </div>
+        {v3.promise && (
+          <aside class="v3-promise">
+            <span class="v3-promise__ico"><Icon name="tag" /></span>
+            <p class="v3-promise__title">{v3.promise.title}</p>
+            <p>{v3.promise.text}</p>
+            <a class="v3-btn v3-btn--accent" href="#uzklausa" data-quote>Sužinoti kainą</a>
+          </aside>
+        )}
+      </div>
+    </section>
+  )}
+
+  {!!data.faq?.length && (
+    <section class="v3-sec v3-faq" id="duk" aria-labelledby="v3-faq">
+      <div class="v3-wrap v3-faq__grid">
+        <div class="v3-faq__media">
+          <img {...img(faqPhoto, '(min-width: 64rem) 28rem, 92vw')} alt="" loading="lazy" />
+          <div class="v3-faq__call">
+            <p>Neradote atsakymo?</p>
+            <a href={tel}><Icon name="phone" />{data.phone}</a>
+          </div>
+        </div>
+        <div>
+          <p class="v3-kicker">D.U.K.</p>
+          <h2 id="v3-faq" class="v3-h2">Dažniausi klausimai</h2>
+          <div class="v3-acc">
+            {data.faq.map((f, i) => (
+              <details open={i === 0}>
+                <summary>{f.q}<span class="v3-acc__plus" aria-hidden="true"></span></summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="v3-sec v3-sec--paper v3-areas" id="vietoves" aria-labelledby="v3-areas">
+    <div class="v3-wrap v3-areas__grid">
+      <div>
+        <p class="v3-kicker">Kur dirbame</p>
+        <h2 id="v3-areas" class="v3-h2">{v3.areasTitle ?? `${[base, ...towns.map((t) => t.name).filter((n) => n !== base)].slice(0, 3).join(', ')} ir aplinkui`}</h2>
+        {v3.areasText && <p class="v3-areas__text">{v3.areasText}</p>}
+        <ul class="v3-cities" id="miestai">
+          {towns.map((t) => (
+            <li><a href={t.href} aria-current={town?.name === t.name ? 'page' : undefined}><span class="v3-cities__ico"><Icon name="pin" /></span><span><strong>{t.name}</strong><span>{v3.townLabel ?? 'Darbai'} {t.loc}</span></span><Icon name="arrow" class="v3-cities__go" /></a></li>
+          ))}
+        </ul>
+        {nearby.length > 0 && <p class="v3-areas__also">Taip pat: {nearby.join(' · ')}</p>}
+        <p class="v3-areas__unsure">Nerandate savo vietovės? <a href="#uzklausa" data-quote>Parašykite</a> – pasakysime, ar atvyksime.</p>
+      </div>
+      <figure class="v3-map">
+        <div class="v3-map__frame">
+          {!site ? <iframe src={mapSrc} title={`Google žemėlapis: ${mapQuery}`} loading="eager" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+            : site.mapMode === 'consent' ? <div class="v3-map-consent"><p>Žemėlapį teikia Google. Jį įjungus duomenys perduodami Google.</p><button type="button" class="v3-btn v3-btn--accent" data-map-src={mapSrc} data-map-title={`Google žemėlapis: ${mapQuery}`}>Rodyti žemėlapį</button><a href="/privatumo-politika/">Privatumo politika</a></div>
+            : <p class="v3-map-consent">{baseLine}</p>}
+        </div>
+        <figcaption><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`} rel="noopener" target="_blank">Atidaryti Google Maps</a></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="v3-cta" aria-labelledby="v3-cta">
+    <img class="v3-cta__bg" {...img(ctaPhoto, '100vw')} alt="" loading="lazy" />
+    <Divider shape={d} from="photo" to="paper" />
+    <div class="v3-wrap v3-cta__body">
+      <h2 id="v3-cta" class="v3-h2">{v3.ctaTitle}</h2>
+      <p>{v3.ctaText}</p>
+      <div class="v3-hero__ctas v3-cta__ctas">
+        <a class="v3-btn v3-btn--white v3-btn--lg" href={tel}><Icon name="phone" />{data.phone}</a>
+        <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa" data-quote>Gauti kainą</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="v3-foot" id="kontaktai">
+  <div class="v3-wrap v3-foot__grid">
+    <div class="v3-foot__brand">
+      {clientLogo ? <span class="v3-logo-plate"><img src={clientLogo} alt={data.business} {...logoSize} /></span> : <><Badge name={data.business} theme={theme} uid="b-foot" size={112} /><p class="v3-foot__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</p></>}
+      {!v3.hideTagline && <p>{theme.logo.line}</p>}
+      <a class="v3-btn v3-btn--accent" href={tel}><Icon name="phone" />{data.phone}</a>
+    </div>
+    <div>
+      <p class="v3-foot__h">Paslaugos</p>
+      <ul>{services.map((s) => <li><a href="#paslaugos">{s.name}</a></li>)}</ul>
+    </div>
+    <div>
+      <p class="v3-foot__h">Vietovės</p>
+      <ul>{towns.map((t) => <li><a href={t.href}>{t.name}</a></li>)}</ul>
+    </div>
+    <div>
+      <p class="v3-foot__h">Kontaktai</p>
+      <ul class="v3-foot__contact">
+        <li><Icon name="phone" />{data.phone}</li>
+        {data.email && <li><Icon name="mail" />{data.email}</li>}
+        {data.hours && <li><Icon name="clock" />{data.hours}</li>}
+        <li><Icon name="pin" />{baseLine}</li>
+      </ul>
+    </div>
+  </div>
+  <div class="v3-wrap v3-foot__legal">
+    <p>© {year} {data.business} · {site ? <a href="/privatumo-politika/">Privatumo politika</a> : <span>Privatumo politika</span>}</p>
+    <p>{demo && 'Dalis iliustracijų sukurta DI. · '}Programavimas: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
+  </div>
+</footer>
+
+<dialog class="v3-modal" data-quote-modal aria-labelledby="v3-modal-title">
+  <div class="v3-quote v3-quote--modal">
+    <button class="v3-modal__x" type="button" data-quote-close aria-label="Uždaryti"><span aria-hidden="true">×</span></button>
+    <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-modal" titleId="v3-modal-title"  badge={!clientLogo} clientLogo={clientLogo && v3.clientLogo?.formBadge ? { src: clientLogo, ...logoSize } : undefined} site={site} />
+  </div>
+</dialog>
+
+{/* Mobile/tablet menu: full-screen sheet opened by the header menu button. */}
+<dialog class="v3-menu" id="v3-menu" data-menu aria-label="Meniu">
+  <div class="v3-menu__panel">
+    <div class="v3-menu__top">
+      <p class="v3-menu__brand"><strong>{data.business}</strong>{!v3.hideTagline && <span>{theme.logo.line}</span>}</p>
+      <button class="v3-menu__x" type="button" data-menu-close aria-label="Uždaryti meniu"><Icon name="close" /></button>
+    </div>
+    <nav class="v3-menu__nav" aria-label="Meniu">
+      {menuNav().map((n, i) => <a href={n.href} data-menu-link><span class="v3-menu__no">{String(i + 1).padStart(2, '0')}</span><span class="v3-menu__label">{n.label}</span><Icon name="arrow" /></a>)}
+    </nav>
+    <div class="v3-menu__ctas">
+      <a class="v3-btn v3-btn--accent v3-btn--lg" href="#uzklausa" data-quote>Gauti kainą<Icon name="arrow" /></a>
+      <a class="v3-btn v3-btn--ghost v3-btn--lg" href={tel} data-menu-link><Icon name="phone" />{data.phone}</a>
+    </div>
+    <p class="v3-menu__base"><Icon name="pin" />{baseLine}</p>
+  </div>
+</dialog>
+
+<div class="v3-dock is-hidden" data-dock role="group" aria-label="Greiti veiksmai">
+  <a class="v3-btn v3-btn--accent" href={tel}><Icon name="phone" />Skambinti</a>
+  <a class="v3-btn v3-btn--white" href="#uzklausa" data-quote>Gauti kainą<Icon name="arrow" /></a>
+</div>
+
+<script is:inline>
+  (function () {
+    document.querySelectorAll('[data-map-src]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var frame = document.createElement('iframe');
+        frame.src = button.getAttribute('data-map-src');
+        frame.title = button.getAttribute('data-map-title');
+        frame.referrerPolicy = 'no-referrer';
+        frame.allowFullscreen = true;
+        button.parentElement.replaceWith(frame);
+      });
+    });
+    document.querySelectorAll('[data-inert-form]').forEach(function (form) {
+      form.addEventListener('submit', function (e) { e.preventDefault(); var n = form.querySelector('[data-inert-note]'); if (n) n.hidden = false; });
+    });
+    // Every "Gauti kainą" / "Aptarti darbą" link opens the focused quote dialog; without <dialog> it falls back to #uzklausa.
+    var menu = document.querySelector('[data-menu]');
+    var modal = document.querySelector('[data-quote-modal]');
+    if (menu && typeof menu.showModal === 'function') {
+      document.querySelectorAll('[data-menu-open]').forEach(function (b) {
+        b.addEventListener('click', function () { menu.showModal(); document.documentElement.classList.add('v3-locked'); });
+      });
+      menu.addEventListener('click', function (e) {
+        if (e.target === menu || e.target.closest('[data-menu-close]') || e.target.closest('[data-menu-link]')) menu.close();
+      });
+      menu.addEventListener('close', function () { if (!(modal && modal.open)) document.documentElement.classList.remove('v3-locked'); });
+    }
+    if (modal && typeof modal.showModal === 'function') {
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('[data-quote]');
+        if (!a) return;
+        e.preventDefault();
+        if (menu && menu.open) menu.close();
+        modal.showModal();
+        document.documentElement.classList.add('v3-locked');
+        var f = modal.querySelector('input:not([type=hidden]):not([tabindex="-1"])'); if (f) f.focus();
+      });
+      modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-quote-close]')) modal.close(); });
+      modal.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); });
+    }
+    // Review arrows: shown only while the cards overflow; disabled at either end.
+    var list = document.querySelector('[data-reviews]');
+    var nav = document.querySelector('[data-reviews-nav]');
+    if (list && nav) {
+      var prev = nav.querySelector('[data-reviews-prev]'), next = nav.querySelector('[data-reviews-next]');
+      var sync = function () {
+        var max = list.scrollWidth - list.clientWidth;
+        nav.hidden = max < 2;
+        prev.disabled = list.scrollLeft < 2;
+        next.disabled = list.scrollLeft > max - 2;
+      };
+      prev.addEventListener('click', function () { list.scrollBy({ left: -list.clientWidth, behavior: 'smooth' }); });
+      next.addEventListener('click', function () { list.scrollBy({ left: list.clientWidth, behavior: 'smooth' }); });
+      list.addEventListener('scroll', sync, { passive: true });
+      window.addEventListener('resize', sync);
+      sync();
+    }
+    // Mobile action bar: appears only after the hero buttons scroll away, hides again over the quote form.
+    // Geometry check on load, scroll and resize (an observer alone misses instant anchor jumps).
+    var dock = document.querySelector('[data-dock]');
+    var heroCtas = document.querySelector('.v3-hero__ctas');
+    var q = document.getElementById('uzklausa');
+    if (dock && heroCtas) {
+      var queued = false;
+      var syncDock = function () {
+        queued = false;
+        var past = heroCtas.getBoundingClientRect().bottom < 0;
+        var r = q && q.getBoundingClientRect();
+        var overForm = !!r && r.top < innerHeight * 0.75 && r.bottom > innerHeight * 0.25;
+        dock.classList.toggle('is-hidden', !past || overForm);
+      };
+      var queue = function () { if (!queued) { queued = true; requestAnimationFrame(syncDock); } };
+      addEventListener('scroll', queue, { passive: true });
+      addEventListener('resize', queue);
+      addEventListener('pageshow', queue);
+      addEventListener('hashchange', queue);
+      syncDock();
+    }
+  })();
+</script>

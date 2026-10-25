@@ -6,6 +6,9 @@ import type { GetStaticPaths } from 'astro';
 import { brand } from '@data/content.js';
 import HeatingLayout from '../../../templates/heating/HeatingLayout.astro';
 import HeatingSite from '../../../templates/heating/HeatingSite.astro';
+import V3Layout from '../../../templates/v3/V3Layout.astro';
+import V3Site from '../../../templates/v3/V3Site.astro';
+import type { V3Input } from '../../../templates/v3/content';
 import { pageDescription } from '../../../templates/heating/content';
 import { pagedTowns, siteTownLinks, siteTownPage } from '../../../templates/heating/town-pages';
 import type { SiteData } from '../../../templates/heating/types';
@@ -24,7 +27,15 @@ const { data: home, vietove } = Astro.props;
 const { town, data } = siteTownPage(home, vietove);
 const base = `/perziura/${home.slug}`;
 const banner = { tag: 'PERŽIŪRA', note: 'Svetainės juodraštis, paruoštas jarvisweb.lt', href: brand.smsHref, label: 'Parašyti Matui' };
+const v3 = (home as SiteData & { v3?: V3Input }).v3;
+const v3Page = v3 && { ...data, faq: [...(data.faq === home.faq ? [] : data.faq ?? []), ...(home.faq ?? [])].slice(0, 6) };
 ---
+{v3 && v3Page ? (
+<V3Layout title={`${data.business} – ${town.name} – peržiūra`} description={pageDescription(data)} theme={v3.theme} banner={banner}>
+  <V3Site data={v3Page} v3={v3} towns={siteTownLinks(home, base) ?? []} base={home.city} town={town} home={base} />
+</V3Layout>
+) : (
 <HeatingLayout mode="preview" title={`${data.business} – ${town.name} – peržiūra`} description={pageDescription(data)} business={data.business} accent={data.accent} logo={data.logo?.src} banner={banner}>
   <HeatingSite data={data} mode="preview" town={town} towns={siteTownLinks(home, base)} home={base} />
 </HeatingLayout>
+)}
