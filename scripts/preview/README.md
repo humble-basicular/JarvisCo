@@ -148,7 +148,7 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
 - Copy: `h1`, `heroChecks`, `trust` (3–5), `aboutTitle`, `steps` (3–5), `ctaTitle`, `ctaText` are required;
   only the client's own facts (no invented reviews, numbers, warranties).
 - Theme options (2026-10-21 batch): `heading` `archivo-black` | `barlow-condensed` | `space-grotesk`;
-  `divider` `angle` | `wave` | `zigzag` (electric) | `notch` (camera-frame step); `logo.glyph` `flame` | `drop` |
+  `divider` `angle` | `wave` | `zigzag` (electric) | `notch` (camera-frame step) | `grass` (lawn edge, 2026-10-25); `logo.glyph` `flame` | `drop` |
   `bolt` | `lens`. Extra card icons: `bolt`, `lens`, `wifi`, `shield`.
 - `theme.process` (optional): `line` (default; icon circles + dashed arrows), `chevron` (icon on a stem above arrow
   ribbons), `frames` (numbered cards with camera-frame corners). Each site gets one no recent site used.

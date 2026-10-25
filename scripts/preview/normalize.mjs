@@ -258,7 +258,7 @@ function isPhone(value) {
 const V3_ENUMS = {
   archetype: ['water', 'heat', 'outdoor', 'heavy', 'electric', 'clean', 'craft'],
   heading: ['archivo-black', 'barlow-condensed', 'space-grotesk'],
-  divider: ['angle', 'wave', 'zigzag', 'notch'],
+  divider: ['angle', 'wave', 'zigzag', 'notch', 'grass'],
   hero: ['photo', 'panel'],
   services: ['tiles', 'cards'],
   process: ['line', 'chevron', 'frames'],
