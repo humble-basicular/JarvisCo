@@ -127,6 +127,11 @@ await checkAsync('logo files: plain SVG/PNG pass; scripts, handlers, external re
   ]) await assert.rejects(() => checkLogoFile(Buffer.from(bad), '.svg'), /logo/, bad);
   await assert.rejects(() => checkLogoFile(Buffer.from('<svg></svg>'), '.png'), /not a PNG/);
   await assert.rejects(() => checkLogoFile(Buffer.alloc(201 * 1024, 32), '.svg'), /200 KB/);
+  // Approved wide PNG lockups are 440–620 KB of exact bytes: PNG may reach 1 MB, SVG stays at 200 KB.
+  const big = await sharp({ create: { width: 700, height: 240, channels: 3, noise: { type: 'gaussian', mean: 128, sigma: 60 } } }).png({ compressionLevel: 0 }).toBuffer();
+  assert.ok(big.length > 200 * 1024 && big.length < 1024 * 1024, `fixture ${big.length}`);
+  await checkLogoFile(big, '.png');
+  await assert.rejects(() => checkLogoFile(Buffer.concat([big, Buffer.alloc(1024 * 1024)]), '.png'), /1 MB/);
 });
 check('towns: ASCII slugs, unique, not reserved; only towns with text get a page', () => {
   assert.equal(townSlug('Kėdainiai'), 'kedainiai');

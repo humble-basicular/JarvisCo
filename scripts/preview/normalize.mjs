@@ -160,9 +160,11 @@ function logo(value) {
 
 /** A logo file is published on jarvisweb.lt and on the client's domain, and a browser that opens an SVG
  *  directly runs its scripts. Accept only plain drawing SVGs (no script, event handler, external or
- *  javascript: reference, foreignObject, entity) and real PNGs; both ≤ 200 KB. */
+ *  javascript: reference, foreignObject, entity) and real PNGs; SVG/JPEG ≤ 200 KB, PNG ≤ 1 MB. */
 export async function checkLogoFile(buffer, ext) {
-  if (buffer.length > 200 * 1024) throw new Error('logo file is larger than 200 KB');
+  // Approved raster lockups ship as exact PNG bytes (several hundred KB); SVG stays a small static drawing.
+  const png = /^\.?png$/i.test(ext);
+  if (buffer.length > (png ? 1024 : 200) * 1024) throw new Error(`logo file is larger than ${png ? '1 MB' : '200 KB'}`);
   if (/^\.?jpe?g$/i.test(ext)) {
     if (buffer[0] !== 0xff || buffer[1] !== 0xd8 || buffer[2] !== 0xff) throw new Error('logo .jpg is not a JPEG file');
     await decodeLogo(buffer, 'jpeg');
