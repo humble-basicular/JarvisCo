@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync,
+import { closeSync, existsSync, fstatSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync,
   realpathSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -11,6 +11,7 @@ const fail = code => { throw new LaunchError(code); };
 const sha = value => createHash('sha256').update(value).digest('hex');
 const json = path => JSON.parse(readFileSync(path, 'utf8'));
 const inside = (root, path) => path === root || path.startsWith(root + sep);
+const sourcePaths = ['src', 'scripts', 'package.json', 'package-lock.json', 'astro.config.mjs'];
 
 // Reject symlinks below the explicitly selected root, including absent output components.
 function safePath(root, rel, kind) {
@@ -27,10 +28,20 @@ function safePath(root, rel, kind) {
   return path;
 }
 
-function git(root, args) {
+function git(root, args, { failureCode = 'frontend-git-check-failed', raw = false } = {}) {
   const result = spawnSync('git', ['-C', root, ...args], { encoding: 'utf8', timeout: 15000, maxBuffer: 8 * 1024 * 1024 });
-  if (result.status !== 0 || result.error) fail('frontend-git-check-failed');
-  return result.stdout.trim();
+  if (result.status !== 0 || result.error) fail(failureCode);
+  return raw ? result.stdout : result.stdout.trim();
+}
+
+function sourceDirtiness(frontend) {
+  const records = git(frontend, ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--', ...sourcePaths], { raw: true }).split('\0').filter(Boolean);
+  let count = 0;
+  for (let i = 0; i < records.length; i++) {
+    count++;
+    if (/[RC]/.test(records[i].slice(0, 2))) i++; // A rename/copy has a second NUL-delimited path.
+  }
+  return { frontendDirty: count > 0, frontendDirtyCount: count };
 }
 
 // Includes untracked source, preview data/media and dirty tracked bytes, not just HEAD.
@@ -61,7 +72,7 @@ function loadState(path) {
   catch { fail('invalid-receipt'); }
 }
 
-function evidenceGates(root, path, identity, fingerprint) {
+function evidenceGates(root, path, identity, fingerprint, inputFiles) {
   const gates = Object.fromEntries(gateNames.map(name => [name, 'pending']));
   if (!existsSync(path)) return gates;
   let evidence;
@@ -74,7 +85,14 @@ function evidenceGates(root, path, identity, fingerprint) {
     if (!Number.isFinite(Date.parse(item.checkedAt)) || Date.parse(item.checkedAt) > Date.now() ||
         !Array.isArray(item.files) || !item.files.length) fail('invalid-gate-evidence');
     for (const file of item.files) {
-      if (typeof file.path !== 'string' || isAbsolute(file.path) || file.path.startsWith('batch-orchestration/')) fail('invalid-evidence-path');
+      if (typeof file.path !== 'string' || isAbsolute(file.path)) fail('invalid-evidence-path');
+      // Resolve dot segments first, then conservatively fold Unicode/case for APFS aliases.
+      // Check exclusions before existence so a case alias is denied even on case-sensitive filesystems.
+      const folded = value => resolve(value).normalize('NFD').toLowerCase();
+      const candidate = folded(resolve(root, file.path));
+      const directories = ['launch/batch-orchestration', 'batch-orchestration', 'client-sites'];
+      if (directories.some(dir => inside(folded(resolve(root, dir)), candidate)) ||
+          [...inputFiles, path].some(input => folded(input) === candidate)) fail('runner-file-not-external-evidence');
       const ref = safePath(root, file.path, 'file');
       if (!lstatSync(ref).size || sha(readFileSync(ref)) !== file.sha256) fail('gate-evidence-hash-mismatch');
     }
@@ -104,14 +122,16 @@ export async function runBatch(options, { requiredAncestor = acceptedFrontend } 
   if (git(frontend, ['rev-parse', '--show-toplevel']) !== frontend) fail('frontend-must-be-checkout-root');
   const commit = git(frontend, ['rev-parse', 'HEAD']);
   if (git(frontend, ['rev-parse', `${options.expectCommit}^{commit}`]) !== commit) fail('frontend-commit-mismatch');
-  git(frontend, ['merge-base', '--is-ancestor', requiredAncestor, commit]);
+  git(frontend, ['merge-base', '--is-ancestor', requiredAncestor, commit], { failureCode: 'frontend-lineage-mismatch' });
+  const dirty = sourceDirtiness(frontend);
+  if (mode !== 'plan' && dirty.frontendDirty && options.allowDirty !== true) fail('frontend-dirty-requires-allow-dirty');
   const privateRoot = realpathSync(resolve(options.privateRoot));
   const toolingRoot = realpathSync(fileURLToPath(new URL('../..', import.meta.url)));
   // Receipts/configs must never be inside either git checkout.
   if (inside(frontend, privateRoot) || inside(toolingRoot, privateRoot)) fail('private-root-inside-source');
   const selection = options.selection ? options.selection.split(',') : clients.map(c => c.site);
   if (!selection.length || new Set(selection).size !== selection.length || selection.some(s => !clients.some(c => c.site === s))) fail('unknown-or-duplicate-client');
-  const sourceHash = treeHash(frontend, ['src', 'scripts', 'package.json', 'package-lock.json', 'astro.config.mjs']);
+  const sourceHash = treeHash(frontend, sourcePaths);
   const toolHash = treeHash(toolingRoot, ['scripts/client-launch.mjs', 'scripts/launch/batch.mjs', 'scripts/launch/clients.mjs', 'tracking/config/client-sites.json']);
   safePath(frontend, 'scripts/client-site.mjs', 'file');
   safePath(frontend, 'scripts/client-site-deploy-check.mjs', 'file');
@@ -123,7 +143,8 @@ export async function runBatch(options, { requiredAncestor = acceptedFrontend } 
     const { site, folder, slug, domain, project, projectId } = client;
     const identity = { site, slug, domain, project, projectId };
     const result = { ...identity, status: 'pending', issues: [], config: 'pending', hosting: 'pending', local: 'not-run', gates: Object.fromEntries(gateNames.map(g => [g, 'pending'])) };
-    let lock;
+    let lock, lockIdentity;
+    const ownsLock = () => { const st = lstatSync(lock); return !st.isSymbolicLink() && st.dev === lockIdentity.dev && st.ino === lockIdentity.ino; };
     try {
       const root = safePath(privateRoot, folder, 'dir');
       const launch = safePath(root, 'launch', 'dir');
@@ -146,28 +167,31 @@ export async function runBatch(options, { requiredAncestor = acceptedFrontend } 
       if (hosting.projectId !== projectId || hosting.name !== project || hosting.pagesHostname !== `${project}.pages.dev` || hosting.productionBranch !== 'main') fail('hosting-identity-mismatch');
       result.hosting = 'existing-project-record-only';
       const inputsHash = treeHash(frontend, [`previews/${slug}.json`, `public/previews/${slug}`]);
-      const fingerprintNow = () => sha(JSON.stringify({ version: 1, identity, frontend, commit, sourceHash: treeHash(frontend, ['src', 'scripts', 'package.json', 'package-lock.json', 'astro.config.mjs']), toolHash,
+      result.inputsHash = inputsHash;
+      const fingerprintNow = () => sha(JSON.stringify({ version: 1, identity, frontend, commit, sourceHash: treeHash(frontend, sourcePaths), toolHash,
         inputsHash: treeHash(frontend, [`previews/${slug}.json`, `public/previews/${slug}`]), configHash: sha(readFileSync(config)), hostingHash: sha(readFileSync(hostingPath)), node: process.version }));
       const fingerprint = sha(JSON.stringify({ version: 1, identity, frontend, commit, sourceHash, toolHash, inputsHash, configHash: sha(readFileSync(config)), hostingHash: sha(readFileSync(hostingPath)), node: process.version }));
       result.fingerprint = fingerprint;
-      result.gates = evidenceGates(root, safePath(root, 'launch/gate-evidence.json'), identity, fingerprint);
+      result.gates = evidenceGates(root, safePath(root, 'launch/gate-evidence.json'), identity, fingerprint, [config, hostingPath]);
       const stateDir = safePath(root, 'launch/batch-orchestration');
       const statePath = safePath(root, 'launch/batch-orchestration/state.json');
       const outputRel = `client-sites/${slug}`;
       const output = safePath(frontend, outputRel);
+      result.outputHash = existsSync(output) ? treeHash(frontend, [outputRel]) : null;
       const previous = loadState(statePath);
       const matching = previous?.fingerprint === fingerprint && JSON.stringify(previous.identity) === JSON.stringify(identity);
-      const reusable = matching && previous.status === 'checked' && previous.check?.candidate === true && previous.build?.status === 'success' && existsSync(output) && previous.build.outputHash === treeHash(frontend, [outputRel]);
+      const reusable = matching && previous.status === 'checked' && previous.check?.candidate === true && previous.build?.status === 'success' && result.outputHash !== null && previous.build.outputHash === result.outputHash;
       result.receipt = previous ? (reusable ? 'current' : 'stale-or-unsuccessful') : 'absent';
       if (mode !== 'plan') {
         mkdirSync(stateDir, { recursive: true, mode: 0o700 });
         lock = safePath(root, 'launch/batch-orchestration/active.lock');
-        try { const fd = openSync(lock, 'wx', 0o600); writeFileSync(fd, JSON.stringify({ pid: process.pid, at: new Date().toISOString() })); closeSync(fd); }
+        try { const fd = openSync(lock, 'wx', 0o600); try { lockIdentity = fstatSync(fd); writeFileSync(fd, JSON.stringify({ pid: process.pid, at: new Date().toISOString() })); } finally { closeSync(fd); } }
         catch { lock = undefined; fail('client-already-running'); }
         // Re-read state after acquiring the lock. If another run replaced it, retry explicitly.
         if (JSON.stringify(loadState(statePath)) !== JSON.stringify(previous)) fail('receipt-changed-during-preflight');
         const runId = `${Date.now()}-${randomUUID()}`;
-        const state = { version: 1, identity, fingerprint, at: new Date().toISOString(), mode, status: 'running',
+        const state = { version: 1, identity, fingerprint, frontendCommit: commit, ...dirty, inputsHash, outputHash: result.outputHash,
+          allowDirty: options.allowDirty === true, at: new Date().toISOString(), mode, status: 'running',
           build: reusable ? previous.build : { status: 'unbound' }, gates: result.gates };
         // Keep each run's receipt as well as the resumable latest pointer.
         const save = () => { atomicJson(join(stateDir, `${runId}.json`), state); atomicJson(statePath, state); };
@@ -182,6 +206,10 @@ export async function runBatch(options, { requiredAncestor = acceptedFrontend } 
         const candidate = execute(frontend, 'scripts/client-site-deploy-check.mjs', [output, '--allow-pending-worker'], join(stateDir, `${runId}-candidate.log`));
         const production = execute(frontend, 'scripts/client-site-deploy-check.mjs', [output], join(stateDir, `${runId}-production.log`));
         state.check = { candidate, production };
+        result.outputHash = existsSync(output) ? treeHash(frontend, [outputRel]) : null; state.outputHash = result.outputHash;
+        let lockValid = false;
+        try { lockValid = ownsLock(); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+        if (!lockValid) { state.status = 'failed'; state.build = { status: 'stale' }; save(); fail('client-lock-lost-during-run'); }
         if (fingerprintNow() !== fingerprint) { state.status = 'failed'; state.build = { status: 'stale' }; save(); fail('inputs-changed-during-run'); }
         state.status = candidate ? 'checked' : 'failed'; save();
         if (!candidate) fail('local-artifact-check-failed');
@@ -196,9 +224,19 @@ export async function runBatch(options, { requiredAncestor = acceptedFrontend } 
     } catch (error) {
       result.status = 'failed';
       result.issues.push(error instanceof LaunchError ? error.code : 'client-input-or-io-error');
-    } finally { if (lock) unlinkSync(lock); }
+    } finally {
+      if (lock) {
+        try {
+          if (ownsLock()) unlinkSync(lock);
+          else { result.status = 'failed'; result.issues.push('client-lock-replaced-preserved'); }
+        } catch (error) {
+          // Manual removal must not abort the remaining batch or replace a prior failure.
+          if (error.code !== 'ENOENT') { result.status = 'failed'; result.issues.push('client-lock-cleanup-failed'); }
+        }
+      }
+    }
     results.push(result);
   }
-  return { version: 1, mode, frontendCommit: commit, sourceHash, toolHash, clients: results,
+  return { version: 1, mode, frontendCommit: commit, ...dirty, sourceHash, toolHash, clients: results,
     exitCode: results.some(r => r.status === 'failed') ? 1 : results.some(r => r.status === 'pending') ? 2 : 0 };
 }

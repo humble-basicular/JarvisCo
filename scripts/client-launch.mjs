@@ -4,12 +4,14 @@ import { join } from 'node:path';
 import { runBatch, LaunchError } from './launch/batch.mjs';
 
 const help = `Usage: node scripts/client-launch.mjs [plan|check|build] --frontend <checkout> --expect-commit <commit>
-  [--clients meselektra,laikam,masaukstalipiai,vensland] [--private-root <Drive previews folder>] [--resume]
+  [--clients meselektra,laikam,masaukstalipiai,vensland] [--private-root <Drive previews folder>] [--resume] [--allow-dirty]
 plan is the read-only default: no commands, receipts or directories are created (git reads only).
 check runs the existing local deploy checker; build runs the existing local builder then checker.
 check/build write private per-client receipts/logs; --resume reuses only hash-matching successful builds.
+Dirty scoped frontend source blocks check/build unless --allow-dirty is explicit; plan reports it.
 No remote actions, sending, deployment, purchase, trial start or offline action are implemented.
-Exit: 0 all launch evidence confirmed; 2 pending gates; 1 invalid input/client failure.
+Exit: 0 required evidence recorded awaiting lead review (GBP verification may be pending; no live launch inferred);
+2 pending gates; 1 invalid input/client failure.
 JSON stdout contains only public identities, hashes, statuses and fixed issue codes.`;
 
 try {
@@ -24,6 +26,7 @@ try {
     if (seen.has(arg)) throw new LaunchError('duplicate-option');
     seen.add(arg);
     if (arg === '--resume') { options.resume = true; continue; }
+    if (arg === '--allow-dirty') { options.allowDirty = true; continue; }
     if (!flags[arg] || !args[0] || args[0].startsWith('--')) throw new LaunchError('invalid-option');
     options[flags[arg]] = args.shift();
   }

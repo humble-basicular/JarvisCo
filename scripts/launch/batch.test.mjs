@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,11 +16,16 @@ const validatorRead = spawnSync('git', ['show', `${acceptedFrontend}:src/templat
   { cwd: fileURLToPath(new URL('../..', import.meta.url)), encoding: 'utf8' });
 assert.equal(validatorRead.status, 0, 'accepted frontend commit must exist locally');
 // Synthetic executables deliberately prove cwd, client identity, partial failures and argument mode.
-const builder = `import {appendFileSync,existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
-import {join,basename} from 'node:path';
+const builder = `import {appendFileSync,existsSync,mkdirSync,readFileSync,renameSync,unlinkSync,writeFileSync} from 'node:fs';
+import {join,basename,dirname} from 'node:path';
 const a=process.argv.slice(2), flag=n=>a[a.indexOf(n)+1], site=flag('--site');
 if (!existsSync('FRONTEND-SENTINEL') || process.env.INIT_CWD !== process.cwd()) process.exit(8);
 appendFileSync('build-invocations',site+'\\n');
+if (existsSync('remove-lock-'+site)) unlinkSync(join(dirname(flag('--config')),'batch-orchestration/active.lock'));
+if (existsSync('replace-lock-'+site)) {
+ const lock=join(dirname(flag('--config')),'batch-orchestration/active.lock');
+ renameSync(lock,lock+'.preserved'); writeFileSync(lock,'unknown replacement lock');
+}
 if (existsSync('fail-'+site)) { console.error('PRIVATE-DO-NOT-LEAK'); process.exit(7); }
 if (existsSync('mutate-'+site)) writeFileSync(a[0],readFileSync(a[0],'utf8')+' ');
 const output=join('client-sites',basename(a[0],'.json')); mkdirSync(output,{recursive:true});
@@ -40,6 +45,7 @@ async function fixture(fn) {
   const privateRoot = join(root, 'private');
   mkdirSync(frontend); mkdirSync(privateRoot);
   write(join(frontend, 'package.json'), { type: 'module' });
+  write(join(frontend, '.gitignore'), 'previews/\npublic/previews/\nclient-sites/\nnode_modules/\n');
   write(join(frontend, 'package-lock.json'), { lockfileVersion: 3 });
   write(join(frontend, 'scripts/client-site.mjs'), builder);
   write(join(frontend, 'scripts/client-site-deploy-check.mjs'), checker);
@@ -114,7 +120,7 @@ for (const change of ['config', 'source', 'preview', 'media', 'output']) {
       source: 'scripts/client-site.mjs', preview: `previews/${clients[0].slug}.json`, media: `public/previews/${clients[0].slug}/1.jpg`, output: `client-sites/${clients[0].slug}/artifact.json`,
     }[change]);
     writeFileSync(file, readFileSync(file, 'utf8') + ' ');
-    const result = await run({ mode: 'build', resume: true, selection: 'meselektra' });
+    const result = await run({ mode: 'build', resume: true, selection: 'meselektra', allowDirty: change === 'source' });
     assert.equal(result.clients[0].resumed, undefined);
     assert.equal(result.clients[0].local, 'candidate-checked-worker-pending');
     assert.equal(readFileSync(join(frontend, 'build-invocations'), 'utf8').trim().split('\n').length, 2);
@@ -146,12 +152,105 @@ test('explicit commit and approved lineage are required; CLI refuses divergent i
   await assert.rejects(run({ frontend: undefined }), /explicit-frontend/);
   await assert.rejects(run({ selection: 'meselektra,unknown' }), /unknown-or-duplicate/);
   await assert.rejects(run({ selection: 'laikam,laikam' }), /unknown-or-duplicate/);
-  await assert.rejects(runBatch(options), /frontend-git-check-failed/); // fixture lacks accepted frontend ancestor
+  await assert.rejects(runBatch(options), /frontend-lineage-mismatch/); // fixture lacks accepted frontend ancestor
   const cli = spawnSync(process.execPath, [fileURLToPath(new URL('../client-launch.mjs', import.meta.url)),
     '--frontend', options.frontend, '--expect-commit', commit, '--private-root', options.privateRoot], { encoding: 'utf8' });
   assert.equal(cli.status, 1);
   assert.ok(!cli.stderr.includes(options.privateRoot));
 }));
+
+test('dirty scoped source is visible; build/check require explicit opt-in and receipts expose hashes/count', () => fixture(async ({ run, frontend, path }) => {
+  write(join(frontend, 'src/new-private-name.mjs'), '// synthetic untracked source');
+  writeFileSync(join(frontend, 'scripts/client-site.mjs'), builder + '\n// dirty tracked source');
+  const plan = await run({ selection: 'meselektra' });
+  assert.equal(plan.frontendDirty, true);
+  assert.equal(plan.frontendDirtyCount, 2);
+  assert.match(plan.clients[0].inputsHash, /^[a-f0-9]{64}$/);
+  assert.equal(plan.clients[0].outputHash, null);
+  assert.ok(!JSON.stringify(plan).includes('new-private-name'));
+  for (const mode of ['build', 'check']) await assert.rejects(run({ mode }), /frontend-dirty-requires-allow-dirty/);
+  assert.equal(existsSync(path(clients[0], 'launch/batch-orchestration')), false);
+  const built = await run({ mode: 'build', allowDirty: true, selection: 'meselektra' });
+  assert.equal(built.clients[0].local, 'candidate-checked-worker-pending');
+  const receipt = read(path(clients[0], 'launch/batch-orchestration/state.json'));
+  assert.equal(receipt.frontendDirty, true); assert.equal(receipt.frontendDirtyCount, 2);
+  assert.equal(receipt.allowDirty, true);
+  assert.equal(receipt.inputsHash, built.clients[0].inputsHash);
+  assert.equal(receipt.outputHash, built.clients[0].outputHash);
+  assert.match(receipt.outputHash, /^[a-f0-9]{64}$/);
+}));
+
+test('ignored generated preview/media/output and node_modules do not dirty scoped source', () => fixture(async ({ run, frontend }) => {
+  write(join(frontend, 'node_modules/synthetic-package/index.js'), '// generated');
+  writeFileSync(join(frontend, `previews/${clients[0].slug}.json`), JSON.stringify({ slug: clients[0].slug, v3: {}, generated: true }));
+  const result = await run({ mode: 'build', selection: 'meselektra' });
+  assert.equal(result.frontendDirty, false); assert.equal(result.frontendDirtyCount, 0);
+  assert.equal(result.clients[0].local, 'candidate-checked-worker-pending');
+  assert.equal((await run()).frontendDirtyCount, 0);
+}));
+
+test('normalized/case-alias runner files and factual inputs cannot attest external gates', () => fixture(async ({ run, path }) => {
+  // MAS keeps the config under launch, MesElektra under launch-2026-10-24.
+  for (const client of [clients[0], clients[2]]) {
+    const first = (await run({ mode: 'build', selection: client.site })).clients[0];
+    const identity = Object.fromEntries(['site', 'slug', 'domain', 'project', 'projectId'].map(k => [k, first[k]]));
+    const stateDir = path(client, 'launch/batch-orchestration');
+    const log = readdirSync(stateDir).find(name => name.endsWith('-build.log'));
+    write(join(stateDir, 'active.lock'), 'synthetic removed-by-operator lock');
+    write(path(client, 'client-sites/synthetic-output.html'), 'synthetic build output');
+    const evidencePath = path(client, 'launch/gate-evidence.json');
+    write(evidencePath, '{}');
+    const references = [
+      ['launch/batch-orchestration/state.json', 'launch/batch-orchestration/state.json'],
+      [`launch/batch-orchestration/${log}`, `launch/batch-orchestration/${log}`],
+      ['launch/batch-orchestration/active.lock', 'launch/batch-orchestration/active.lock'],
+      ['launch/../launch/./batch-orchestration/state.json', 'launch/batch-orchestration/state.json'],
+      ['LAUNCH/BATCH-ORCHESTRATION/STATE.JSON', 'launch/batch-orchestration/state.json'],
+      [client.config, client.config],
+      [`launch/../${client.config}`, client.config],
+      [client.config.toUpperCase(), client.config],
+      ['launch/hosting-preparation-2026-10-25.json', 'launch/hosting-preparation-2026-10-25.json'],
+      ['launch/./hosting-preparation-2026-10-25.json', 'launch/hosting-preparation-2026-10-25.json'],
+      ['LAUNCH/HOSTING-PREPARATION-2026-10-25.JSON', 'launch/hosting-preparation-2026-10-25.json'],
+      ['launch/gate-evidence.json', 'launch/gate-evidence.json'],
+      ['launch/../LAUNCH/GATE-EVIDENCE.JSON', 'launch/gate-evidence.json'],
+      ['client-sites/synthetic-output.html', 'client-sites/synthetic-output.html'],
+    ];
+    for (const [reference, actual] of references) {
+      write(evidencePath, { version: 1, identity, fingerprint: first.fingerprint, gates: { workerLiveRegistration: {
+        status: 'confirmed', checkedAt: '2026-10-24T12:00:00Z', files: [{ path: reference,
+          sha256: createHash('sha256').update(readFileSync(path(client, actual))).digest('hex') }],
+      } } });
+      const result = (await run({ selection: client.site })).clients[0];
+      assert.equal(result.status, 'failed', reference);
+      assert.ok(result.issues.includes('runner-file-not-external-evidence'), reference);
+      assert.equal(result.gates.workerLiveRegistration, 'pending');
+    }
+  }
+}));
+
+for (const action of ['remove', 'replace']) {
+  test(`${action}d owned lock cannot abort other clients or delete a replacement lock`, () => fixture(async ({ run, path, frontend }) => {
+    // MAS's config is in launch/, so the synthetic builder can locate its receipt lock.
+    write(join(frontend, `${action}-lock-masaukstalipiai`), 'simulate operator intervention');
+    const result = await run({ mode: 'build', selection: 'masaukstalipiai,vensland' });
+    assert.equal(result.exitCode, 1);
+    assert.ok(result.clients[0].issues.includes('client-lock-lost-during-run'));
+    assert.equal(read(path(clients[2], 'launch/batch-orchestration/state.json')).status, 'failed');
+    assert.equal(result.clients[1].local, 'candidate-checked-worker-pending');
+    const lock = path(clients[2], 'launch/batch-orchestration/active.lock');
+    if (action === 'replace') assert.equal(readFileSync(lock, 'utf8'), 'unknown replacement lock');
+    else assert.equal(existsSync(lock), false);
+  }));
+}
+
+test('CLI help describes review-only exit zero, dirty override and no inferred launch', () => {
+  const result = spawnSync(process.execPath, [fileURLToPath(new URL('../client-launch.mjs', import.meta.url)), '--help'], { encoding: 'utf8' });
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /--allow-dirty/);
+  assert.match(result.stdout, /awaiting lead review/);
+  assert.match(result.stdout, /GBP verification may be pending; no live launch inferred/);
+});
 
 test('mismatched identities, symlinks, active locks and corrupt receipts fail per client', () => fixture(async ({ run, path, frontend }) => {
   const hosting = path(clients[0], 'launch/hosting-preparation-2026-10-25.json');
@@ -166,7 +265,7 @@ test('mismatched identities, symlinks, active locks and corrupt receipts fail pe
   assert.ok(existsSync(path(clients[2], 'launch/batch-orchestration/active.lock')));
 }));
 
-test('external gates need hash-bound evidence; pending GBP verification does not block working-launch evidence', () => fixture(async ({ run, path }) => {
+test('external gates need hash-bound evidence; pending GBP verification does not block working-launch evidence', () => fixture(async ({ run, path, frontend }) => {
   const configFile = path(clients[0], clients[0].config);
   const config = read(configFile); config.worker.configured = true; write(configFile, config);
   const first = await run({ mode: 'build', selection: 'meselektra' });
@@ -182,6 +281,13 @@ test('external gates need hash-bound evidence; pending GBP verification does not
   assert.equal(ready.exitCode, 0);
   assert.equal(ready.clients[0].status, 'evidence-recorded-awaiting-lead-review');
   assert.equal(ready.clients[0].gates.gbpExternalVerification, 'pending');
+  const scriptPath = join(frontend, 'scripts/client-site.mjs');
+  const originalScript = readFileSync(scriptPath, 'utf8');
+  write(scriptPath, originalScript + '\n// actual source change invalidates every gate');
+  const sourceStale = await run({ selection: 'meselektra' });
+  assert.equal(sourceStale.frontendDirty, true);
+  assert.ok(Object.values(sourceStale.clients[0].gates).every(s => s === 'stale'));
+  write(scriptPath, originalScript);
   evidence.fingerprint = 'old'; write(evidencePath, evidence);
   const stale = await run({ selection: 'meselektra' });
   assert.equal(stale.exitCode, 2);
