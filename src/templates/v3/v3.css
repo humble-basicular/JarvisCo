@@ -587,6 +587,9 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
 .v3-brand--named .v3-brand__text { display: grid; }
 .v3-quote__badge--client { border-radius: 8px; overflow: hidden; background: white; }
 .v3-quote__badge--client img { width: 84px; height: 84px; object-fit: contain; }
+/* Wide logo+name lockup: a wide plate, so the wordmark is not shrunk into the 84px square. */
+.v3-quote__badge--wide { padding: .5rem .85rem; }
+.v3-quote__badge--wide img { width: auto; height: 2.6rem; max-width: 12rem; }
 .v3-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .v3-files-hint { color: var(--v3-muted); font-size: .8rem; }
 .v3-files { display: grid; gap: .5rem; }

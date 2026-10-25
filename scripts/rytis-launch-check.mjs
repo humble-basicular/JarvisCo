@@ -5,7 +5,7 @@
    no customer identities, prices, photos or generated JSON live in this test. */
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { resolve, join, extname, basename } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import vm from 'node:vm';
@@ -147,13 +147,15 @@ await check('other previews and demo remain inert with their prior branding and 
   }
   const demo = read('dist/pavyzdys/sildymas/index.html'); assert.match(demo, /data-inert-form/); assert.doesNotMatch(demo, /href="tel:|<input[^>]*name=|id="atsiliepimai"/);
 });
-if (process.argv[2]) await check('private artifact exactly matches supplied price, hours, logo, process and form corrections on all towns', () => {
+if (process.argv[2]) await check('private artifact exactly matches supplied price, hours, logo, process and form corrections on all towns', async () => {
   const d = validateSaved(JSON.parse(read(process.argv[2]))), dir = resolve(process.argv[3]);
   for (const route of ['', ...(d.towns ?? []).filter((t) => t.text).map((t) => t.slug)]) {
     const html = read(join(dir, route, 'index.html')), ns = nodes(html);
     for (const price of d.prices) { const row = ns.find((n) => n.tagName === 'tr' && text(n).includes(price.name)); assert.ok(row); assert.ok(text(row).includes(price.price)); }
     assert.ok(html.includes(d.hours)); assert.ok(html.includes(d.v3.priceFootnote)); assert.ok(!ns.some((n) => has(n, 'v3-reviews__soon') || has(n, 'v3-reviews__google')));
-    const brand = ns.find((n) => has(n, 'v3-brand')); assert.ok(text(brand).includes(d.business)); assert.ok(!text(brand).includes(d.v3.theme.logo.line));
+    const brand = ns.find((n) => has(n, 'v3-brand')), mark = ns.find((n) => has(n, 'v3-brand__logo')); assert.ok(!text(brand).includes(d.v3.theme.logo.line));
+    // A logo+name lockup carries the name in the image (alt) and never repeats it as text (approved logos, 2026-10-25).
+    if (d.v3.clientLogo?.showName) assert.ok(text(brand).includes(d.business)); else { assert.equal(attr(mark, 'alt'), d.business); assert.ok(!text(brand).includes(d.business)); }
     assert.equal(ns.filter((n) => has(n, 'v3-quote__badge--client')).length, 2);
     for (const step of d.v3.steps) assert.ok(html.includes(step.text));
     for (const a of ns.filter((n) => n.tagName === 'a' && attr(n, 'href')?.startsWith('tel:'))) assert.equal(attr(a, 'href'), `tel:${toE164(d.phone)}`);
@@ -161,6 +163,10 @@ if (process.argv[2]) await check('private artifact exactly matches supplied pric
     const local = ns.flatMap((n) => ['src', 'href'].map((key) => attr(n, key))).filter((v) => v?.startsWith('/') && !v.startsWith('//'));
     for (const path of local) assert.ok(existsSync(join(dir, path.split('#')[0].split('?')[0])) || existsSync(join(dir, path, 'index.html')), path);
   }
-  assert.deepEqual(readFileSync(join(dir, 'foto/logo.jpg')), readFileSync(resolve('public/previews', d.slug, 'logo.jpg')));
+  // Published logos are re-encoded without metadata (cleanLogo): same size and every pixel, not same bytes.
+  const { default: sharp } = await import('sharp');
+  const pixels = (file) => sharp(readFileSync(file)).raw().toBuffer({ resolveWithObject: true });
+  const [built, source] = await Promise.all([pixels(join(dir, `foto/logo${extname(d.logo.src)}`)), pixels(resolve('public/previews', d.slug, basename(d.logo.src)))]);
+  assert.deepEqual(built.info, source.info); assert.ok(built.data.equals(source.data));
 });
 console.log(`${passed} focused checks passed; synthetic artifacts retained at ${fixtureDir}`);

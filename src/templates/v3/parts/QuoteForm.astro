@@ -8,7 +8,7 @@ import type { V3Input, V3LiveSite } from '../content';
 interface Props { business: string; phone: string; theme: Theme; v3: V3Input; tel: string; uid: string; titleId?: string; badge?: boolean; clientLogo?: { src: string; width?: number; height?: number }; site?: V3LiveSite }
 const { business, phone, theme, v3, tel, uid, titleId, badge = true, clientLogo, site } = Astro.props;
 ---
-{clientLogo ? <div class="v3-quote__badge v3-quote__badge--client"><img {...clientLogo} alt={business} /></div> : badge && <div class="v3-quote__badge"><Badge name={business} theme={theme} uid={uid} size={84} /></div>}
+{clientLogo ? <div class:list={['v3-quote__badge v3-quote__badge--client', clientLogo.width && clientLogo.height && clientLogo.width > clientLogo.height && 'v3-quote__badge--wide']}><img {...clientLogo} alt={business} /></div> : badge && <div class="v3-quote__badge"><Badge name={business} theme={theme} uid={uid} size={84} /></div>}
 <h2 class="v3-quote__title" id={titleId}>Gaukite kainą</h2>
 <p class="v3-quote__sub">{v3.quoteSub ?? 'Parašykite, ko reikia. Perskambinsime ir aptarsime darbą.'}</p>
 {site?.testBuild && <p class="v3-form__note">Bandomoji forma. Užklausa siunčiama tik į vietinį testą.</p>}
