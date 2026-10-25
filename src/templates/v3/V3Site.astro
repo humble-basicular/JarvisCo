@@ -49,6 +49,8 @@ const baseLine = v3.baseLine ?? `${base} ir aplink`;
 /* The client's own logo (input `logo`) replaces the generated badge only when v3.clientLogo opts in. */
 const clientLogo = v3.clientLogo && data.logo?.src;
 const logoSize = { width: v3.clientLogo?.width, height: v3.clientLogo?.height };
+/* A wide logo+name lockup already shows the name: don't repeat it as text beside it. */
+const lockup = !!clientLogo && !v3.clientLogo?.showName && v3.clientLogo!.width > v3.clientLogo!.height;
 /* Two-tone wordmark for camel-case names ("MesElektra" → Mes + accent Elektra). */
 const nameSplit = data.business.match(/^(\p{Ll}*\p{Lu}\p{Ll}+)(\p{Lu}\p{L}+)$/u);
 const h1 = town
@@ -191,7 +193,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
         <img {...img(aboutPhoto, '(min-width: 64rem) 34rem, 92vw')} alt={aboutPhoto.alt ?? ''} loading="lazy" />
         <div class="v3-about__stamp">
           {clientLogo ? <span class="v3-logo-plate v3-logo-plate--stamp"><img src={clientLogo} alt="" {...logoSize} /></span> : <Badge name={data.business} theme={theme} uid="b-about" size={96} />}
-          <p><strong>{v3.stamp?.title ?? data.business}</strong><span>{v3.stamp?.text ?? baseLine}</span></p>
+          <p>{(v3.stamp?.title || !lockup) && <strong>{v3.stamp?.title ?? data.business}</strong>}<span>{v3.stamp?.text ?? baseLine}</span></p>
         </div>
       </div>
       <div class="v3-about__copy">
