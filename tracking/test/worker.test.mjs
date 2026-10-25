@@ -1341,7 +1341,7 @@ test('launch sites refuse missing, HTTP, lookalike, Pages and another client ori
   await mf.dispose();
   ({ runtime: mf, database: db } = await createRuntime({ sites: LAUNCH_SITES }));
   for (const site of Object.keys(CLIENT_SITES)) {
-    for (const origin of [null, 'null', `http://${site}.lt`, `https://${site}.lt.evil.test`,
+    for (const origin of [null, 'null', `http://${site}.lt`, `https://${site}.lt:8443`, `https://${site}.lt.evil.test`,
       `https://${site}.pages.dev`, `https://${site}.lt/`, 'https://jarvisweb.lt',
       site === 'laikam' ? 'https://meselektra.lt' : 'https://laikam.lt']) {
       assert.equal((await siteSubmit({ site }, [], origin)).status, 403, `${site} ${origin}`);
@@ -1351,6 +1351,25 @@ test('launch sites refuse missing, HTTP, lookalike, Pages and another client ori
   }
   assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 0);
   assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 0);
+});
+
+test('launch preflights refuse HTTP, lookalike and port origins without storage writes', async () => {
+  await mf.dispose();
+  ({ runtime: mf, database: db } = await createRuntime({ sites: LAUNCH_SITES }));
+  for (const site of Object.keys(CLIENT_SITES)) {
+    for (const origin of [`http://${site}.lt`, `https://${site}.lt.evil.test`, `https://${site}.lt:8443`]) {
+      for (const path of ['/t/form', '/t/e']) {
+        const response = await request(path, { method: 'OPTIONS', headers: {
+          Origin: origin, 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type',
+        } });
+        assert.equal(response.status, 403, `${path} ${origin}`);
+        assert.equal(response.headers.get('Access-Control-Allow-Origin'), null);
+      }
+    }
+  }
+  for (const table of ['events', 'submissions', 'rate_limits', 'site_daily_budgets', 'form_alert_claims']) {
+    assert.equal(await db.prepare(`SELECT count(*) AS n FROM ${table}`).first('n'), 0, table);
+  }
 });
 
 async function launchForm(site, env, fields = {}) {
@@ -1409,6 +1428,7 @@ test('client routing leaves funnel owner alerts and unmapped existing sites unch
   await Promise.all(pending);
   assert.equal(messages.at(-1).to, ALERT_TO);
   assert.equal(messages.length, 4);
+  for (const mail of messages) assert.ok(!decodedMail(mail).body.includes('Maršrutizavimo konfigūracija neteisinga'));
 });
 
 for (const [label, routes] of [
@@ -1418,15 +1438,66 @@ for (const [label, routes] of [
   ['header injection', JSON.stringify({ meselektra: ['valid@example.com', 'x@example.com\r\nBcc: attacker@example.com'] })],
   ['display name', JSON.stringify({ meselektra: ['Display <x@example.com>'] })],
   ['unbounded list', JSON.stringify({ meselektra: Array(11).fill(ALERT_TO) })],
-]) test(`client recipient ${label} fails closed while preserving receipt and durable row`, async () => {
-  let sent = 0;
-  const response = await launchForm('meselektra', alertEnv({ SITES: LAUNCH_SITES, FORM_SITE_RECIPIENTS: routes,
-    FORM_EMAIL: { async send() { sent++; } } }));
-  assert.equal(response.status, 200);
-  assert.equal(sent, 0);
-  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 1);
+]) test(`client recipient ${label} sends owner-only warning while preserving receipts and dedup`, async () => {
+  const messages = [];
+  const env = alertEnv({ SITES: LAUNCH_SITES, FORM_SITE_RECIPIENTS: routes,
+    FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  for (let n = 0; n < 2; n++) {
+    const response = await launchForm('meselektra', env);
+    assert.equal(response.status, 200);
+    const { id } = await response.json();
+    assert.ok(await db.prepare('SELECT id FROM submissions WHERE id = ?').bind(id).first('id'));
+  }
+  assert.deepEqual(messages.map(m => m.to), [ALERT_TO]);
+  const { headers, body } = decodedMail(messages[0]);
+  assert.equal(body.split('\r\n')[0], 'Maršrutizavimo konfigūracija neteisinga — klientui nepranešta');
+  assert.ok(body.includes('Svetainė: "meselektra"'));
+  assert.ok(!headers.includes('bad@example.com') && !headers.includes('valid@example.com'));
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 2);
   assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 1);
 });
+
+test('unmapped arbcut with malformed global routing still sends the owner a warning', async () => {
+  const messages = [];
+  const { response, pending } = await directForm({ kind: 'site_inquiry', site: 'arbcut', phone: '12345678' },
+    alertEnv({ FORM_SITE_RECIPIENTS: '{bad', FORM_EMAIL: { async send(message) { messages.push(message); } } }));
+  assert.equal(response.status, 200);
+  const { id } = await response.json();
+  await Promise.all(pending);
+  assert.deepEqual(messages.map(m => m.to), [ALERT_TO]);
+  const { body } = decodedMail(messages[0]);
+  assert.equal(body.split('\r\n')[0], 'Maršrutizavimo konfigūracija neteisinga — klientui nepranešta');
+  assert.ok(body.includes('Svetainė: "arbcut"'));
+  assert.ok(await db.prepare('SELECT id FROM submissions WHERE id = ?').bind(id).first('id'));
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 1);
+});
+
+test('a valid selected client route ignores unrelated invalid routes without a warning', async () => {
+  const messages = [];
+  const response = await launchForm('meselektra', alertEnv({ SITES: LAUNCH_SITES,
+    FORM_SITE_RECIPIENTS: JSON.stringify({ meselektra: CLIENT_ROUTES.meselektra, laikam: 'bad', arbcut: [] }),
+    FORM_EMAIL: { async send(message) { messages.push(message); } } }));
+  assert.equal(response.status, 200);
+  assert.deepEqual(messages.map(m => m.to).sort(), [...CLIENT_ROUTES.meselektra].sort());
+  for (const mail of messages) {
+    const body = Buffer.from(mail.raw.split('\r\n\r\n')[1], 'base64').toString('utf8');
+    assert.ok(!body.includes('Maršrutizavimo konfigūracija neteisinga'));
+  }
+});
+
+for (const [label, owner] of [['missing', undefined], ['empty', ''], ['invalid', 'owner@localhost'],
+  ['header injection', 'owner@example.com\r\nBcc: victim@example.com']]) {
+  test(`invalid routing with ${label} owner safely stores without sending`, async () => {
+    const messages = [];
+    const response = await launchForm('meselektra', alertEnv({ SITES: LAUNCH_SITES, FORM_ALERT_TO: owner,
+      FORM_SITE_RECIPIENTS: JSON.stringify({ meselektra: ['client@example.com', 'invalid'], laikam: CLIENT_ROUTES.laikam }),
+      FORM_EMAIL: { async send(message) { messages.push(message); } } }));
+    assert.equal(response.status, 200);
+    assert.deepEqual(messages, []);
+    assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 1);
+    assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 1);
+  });
+}
 
 test('two-recipient routing keeps ten-minute dedup; failure at one mailbox does not suppress the other', async () => {
   const attempted = [];

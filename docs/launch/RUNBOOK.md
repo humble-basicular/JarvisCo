@@ -31,6 +31,20 @@ npx --no-install wrangler versions list --config "$PROD" --json > "$LAUNCH_PRIVA
 cp -p "$PROD" "$LAUNCH_PRIVATE/wrangler-production-before.toml"
 ```
 
+Before any release mutation, run this **remote read-only preflight** against the existing production migration ledger. The default ledger is `d1_migrations`; if private `migrations_table` overrides it, substitute that exact name in the SELECT. First confirm the ledger already exists:
+
+```sh
+npx --no-install wrangler d1 execute DB --remote --config "$PROD" --command "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'd1_migrations';" > "$LAUNCH_PRIVATE/d1-ledger-before.txt"
+```
+
+If that read returns no ledger, **stop**: pinned Wrangler 4.149.0's list command can initialize a missing ledger (`CREATE TABLE IF NOT EXISTS`), so do not run it against an uninitialized database. With the existing ledger confirmed, list unapplied migrations without applying them:
+
+```sh
+npx --no-install wrangler d1 migrations list DB --remote --config "$PROD" > "$LAUNCH_PRIVATE/d1-migrations-before.txt"
+```
+
+**Release gate: the command must succeed and report “No migrations to apply!”** Any pending migration, missing ledger, failed query or uncertain migration state blocks §3. Reconcile with live d7605ac and the database owner; no migration apply is authorized in this stage. Check private `migrations_dir` points to the reviewed `tracking/migrations/` before this comparison. [D1 migration-list command](https://developers.cloudflare.com/workers/wrangler/commands/d1/#d1-migrations-list).
+
 Record the currently deployed **version UUID** (not source commit or deployment UUID), existing `SITES`, `FORM_ALERT_TO`, recipient-map value if already present, and Email binding restrictions. The 25 October read-only rollback candidate was **`30f2e5ef-029b-4396-9272-4378913cd45f`** (deployment `3bbb6b97-3e77-4586-92dc-b2efe1b308c4`, 100%); refresh before rollout. Keep recoverable prior secret values in the existing private secret store; the API cannot reveal an old secret. Export all pending D1 migration state and use the existing normal database backup procedure. This change introduces no migration beyond live d7605ac's 0006: never drop/recreate alert claims or budgets during rollout/rollback.
 
 Also capture existing Pages production deployment ID (if project already exists), old web responses, DNS export/TTL and registrar NS/DS state. Record actual Cloudflare zone nameservers individually. Domain purchases, client addresses, Google account access and DNS account control remain prerequisites.
@@ -70,33 +84,54 @@ allowed_destination_addresses = ["<existing verified owner destination>", "<veri
 
 Replace the existing `destination_address` restriction in this binding; do not keep both restriction forms or duplicate the binding. Populate all actually launching clients, deduplicated. Never use an unrestricted binding or paid arbitrary-recipient sending. [Binding restrictions](https://developers.cloudflare.com/email-service/configuration/send-bindings/) and [verified destination pricing](https://developers.cloudflare.com/email-service/platform/pricing/) support this setup. Matas/client verification emails are future owner actions, not performed in this stage.
 
-Validate the private map and encode it for the new secret without printing addresses:
+Validate the private map against **the actual private TOML binding** and encode the new secret without printing addresses. Run from `tracking/` after dependencies are installed. This uses pinned Wrangler's local TOML parser, not a network call. If `FORM_ALERT_TO` is a secret rather than `[vars]`, copy its exact recoverable value from the private secret store into `owner-recipient.json` as a JSON string in `$LAUNCH_PRIVATE` (never git). Do not infer the owner from a route. The validator uses the same ASCII mailbox regex and length rule as `tracking/src/alerts.ts`; it checks every retained route, not just the launching subset.
 
 ```sh
-python3 - "$LAUNCH_PRIVATE" <<'PY'
-import json, pathlib, sys
-p = pathlib.Path(sys.argv[1])
-routes = json.loads((p/'site-recipients.json').read_text())
-assert isinstance(routes, dict)
-for code in ('meselektra', 'laikam', 'masaukstalipiai', 'vensland'):
-    # Run this all-four gate only when all four are ready; otherwise list the
-    # exact authorized ready subset here and deploy only that subset's forms.
-    addresses = routes.get(code)
-    assert isinstance(addresses, list) and len(addresses) == 2, code
-    assert all(isinstance(x, str) and '@' in x and not any(c.isspace() for c in x) for x in addresses), code
-    assert 'matas@jarvisweb.lt' in addresses and len(set(x.lower() for x in addresses)) == 2, code
-(p/'recipient-secret.json').write_text(json.dumps({'FORM_SITE_RECIPIENTS': json.dumps(routes)}))
-PY
 npm ci --no-audit --no-fund
+node --input-type=module - "$LAUNCH_PRIVATE" "$PROD" <<'JS'
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { experimental_readRawConfig } from 'wrangler';
+const privateDir = process.argv[2];
+const { rawConfig } = experimental_readRawConfig({ config: process.argv[3] });
+const mailbox = /^[A-Za-z0-9_+%-]+(?:\.[A-Za-z0-9_+%-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
+const valid = value => typeof value === 'string' && value.length > 0 && value.length <= 254 && mailbox.test(value);
+// Fixed assertion messages never include a private mailbox or route value.
+const check = (ok, message) => assert.ok(ok, message);
+const routes = JSON.parse(readFileSync(join(privateDir, 'site-recipients.json'), 'utf8'));
+check(routes && typeof routes === 'object' && !Array.isArray(routes), 'Invalid recipient map');
+const bindings = (rawConfig.send_email ?? []).filter(binding => binding.name === 'FORM_EMAIL');
+check(bindings.length === 1 && bindings[0].destination_address === undefined, 'Expected one allowlist email binding');
+const allowed = bindings[0].allowed_destination_addresses;
+check(Array.isArray(allowed) && allowed.length > 0 && allowed.every(valid), 'Invalid destination allowlist');
+const owner = rawConfig.vars?.FORM_ALERT_TO ?? JSON.parse(readFileSync(join(privateDir, 'owner-recipient.json'), 'utf8'));
+check(valid(owner) && allowed.includes(owner), 'Owner must be valid and explicitly allowlisted');
+for (const [site, addresses] of Object.entries(routes)) {
+  check(/^[a-z][a-z0-9-]{2,31}$/.test(site), 'Invalid route site code');
+  check(Array.isArray(addresses) && addresses.length > 0 && addresses.length <= 10 && addresses.every(valid), 'Invalid route mailboxes');
+  // Exact membership also preserves the spelling configured on the binding.
+  check(addresses.every(to => allowed.includes(to)), 'Every routed recipient must be explicitly allowlisted');
+}
+for (const site of ['meselektra', 'laikam', 'masaukstalipiai', 'vensland']) {
+  // For a subset launch, replace this list with the exact authorized ready sites.
+  const addresses = routes[site];
+  check(Array.isArray(addresses) && addresses.length === 2, 'Launching site requires two recipients');
+  check(addresses.includes('matas@jarvisweb.lt') && new Set(addresses.map(to => to.toLowerCase())).size === 2, 'Launching site requires distinct client and requested owner');
+}
+writeFileSync(join(privateDir, 'recipient-secret.json'), JSON.stringify({ FORM_SITE_RECIPIENTS: JSON.stringify(routes) }));
+JS
 npm test
 npm run typecheck
 npx --no-install wrangler secret bulk "$LAUNCH_PRIVATE/recipient-secret.json" --config "$PROD"
+npx --no-install wrangler deployments list --config "$PROD" --json > "$LAUNCH_PRIVATE/worker-deployments-after-secret.json"
+npx --no-install wrangler versions list --config "$PROD" --json > "$LAUNCH_PRIVATE/worker-versions-after-secret.json"
 npx --no-install wrangler deploy --dry-run --config "$PROD"
 npx --no-install wrangler deploy --config "$PROD"
 npx --no-install wrangler deployments list --config "$PROD" --json > "$LAUNCH_PRIVATE/worker-deployments-after.json"
 ```
 
-Secret updates are production mutations too. Capture the previous live version **before** secret/binding changes. If pending migrations unexpectedly appear, stop and reconcile with live d7605ac rather than blindly applying. Retain the deploy output, new UUID and old UUID in the private receipt. `worker.configured: true` is an operator attestation after this step; a successful build does not prove the live Worker was configured.
+`wrangler secret bulk` **immediately creates and deploys an intermediate Worker version using the currently live code**, before the later code deployment. Record that intermediate deployment/version from the two reads immediately after it; never overwrite `worker-deployments-before.json` / `worker-versions-before.json` or replace the original **pre-secret rollback UUID** with this intermediate UUID. If either inventory read fails, stop before the next deployment and recover the version record. Secret updates are production mutations too. [Cloudflare secret command behavior](https://developers.cloudflare.com/workers/wrangler/commands/workers/#secret). Capture the previous live version **before** secret/binding changes. If pending migrations unexpectedly appear, stop and reconcile with live d7605ac rather than blindly applying. Retain the deploy output, new UUID and old UUID in the private receipt. `worker.configured: true` is an operator attestation after this step; a successful build does not prove the live Worker was configured.
 
 Rollback: restore prior private TOML/SITES/binding/map (or remove the new secret only if absent previously), then use the saved pre-change version UUID:
 
@@ -104,7 +139,7 @@ Rollback: restore prior private TOML/SITES/binding/map (or remove the new secret
 npx --no-install wrangler rollback '<saved-pre-change-version-UUID>' --config "$PROD" --message 'Client launch rollback'
 ```
 
-Read back active version/config; if version rollback cannot restore bindings/secrets, redeploy the exact saved d7605ac code with the saved private configuration and secret values. Keep D1/KV/submissions/claims intact. Disabling/misconfiguring email still stores successful forms and claims; fixing configuration does not replay a still-active ten-minute claim. Use a unique test message after recovery.
+Read back active version/config; if version rollback cannot restore bindings/secrets, redeploy the exact saved d7605ac code with the saved private configuration and secret values. Keep D1/KV/submissions/claims intact. Missing/invalid owner configuration or failed email delivery still stores successful forms and claims; invalid routing attempts owner-only mail with the fixed warning “Maršrutizavimo konfigūracija neteisinga — klientui nepranešta”. Unmapped sites keep normal owner mail. Fixing configuration does not replay a still-active ten-minute claim. Use a unique test message after recovery.
 
 ## 4. Create Pages project, zone and domains — per-domain lead/Matas
 
@@ -169,6 +204,8 @@ curl --fail-with-body 'https://www.jarvisweb.lt/t/form' \
 ```
 
 Record receipt ID/time and authenticated feed/CRM ingestion, **both exact inbox receipts**, and one anonymous `cta_call`/form event with correct site. Test the www Origin too; an identical immediate retry should store another row but schedule no new mail for ten minutes. Use different unique markers for distinct delivery tests; stay below **5 forms/site/minute**, **30/site/day**, **100 global/day**, and existing file budgets. Expected: missing/foreign/cross-client Origin refused; no client site can submit as another site. Do not make actual phone calls or send client outreach. Do not delete test records without named backup/deletion authorization; label them in the private receipt.
+
+**Existing shared capacity limit (unchanged):** the 100 site forms/day budget is shared across **all registered client and leadgen sites**, including older sites, while each site is limited to 30/day. Four clients each attempting 30/day would total 120 and exceed the shared 100/day allowance; busy/spammy sites can exhaust it and block other sites until the next UTC day even if those sites have not reached 30. Site limits are 5 forms/minute and 30/day, and the global site file-write cap is 300/day. A rejected form returns 429 and does not get a success receipt or alert. The jarvisweb preview/callback funnel has separate budgets (50 submissions and 300 MiB uploads/day); no global cap is raised in this stage. Lead must check current budget usage before acceptance and treat increasing capacity as a separate change.
 
 Rollback failed acceptance: direct traffic back to the prior host/Pages deployment; if routing leaks or existing paths regress, restore Worker version/config per §3. Retain stored inquiries, use authenticated feed for recovery; no automatic resend or backfill is added.
 

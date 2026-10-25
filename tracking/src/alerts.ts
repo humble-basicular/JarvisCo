@@ -40,27 +40,30 @@ function recipient(value: unknown): value is string {
     && /^[A-Za-z0-9_+%-]+(?:\.[A-Za-z0-9_+%-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/.test(value);
 }
 
-function recipients(config: AlertConfig, alert: Alert): string[] {
+function recipients(config: AlertConfig, alert: Alert): { targets: string[]; routingWarning: boolean } {
+  const owner = recipient(config.FORM_ALERT_TO) ? [config.FORM_ALERT_TO] : [];
+  const invalidRoute = { targets: owner, routingWarning: true };
   // Funnel notifications must never inherit a client's routing configuration.
   if (alert.kind === 'site_inquiry' && alert.site && config.FORM_SITE_RECIPIENTS !== undefined) {
     try {
       const routes: unknown = JSON.parse(config.FORM_SITE_RECIPIENTS);
-      if (!routes || typeof routes !== 'object' || Array.isArray(routes)) return [];
+      if (!routes || typeof routes !== 'object' || Array.isArray(routes)) return invalidRoute;
       if (Object.hasOwn(routes, alert.site)) {
         const list: unknown = (routes as Record<string, unknown>)[alert.site];
-        if (!Array.isArray(list) || !list.length || list.length > 10 || !list.every(recipient)) return [];
+        if (!Array.isArray(list) || !list.length || list.length > 10 || !list.every(recipient)) return invalidRoute;
         const seen = new Set<string>();
-        return list.filter(to => {
+        const targets = list.filter(to => {
           const key = to.toLowerCase();
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
         });
+        return { targets, routingWarning: false };
       }
-    } catch { return []; } // Bad routing must not expose inquiries to a fallback inbox.
+    } catch { return invalidRoute; } // Only the validated owner may receive a routing warning.
   }
   // Existing unmapped sites and jarvisweb.lt keep the live single-owner behavior.
-  return recipient(config.FORM_ALERT_TO) ? [config.FORM_ALERT_TO] : [];
+  return { targets: owner, routingWarning: false };
 }
 
 // JSON string literals make every untrusted field visibly quoted on ONE line.
@@ -84,7 +87,7 @@ function proofLink(config: string | undefined, code: string | null): string | nu
   } catch { return null; }
 }
 
-function body(alert: Alert, config: AlertConfig): string {
+function body(alert: Alert, config: AlertConfig, routingWarning: boolean): string {
   const p = alert.payload as Record<string, unknown>;
   const site = alert.kind === 'site_inquiry';
   const list = (key: string, other: string) => [...(p[key] as string[]), ...(p[other] ? [p[other]] : [])].map(quoted).join(', ') || '—';
@@ -97,6 +100,7 @@ function body(alert: Alert, config: AlertConfig): string {
   }).format(new Date(alert.at));
   const link = proofLink(config.FORM_PROOF_LINKS, alert.code);
   return [
+    ...(routingWarning ? ['Maršrutizavimo konfigūracija neteisinga — klientui nepranešta'] : []),
     `Formos rūšis: ${kinds[alert.kind]}`,
     `Išsaugota: ${at} (Europe/Vilnius)`,
     `Svetainė: ${quoted(alert.site)}`,
@@ -124,7 +128,7 @@ export function scheduleFormAlert(config: AlertConfig, ctx: ExecutionContext, al
   // failures stays outside the storage transaction and successful HTTP outcome.
   try {
     if (!['preview_request', 'callback_request', 'site_inquiry'].includes(alert.kind) || !config.FORM_EMAIL) return;
-    const targets = recipients(config, alert);
+    const { targets, routingWarning } = recipients(config, alert);
     const binding = config.FORM_EMAIL;
     // One private message per mailbox. A failed/slow destination cannot suppress
     // another, and neither changes the existing durable fingerprint claim.
@@ -132,7 +136,7 @@ export function scheduleFormAlert(config: AlertConfig, ctx: ExecutionContext, al
       const raw = [
         `From: ${FROM}`, `To: ${to}`, `Date: ${new Date(alert.at).toUTCString()}`, `Subject: =?UTF-8?B?${base64(SUBJECT)}?=`,
         'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
-        base64(body(alert, config)).match(/.{1,76}/g)!.join('\r\n'), '',
+        base64(body(alert, config, routingWarning)).match(/.{1,76}/g)!.join('\r\n'), '',
       ].join('\r\n');
       await binding.send(new EmailMessage(FROM, to, raw));
     }).catch(() => {}));
