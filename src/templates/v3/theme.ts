@@ -8,7 +8,7 @@
 export type Archetype = 'water' | 'heat' | 'outdoor' | 'heavy' | 'electric' | 'clean' | 'craft';
 export type Divider = 'angle' | 'wave' | 'zigzag' | 'notch';
 export type LogoShape = 'round' | 'shield' | 'square';
-export type LogoGlyph = 'flame' | 'drop' | 'bolt' | 'lens';
+export type LogoGlyph = 'flame' | 'drop' | 'bolt' | 'lens' | 'rope';
 export type HeadingFont = 'archivo-black' | 'barlow-condensed' | 'space-grotesk';
 /** photo = full-bleed photo behind copy + form (needs a sharp ≥1400 px photo);
  *  panel = tinted photo texture, copy + pinned real work photos + form (phone photos). */
@@ -83,5 +83,10 @@ export const GLYPH: Record<LogoGlyph, { main: string; inner: string }> = {
   lens: {
     main: 'M32 14a18 18 0 1 0 0 36 18 18 0 0 0 0-36zm0 7a11 11 0 1 1 0 22 11 11 0 0 1 0-22z',
     inner: 'M32 25.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13z',
+  },
+  /* Rope access: a block of flats with a rope from the roof and a climber on it. */
+  rope: {
+    main: 'M17 19H35V50H17ZM21 24h4v4h-4zM27 24h4v4h-4zM21 32h4v4h-4zM27 32h4v4h-4zM21 40h4v4h-4zM27 40h4v4h-4zM35 15.5H45.5V33H43.3V17.7H35ZM44.4 34.2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+    inner: 'M44.4 36.4a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6z',
   },
 };

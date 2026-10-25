@@ -263,7 +263,7 @@ const V3_ENUMS = {
   services: ['tiles', 'cards'],
   process: ['line', 'chevron', 'frames'],
   shape: ['round', 'shield', 'square'],
-  glyph: ['flame', 'drop', 'bolt', 'lens'],
+  glyph: ['flame', 'drop', 'bolt', 'lens', 'rope'],
   link: ['google', 'facebook', 'paslaugos'],
 };
 const V3_ICONS = ['phone', 'camera', 'tag', 'calendar', 'wrench', 'verified', 'pin', 'clock', 'team', 'wallet', 'arrow', 'check', 'flame', 'mail', 'facebook', 'list', 'drop', 'radiator', 'floor', 'fan', 'washer', 'pump', 'quote', 'map', 'bolt', 'lens', 'wifi', 'shield'];
