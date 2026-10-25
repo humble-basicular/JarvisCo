@@ -27,7 +27,9 @@ export function validateLaunchConfig(raw, { code, domain, test = false, pendingW
   if (p.controller?.address != null || p.processor?.address != null) throw new Error('launch config: address publication is not supported; omit private addresses');
   if (!test) {
     const w = raw.worker;
-    if (!w || w.configured !== !pendingWorker || w.site !== code || !Array.isArray(w.origins) || !w.origins.includes(`https://${domain}`) || !w.origins.every((x) => { try { const u = new URL(x); return u.protocol === 'https:' && u.origin === x; } catch { return false; } })) throw new Error('launch config: confirmed Worker site/origins must match this build');
+    // Both hosts serve the site (www redirects can't be assumed), so the Worker must accept both origins.
+    const hosts = domain.startsWith('www.') ? [domain, domain.slice(4)] : [domain, `www.${domain}`];
+    if (!w || w.configured !== !pendingWorker || w.site !== code || !Array.isArray(w.origins) || !hosts.every((h) => w.origins.includes(`https://${h}`)) || !w.origins.every((x) => { try { const u = new URL(x); return u.protocol === 'https:' && u.origin === x; } catch { return false; } })) throw new Error('launch config: confirmed Worker site/origins must match this build');
     if (!Array.isArray(w.recipients) || !w.recipients.length || !w.recipients.every((x) => typeof x === 'string' && email.test(x) && !pending.test(x))) throw new Error('launch config: confirmed notification recipients are required');
   }
   return { privacy, mapMode: raw.mapMode, workerRegistered: !test && !pendingWorker };

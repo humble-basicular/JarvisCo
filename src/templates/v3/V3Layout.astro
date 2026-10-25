@@ -51,7 +51,9 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     <meta name="format-detection" content="telephone=no" />
     <meta name="robots" content={site && !site.testBuild ? robots ?? 'index,follow' : 'noindex,nofollow'} />
     {canonical && <link rel="canonical" href={canonical} />}
-    <meta name="referrer" content="no-referrer" />
+    {/* Previews hide their secret /perziura/<slug> URL. Live sites must keep Origin on the form POST and
+        beacons to the Worker (no-referrer sends "Origin: null", which the Worker rejects). */}
+    <meta name="referrer" content={site ? 'strict-origin-when-cross-origin' : 'no-referrer'} />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content={theme.base} />

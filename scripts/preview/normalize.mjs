@@ -216,6 +216,16 @@ export async function checkLogoFile(buffer, ext) {
   await decodeLogo(buffer, 'svg');
 }
 
+/** Bytes to publish for a checked logo. JPEG/PNG are re-encoded so EXIF/GPS, XMP, ICC and text
+ *  chunks never reach a public URL (sharp drops metadata unless asked to keep it); EXIF
+ *  orientation is applied first. SVG passes as is: the allowlist above has no metadata element. */
+export async function cleanLogo(buffer, ext) {
+  if (/^\.?svg$/i.test(ext)) return buffer;
+  const { default: sharp } = await import('sharp');
+  const image = sharp(buffer, { limitInputPixels: 16_777_216 }).rotate();
+  return /^\.?jpe?g$/i.test(ext) ? image.jpeg({ quality: 92, mozjpeg: true }).toBuffer() : image.png({ compressionLevel: 9 }).toBuffer();
+}
+
 async function decodeLogo(buffer, format) {
   try {
     const { default: sharp } = await import('sharp');

@@ -11,7 +11,7 @@ import { randomBytes } from 'node:crypto';
 import vm from 'node:vm';
 import { parse } from 'parse5';
 import sharp from 'sharp';
-import { normalize, validateSaved, checkLogoFile, toE164 } from './preview/normalize.mjs';
+import { normalize, validateSaved, checkLogoFile, cleanLogo, toE164 } from './preview/normalize.mjs';
 import { validateLaunchConfig } from '../src/templates/v3/build-config.mjs';
 let passed = 0;
 const check = async (name, fn) => { await fn(); console.log(`PASS ${name}`); passed++; };
@@ -27,7 +27,7 @@ const v3 = {
   trust: [1, 2, 3].map((n) => ({ icon: 'check', title: `Trust ${n}`, text: 'Synthetic fact' })), steps: [1, 2, 3].map((n) => ({ icon: 'check', title: `Step ${n}`, text: 'Synthetic step' })),
 };
 const base = { business: 'Synthetic fixture', phone: '+37060000000', city: 'Kaunas', areas: ['Kaunas'], services: ['Synthetic service'], photos: [], v3 };
-const config = { mapMode: 'consent', privacy: { controller: { name: 'Synthetic controller', email: 'controller@example.lt' }, processor: { name: 'Synthetic processor', email: 'processor@example.lt' }, retention: 'Synthetic retention fact.', legalBasis: 'Synthetic basis fact.', hosting: 'Synthetic hosting fact.', rights: 'Synthetic rights fact.', updatedAt: '2026-10-23' }, worker: { configured: true, site: 'synthetic', origins: ['https://example.lt'], recipients: ['recipient@example.lt'] } };
+const config = { mapMode: 'consent', privacy: { controller: { name: 'Synthetic controller', email: 'controller@example.lt' }, processor: { name: 'Synthetic processor', email: 'processor@example.lt' }, retention: 'Synthetic retention fact.', legalBasis: 'Synthetic basis fact.', hosting: 'Synthetic hosting fact.', rights: 'Synthetic rights fact.', updatedAt: '2026-10-23' }, worker: { configured: true, site: 'synthetic', origins: ['https://example.lt', 'https://www.example.lt'], recipients: ['recipient@example.lt'] } };
 const context = { code: 'synthetic', domain: 'example.lt' };
 await check('new flags are opt-in and reject malformed values', () => {
   const defaults = normalize(base).data.v3;
@@ -41,11 +41,23 @@ await check('supplied JPEG logos decode fully; fake/truncated JPEG refused', asy
   await assert.rejects(() => checkLogoFile(jpeg.subarray(0, 20), '.jpg'), /logo/);
   await assert.rejects(() => checkLogoFile(Buffer.from('fake'), '.jpg'), /JPEG/);
 });
+await check('published JPEG/PNG logos carry no EXIF/GPS or other metadata', async () => {
+  const exif = { IFD0: { Copyright: 'Synthetic owner' }, IFD3: { GPSLatitudeRef: 'N', GPSLatitude: '54/1 53/1 0/1' } };
+  for (const [ext, img] of [['.jpg', sharp({ create: { width: 36, height: 36, channels: 3, background: '#ffffff' } }).jpeg()], ['.png', sharp({ create: { width: 36, height: 36, channels: 4, background: '#1f5f8b' } }).png()]]) {
+    const tagged = await img.withExif(exif).toBuffer();
+    assert.ok((await sharp(tagged).metadata()).exif, `fixture ${ext} has EXIF`);
+    const meta = await sharp(await cleanLogo(tagged, ext)).metadata();
+    assert.ok(!meta.exif && !meta.xmp && !meta.icc, `${ext} metadata stripped`);
+  }
+  const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>');
+  assert.equal(await cleanLogo(svg, '.svg'), svg);
+});
 await check('production refuses missing privacy/Worker/recipients; test permits unresolved facts without fabricating them', () => {
   assert.throws(() => validateLaunchConfig(undefined, context), /requires --config/);
   assert.deepEqual(validateLaunchConfig(undefined, { ...context, test: true }), { mapMode: 'disabled' });
   for (const key of ['retention', 'legalBasis', 'hosting', 'rights', 'updatedAt']) assert.throws(() => validateLaunchConfig({ ...config, privacy: { ...config.privacy, [key]: null } }, context), /required/);
   assert.throws(() => validateLaunchConfig({ ...config, worker: { ...config.worker, origins: ['https://wrong.lt'] } }, context), /origins/);
+  assert.throws(() => validateLaunchConfig({ ...config, worker: { ...config.worker, origins: ['https://example.lt'] } }, context), /origins/);
   assert.throws(() => validateLaunchConfig({ ...config, worker: { ...config.worker, recipients: [] } }, context), /recipients/);
   assert.throws(() => validateLaunchConfig({ ...config, privacy: { ...config.privacy, controller: { ...config.privacy.controller, address: 'Private address' } } }, context), /address/);
   assert.equal(validateLaunchConfig(config, context).privacy.controller.name, config.privacy.controller.name);
@@ -109,7 +121,8 @@ await check('test standalone remains v3; test artifact refused even if marker is
 });
 await check('synthetic production build has validated config, canonical towns, sitemap and named forms', () => {
   const result = build('--config', cfg); assert.equal(result.status, 0, result.stderr); assert.equal(deploy().status, 0, deploy().stderr);
-  const html = read(join(out, 'index.html')); assert.doesNotMatch(html, /<form[^>]*data-inert-form|localhost|noindex/); assert.match(html, /data-map-src=/); assert.doesNotMatch(html, /<iframe[^>]*src=/);
+  const html = read(join(out, 'index.html')); assert.doesNotMatch(html, /<form[^>]*data-inert-form|localhost|noindex/); assert.match(html, /data-map-src=/);
+  assert.match(html, /<meta name="referrer" content="strict-origin-when-cross-origin"/); // Worker rejects Origin: null assert.doesNotMatch(html, /<iframe[^>]*src=/);
   for (const route of ['', 'jonava/', 'privatumo-politika/']) { const h = read(join(out, route, 'index.html')); assert.ok(h.includes(`href="https://example.lt/${route}"`)); assert.ok(read(join(out, 'sitemap.xml')).includes(`<loc>https://example.lt/${route}</loc>`)); }
   for (const f of nodes(html).filter((n) => n.tagName === 'form')) {
     assert.equal(attr(f, 'action'), 'https://www.jarvisweb.lt/t/form'); const fields = walk(f).filter((n) => attr(n, 'name')).map((n) => attr(n, 'name')); assert.deepEqual(fields.sort(), ['files', 'kind', 'message', 'name', 'phone', 'site', 'website'].sort());
@@ -130,7 +143,7 @@ await check('other previews and demo remain inert with their prior branding and 
   for (const f of readdirSync('previews').filter((x) => x.endsWith('.json'))) {
     const d = JSON.parse(read(join('previews', f))); const path = `dist/perziura/${d.slug}/index.html`;
     if (!d.v3 || d.v3.hideTagline || !existsSync(path)) continue;
-    const html = read(path); assert.match(html, /data-inert-form/); assert.doesNotMatch(html, /<input[^>]*name=/); assert.ok(html.includes(d.v3.theme.logo.line)); assert.match(html, /Google profilis ruošiamas/);
+    const html = read(path); assert.match(html, /<meta name="referrer" content="no-referrer"/); assert.match(html, /data-inert-form/); assert.doesNotMatch(html, /<input[^>]*name=/); assert.ok(html.includes(d.v3.theme.logo.line)); assert.match(html, /Google profilis ruošiamas/);
   }
   const demo = read('dist/pavyzdys/sildymas/index.html'); assert.match(demo, /data-inert-form/); assert.doesNotMatch(demo, /href="tel:|<input[^>]*name=|id="atsiliepimai"/);
 });

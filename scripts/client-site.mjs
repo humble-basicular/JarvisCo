@@ -9,7 +9,7 @@
 import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkLogoFile, toE164, validateSaved } from './preview/normalize.mjs';
+import { checkLogoFile, cleanLogo, toE164, validateSaved } from './preview/normalize.mjs';
 import { validateLaunchConfig } from '../src/templates/v3/build-config.mjs';
 
 const ROOT = realpathSync(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
@@ -121,7 +121,7 @@ const photos = data.photos.map((p, i) => {
   return { ...p, src: `/foto/${photoFiles[i].name}` };
 });
 
-if (logoFile) copyFileSync(logoFile.real, join(stage, 'public', 'foto', logoFile.name));
+if (logoFile) writeFileSync(join(stage, 'public', 'foto', logoFile.name), await cleanLogo(readFileSync(logoFile.real), extname(logoFile.name)));
 const logo = logoFile ? { ...data.logo, src: `/foto/${logoFile.name}` } : undefined;
 
 const { submission, created, legal, ...site } = data; // the lead's form answers never go into the published site

@@ -10,7 +10,7 @@ import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-import { checkLogoFile, normalize, validateSaved } from './normalize.mjs';
+import { checkLogoFile, cleanLogo, normalize, validateSaved } from './normalize.mjs';
 const args = process.argv.slice(2);
 const input = args.find((a) => a.endsWith('.json'));
 
@@ -63,10 +63,10 @@ async function generate(file) {
   const photos = [];
   let logo;
   if (logoFile) {
-    // Copied as is (already checked): /previews/<slug>/logo.svg|png.
+    // Checked above; JPEG/PNG metadata stripped: /previews/<slug>/logo.svg|png|jpg.
     const name = `logo${extname(logoFile).toLowerCase()}`;
     mkdirSync(writeDir, { recursive: true });
-    copyFileSync(logoFile, join(writeDir, name));
+    writeFileSync(join(writeDir, name), await cleanLogo(readFileSync(logoFile), extname(logoFile)));
     logo = { src: `/previews/${slug}/${name}`, ...(data.logo.line ? { line: data.logo.line } : {}) };
   }
   if (data.photos.length) {
