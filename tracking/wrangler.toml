@@ -1,3 +1,5 @@
+# Owner mail is disabled: FORM_ALERT_TO / FORM_EMAIL are intentionally unset.
+# See README: confirmed verified destination, Email Routing only, no paid beta.
 name = "jarvisweb-proof-tracking"
 main = "src/index.ts"
 tsconfig = "tsconfig.json"

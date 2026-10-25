@@ -1,3 +1,5 @@
+import { alertFingerprint, scheduleFormAlert, type AlertConfig } from './alerts';
+
 // Rows stored before offer-v2 §2.4 have no email/preview_via: read them as null on the two funnel kinds.
 function withEmailFields(type: Event['type'], submission: Submission | SiteSubmission): Submission | SiteSubmission {
   if (type !== 'preview_request' && type !== 'callback_request') return submission;
@@ -5,7 +7,7 @@ function withEmailFields(type: Event['type'], submission: Submission | SiteSubmi
   return { ...stored, email: stored.email ?? null, preview_via: stored.preview_via ?? null };
 }
 
-interface Env {
+interface Env extends AlertConfig {
   DB: D1Database;
   FILES: KVNamespace;
   EVENTS_TOKEN?: string;
@@ -142,6 +144,7 @@ async function cleanup(db: D1Database, now: Date): Promise<void> {
   `).bind(ms + CLEANUP_INTERVAL_MS, ms).first();
   if (!lease) return;
   await db.batch([
+    db.prepare('DELETE FROM form_alert_claims WHERE expires_at <= ?').bind(ms),
     db.prepare('DELETE FROM submissions WHERE at < ?').bind(retentionCutoff(now)),
     db.prepare('DELETE FROM events WHERE at < ?').bind(retentionCutoff(now)),
     db.prepare('DELETE FROM form_daily_budgets WHERE day_start < ?').bind(Math.floor(ms / 86_400_000) * 86_400_000),
@@ -424,12 +427,23 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
       area: lists.area!, area_other: values.area_other || null,
       photos_ok: photos || null, standout: values.standout || null, contact_time: time || null, files: descriptors,
     };
-    await env.DB.batch([
+    const fingerprint = kind === 'job_request' ? null : await alertFingerprint({ kind, code: code || null, site, payload }, files);
+    const stored = await env.DB.batch([
       env.DB.prepare('INSERT INTO events(code, site, type, ua_class) VALUES (?, ?, ?, ?)').bind(code || null, site, kind, uaClass(request)),
       env.DB.prepare(`INSERT INTO submissions(id, event_id, code, site, kind, at, ua_class, payload)
         SELECT ?, id, code, site, type, at, ua_class, ? FROM events WHERE id = last_insert_rowid()`)
         .bind(id, JSON.stringify(payload)),
+      // Atomic with the durable submission: rollback never consumes an alert claim.
+      // Existing POST/storage/budget semantics stay intact; only alerts deduplicate.
+      env.DB.prepare(`INSERT INTO form_alert_claims(fingerprint, submission_id, expires_at)
+        SELECT ?, ?, ? WHERE ? IS NOT NULL
+        ON CONFLICT(fingerprint) DO UPDATE SET submission_id = excluded.submission_id, expires_at = excluded.expires_at
+        WHERE form_alert_claims.expires_at <= ? RETURNING submission_id`).bind(fingerprint, id, now + 600_000, fingerprint, now),
+      env.DB.prepare('SELECT at FROM submissions WHERE id = ?').bind(id),
     ]);
+    if (stored[2]!.results.length) {
+      scheduleFormAlert(env, ctx, { kind: kind!, code: code || null, site, at: (stored[3]!.results[0] as { at: string }).at, payload });
+    }
   } catch (cause) {
     // Only keys written by this failed submission; never delete existing files.
     await Promise.allSettled(written.map(key => env.FILES.delete(key)));
