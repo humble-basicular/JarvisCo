@@ -93,8 +93,12 @@ export function formsProof(f) {
   };
 }
 
-export const ZERO = '0 € pirmąsias 60 dienų nuo paleidimo.';
-export const DOMAIN = 'Domeną (~15 € per metus) apmokate Jūs, ir jis registruojamas Jūsų vardu.';
+export const ZERO = '0 € pirmąsias 60 dienų nuo svetainės paleidimo Jūsų domene.';
+export const DOMAIN = 'Jei reikia naujo domeno, jo mokestį (~15 € per metus) apmokate Jūs. Domenas registruojamas Jūsų vardu.';
+// Matas-approved 2026-10-25 (approved-copy-lt.md): 1 = callback + preview, 2 = work order, 3 = trial start.
+export const COPY_CALLBACK = 'Palikite kontaktus – paskambinsiu per 24 valandas. Gavęs reikiamus duomenis ir, jei reikia naujo domeno, jo apmokėjimą, per dvi darbo dienas paruošiu Jūsų svetainės peržiūrą.';
+export const COPY_ORDER = 'Po pokalbio ir susitarimo atsiunčiu vieną nuorodą trūkstamiems duomenims pateikti. Jei reikia naujo domeno, apmokate jo mokestį – apie 15 € per metus. Gavęs duomenis ir apmokėjimą, domeną registruoju Jūsų vardu ir paruošiu svetainės peržiūrą. Jei domeną jau turite, susitariame dėl jo prieigos. Peržiūrą pakoreguoju pagal Jūsų pastabas ir, Jums patvirtinus, paleidžiu svetainę.';
+export const COPY_TRIAL = '60 dienų bandomasis laikotarpis be mėnesinio mokesčio prasideda, kai Jūsų patvirtintą svetainę paleidžiu Jūsų domene ir ji veikia.';
 export const MAIN_CTA = 'Gauti nemokamą peržiūrą';
 
 export const header = {
@@ -128,12 +132,12 @@ export const hero = {
     lines: [`${formsTwoMonths} užklausų vien per formą`, 'per 2 mėnesius.'],
     sub: [
       `Tiek užklausų per svetainės formą per rugpjūtį ir rugsėjį gavo arboristas Mantas Gerulis (arbcut.lt). Skambučiai neįskaičiuoti. Žemiau – originalios ekrano kopijos.`,
-      'Tokią pat svetainę galiu sukurti ir Jums: pirmąsias 60 dienų mėnesio mokesčio nėra, mokate tik už domeną (~15 € per metus). Tada pagal ataskaitą nusprendžiate, ar tęsti.',
+      'Tokią pat svetainę galiu sukurti ir Jums: pirmąsias 60 dienų mėnesio mokesčio nėra, jei reikia naujo domeno, mokate tik jo mokestį (~15 € per metus). Tada pagal ataskaitą nusprendžiate, ar tęsti.',
     ],
   },
   sub: [
-    'Nemokama Jūsų svetainės peržiūra per 48 val. Paleidus svetainę pirmąsias 60 dienų mėnesio mokesčio nėra, o tada pagal ataskaitą nusprendžiate, ar tęsti.',
-    'Mokate tik už domeną (~15 € per metus), ir jis registruojamas Jūsų vardu.',
+    COPY_CALLBACK,
+    COPY_TRIAL,
   ],
   sms: 'Parašyti SMS',
   // Hero plan §4 (concept A1): an illustration, not a client. The flat lay is AI-generated; the screen is a real screenshot of our demo.
@@ -142,9 +146,9 @@ export const hero = {
 };
 
 export const offerRow = [
-  { big: 'Nemokama', text: 'peržiūra per 48 val.' },
-  { big: '0 €', text: 'pirmąsias 60 dienų nuo paleidimo' },
-  { big: 'Domenas', text: 'Jūsų vardu, ~15 € per metus' },
+  { big: 'Per 24 val.', text: 'paskambinsiu po užklausos' },
+  { big: '0 €', text: 'pirmąsias 60 dienų nuo paleidimo Jūsų domene' },
+  { big: 'Naujas domenas', text: 'jei reikia: Jūsų vardu, ~15 € per metus' },
   { big: 'Atsisakyti', text: 'galite bet kada' },
 ];
 
@@ -194,12 +198,12 @@ export const compare = {
 
 export const how = {
   label: 'Kaip tai veikia',
-  title: 'Keturi žingsniai, mokate tik paskutiniame',
-  text: 'Nuo formos iki veikiančios svetainės. Visą darbą darau pats.',
+  title: 'Keturi žingsniai nuo formos iki paleidimo',
+  text: COPY_ORDER,
   steps: [
     { title: 'Forma, 2 min.', text: 'Atsakote į kelis klausimus apie savo darbą.' },
-    { title: 'Peržiūra per 48 val.', text: 'Atsiunčiu nuorodą į Jūsų svetainės peržiūrą. Nepatinka – tiesiog neatsakote.' },
-    { title: 'Domenas ir paleidimas', text: 'Patinka – registruoju domeną Jūsų vardu (~15 € per metus, mokate Jūs). Paleidžiu svetainę ir Google verslo profilį.' },
+    { title: 'Peržiūra per dvi darbo dienas', text: 'Gavęs reikiamus duomenis ir, jei reikia naujo domeno, jo apmokėjimą, per dvi darbo dienas paruošiu Jūsų svetainės peržiūrą.' },
+    { title: 'Pastabos ir paleidimas', text: 'Peržiūrą pakoreguoju pagal Jūsų pastabas ir, Jums patvirtinus, paleidžiu svetainę bei Google verslo profilį.' },
     { title: 'Po 60 dienų – ataskaita', text: 'Atsiunčiu ataskaitą: kiek žmonių rado svetainę Google, paspaudė „Skambinti“ ir parašė. Tęsiate už 49 € per mėnesį arba atsisakote, ir tai nieko nekainuoja.' },
   ],
 };
@@ -220,7 +224,7 @@ export const examples = {
   // Hero plan §5 D3: generic portal card, demo data only, no real portal, rating or person.
   beforeAfter: {
     from: 'Iš to, ką jau turite internete',
-    to: 'tokia svetainė per 48 val.',
+    to: 'tokia gali būti Jūsų svetainė',
     beforeTag: 'Prieš: profilis portale',
     afterTag: 'Po: Jūsų svetainė',
     portal: 'Paslaugų portalas',
@@ -242,7 +246,7 @@ export const price = {
   // Jarvis 2026-10-22: 39 € is the founder price for the first 5 clients only (slot rule A2); clients #6–10 pay 49 € (Matas 2026-10-22), locked while subscribed.
   // The founder line follows FOUNDER_SLOTS_LEFT in ./founder.js (edit only that number).
   launch: founderLaunch,
-  before: `${ZERO} ${DOMAIN}`,
+  before: `${COPY_TRIAL} ${DOMAIN}`,
   includesTitle: 'Į kainą įeina',
   includes: [
     'Svetainė ir talpinimas',
@@ -271,11 +275,11 @@ export const faq = {
   title: 'Dažni klausimai',
   items: [
     { q: 'Darbo per valias, kam man?', a: 'Svetainė nebūtinai reiškia daugiau darbo. Daugiau užklausų – daugiau pasirinkimo, kuriuos darbus imti. O ramesniu sezonu ji jau būna Google.' },
-    { q: 'Turėjau svetainę, nieko nedavė', a: 'Dažniausiai tokia svetainė tiesiog niekam nerodoma: nėra Google verslo profilio, nėra puslapių pagal paslaugas ir miestus. Čia jie įeina. Ir pirmąsias 60 dienų mėnesio mokesčio nėra, todėl rezultatą pamatysite prieš mokėdami.' },
-    { q: 'Kas, jei neatneš užklausų?', a: `Pirmąsias 60 dienų nuo paleidimo mėnesio mokesčio nėra – mokate tik už domeną (~15 € per metus). Tada atsiunčiu ataskaitą. Jei rezultatas netenkina, atsisakote, ir tai nieko nekainuoja. Jei liksite, toliau – 49 € per mėnesį${founderNote}.` },
+    { q: 'Turėjau svetainę, nieko nedavė', a: 'Dažniausiai tokia svetainė tiesiog niekam nerodoma: nėra Google verslo profilio, nėra puslapių pagal paslaugas ir miestus. Čia jie įeina. Ir pirmąsias 60 dienų mėnesio mokesčio nėra, todėl rezultatą pamatysite prieš pradėdami mokėti kas mėnesį.' },
+    { q: 'Kas, jei neatneš užklausų?', a: `Pirmąsias 60 dienų nuo svetainės paleidimo Jūsų domene mėnesio mokesčio nėra – jei reikia naujo domeno, mokate tik jo mokestį (~15 € per metus). Tada atsiunčiu ataskaitą. Jei rezultatas netenkina, atsisakote, ir tai nieko nekainuoja. Jei liksite, toliau – 49 € per mėnesį${founderNote}.` },
     { q: 'Ar būsiu pirmas Google?', a: 'To pažadėti negaliu, ir niekas sąžiningai negali. Padarau tai, kas priklauso nuo manęs: greita svetainė, puslapiai pagal paslaugas ir miestus, Google verslo profilis. Kaip sekasi, matysite mėnesio ataskaitoje.' },
     { q: 'Kas, jei atsisakysiu?', a: 'Parašote SMS arba paskambinate. Per bandomąjį laikotarpį tai nieko nekainuoja. Vėliau svetainė veikia iki apmokėto mėnesio pabaigos ir tada išjungiama. Domenas, Google profilis, Jūsų nuotraukos ir tekstai lieka Jums.' },
-    { q: 'Kodėl nemokamai pradžiai?', a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Rizikuoju savo laiku: jei po 60 dienų rezultatai Jūsų netenkins, nieko neuždirbu. Jūs mokate tik už domeną, ir jis lieka Jūsų vardu.' },
+    { q: 'Kodėl nemokamai pradžiai?', a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Rizikuoju savo laiku: jei po 60 dienų rezultatai Jūsų netenkins, nieko neuždirbu. Jei reikia naujo domeno, mokate tik jo mokestį; domenas lieka Jūsų vardu.' },
     { q: 'Neturiu nuotraukų ar logotipo', a: 'Nieko tokio. Su Jūsų leidimu paimsiu darbų nuotraukas iš Jūsų profilio internete (pvz., Paslaugos.lt), o vietoj logotipo bus tvarkingai užrašytas pavadinimas. Vėliau viską galima pakeisti.' },
   ],
 };
@@ -283,7 +287,7 @@ export const faq = {
 export const cta = {
   label: 'Peržiūra',
   title: 'Pažiūrėkite, kaip atrodytų Jūsų svetainė',
-  text: 'Keli trumpi klausimai, apie 2 minutes. Peržiūrą atsiųsiu per 48 val. Nepatiks – tiesiog neatsakykite.',
+  text: COPY_CALLBACK,
 };
 
 /* Step-by-step form (§4.3). Trade and years have no wire field: the script
@@ -350,14 +354,14 @@ export const footer = {
 export const meta = {
   home: {
     title: 'Svetainės paslaugų meistrams, nemokama peržiūra | jarvisweb.lt',
-    description: `Nemokama Jūsų svetainės peržiūra per 48 val. Paleidus – ${ZERO} Mokate tik už domeną (~15 € per metus), jis Jūsų vardu.`,
+    description: `Palikite kontaktus – paskambinsiu per 24 valandas. ${ZERO} Jei reikia naujo domeno, jo mokestis ~15 € per metus.`,
   },
   heating: {
     title: 'Svetainė šildymo meistrui | jarvisweb.lt',
-    description: `Šildymo meistrams: nemokama svetainės peržiūra per 48 val. Paleidus – ${ZERO} Mokate tik už domeną (~15 € per metus).`,
+    description: `Šildymo meistrams: palikite kontaktus – paskambinsiu per 24 valandas. ${ZERO} Jei reikia naujo domeno, jo mokestis ~15 € per metus.`,
   },
   results: {
     title: `${formsTwoMonths} užklausų per 2 mėnesius – arbcut.lt rezultatai | jarvisweb.lt`,
-    description: `Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė ${formsTwoMonths} užklausų vien per formą. Originalios ekrano kopijos. Jūsų svetainė: ${ZERO} Mokate tik už domeną (~15 € per metus).`,
+    description: `Arboristo svetainė arbcut.lt per rugpjūtį ir rugsėjį sulaukė ${formsTwoMonths} užklausų vien per formą. Originalios ekrano kopijos. Jūsų svetainė: ${ZERO} Jei reikia naujo domeno, jo mokestis ~15 € per metus.`,
   },
 };

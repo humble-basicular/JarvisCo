@@ -412,7 +412,7 @@ export const funnel = {
   meta: {
     title: 'Nemokama Jūsų svetainės peržiūra | jarvisweb.lt',
     description:
-      'Atsakykite į kelis klausimus apie savo darbą, ir per 48 valandas atsiųsiu nuorodą į Jūsų svetainės peržiūrą. Nemokamai, be įsipareigojimų.',
+      'Atsakykite į kelis klausimus apie savo darbą. Palikite kontaktus – paskambinsiu per 24 valandas.',
   },
   nav: [
     { label: 'Pavyzdys', href: '#pavyzdys' },
@@ -422,7 +422,7 @@ export const funnel = {
   hero: {
     eyebrow: 'Nemokama svetainės peržiūra',
     h1: 'Nemokamai parodysiu, kaip atrodytų Jūsų svetainė.',
-    sub: 'Atsakykite į kelis klausimus apie savo darbą. Per 48 valandas paruošiu Jūsų svetainės peržiūrą ir nuorodą atsiųsiu SMS žinute. Nieko nemokate ir niekuo neįsipareigojate.',
+    sub: 'Palikite kontaktus – paskambinsiu per 24 valandas. Gavęs reikiamus duomenis ir, jei reikia naujo domeno, jo apmokėjimą, per dvi darbo dienas paruošiu Jūsų svetainės peržiūrą.',
     jump: 'Noriu peržiūros',
     by: 'Matas Bašinskas, svetainių kūrėjas, Kaunas',
   },
@@ -435,7 +435,7 @@ export const funnel = {
   },
   cta: {
     title: 'Norite tokios peržiūros?',
-    text: 'Tai nemokama. Jei peržiūra nepatiks, tiesiog neatsakykite.',
+    text: 'Palikite kontaktus – paskambinsiu per 24 valandas.',
     button: 'Taip, noriu nemokamos peržiūros',
   },
   // Service checkboxes by proof-code prefix (spec §2). No list = free text.
@@ -498,9 +498,9 @@ export const funnel = {
       rateLimited: 'Per daug bandymų iš eilės. Pabandykite po kelių minučių.',
       failure: `Nepavyko išsiųsti. Pabandykite dar kartą arba skambinkite ${PHONE}.`,
     },
-    // {name} = vocative first name, {date} = +48 h in Europe/Vilnius.
+    // {name} = vocative first name.
     thanks: {
-      preview: 'Ačiū{name}. Peržiūros nuorodą atsiųsiu {via} per 48 val., iki {date}.',
+      preview: 'Ačiū{name}. Paskambinsiu per 24 valandas.',
       callback: 'Ačiū{name}. {time}',
       times: {
         morning: 'Paskambinsiu rytą.',
@@ -517,7 +517,7 @@ export const funnel = {
 /* Homepage button to the same form without a code (phone field shown). */
 export const previewOffer = {
   title: 'Norite pamatyti savo svetainę prieš mokėdami?',
-  text: 'Atsakykite į kelis klausimus, ir per 48 valandas atsiųsiu nemokamą Jūsų svetainės peržiūrą.',
+  text: 'Palikite kontaktus – paskambinsiu per 24 valandas. Gavęs reikiamus duomenis ir, jei reikia naujo domeno, jo apmokėjimą, per dvi darbo dienas paruošiu Jūsų svetainės peržiūrą.',
   button: 'Gauti nemokamą peržiūrą',
   href: '/noriu#forma',
 };
