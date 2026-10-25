@@ -93,7 +93,9 @@ export function formsProof(f) {
   };
 }
 
-export const ZERO = '0 € pirmąsias 60 dienų nuo svetainės paleidimo Jūsų domene.';
+// Short form of COPY_TRIAL: keeps all three conditions (confirmed site, launched on your domain, working).
+export const TRIAL_WHEN = 'nuo to, kai Jūsų patvirtinta svetainė paleista Jūsų domene ir veikia';
+export const ZERO = `0 € pirmąsias 60 dienų ${TRIAL_WHEN}.`;
 export const DOMAIN = 'Jei reikia naujo domeno, jo mokestį (~15 € per metus) apmokate Jūs. Domenas registruojamas Jūsų vardu.';
 // Matas-approved 2026-10-25 (approved-copy-lt.md): 1 = callback + preview, 2 = work order, 3 = trial start.
 export const COPY_CALLBACK = 'Palikite kontaktus – paskambinsiu per 24 valandas. Gavęs reikiamus duomenis ir, jei reikia naujo domeno, jo apmokėjimą, per dvi darbo dienas paruošiu Jūsų svetainės peržiūrą.';
@@ -147,7 +149,7 @@ export const hero = {
 
 export const offerRow = [
   { big: 'Per 24 val.', text: 'paskambinsiu po užklausos' },
-  { big: '0 €', text: 'pirmąsias 60 dienų nuo paleidimo Jūsų domene' },
+  { big: '0 €', text: `pirmąsias 60 dienų ${TRIAL_WHEN}` },
   { big: 'Naujas domenas', text: 'jei reikia: Jūsų vardu, ~15 € per metus' },
   { big: 'Atsisakyti', text: 'galite bet kada' },
 ];
@@ -276,7 +278,7 @@ export const faq = {
   items: [
     { q: 'Darbo per valias, kam man?', a: 'Svetainė nebūtinai reiškia daugiau darbo. Daugiau užklausų – daugiau pasirinkimo, kuriuos darbus imti. O ramesniu sezonu ji jau būna Google.' },
     { q: 'Turėjau svetainę, nieko nedavė', a: 'Dažniausiai tokia svetainė tiesiog niekam nerodoma: nėra Google verslo profilio, nėra puslapių pagal paslaugas ir miestus. Čia jie įeina. Ir pirmąsias 60 dienų mėnesio mokesčio nėra, todėl rezultatą pamatysite prieš pradėdami mokėti kas mėnesį.' },
-    { q: 'Kas, jei neatneš užklausų?', a: `Pirmąsias 60 dienų nuo svetainės paleidimo Jūsų domene mėnesio mokesčio nėra – jei reikia naujo domeno, mokate tik jo mokestį (~15 € per metus). Tada atsiunčiu ataskaitą. Jei rezultatas netenkina, atsisakote, ir tai nieko nekainuoja. Jei liksite, toliau – 49 € per mėnesį${founderNote}.` },
+    { q: 'Kas, jei neatneš užklausų?', a: `Pirmąsias 60 dienų ${TRIAL_WHEN}, mėnesio mokesčio nėra – jei reikia naujo domeno, mokate tik jo mokestį (~15 € per metus). Tada atsiunčiu ataskaitą. Jei rezultatas netenkina, atsisakote, ir tai nieko nekainuoja. Jei liksite, toliau – 49 € per mėnesį${founderNote}.` },
     { q: 'Ar būsiu pirmas Google?', a: 'To pažadėti negaliu, ir niekas sąžiningai negali. Padarau tai, kas priklauso nuo manęs: greita svetainė, puslapiai pagal paslaugas ir miestus, Google verslo profilis. Kaip sekasi, matysite mėnesio ataskaitoje.' },
     { q: 'Kas, jei atsisakysiu?', a: 'Parašote SMS arba paskambinate. Per bandomąjį laikotarpį tai nieko nekainuoja. Vėliau svetainė veikia iki apmokėto mėnesio pabaigos ir tada išjungiama. Domenas, Google profilis, Jūsų nuotraukos ir tekstai lieka Jums.' },
     { q: 'Kodėl nemokamai pradžiai?', a: 'Nes sunku patikėti svetaine, kol nematai rezultato. Rizikuoju savo laiku: jei po 60 dienų rezultatai Jūsų netenkins, nieko neuždirbu. Jei reikia naujo domeno, mokate tik jo mokestį; domenas lieka Jūsų vardu.' },
