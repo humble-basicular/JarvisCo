@@ -6,6 +6,8 @@ import worker, { retentionCutoff } from '../dist/worker.mjs';
 
 const TOKEN = 'local-test-only-token';
 const SITES = JSON.stringify({ arbcut: { kind: 'client', origins: ['https://arbcut.lt'] }, 'sildymas-kaunas': { kind: 'leadgen', origins: ['https://heat.test'] }, other: { kind: 'client', origins: ['https://other.test'] } });
+const CLIENT_SITES = JSON.parse(await readFile(new URL('../config/client-sites.json', import.meta.url), 'utf8'));
+const LAUNCH_SITES = JSON.stringify({ ...JSON.parse(SITES), ...CLIENT_SITES });
 const SINCE = '2025-01-01T00:00:00.000Z';
 const productionScript = await readFile(new URL('../dist/worker.mjs', import.meta.url), 'utf8');
 // Deterministically drain waitUntil tasks for SQL assertions; redirect latency has
@@ -22,7 +24,7 @@ const test_default = {
   }
 };
 `;
-const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql', '0004_sites.sql', '0005_site_beacons.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
+const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql', '0004_sites.sql', '0005_site_beacons.sql', '0006_form_alerts.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
 const fixedNow = Date.now();
 let mf;
 let db;
@@ -1142,4 +1144,303 @@ test('offer migration preserves AUTOINCREMENT high-water when all events were de
     await database.prepare("INSERT INTO events(site,type,ua_class) VALUES ('arbcut','cta_call','human')").run();
     assert.equal(await database.prepare('SELECT id FROM events').first('id'), 101);
   } finally { await runtime.dispose(); }
+});
+
+const ALERT_TO = 'verified@example.com';
+function alertEnv(overrides = {}) {
+  return { DB: db, FILES: { async put() {}, async delete() {} }, SITES, FORM_ALERT_TO: ALERT_TO, ...overrides };
+}
+async function directForm(fields, env, files = [], pending = []) {
+  const response = await worker.fetch(new Request('https://jarvisweb.lt/t/form', {
+    method: 'POST', body: formBody(fields, files), headers: { Origin: fields?.site === 'sildymas-kaunas' ? 'https://heat.test' : fields?.site ? 'https://arbcut.lt' : 'https://jarvisweb.lt', Accept: 'application/json' },
+  }), env, { waitUntil(task) { pending.push(task); } });
+  return { response, pending };
+}
+function decodedMail(message) {
+  assert.equal(message.from, 'forms@jarvisweb.lt');
+  assert.equal(message.to, ALERT_TO);
+  const [headers, encoded] = message.raw.split('\r\n\r\n');
+  assert.match(headers, /Content-Type: text\/plain; charset=UTF-8/);
+  assert.match(headers, /Content-Transfer-Encoding: base64/);
+  assert.equal(headers.split('\r\n').length, 7);
+  for (const line of message.raw.split('\r\n')) assert.ok(line.length <= 998);
+  assert.equal(Buffer.from(headers.match(/Subject: =\?UTF-8\?B\?([^?]+)\?=/)[1], 'base64').toString('utf8'), 'JarvisWeb: nauja formos užklausa');
+  return { headers, body: Buffer.from(encoded, 'base64').toString('utf8') };
+}
+
+test('three alert kinds send Lithuanian UTF-8 plain text only after durable storage, using stored Vilnius time', async () => {
+  const messages = [];
+  const env = alertEnv({ FORM_EMAIL: { async send(message) {
+    assert.ok(await db.prepare('SELECT count(*) AS n FROM submissions').first('n') > messages.length);
+    messages.push(message);
+  } }, FORM_PROOF_LINKS: JSON.stringify({ p2345: 'https://paslaugos.lt/patvirtintas-profilis' }) });
+  for (const kind of ['preview_request', 'callback_request', 'site_inquiry']) {
+    const fields = { kind, phone: '12345678', name: 'Ąžuolas Žė', contact_time: 'evening',
+      ...(kind === 'site_inquiry' ? { site: 'arbcut', service: 'Medžių pjovimas', location: 'Kaunas', message: 'Ilga patirtis' }
+        : { code: 'p2345', email: 'lead@example.lt', services: ['Medžių pjovimas'], area: ['Kaunas'], standout: 'Ilga patirtis' }) };
+    const { response, pending } = await directForm(fields, env, [{ type: 'text/plain', body: 'a' }]);
+    assert.equal(response.status, 200);
+    const receipt = await response.json();
+    await Promise.all(pending);
+    const { body, headers } = decodedMail(messages.at(-1));
+    assert.ok(!headers.includes('lead@example.lt'));
+    for (const value of ['Ąžuolas Žė', 'Medžių pjovimas', 'Kaunas', 'Ilga patirtis', 'Vakare', 'Failų skaičius: 1', 'Europe/Vilnius']) assert.ok(body.includes(value), value);
+    const at = await db.prepare('SELECT at FROM submissions WHERE id = ?').bind(receipt.id).first('at');
+    const formatted = new Intl.DateTimeFormat('lt-LT', { timeZone: 'Europe/Vilnius', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).format(new Date(at));
+    assert.ok(body.includes(formatted));
+    assert.ok(body.includes(kind === 'site_inquiry' ? 'El. paštas: —' : 'El. paštas: "lead@example.lt"'));
+    assert.ok(body.includes(kind === 'site_inquiry' ? '— (nepriskirta)' : 'https://paslaugos.lt/patvirtintas-profilis'));
+  }
+  assert.equal(messages.length, 3);
+  const { response: jobResponse, pending } = await directForm({ kind: 'job_request', site: 'sildymas-kaunas', phone: '12345678', consent: 'yes' }, env);
+  assert.equal(jobResponse.status, 200);
+  await Promise.all(pending);
+  assert.equal(messages.length, 3);
+});
+
+test('invalid, honeypot, rejected origin and failed KV/D1 storage never send mail or consume claims', async () => {
+  let sent = 0;
+  const env = alertEnv({ FORM_EMAIL: { async send() { sent++; } } });
+  for (const fields of [{ kind: 'preview_request' }, { kind: 'preview_request', code: 'p2345', website: 'spam' }, { kind: 'unknown' }]) {
+    const { pending } = await directForm(fields, env);
+    await Promise.all(pending);
+  }
+  const foreign = await worker.fetch(new Request('https://jarvisweb.lt/t/form', { method: 'POST', body: formBody(), headers: { Origin: 'https://evil.test' } }), env, { waitUntil() { throw Error('unexpected task'); } });
+  assert.equal(foreign.status, 403);
+  const failedKV = await directForm({ kind: 'preview_request', code: 'p2345' }, { ...env, FILES: { async put() { throw Error('KV down'); } } }, [{ type: 'text/plain' }]);
+  assert.equal(failedKV.response.status, 503);
+  // A real SQL failure in the submission transaction rolls back its event + claim.
+  await db.prepare("CREATE TRIGGER reject_submission BEFORE INSERT ON submissions BEGIN SELECT RAISE(ABORT, 'local failure'); END").run();
+  const failedD1 = await directForm({ kind: 'preview_request', code: 'p2345' }, env);
+  assert.equal(failedD1.response.status, 503);
+  assert.equal(sent, 0);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 0);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 0);
+});
+
+test('synchronous and asynchronous mail failures preserve successful response and stored row; retries do not resend', async () => {
+  for (const asyncFailure of [false, true]) {
+    let sent = 0;
+    const env = alertEnv({ FORM_EMAIL: { send() { sent++; if (asyncFailure) return Promise.reject(Error('mail down')); throw Error('mail down'); } } });
+    const fields = { kind: 'callback_request', phone: '12345678', name: String(asyncFailure) };
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const { response, pending } = await directForm(fields, env);
+      assert.equal(response.status, 200);
+      const { id } = await response.json();
+      await Promise.all(pending);
+      assert.ok(await db.prepare('SELECT id FROM submissions WHERE id = ?').bind(id).first('id'));
+    }
+    assert.equal(sent, 1);
+  }
+});
+
+test('a pending send never delays the HTTP success or stored row', async () => {
+  let finish;
+  const blocked = new Promise(resolve => { finish = resolve; });
+  const pending = [];
+  try {
+    const result = await Promise.race([
+      directForm({ kind: 'callback_request', phone: '12345678' }, alertEnv({ FORM_EMAIL: { send() { return blocked; } } }), [], pending),
+      new Promise((_, reject) => setTimeout(() => reject(Error('HTTP waited for mail')), 1000)),
+    ]);
+    assert.equal(result.response.status, 200);
+    assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 1);
+  } finally { finish(); await Promise.all(pending); }
+});
+
+test('persisted alert fingerprint deduplicates retries and changes for attachment bytes; expires after ten minutes', async () => {
+  const messages = [];
+  const env = alertEnv({ FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  for (const body of ['AAA', 'AAA', 'BBB']) {
+    const { response, pending } = await directForm({ kind: 'preview_request', code: 'p2345' }, env, [{ name: 'same.txt', type: 'text/plain', body }]);
+    assert.equal(response.status, 200);
+    await Promise.all(pending);
+  }
+  assert.equal(messages.length, 2);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 3); // Existing POST semantics.
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 2);
+  await db.prepare('UPDATE form_alert_claims SET expires_at = 0').run();
+  const { response, pending } = await directForm({ kind: 'preview_request', code: 'p2345' }, env, [{ name: 'same.txt', type: 'text/plain', body: 'AAA' }]);
+  assert.equal(response.status, 200);
+  await Promise.all(pending);
+  assert.equal(messages.length, 3);
+});
+
+test('duplicate concurrent POSTs in separate workerd isolates sharing D1 schedule exactly one alert', async () => {
+  await mf.dispose();
+  const sharedScript = script.replace('const pending = [];', `const pending = [];
+    env.FORM_ALERT_TO = '${ALERT_TO}';
+    env.FORM_EMAIL = { async send() { await env.DB.prepare('INSERT INTO test_mail VALUES (1)').run(); } };`);
+  mf = new Miniflare(convertV4MiniflareOptions({ workers: ['one', 'two'].map(name => ({
+    name, modules: true, script: sharedScript, compatibilityDate: '2026-10-01',
+    d1Databases: { DB: 'alert-shared-db' },
+  })) }));
+  db = await mf.getD1Database('DB', 'one');
+  await db.batch(migration.split(';').map(s => s.trim()).filter(Boolean).map(s => db.prepare(s)));
+  await db.prepare('CREATE TABLE test_mail(n INTEGER)').run();
+  const workers = await Promise.all(['one', 'two'].map(name => mf.getWorker(name)));
+  const encoded = new Request('https://jarvisweb.lt/t/form', { method: 'POST', body: formBody() });
+  const bytes = new Uint8Array(await encoded.arrayBuffer());
+  const results = await Promise.all(Array.from({ length: 4 }, (_, n) => workers[n % 2].fetch(encoded.url, { method: 'POST', headers: encoded.headers, body: bytes })));
+  assert.ok(results.every(r => r.status === 200));
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM test_mail').first('n'), 1);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 1);
+});
+
+test('untrusted fields cannot add headers or body lines; malformed recipient and proof configuration are safe', async () => {
+  const messages = [];
+  const binding = { async send(message) { messages.push(message); } };
+  const fields = { kind: 'preview_request', code: 'p2345', name: 'Rasa\r\nBcc: victim@example.com',
+    email: 'rasa@example.lt', services: ['<b>Service</b>\u0085next'], area_other: 'Kaunas\u2028To: other', standout: 'Žinutė\nFrom: spoof\u202e' };
+  const { response, pending } = await directForm(fields, alertEnv({ FORM_EMAIL: binding, FORM_PROOF_LINKS: '{bad' }));
+  assert.equal(response.status, 200);
+  await Promise.all(pending);
+  const { headers, body } = decodedMail(messages[0]);
+  assert.ok(!headers.includes('Rasa') && !headers.includes('victim') && !headers.includes('rasa@example.lt'));
+  assert.ok(body.includes('Rasa\\r\\nBcc: victim@example.com'));
+  for (const value of ['\\u003c', '\\u003e', '\\u0085', '\\u2028', '\\u202e', 'Žinutė\\r\\nFrom: spoof']) assert.ok(body.includes(value), value);
+  assert.equal(body.split('\r\n').length, 16);
+  assert.ok(body.includes('— (nepriskirta)'));
+  for (const [n, to] of [undefined, '', 'x@example.com\r\nBcc: bad@example.com', 'a@example.com,b@example.com', 'a@localhost', 'Rasa <a@example.com>'].entries()) {
+    const result = await directForm({ kind: 'callback_request', phone: '12345678', name: `invalid-config-${n}` }, alertEnv({ FORM_EMAIL: binding, FORM_ALERT_TO: to }));
+    assert.equal(result.response.status, 200);
+    await Promise.all(result.pending);
+  }
+  assert.equal(messages.length, 1);
+  for (const [n, url] of ['http://paslaugos.lt/x', 'https://paslaugos.lt.evil.test/x', 'https://user@paslaugos.lt/x', 'https://evil.test/x', 'https://paslaugos.lt/x\nBcc:bad'].entries()) {
+    const result = await directForm({ ...fields, code: 'p2346', name: `bad-link-${n}` }, alertEnv({ FORM_EMAIL: binding, FORM_PROOF_LINKS: JSON.stringify({ p2346: url }) }));
+    assert.equal(result.response.status, 200);
+    await Promise.all(result.pending);
+    assert.ok(decodedMail(messages.at(-1)).body.includes('— (nepriskirta)'));
+  }
+});
+
+// Launch registration is additive: private SITES retains all existing entries.
+test('four launch sites accept apex/www forms, anonymous beacons and CORS preflight', async () => {
+  await mf.dispose();
+  ({ runtime: mf, database: db } = await createRuntime({ sites: LAUNCH_SITES }));
+  assert.deepEqual(Object.keys(CLIENT_SITES), ['meselektra', 'laikam', 'masaukstalipiai', 'vensland']);
+  for (const [site, config] of Object.entries(CLIENT_SITES)) {
+    assert.equal(config.kind, 'client');
+    assert.deepEqual(config.origins, [`https://${site}.lt`, `https://www.${site}.lt`]);
+    for (const origin of config.origins) {
+      const response = await siteSubmit({ site }, [], origin);
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get('Access-Control-Allow-Origin'), origin);
+      assert.equal((await siteBeacon(site, 'cta_call', origin)).status, 204);
+      const preflight = await request('/t/form', { method: 'OPTIONS', headers: { Origin: origin, 'Access-Control-Request-Method': 'POST' } });
+      assert.equal(preflight.status, 204);
+      assert.equal(preflight.headers.get('Access-Control-Allow-Origin'), origin);
+    }
+  }
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 8);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 16);
+});
+
+test('launch sites refuse missing, HTTP, lookalike, Pages and another client origin without writes', async () => {
+  await mf.dispose();
+  ({ runtime: mf, database: db } = await createRuntime({ sites: LAUNCH_SITES }));
+  for (const site of Object.keys(CLIENT_SITES)) {
+    for (const origin of [null, 'null', `http://${site}.lt`, `https://${site}.lt.evil.test`,
+      `https://${site}.pages.dev`, `https://${site}.lt/`, 'https://jarvisweb.lt',
+      site === 'laikam' ? 'https://meselektra.lt' : 'https://laikam.lt']) {
+      assert.equal((await siteSubmit({ site }, [], origin)).status, 403, `${site} ${origin}`);
+      assert.equal((await siteBeacon(site, 'cta_call', origin)).status, 403, `${site} ${origin}`);
+    }
+    assert.equal((await siteSubmit({ kind: 'job_request', site, consent: 'yes' }, [], CLIENT_SITES[site].origins[0])).status, 400);
+  }
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 0);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM events').first('n'), 0);
+});
+
+async function launchForm(site, env, fields = {}) {
+  const pending = [];
+  const response = await worker.fetch(new Request('https://www.jarvisweb.lt/t/form', {
+    method: 'POST', body: formBody({ kind: 'site_inquiry', site, phone: '+37061234567', ...fields }),
+    headers: { Origin: CLIENT_SITES[site].origins[0], Accept: 'application/json' },
+  }), env, { waitUntil(task) { pending.push(task); } });
+  await Promise.all(pending);
+  return response;
+}
+const CLIENT_ROUTES = Object.fromEntries(Object.keys(CLIENT_SITES).map(site => [site, [`${site}@example.com`, ALERT_TO]]));
+
+test('each launch inquiry privately routes to only its configured client and owner after storage', async () => {
+  const messages = [];
+  const env = alertEnv({ SITES: LAUNCH_SITES, FORM_ALERT_TO: undefined,
+    FORM_SITE_RECIPIENTS: JSON.stringify(CLIENT_ROUTES), FORM_EMAIL: { async send(message) {
+      assert.ok(await db.prepare('SELECT count(*) AS n FROM submissions').first('n') > 0);
+      messages.push(message);
+    } } });
+  for (const site of Object.keys(CLIENT_SITES)) {
+    const start = messages.length;
+    assert.equal((await launchForm(site, env, { message: 'Private inquiry', recipients: 'attacker@example.com' })).status, 200);
+    const sent = messages.slice(start);
+    assert.deepEqual(sent.map(m => m.to).sort(), [...CLIENT_ROUTES[site]].sort());
+    for (const mail of sent) {
+      const [headers, encoded] = mail.raw.split('\r\n\r\n');
+      assert.ok(headers.includes(`To: ${mail.to}\r\n`));
+      assert.ok(!headers.includes('Bcc:') && !headers.includes('Cc:'));
+      for (const other of CLIENT_ROUTES[site].filter(to => to !== mail.to)) assert.ok(!headers.includes(other));
+      const body = Buffer.from(encoded, 'base64').toString('utf8');
+      assert.ok(body.includes(`Svetainė: "${site}"`));
+      assert.ok(!body.includes('attacker@example.com'));
+    }
+  }
+  assert.equal(messages.length, 8);
+});
+
+test('client routing leaves funnel owner alerts and unmapped existing sites unchanged', async () => {
+  const messages = [];
+  const env = alertEnv({ SITES: LAUNCH_SITES, FORM_SITE_RECIPIENTS: JSON.stringify(CLIENT_ROUTES),
+    FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  for (const fields of [{ kind: 'preview_request', code: 'p2345', site: 'meselektra' },
+    { kind: 'callback_request', phone: '12345678' }, { kind: 'site_inquiry', site: 'arbcut', phone: '12345678' }]) {
+    const pending = [];
+    const response = await worker.fetch(new Request('https://jarvisweb.lt/t/form', { method: 'POST', body: formBody(fields),
+      headers: { Origin: fields.kind === 'site_inquiry' ? 'https://arbcut.lt' : 'https://jarvisweb.lt', Accept: 'application/json' },
+    }), env, { waitUntil(task) { pending.push(task); } });
+    assert.equal(response.status, 200);
+    await Promise.all(pending);
+  }
+  assert.deepEqual(messages.map(m => m.to), [ALERT_TO, ALERT_TO, ALERT_TO]);
+  const { response, pending } = await directForm({ kind: 'callback_request', phone: '12345678', name: 'different' },
+    { ...env, FORM_SITE_RECIPIENTS: '{bad' });
+  assert.equal(response.status, 200);
+  await Promise.all(pending);
+  assert.equal(messages.at(-1).to, ALERT_TO);
+  assert.equal(messages.length, 4);
+});
+
+for (const [label, routes] of [
+  ['invalid JSON', '{bad'], ['null', 'null'], ['array', '[]'],
+  ['non-list', JSON.stringify({ meselektra: 'bad@example.com' })],
+  ['empty', JSON.stringify({ meselektra: [] })],
+  ['header injection', JSON.stringify({ meselektra: ['valid@example.com', 'x@example.com\r\nBcc: attacker@example.com'] })],
+  ['display name', JSON.stringify({ meselektra: ['Display <x@example.com>'] })],
+  ['unbounded list', JSON.stringify({ meselektra: Array(11).fill(ALERT_TO) })],
+]) test(`client recipient ${label} fails closed while preserving receipt and durable row`, async () => {
+  let sent = 0;
+  const response = await launchForm('meselektra', alertEnv({ SITES: LAUNCH_SITES, FORM_SITE_RECIPIENTS: routes,
+    FORM_EMAIL: { async send() { sent++; } } }));
+  assert.equal(response.status, 200);
+  assert.equal(sent, 0);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 1);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 1);
+});
+
+test('two-recipient routing keeps ten-minute dedup; failure at one mailbox does not suppress the other', async () => {
+  const attempted = [];
+  const env = alertEnv({ SITES: LAUNCH_SITES,
+    FORM_SITE_RECIPIENTS: JSON.stringify({ meselektra: ['client@example.com', ALERT_TO, ALERT_TO.toUpperCase()] }),
+    FORM_EMAIL: { send(message) { attempted.push(message.to);
+      if (message.to === 'client@example.com') throw Error('destination unavailable');
+      return Promise.resolve();
+    } } });
+  for (let n = 0; n < 2; n++) assert.equal((await launchForm('meselektra', env)).status, 200);
+  assert.deepEqual(attempted.sort(), ['client@example.com', ALERT_TO].sort());
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 2);
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 1);
+  await db.prepare('UPDATE form_alert_claims SET expires_at = 0').run();
+  assert.equal((await launchForm('meselektra', env)).status, 200);
+  assert.equal(attempted.length, 4);
 });

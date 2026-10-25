@@ -13,7 +13,7 @@ Both `jarvisweb.lt` and `www.jarvisweb.lt` have `/p/*` and `/t/*` Worker routes.
 
 ## Form submissions and attachments
 
-`POST /t/form` accepts `multipart/form-data` following spec §4. Text is trimmed; unknown fields are ignored. For the original funnel, required `kind` is `preview_request` or `callback_request`; `code` is a configured five-character proof code or empty. `phone` is required without a code, otherwise optional: at most 20 characters, only digits/spaces/`+ - ( )`, and at least eight digits when supplied. Offer-v2 §2.4 adds two optional fields on both kinds: `email` (≤254 after trim, lower-cased, `^[^\s@]+@[^\s@]+\.[^\s@]+$`, else `400 field:"email"`) and `preview_via` (`sms`, `email` or empty, else `400 field:"preview_via"`). `preview_via=email` requires `email`. A homepage `preview_request` (no code) is accepted with a phone, or with an email unless `preview_via=sms`; `callback_request` still needs `code` or `phone`. Both are stored in the existing JSON payload (no migration); the feed emits `email` and `preview_via` (null when absent, also for rows stored before this change) on these two kinds only. Nothing is sent by email or SMS. Other optional fields:
+`POST /t/form` accepts `multipart/form-data` following spec §4. Text is trimmed; unknown fields are ignored. For the original funnel, required `kind` is `preview_request` or `callback_request`; `code` is a configured five-character proof code or empty. `phone` is required without a code, otherwise optional: at most 20 characters, only digits/spaces/`+ - ( )`, and at least eight digits when supplied. Offer-v2 §2.4 adds two optional fields on both kinds: `email` (≤254 after trim, lower-cased, `^[^\s@]+@[^\s@]+\.[^\s@]+$`, else `400 field:"email"`) and `preview_via` (`sms`, `email` or empty, else `400 field:"preview_via"`). `preview_via=email` requires `email`. A homepage `preview_request` (no code) is accepted with a phone, or with an email unless `preview_via=sms`; `callback_request` still needs `code` or `phone`. Both are stored in the existing JSON payload (no migration); the feed emits `email` and `preview_via` (null when absent, also for rows stored before this change) on these two kinds only. Optional owner-only email alerts are documented below; no SMS or customer email is sent. Other optional fields:
 
 | Fields | Validation |
 |---|---|
@@ -146,4 +146,63 @@ Run from the integrated `tracking/` directory, with Homebrew Node on PATH. The e
    npx wrangler deploy --config "$HOME/Library/Application Support/JarvisWeb/wrangler-production.toml"
    ```
 
-4. Coordinate with the site/CRM stages before exposing the form. Verify synthetic a/p redirects, preview beacon, synthetic two-file form, authenticated paging/download, unauthorized denial, and CRM ingestion. No real lead SMS or inquiry is needed. Production KV creation, migration, deployment and these live checks are the lead's work; implementation acceptance covers local tests/typecheck/dry run only.
+4. Coordinate with the site/CRM stages before exposing the form. Verify synthetic a/p redirects, preview beacon, synthetic two-file form, authenticated paging/download, unauthorized denial, and CRM ingestion. No real lead SMS or inquiry is needed. Production KV creation, migration, deployment and these live checks are the lead's work; implementation acceptance covers local tests/typecheck only; no deployment or dry run was performed for the email-alert task.
+
+
+## Form email alerts — disabled until Matas confirms the destination
+
+After a valid `preview_request`, `callback_request` or `site_inquiry` and its files are durably stored, the Worker schedules one best-effort owner notification with `ctx.waitUntil`. `job_request`, rejected input/origins, honeypots and failed storage do not send. The response does not wait for email. Send/configuration/MIME errors are swallowed without changing the successful response or stored row; no request data or mail error is logged. Recipient and binding are optional and **unset in the repository**. There is no backfill of rows saved while disabled.
+
+The Lithuanian plain-text body includes kind, the **stored D1 timestamp** converted to Europe/Vilnius (including DST), name/phone/email, services, area, contact time, standout/message, proof code, file count and optional trusted Paslaugos link. For `site_inquiry`, `service` maps to services, `location` to area and `message` to standout; this contract has no email field, so the alert shows it as absent. Attachments are counted, never attached or linked publicly. Submitted strings are JSON-quoted on one line, with controls, bidi characters and HTML metacharacters escaped. No submitted value enters a header: sender is always `forms@jarvisweb.lt`, subject is fixed, recipient comes only from validated operator configuration and Date comes from storage. MIME uses UTF-8/base64 with CRLF and 76-character transfer lines. The legacy `EmailMessage` API is used, compatible with the pinned Oct 11 Worker types.
+
+### Persistent alert idempotency and delivery limits
+
+Migration `0006_form_alerts.sql` adds a SHA-256 fingerprint claim, inserted in the **same D1 transaction** as the event and submission. Concurrent isolates atomically choose one alert attempt for identical validated kind/code/site/payload for ten minutes; retries cannot take another claim, including after a failed send. An expired claim can be reclaimed. Fingerprints exclude random KV keys, transport boundaries and ignored fields, and include ordered file metadata **and a SHA-256 hash of every attachment's bytes**. Different content with the same name/size is a different inquiry. Only hashes, submission IDs and expiry are stored in the claim table; expired claims are removed by the existing hourly request-time cleanup.
+
+This is **notification idempotency**, preserving the existing no-key form contract: repeated POSTs still store separate rows/files and consume existing budgets; they do not schedule duplicate mail during the window. This intentionally keeps the current CRM and budget behavior. Identical legitimate inquiries inside ten minutes share an alert; after ten minutes they can alert again. List/file order remains significant. Without a client-provided stable idempotency key, indefinite retry detection and perfect distinction from a new identical inquiry are impossible. No site changes are required.
+
+Delivery is at most one scheduled attempt per fingerprint window, not guaranteed exactly-once delivery. A Worker interruption after commit/before send, invalid/unset configuration or provider failure may lose an alert; there is no outbox, automatic retry or delivery confirmation. Stored rows remain available through the authenticated feed. Enabling mail later does not resend a still-active claim.
+
+### One-time setup — Matas, only AFTER Claude review
+
+No dashboard/DNS/binding/migration/deployment action or real email was performed by the implementation agent. Use the existing Cloudflare account and private production configuration; keep real D1/KV IDs, routes, token and `SITES` unchanged.
+
+1. In Cloudflare dashboard, open **Compute → Email Service → Email Routing**, onboard/enable **jarvisweb.lt**, and review its required MX/SPF/DKIM records before enabling. Existing dashboards may expose Email Routing from the domain page. Enable **Email Routing only**. Do not activate paid arbitrary-recipient Email Sending beta or upgrade a plan for this feature. Cloudflare documents sending to account-verified destination addresses as free, including when only Email Routing is configured ([pricing](https://developers.cloudflare.com/email-service/platform/pricing/)).
+2. **Confirm the exact business alias and final inbox with Matas first.** `matas@jarvisweb.lt` forwarding to `jarvisworks.co@gmail.com` is only a proposed mapping, not verified existing configuration. Add the confirmed final inbox under **Email Routing → Destination Addresses**, open Cloudflare's verification message and verify it. A custom forwarding alias/routing rule and an account-verified destination are different things. The free send binding must target the **verified destination inbox directly**, not assume the custom alias is a verified destination. If the alias is desired, create its routing rule to that inbox separately after confirmation. See [routing setup](https://developers.cloudflare.com/email-service/get-started/route-emails/).
+3. In `~/Library/Application Support/JarvisWeb/wrangler-production.toml`, add the following only after replacing the placeholder privately with that exact verified destination. Merge variables into the **existing `[vars]` table**; do not add a duplicate table or replace `SITES`. The sender is fixed in code to `forms@jarvisweb.lt`; the `jarvisweb.lt` domain must be enabled for routing. Keep `FORM_ALERT_TO` and `destination_address` identical. Restricting the binding to one verified inbox keeps this on the free destination-only path ([binding restrictions](https://developers.cloudflare.com/email-service/configuration/send-bindings/), [legacy API](https://developers.cloudflare.com/email-service/api/send-emails/workers-api/#legacy-emailmessage-api)).
+
+   ```toml
+   [vars] # merge into the existing table; retain SITES and other values
+   FORM_ALERT_TO = "<confirmed-and-verified-destination-inbox>"
+   # Optional: no CRM lead registry exists in this Worker. Supply only real,
+   # individually verified proof-code -> Paslaugos profile mappings. No templates.
+   # FORM_PROOF_LINKS = '{"<real-proof-code>":"<verified-https-paslaugos-profile-url>"}'
+
+   [[send_email]]
+   name = "FORM_EMAIL"
+   destination_address = "<same-confirmed-and-verified-destination-inbox>"
+   ```
+
+   `FORM_PROOF_LINKS` is optional trusted configuration; it accepts only exact HTTPS `paslaugos.lt`/`www.paslaugos.lt` URLs without credentials or custom ports. Unknown codes, malformed JSON and unsafe URLs produce “nepriskirta”, never an invented lead URL. A hostname check does not prove the profile exists: Matas must verify each mapping. Neither the registry nor mappings are inferred from submitted fields.
+4. After Claude approval and the normal production D1 backup, Matas runs these commands from the integrated `tracking/` checkout. Check private `main` and absolute `migrations_dir` point to that integrated checkout, preserving private IDs/routes/`SITES`:
+
+   ```sh
+   export PATH=/opt/homebrew/bin:$PATH
+   npm ci
+   npm test
+   npm run typecheck
+   npx wrangler d1 migrations apply DB --remote --config "$HOME/Library/Application Support/JarvisWeb/wrangler-production.toml"
+   npx wrangler deploy --config "$HOME/Library/Application Support/JarvisWeb/wrangler-production.toml"
+   ```
+
+Local tests never send real mail: Node direct-handler tests use an inert `cloudflare:email` constructor through `--import ./test/register-email.mjs`; esbuild preserves that runtime import as external. Miniflare/workerd tests use the actual `EmailMessage` runtime with a local injected send stub, including two isolates sharing D1. The setup, destination verification, production migration/deployment and actual inbox delivery remain unverified and require Matas to perform them after review. Cloudflare's former Email Routing sending documentation redirects to Email Service; this implementation deliberately retains the supported raw `EmailMessage` interface and account-verified recipient path, without paid beta onboarding.
+
+## Client launch recipient routing
+
+The additive registration file [`config/client-sites.json`](config/client-sites.json) supplies `kind: client` and exact HTTPS apex/www origins for meselektra, laikam, masaukstalipiai and vensland. Merge it into the existing private `SITES`; it is not an automatic default and must not replace other entries. No Pages preview origin is allowed. Origin validation, anonymous beacon schema, budgets, storage, authenticated feeds and ten-minute alert claims remain those of live `d7605ac`.
+
+Set **`FORM_SITE_RECIPIENTS` as a private JSON config/secret** mapping validated site codes to arrays of verified mailboxes. Each launching client needs its confirmed client mailbox plus Matas's approved owner mailbox. Real recipients belong only in private configuration, never source control. The existing `FORM_ALERT_TO` continues to serve first-party preview/callback alerts and existing unmapped sites; submitted email/recipient fields never select destinations. A missing route falls back to that existing owner behavior, so a complete verified route is a mandatory launch gate. Malformed JSON/top-level data or a present invalid/empty route disables site mail without changing successful storage; unrelated malformed entries do not poison a valid selected route. Funnel mail ignores this map entirely.
+
+A valid selected route has 1–10 strict ASCII mailbox values; duplicate case variants schedule one message. Each recipient gets its own plain-text message with no other client's addresses in headers. Synchronous/asynchronous send failure at one recipient does not suppress another or change the receipt. The shared persisted fingerprint claim still controls the whole notification attempt; there is no per-recipient retry, outbox or guaranteed delivery. Correcting config does not replay an already claimed submission. No attachment contents are emailed.
+
+Before deployment, replace the existing `FORM_EMAIL.destination_address` restriction with `allowed_destination_addresses` containing the union of all approved verified destinations, including the legacy owner. Keep sender `forms@jarvisweb.lt`, existing first-party mail configuration and free verified-destination path. Client-domain MX need not change for notifications. Full deployment, mail/DNS preservation, rollback and live-test instructions: [`docs/launch/RUNBOOK.md`](../docs/launch/RUNBOOK.md). No Worker deployment, DNS change or email send is part of implementation acceptance.

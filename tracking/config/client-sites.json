@@ -1,0 +1,6 @@
+{
+  "meselektra": { "kind": "client", "origins": ["https://meselektra.lt", "https://www.meselektra.lt"] },
+  "laikam": { "kind": "client", "origins": ["https://laikam.lt", "https://www.laikam.lt"] },
+  "masaukstalipiai": { "kind": "client", "origins": ["https://masaukstalipiai.lt", "https://www.masaukstalipiai.lt"] },
+  "vensland": { "kind": "client", "origins": ["https://vensland.lt", "https://www.vensland.lt"] }
+}
