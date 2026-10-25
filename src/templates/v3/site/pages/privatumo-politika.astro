@@ -4,7 +4,7 @@ import { loadBuild } from '../load';
 const { data, site } = loadBuild();
 const p = site.privacy;
 ---
-<V3Layout title={`Privatumo politika – ${data.business}`} description="Užklausos duomenų tvarkymas" theme={data.v3.theme} site={site} logo={data.logo?.src} canonical={`https://${site.domain}/privatumo-politika/`}>
+<V3Layout title={`Privatumo politika – ${data.business}`} description="Užklausos duomenų tvarkymas" theme={data.v3.theme} site={site} logo={data.logo?.src} logoSize={data.v3.clientLogo} canonical={`https://${site.domain}/privatumo-politika/`}>
   <main class="v3-wrap v3-page">
     <h1>Privatumo politika</h1>
     {p ? <>

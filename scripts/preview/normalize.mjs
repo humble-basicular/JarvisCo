@@ -162,7 +162,7 @@ function logo(value) {
  *  directly runs its scripts. Accept only plain drawing SVGs (no script, event handler, external or
  *  javascript: reference, foreignObject, entity) and real PNGs; SVG/JPEG ≤ 200 KB, PNG ≤ 1 MB. */
 export async function checkLogoFile(buffer, ext) {
-  // Approved raster lockups ship as exact PNG bytes (several hundred KB); SVG stays a small static drawing.
+  // Approved raster lockups can be several hundred KB; SVG stays a small static drawing.
   const png = /^\.?png$/i.test(ext);
   if (buffer.length > (png ? 1024 : 200) * 1024) throw new Error(`logo file is larger than ${png ? '1 MB' : '200 KB'}`);
   if (/^\.?jpe?g$/i.test(ext)) {

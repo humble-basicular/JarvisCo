@@ -156,7 +156,7 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
 - `clientLogo: {width, height}` (optional): show the client's own logo file (top-level `logo`, read on a light
   plate) in the header, about stamp and footer instead of the generated badge. Opt-in, so previews whose `logo`
   predates v3 (Nerijus, the demo) keep their badge. Width/height = the file's intrinsic size. A wide logo+name lockup works the same way (`formBadge: true` also shows it
-  on the quote card); logo files are ≤ 200 KB for SVG, ≤ 1 MB for PNG so approved artwork can ship as exact bytes.
+  on the quote card); logo files are ≤ 200 KB for SVG, ≤ 1 MB for PNG so approved artwork can pass validation; published PNGs are losslessly re-encoded to remove metadata.
 - `photo`: indexes into `photos` for hero, pins (panel hero), about, faq, cta.
 - Photo quality rule (Jarvis 2026-10-21): emphasised slots – hero and CTA backgrounds (≥ 1400 px) and
   service tiles (≥ 1000 px) – take a sharp real photo or an AI illustration (`ai: true`). AI images show

@@ -14,8 +14,8 @@ import { GLYPH, themeCss, type Theme } from './theme';
 import type { Banner } from '../heating/types';
 import Tracking from '../heating/parts/Tracking.astro';
 
-interface Props { title: string; description: string; theme: Theme; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string }
-const { title, description, theme, banner, canonical, site, robots, logo } = Astro.props;
+interface Props { title: string; description: string; theme: Theme; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string; logoSize?: { width: number; height: number } }
+const { title, description, theme, banner, canonical, site, robots, logo, logoSize } = Astro.props;
 /* One heading font per site (theme card); only that font's files are referenced. */
 const HEAD = {
   'archivo-black': { latin: archivoLatin, ext: archivoExt, weight: '400', fallback: "local('Arial Black'),local('Arial-BoldMT'),local('Arial')", adjust: '98%' },
@@ -57,7 +57,7 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content={theme.base} />
-    <link rel="icon" href={logo ?? favicon} />
+    <link rel="icon" href={logoSize && logoSize.width > logoSize.height ? favicon : logo ?? favicon} />
     <link rel="preload" href={headLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={headExt} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />
