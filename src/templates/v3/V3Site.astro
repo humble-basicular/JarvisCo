@@ -96,11 +96,12 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
 
 <header class="v3-top">
   <div class="v3-wrap v3-top__bar">
-    <a class:list={["v3-brand", v3.largeWordmark && "v3-brand--large", v3.clientLogo?.showName && "v3-brand--named"]} href={home} aria-label={`${data.business}, pradžia`}>
+    <a class:list={["v3-brand", v3.largeWordmark && "v3-brand--large", v3.clientLogo?.showName && "v3-brand--named", lockup && "v3-brand--lockup"]} href={home} aria-label={`${data.business}, pradžia`}>
       {clientLogo ? (
         <>
           <img class="v3-brand__logo" src={clientLogo} alt={data.business} {...logoSize} />
-          <span class="v3-brand__text">{v3.clientLogo?.showName && <span class="v3-brand__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</span>}{!v3.hideTagline && <span class="v3-brand__line">{theme.logo.line}</span>}</span>
+          {/* A client logo stands alone in the header: no tagline beside it (Matas 2026-10-26: "atrodo labai blogai"). */}
+          {v3.clientLogo?.showName && <span class="v3-brand__text"><span class="v3-brand__name">{nameSplit ? <>{nameSplit[1]}<span class="v3-brand__two">{nameSplit[2]}</span></> : data.business}</span></span>}
         </>
       ) : (
         <>

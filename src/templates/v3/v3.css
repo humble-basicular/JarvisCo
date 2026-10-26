@@ -617,6 +617,9 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
 .v3-brand--large .v3-brand__name { font-size: 1.85rem; }
 .v3-brand--named .v3-brand__logo { height: 4rem; width: 4rem; max-width: none; }
 .v3-brand--named .v3-brand__text { display: grid; }
+/* Wide client lockups (logo with the name in it) read larger in the header. */
+.v3-brand--lockup .v3-brand__logo { height: 4.4rem; max-width: 17rem; }
+@media (max-width: 40rem) { .v3-brand--lockup .v3-brand__logo { height: 3rem; max-width: 10.5rem; } }
 .v3-quote__badge--client { border-radius: 8px; overflow: hidden; background: white; }
 .v3-quote__badge--client img { width: 84px; height: 84px; object-fit: contain; }
 /* Wide logo+name lockup: a wide plate, so the wordmark is not shrunk into the 84px square. */
