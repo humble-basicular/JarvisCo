@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-10-26T17:32:52.127Z",
+  "cloudflare": {
+    "project": "jarvisweb-meselektra",
+    "domains": [
+      "jarvisweb-meselektra.pages.dev",
+      "meselektra.lt",
+      "www.meselektra.lt"
+    ],
+    "productionBranch": "main",
+    "rollbackDeploymentId": "b82838d3-10a2-4145-9792-787d00d084d8",
+    "environment": "production",
+    "url": "https://b82838d3.jarvisweb-meselektra.pages.dev"
+  },
+  "vercel": {
+    "project": "jarvis-co",
+    "rollbackDeploymentId": "dpl_GWCxPM4EjHmppAa4DwLcpy1K2VqR",
+    "aliases": [
+      "jarvisweb.lt",
+      "www.jarvisweb.lt"
+    ]
+  },
+  "sourceCodeCommit": "c158e712381b9b10efb2eab62e9610b00088f812",
+  "approvedCatalogueSha256": "7f18169cf26d654e36de51f2f523daf1c6754f0a71b55d1f6442c7536c94a191"
+}
