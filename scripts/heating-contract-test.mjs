@@ -9,6 +9,7 @@ import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 import { checkLogoFile, normalize, townSlug, validateSaved } from './preview/normalize.mjs';
 import { toE164 } from '../src/templates/heating/content.ts';
+import { GALLERY_SHOWN, galleryPhotos, workPhotos } from '../src/templates/v3/content.ts';
 import { accentTokens, contrast, BG, INK } from '../src/templates/heating/accent.ts';
 import { CONTRAST_AUDIT as AUDIT, chrome, serve, sleep } from './heating-cdp.mjs';
 
@@ -51,12 +52,23 @@ const V3_MIN = {
   h1: { lead: 'Sintetinis', hot: 'testas' }, heroChecks: ['Taškas'], aboutTitle: 'Apie', ctaTitle: 'Skambinkite', ctaText: 'Tekstas',
   trust: [1, 2, 3].map((i) => ({ icon: 'check', title: `T${i}`, text: 'Tekstas' })), steps: [1, 2, 3].map((i) => ({ icon: 'check', title: `S${i}`, text: 'Tekstas' })),
 };
-check('photos: ai flag kept, 12 real + 12 AI limit', () => {
-  const real = Array.from({ length: 12 }, (_, i) => `r${i}.jpg`);
+check('photos: ai flag kept, 150 real + 12 AI limit', () => {
+  const real = Array.from({ length: 150 }, (_, i) => `r${i}.jpg`);
   const ai = Array.from({ length: 12 }, (_, i) => ({ path: `a${i}.jpg`, ai: true }));
   assert.equal(normalize({ ...base, v3: V3_MIN, photos: [...real, ...ai] }).data.photos.filter((p) => p.ai).length, 12);
-  assert.throws(() => normalize({ ...base, photos: [...real, 'r12.jpg'] }), /12 real/);
+  assert.throws(() => normalize({ ...base, photos: [...real, 'r150.jpg'] }), /150 real/);
+  assert.throws(() => normalize({ ...base, v3: V3_MIN, photos: [...real, ...ai, { path: 'a12.jpg', ai: true }] }), /at most 162|12 AI/);
   assert.throws(() => normalize({ ...base, photos: [{ path: 'a.jpg', ai: 'yes' }] }), /ai must be/);
+});
+check('v3 gallery: page shows at most 9 real photos, lightbox gets every real photo, never AI', () => {
+  const mk = (n, ai) => Array.from({ length: n }, (_, i) => ({ src: `${ai ? 'a' : 'r'}${i}`, ...(ai ? { ai: true } : {}) }));
+  const all = [...mk(52), ...mk(11, true)];
+  assert.equal(GALLERY_SHOWN, 9);
+  assert.deepEqual(galleryPhotos(all).map((p) => p.src), mk(9).map((p) => p.src));
+  assert.equal(workPhotos(all).length, 52);
+  assert.ok(workPhotos(all).every((p) => !p.ai));
+  assert.equal(galleryPhotos(mk(7)).length, 5); // whole grid rows only
+  assert.equal(galleryPhotos(mk(3)).length, 3);
 });
 const ph = (n, width, ai) => ({ src: `/previews/abcdefghjk/${n}.jpg`, width, height: 900, ...(ai ? { ai: true } : {}) });
 check('v3: emphasised hero/CTA/tile photos below the minimum width are refused', () => {
