@@ -638,6 +638,10 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
 .v3-form-error a { font-weight: 700; }
 .v3-form button:disabled { opacity: .65; cursor: wait; }
 .v3-map-consent { display: grid; place-content: center; justify-items: center; gap: 1rem; padding: 2rem; text-align: center; }
+/* Consent placeholder fills the dark map frame; text must stay readable on --v3-base. */
+.v3-map-consent { position: absolute; inset: 0; color: #fff; }
+.v3-map-consent p { max-width: 26rem; color: rgb(255 255 255 / .82); }
+.v3-map-consent a { color: #fff; font-size: .9rem; text-decoration: underline; }
 .v3-page { padding-block: 3rem; max-width: 52rem; }
 .v3-page :is(h1,h2,p) { margin-bottom: 1.25rem; }
 .v3-page h1 { font-family: var(--v3-head); font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1.15; }
