@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build && npm run check:copy",
+    "build": "astro build && node scripts/optimize-client-logos.mjs dist && npm run check:copy",
     "preview": "node scripts/preview/cli.mjs",
     "check:copy": "node src/checks/copy-check.mjs",
     "check:js": "node src/checks/js-budget.mjs",

@@ -11,6 +11,7 @@ import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkLogoFile, cleanLogo, toE164, validateSaved } from './preview/normalize.mjs';
 import { validateLaunchConfig } from '../src/templates/v3/build-config.mjs';
+import { optimizeClientLogos } from './optimize-client-logos.mjs';
 import { checkSeoArtifacts } from './service-artifacts.mjs';
 
 const ROOT = realpathSync(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
@@ -186,6 +187,7 @@ if (data.v3) {
 
 if (data.v3) writeFileSync(join(target, 'build-manifest.json'), JSON.stringify({ version: 1, template: 'v3', mode: test ? 'test' : 'production', domain, code, formEndpoint: build.site.formEndpoint, configurationValidated: !!launch?.privacy && !test, workerRegistered: !!launch?.workerRegistered, mapMode: launch.mapMode }, null, 2) + '\n');
 
+if (data.v3 && logo && /\.(png|jpe?g)$/i.test(logo.src)) await optimizeClientLogos(target, [logo.src]);
 console.log(`Built ${relative(ROOT, target)}/ in ${((Date.now() - started) / 1000).toFixed(1)}s: ${readdirSync(target).join(', ')}`);
 console.log(`Site ${code} → https://${domain}/   form: ${build.site.formEndpoint}${towns.length ? `   towns: ${towns.map((t) => `/${t}/`).join(' ')}` : ''}`);
 if (test) console.log('TEST BUILD (stub endpoints): never deploy this folder.');
