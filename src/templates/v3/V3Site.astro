@@ -9,7 +9,7 @@
 import type { SiteData, TownLink, TownPage } from '../heating/types';
 import { toE164 } from '../heating/content';
 import QuoteForm from './parts/QuoteForm.astro';
-import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, workPhotos, type V3Input, type V3Photo, type V3LiveSite } from './content';
+import { LINK_ICON, LINK_LABEL, EMPHASIS_MIN_WIDTH, areaMap, galleryPhotos, serviceIcon, workPhotos, type V3Input, type V3Photo, type V3LiveSite } from './content';
 import Badge from './parts/Badge.astro';
 import ServiceContent from './parts/ServiceContent.astro';
 import { pageForService, serviceHref } from './service-pages.mjs';
@@ -41,7 +41,8 @@ const tel = !demo && phone ? `tel:${phone}` : '#uzklausa';
 const d = theme.divider;
 const P = data.photos;
 const at = (i: number | undefined, fallback: number) => P[i ?? fallback] ?? P[fallback % P.length] ?? P[0];
-const hero = service ? P[service.photoIndexes?.[0] ?? -1] : at(v3.photo?.hero, 0);
+const selectedServicePhoto = service && P[service.photoIndexes?.[0] ?? -1];
+const hero = service ? (selectedServicePhoto && selectedServicePhoto.width >= EMPHASIS_MIN_WIDTH.background ? selectedServicePhoto : undefined) : at(v3.photo?.hero, 0);
 const aboutPhoto = at(v3.photo?.about, 4);
 const faqPhoto = at(v3.photo?.faq, 2);
 const ctaPhoto = at(v3.photo?.cta, 3);
@@ -150,7 +151,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
       </div>
 
       <div class="v3-quote" id="uzklausa">
-        <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-form"  badge={!clientLogo} clientLogo={clientLogo && v3.clientLogo?.formBadge ? { src: clientLogo, ...logoSize } : undefined} site={site} />
+        <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} serviceName={service?.heading} uid="b-form"  badge={!clientLogo} clientLogo={clientLogo && v3.clientLogo?.formBadge ? { src: clientLogo, ...logoSize } : undefined} site={site} />
       </div>
     </div>
     <Divider shape={d} from="photo" to="accent" />
@@ -529,7 +530,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
 <dialog class="v3-modal" data-quote-modal aria-labelledby="v3-modal-title">
   <div class="v3-quote v3-quote--modal">
     <button class="v3-modal__x" type="button" data-quote-close aria-label="Uždaryti"><span aria-hidden="true">×</span></button>
-    <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} uid="b-modal" titleId="v3-modal-title"  badge={!clientLogo} clientLogo={clientLogo && v3.clientLogo?.formBadge ? { src: clientLogo, ...logoSize } : undefined} site={site} />
+    <QuoteForm business={data.business} phone={data.phone} theme={theme} v3={v3} tel={tel} serviceName={service?.heading} uid="b-modal" titleId="v3-modal-title"  badge={!clientLogo} clientLogo={clientLogo && v3.clientLogo?.formBadge ? { src: clientLogo, ...logoSize } : undefined} site={site} />
   </div>
 </dialog>
 

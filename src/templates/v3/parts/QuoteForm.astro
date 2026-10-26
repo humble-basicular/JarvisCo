@@ -5,8 +5,8 @@ import Icon from './Icon.astro';
 import type { Theme } from '../theme';
 import type { V3Input, V3LiveSite } from '../content';
 
-interface Props { business: string; phone: string; theme: Theme; v3: V3Input; tel: string; uid: string; titleId?: string; badge?: boolean; clientLogo?: { src: string; width?: number; height?: number }; site?: V3LiveSite }
-const { business, phone, theme, v3, tel, uid, titleId, badge = true, clientLogo, site } = Astro.props;
+interface Props { business: string; phone: string; theme: Theme; v3: V3Input; tel: string; uid: string; titleId?: string; badge?: boolean; clientLogo?: { src: string; width?: number; height?: number }; site?: V3LiveSite; serviceName?: string }
+const { business, phone, theme, v3, tel, uid, titleId, badge = true, clientLogo, site, serviceName } = Astro.props;
 ---
 {clientLogo ? <div class:list={['v3-quote__badge v3-quote__badge--client', clientLogo.width && clientLogo.height && clientLogo.width > clientLogo.height && 'v3-quote__badge--wide']}><img {...clientLogo} alt={business} /></div> : badge && <div class="v3-quote__badge"><Badge name={business} theme={theme} uid={uid} size={84} /></div>}
 <h2 class="v3-quote__title" id={titleId}>Gaukite kainą</h2>
@@ -14,9 +14,10 @@ const { business, phone, theme, v3, tel, uid, titleId, badge = true, clientLogo,
 {site?.testBuild && <p class="v3-form__note">Bandomoji forma. Užklausa siunčiama tik į vietinį testą.</p>}
 <form class="v3-form" data-callback-form={site ? true : undefined} data-inert-form={!site ? true : undefined} action={site?.formEndpoint ?? '#'} method={site ? 'post' : 'get'} enctype={site ? 'multipart/form-data' : undefined} novalidate={!site}>
   {site && <><input type="hidden" name="kind" value="site_inquiry" /><input type="hidden" name="site" value={site.code} /><label class="v3-honeypot" aria-hidden="true">Svetainė<input name="website" type="text" tabindex="-1" autocomplete="off" /></label></>}
+  {site && serviceName && <input type="hidden" data-compose="Paslauga" value={serviceName} />}
   <label class="v3-field"><span>Vardas</span><input type="text" name={site ? 'name' : undefined} maxlength={site ? 80 : undefined} autocomplete={site ? 'name' : 'off'} placeholder="Jūsų vardas" /></label>
   <label class="v3-field"><span>Telefonas{site && ' *'}</span><input type="tel" name={site ? 'phone' : undefined} required={!!site} minlength={site ? 8 : undefined} maxlength={site ? 20 : undefined} pattern={site ? '[0-9\\s\\+\\-\\(\\)]+' : undefined} autocomplete={site ? 'tel' : 'off'} placeholder="+370 6.. ....." /></label>
-  <label class="v3-field"><span>Kokio darbo reikia?</span><textarea name={site ? 'message' : undefined} maxlength={site ? 2000 : undefined} rows="2" placeholder={v3.formHint ?? 'Trumpai aprašykite darbą'}></textarea></label>
+  <label class="v3-field"><span>Kokio darbo reikia?</span><textarea name={site ? 'message' : undefined} maxlength={site ? 2000 : undefined} rows="2" placeholder={serviceName ? 'Trumpai aprašykite, kokio darbo reikia' : v3.formHint ?? 'Trumpai aprašykite darbą'}></textarea></label>
   <label class="v3-attach"><input type="file" name={site ? 'files' : undefined} accept={site ? 'image/jpeg,image/png,image/webp,image/heic,image/heif,image/gif,application/pdf,.heic,.heif' : 'image/*,application/pdf'} multiple /><Icon name="camera" /><span>Pridėti failus</span></label>
   {site && <><p class="v3-files-hint">Iki 8 failų: po 10 MB, kartu iki 25 MB.</p><ul class="v3-files" data-file-list hidden></ul><p class="v3-files-hint" data-file-sum></p><p class="v3-files-hint">Siųsdami prašote susisiekti dėl užklausos. <a href="/privatumo-politika/">Privatumo politika</a>.</p><div class="v3-form-error" data-form-error role="alert" tabindex="-1" hidden><p data-form-error-text></p><p>Paskambinkite tiesiai: <a href={tel}>{phone}</a>.</p></div></>}
   <button class="v3-btn v3-btn--accent v3-btn--block" type="submit">Gauti kainą<Icon name="arrow" /></button>

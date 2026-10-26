@@ -1,0 +1,9 @@
+# Service SEO lead integration —26 October 2026
+
+Source implementation d43e5a8 accepted for integration; private catalogue adds32 meaningful service pages mapped to36 existing cards across five clients. No real catalogue/input was committed. The lead applied only v3.servicePages; other input fields compare semantically equal to frozen released inputs. Original input copies are backed up privately.
+
+Lead delta: selected service photos below the existing1400px background threshold stay in the body gallery instead of becoming stretched heroes. The shared quote component preserves service context in the existing message via the existing data-compose behavior, for both hero and dialog forms; the service form uses a neutral relevant placeholder. Backend wire contract is unchanged.
+
+Checks:27 unit/launch tests passed in independent lead rerun. All five test standalone builds passed; agency check passed93pages. A local browser fallback was used after T3 preview repeatedly reported no automation host. Ten actual preview cases (five clients at390/1440) passed headings, noindex, phones, layout/links and small-photo hero checks. Quote dialog, Escape, mobile menu and inert preview submission passed. Local-only MesElektra test submissions exercised500/uncertain preservation and200/success redirect, verifying the selected LED service appears in the message. No customer request was sent. Visual contact sheet of31 selected real-source photos inspected; no job/location/results fabricated.
+
+Pending at this commit: cross-provider review, completed mobile lab measurements, final production deployment and actual HTTP404/service-route checks. The production MesElektra config reuses existing privacy/recipients with Worker registration/origins verified read-only against its current deployed version; no registry/account mutation. No ArbCut changes, messages, purchases or trial-clock activation.
