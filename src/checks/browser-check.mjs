@@ -130,7 +130,7 @@ try {
         assert.equal(result.posts[0].entries.length, Object.keys(expected).length, 'No extra or duplicate wire fields');
         assert.deepEqual(Object.fromEntries(result.posts[0].entries), expected, `${route}/${mode}: exact posted fields`);
         assert(result.thanksVisible);
-        assert(result.thanks.includes(mode === 'callback' ? 'Paskambinsiu dieną.' : mode === 'email' ? 'el. paštu' : 'SMS'));
+        assert(result.thanks.includes(mode === 'callback' ? 'Paskambinsiu dieną.' : mode === 'email' ? 'Susisieksiu el. paštu per 24 valandas.' : 'Paskambinsiu per 24 valandas.'));
       }
       receipts.push({route, mode, passed:true, ...result});
       console.log(`browser-check: ${route} ${mode}: PASS`);

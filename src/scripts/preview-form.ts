@@ -13,7 +13,7 @@ import { FORM_LIMITS } from '../data/tracking.js';
 
 type Messages = {
   errors: Record<string, string>;
-  thanks: { preview: string; callback: string; times: Record<string, string>; sign: string };
+  thanks: { preview: string; previewEmail: string; callback: string; times: Record<string, string>; sign: string };
   sending: string;
   preparing: string;
   progress: string;
@@ -317,12 +317,12 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
     }
   }
 
-  function showThanks(kind: string, name: string, time: string, channel: 'sms' | 'email') {
+  function showThanks(kind: string, name: string, time: string, channel: 'sms' | 'email', hasPhone: boolean) {
     const t = messages.thanks;
     const who = name ? `, ${vocative(name)}` : '';
     thanks.querySelector('[data-thanks-text]')!.textContent = kind === 'callback_request'
       ? t.callback.replace('{name}', who).replace('{time}', t.times[time] ?? t.times[''])
-      : t.preview.replace('{name}', who).replace('{via}', messages.channel[channel]).replace('{date}', dueLabel());
+      : (hasPhone ? t.preview : t.previewEmail).replace('{name}', who).replace('{via}', messages.channel[channel]).replace('{date}', dueLabel());
     form.hidden = true;
     thanks.hidden = false;
     thanks.focus();
@@ -380,7 +380,7 @@ document.querySelectorAll<HTMLFormElement>('form[data-preview-form]').forEach((f
       }
       const json = (await res.json().catch(() => ({}))) as { ok?: boolean; field?: string };
       if (res.ok && json.ok) {
-        showThanks(kind, String(body.get('name') ?? ''), String(body.get('contact_time') ?? ''), channel);
+        showThanks(kind, String(body.get('name') ?? ''), String(body.get('contact_time') ?? ''), channel, Boolean(phoneValue) || Boolean(code));
       } else if (res.status === 400 && json.field) {
         const field = json.field === 'area' || json.field === 'services' ? `${json.field}_other` : json.field;
         reveal(setError(field, messages.errors[field] ?? messages.errors.invalid));

@@ -48,7 +48,7 @@ const CARDS = [
     file: 'public/assets/og-v4.png',
     html: page(`<div class="card"><div class="logo">${wordmark}</div>
       <p class="head" style="font-size:92px">Svetainė, kuri<br>nieko nekainuoja,<br>kol neatneša užklausos.</p>
-      <div class="foot"><span class="pill">Nemokama peržiūra per 48 val.</span><span class="url">jarvisweb.lt</span></div></div>`),
+      <div class="foot"><span class="pill">Paskambinsiu per 24 val.</span><span class="url">jarvisweb.lt</span></div></div>`),
   },
   {
     file: 'public/assets/og-rezultatai-v4.png',
