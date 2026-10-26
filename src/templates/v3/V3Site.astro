@@ -9,7 +9,7 @@
 import type { SiteData, TownLink, TownPage } from '../heating/types';
 import { toE164 } from '../heating/content';
 import QuoteForm from './parts/QuoteForm.astro';
-import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, type V3Input, type V3Photo, type V3LiveSite } from './content';
+import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, workPhotos, type V3Input, type V3Photo, type V3LiveSite } from './content';
 import Badge from './parts/Badge.astro';
 import Divider from './parts/Divider.astro';
 import Icon from './parts/Icon.astro';
@@ -43,6 +43,7 @@ const ctaPhoto = at(v3.photo?.cta, 3);
 const reviewsPhoto = at(v3.photo?.reviews ?? v3.photo?.hero, 0);
 const pins = (v3.photo?.pins ?? [1, 2, 3]).map((i) => P[i]).filter((p) => p && !p.ai).slice(0, 3);
 const gallery = galleryPhotos(P);
+const works = workPhotos(P); // every real job photo, for the lightbox
 const services = data.services.map((s) => (typeof s === 'string' ? { name: s, text: '' } : { name: s.name, text: s.text ?? '' }));
 const year = new Date().getFullYear();
 const baseLine = v3.baseLine ?? `${base} ir aplink`;
@@ -316,12 +317,32 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
       <ul class="v3-masonry">
         {gallery.map((p, i) => (
           <li class={`v3-masonry__${i}`}>
-            <img {...img(p, i === 0 ? '(min-width: 64rem) 36rem, 92vw' : '(min-width: 64rem) 18rem, 46vw')} alt={p.alt ?? ''} loading="lazy" />
+            <button class="v3-masonry__open" type="button" data-lb-open={i} aria-label={`Atidaryti nuotrauką ${i + 1} iš ${works.length}`}>
+              <img {...img(p, i === 0 ? '(min-width: 64rem) 36rem, 92vw' : '(min-width: 64rem) 18rem, 46vw')} alt={p.alt ?? ''} loading="lazy" />
+            </button>
           </li>
         ))}
       </ul>
+      {works.length > gallery.length && (
+        <p class="v3-gallery__all"><button class="v3-btn v3-btn--accent" type="button" data-lb-open="0"><Icon name="camera" />Žiūrėti visas nuotraukas ({works.length})</button></p>
+      )}
     </div>
   </section>
+
+  {/* "All photos" lightbox: every real job photo. Closed <dialog> = display:none, so its lazy images load only once it opens. */}
+  {gallery.length > 0 && (
+    <dialog class="v3-lb" data-lb aria-label="Atlikti darbai – visos nuotraukos">
+      <p class="v3-lb__count" data-lb-count aria-live="polite">1 / {works.length}</p>
+      <button class="v3-lb__x" type="button" data-lb-close aria-label="Uždaryti"><Icon name="close" /></button>
+      <ul class="v3-lb__track" data-lb-track tabindex="0">
+        {works.map((p, i) => (
+          <li><img {...img(p, '100vw')} alt={p.alt || `Atliktas darbas ${i + 1}`} loading="lazy" /></li>
+        ))}
+      </ul>
+      <button class="v3-lb__nav v3-lb__nav--prev" type="button" data-lb-prev aria-label="Ankstesnė nuotrauka"><Icon name="arrow" /></button>
+      <button class="v3-lb__nav v3-lb__nav--next" type="button" data-lb-next aria-label="Kita nuotrauka"><Icon name="arrow" /></button>
+    </dialog>
+  )}
 
   {/* Client sites only: the labelled demo carries no testimonials, not even the pending Google box.
      Real quotes only; stars only when the source shows a rating (review.rating). */}
@@ -564,6 +585,36 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
       });
       modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-quote-close]')) modal.close(); });
       modal.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); });
+    }
+    // Work photo lightbox: opens at the clicked photo; swipe / arrows / keys move, Esc or × closes.
+    var lb = document.querySelector('[data-lb]');
+    if (lb && typeof lb.showModal === 'function') {
+      var track = lb.querySelector('[data-lb-track]'), count = lb.querySelector('[data-lb-count]');
+      var total = track.children.length;
+      var at = function () { return Math.round(track.scrollLeft / (track.clientWidth || 1)); };
+      var go = function (i, smooth) {
+        i = Math.max(0, Math.min(total - 1, i));
+        track.scrollTo({ left: i * track.clientWidth, behavior: smooth ? 'smooth' : 'instant' });
+        count.textContent = (i + 1) + ' / ' + total;
+      };
+      document.querySelectorAll('[data-lb-open]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          lb.showModal();
+          document.documentElement.classList.add('v3-locked');
+          go(+b.getAttribute('data-lb-open') || 0, false);
+          track.focus({ preventScroll: true });
+        });
+      });
+      lb.querySelector('[data-lb-prev]').addEventListener('click', function () { go(at() - 1, true); });
+      lb.querySelector('[data-lb-next]').addEventListener('click', function () { go(at() + 1, true); });
+      lb.querySelector('[data-lb-close]').addEventListener('click', function () { lb.close(); });
+      lb.addEventListener('click', function (e) { if (e.target === lb || e.target.tagName === 'LI') lb.close(); });
+      lb.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); go(at() - 1, true); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); go(at() + 1, true); }
+      });
+      track.addEventListener('scroll', function () { count.textContent = (at() + 1) + ' / ' + total; }, { passive: true });
+      lb.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); });
     }
     // Review arrows: shown only while the cards overflow; disabled at either end.
     var list = document.querySelector('[data-reviews]');

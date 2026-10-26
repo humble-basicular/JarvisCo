@@ -220,6 +220,33 @@
 .v3-masonry img { width: 100%; height: 100% !important; object-fit: cover; transition: transform .5s ease; }
 .v3-masonry li:hover img { transform: scale(1.04); }
 .v3-masonry__0 { grid-column: span 2; grid-row: span 2; }
+.v3-masonry__open { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.v3-masonry__open:focus-visible { outline: 3px solid var(--v3-accent); outline-offset: 3px; }
+.v3-gallery__all { margin-top: 1.4rem; text-align: center; }
+/* All-photos lightbox: full-screen scroll-snap track, one photo per screen. */
+.v3-lb { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(5 10 18 / .96); color: #fff; overflow: hidden; }
+.v3-lb::backdrop { background: rgb(5 10 18 / .96); }
+.v3-lb__track { display: flex; width: 100%; height: 100%; margin: 0; padding: 0; list-style: none; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior: contain; scrollbar-width: none; }
+.v3-lb__track::-webkit-scrollbar { display: none; }
+.v3-lb__track:focus { outline: none; }
+.v3-lb__track li { flex: 0 0 100%; display: grid; place-items: center; padding: 3.6rem .75rem 4.6rem; scroll-snap-align: center; scroll-snap-stop: always; }
+.v3-lb__track img { max-width: 100%; max-height: 100%; width: auto !important; height: auto !important; object-fit: contain; border-radius: 6px; }
+.v3-lb__count { position: absolute; z-index: 2; left: 1rem; top: 1.05rem; margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+.v3-lb__x, .v3-lb__nav { position: absolute; z-index: 2; display: grid; place-items: center; width: 2.9rem; height: 2.9rem; padding: 0; border: 2px solid rgb(255 255 255 / .75); border-radius: 50%; background: rgb(5 10 18 / .55); color: #fff; cursor: pointer; }
+.v3-lb__x:hover, .v3-lb__nav:hover { background: var(--v3-accent); border-color: var(--v3-accent); }
+.v3-lb__x:focus-visible, .v3-lb__nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.v3-lb__x svg, .v3-lb__nav svg { width: 1.4rem; height: 1.4rem; fill: currentColor; }
+.v3-lb__x { right: .8rem; top: .6rem; }
+.v3-lb__nav { bottom: 1rem; }
+.v3-lb__nav--prev { left: calc(50% - 3.6rem); }
+.v3-lb__nav--prev svg { transform: scaleX(-1); }
+.v3-lb__nav--next { left: calc(50% + .7rem); }
+@media (min-width: 64rem) {
+  .v3-lb__track li { padding: 4rem 6rem; }
+  .v3-lb__nav { bottom: auto; top: calc(50% - 1.45rem); }
+  .v3-lb__nav--prev { left: 1.2rem; }
+  .v3-lb__nav--next { left: auto; right: 1.2rem; }
+}
 
 
 /* Prices */

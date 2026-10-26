@@ -95,8 +95,15 @@ const SERVICE_ICON: [RegExp, IconName][] = [
 export const serviceIcon = (name: string): IconName => SERVICE_ICON.find(([re]) => re.test(name))?.[1] ?? 'wrench';
 
 /** Gallery: big photo + rows of 4 (desktop) / 2 (mobile), so no row is left half empty. */
+/** How many real photos the work gallery shows on the page (1 large + 8 small fills the 4-column grid). */
+export const GALLERY_SHOWN = 9;
+
+/** Every real work photo, input order (= best first). The lightbox shows all of them; AI illustrations never. */
+export const workPhotos = <T extends { ai?: boolean }>(all: T[]): T[] => all.filter((p) => !p.ai);
+
+/** The photos shown on the page: the first ones that fill whole grid rows, at most GALLERY_SHOWN. */
 export const galleryPhotos = <T extends { ai?: boolean }>(all: T[]): T[] => {
-  const photos = all.filter((p) => !p.ai); // the work gallery shows real jobs only
+  const photos = workPhotos(all).slice(0, GALLERY_SHOWN);
   return photos.slice(0, photos.length < 5 ? photos.length : 1 + Math.floor((photos.length - 1) / 4) * 4);
 };
 

@@ -11,6 +11,10 @@ function text(value, field, max, { required = false } = {}) {
   return v || undefined;
 }
 
+/* Photo limits. Real work photos: import every usable one; the gallery shows the best first ones (input order)
+   and a lightbox shows all. Keep MAX_REAL in sync with the README. */
+export const MAX_REAL = 150, MAX_AI = 12, MAX_PHOTOS = MAX_REAL + MAX_AI;
+
 function list(value, field, max = 12, each = 60) {
   if (value == null) return [];
   if (!Array.isArray(value)) throw new Error(`${field} must be a list`);
@@ -289,7 +293,7 @@ function v3Items(value, field, min, max) {
 }
 function index(value, field) {
   if (value == null) return undefined;
-  if (!Number.isInteger(value) || value < 0 || value > 23) throw new Error(`${field} must be a photo index 0–23`);
+  if (!Number.isInteger(value) || value < 0 || value >= MAX_PHOTOS) throw new Error(`${field} must be a photo index 0–${MAX_PHOTOS - 1}`);
   return value;
 }
 function v3(value) {
@@ -411,16 +415,17 @@ export function normalize(raw) {
   if (!data.areas.length) data.areas = [data.city];
   if (!data.services.length) throw new Error('services (or submission.services / services_other) is required');
   const photos = raw.photos ?? [];
-  // Up to 12 real work photos plus up to 12 AI illustrations ({path, alt, ai: true}) for emphasised slots.
-  if (!Array.isArray(photos) || photos.length > 24) throw new Error('photos must be a list of at most 24 paths');
+  // Up to MAX_REAL real work photos (the page shows the first GALLERY_SHOWN (content.ts), the "all photos" viewer shows every one)
+  // plus up to MAX_AI AI illustrations ({path, alt, ai: true}) for emphasised slots.
+  if (!Array.isArray(photos) || photos.length > MAX_PHOTOS) throw new Error(`photos must be a list of at most ${MAX_PHOTOS} paths`);
   data.photos = photos.map((p, i) => {
     const item = typeof p === 'string' ? { path: p } : p;
     if (!item || typeof item.path !== 'string') throw new Error(`photos[${i}] must be a path or {path, alt, ai}`);
     if (item.ai != null && typeof item.ai !== 'boolean') throw new Error(`photos[${i}].ai must be true or false`);
     return { path: item.path, alt: text(item.alt, `photos[${i}].alt`, 160), ...(item.ai ? { ai: true } : {}) };
   });
-  if (data.photos.filter((p) => !p.ai).length > 12) throw new Error('at most 12 real photos (AI illustrations are separate)');
-  if (data.photos.filter((p) => p.ai).length > 12) throw new Error('at most 12 AI illustrations');
+  if (data.photos.filter((p) => !p.ai).length > MAX_REAL) throw new Error(`at most ${MAX_REAL} real photos (AI illustrations are separate)`);
+  if (data.photos.filter((p) => p.ai).length > MAX_AI) throw new Error(`at most ${MAX_AI} AI illustrations`);
   // Only template v3 keeps AI images out of the work gallery and discloses them.
   if (!data.v3 && data.photos.some((p) => p.ai)) throw new Error('AI illustrations (ai: true) need the v3 block');
   return { data, submission };
