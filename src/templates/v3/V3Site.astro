@@ -120,7 +120,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
       {nav.map((n) => <a href={n.href}>{n.label}</a>)}
     </nav>
     <div class="v3-top__ctas">
-      <a class="v3-top__phone" href={tel}><span class="v3-top__phone-ico"><Icon name="phone" /></span><span><span class="v3-top__phone-label">Skambinkite</span><span class="v3-top__phone-num">{data.phone}</span></span></a>
+      <a class="v3-top__phone" href={tel} aria-label={`Skambinti ${data.phone}`}><span class="v3-top__phone-ico"><Icon name="phone" /></span><span><span class="v3-top__phone-label">Skambinkite</span><span class="v3-top__phone-num">{data.phone}</span></span></a>
       <a class="v3-btn v3-btn--accent v3-top__quote" href="#uzklausa" data-quote>Gauti kainą</a>
       <button class="v3-top__menu" type="button" data-menu-open aria-haspopup="dialog" aria-controls="v3-menu" aria-label="Atidaryti meniu"><Icon name="menu" /></button>
     </div>
