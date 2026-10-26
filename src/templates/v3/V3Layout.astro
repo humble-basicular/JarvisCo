@@ -11,11 +11,13 @@ import groteskExt from '@fontsource/space-grotesk/files/space-grotesk-latin-ext-
 import sansLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
 import sansExt from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
 import { GLYPH, themeCss, type Theme } from './theme';
+import { clientFavicon } from './favicons';
 import type { Banner } from '../heating/types';
 import Tracking from '../heating/parts/Tracking.astro';
 
-interface Props { title: string; description: string; theme: Theme; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string; logoSize?: { width: number; height: number } }
-const { title, description, theme, banner, canonical, site, robots, logo, logoSize } = Astro.props;
+interface Props { title: string; description: string; theme: Theme; business?: string; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string; logoSize?: { width: number; height: number } }
+const { title, description, theme, business, banner, canonical, site, robots, logo, logoSize } = Astro.props;
+const approvedFavicon = clientFavicon(business);
 /* One heading font per site (theme card); only that font's files are referenced. */
 const HEAD = {
   'archivo-black': { latin: archivoLatin, ext: archivoExt, weight: '400', fallback: "local('Arial Black'),local('Arial-BoldMT'),local('Arial')", adjust: '98%' },
@@ -57,7 +59,12 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content={theme.base} />
-    <link rel="icon" href={logoSize && logoSize.width > logoSize.height ? favicon : logo ?? favicon} />
+    {approvedFavicon ? (
+      <>
+        <link rel="icon" type="image/png" sizes="32x32" href={approvedFavicon.icon.src} />
+        <link rel="apple-touch-icon" sizes="180x180" href={approvedFavicon.touch.src} />
+      </>
+    ) : <link rel="icon" href={logoSize && logoSize.width > logoSize.height ? favicon : logo ?? favicon} />}
     <link rel="preload" href={headLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={headExt} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sansLatin} as="font" type="font/woff2" crossorigin />

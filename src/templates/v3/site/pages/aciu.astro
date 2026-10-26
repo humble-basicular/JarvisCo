@@ -5,7 +5,7 @@ import { loadBuild } from '../load';
 const { data, site } = loadBuild();
 const tel = `tel:${toE164(data.phone)}`;
 ---
-<V3Layout title={`Užklausos būsena – ${data.business}`} description="Užklausos būsena" theme={data.v3.theme} site={site} logo={data.logo?.src} logoSize={data.v3.clientLogo} robots="noindex,follow" canonical={`https://${site.domain}/aciu/`}>
+<V3Layout business={data.business} title={`Užklausos būsena – ${data.business}`} description="Užklausos būsena" theme={data.v3.theme} site={site} logo={data.logo?.src} logoSize={data.v3.clientLogo} robots="noindex,follow" canonical={`https://${site.domain}/aciu/`}>
   <main class="v3-wrap v3-page">
     <div data-aciu-neutral><h1>Užklausos būsena</h1><p>Jei negavote patvirtinimo, paskambinkite tiesiai: <a href={tel}>{data.phone}</a>.</p></div>
     <div data-aciu-ok hidden><h1>{site.testBuild ? 'Bandomoji užklausa gauta' : 'Užklausa gauta'}</h1><p>{site.testBuild ? 'Užklausą priėmė tik vietinis testas.' : 'Susisieksime su Jumis dėl darbo ir kainos.'}</p><p>Jei reikia greičiau, paskambinkite: <a href={tel}>{data.phone}</a>.</p></div>

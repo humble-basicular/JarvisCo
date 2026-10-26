@@ -1,0 +1,98 @@
+{
+  "approval": {
+    "threadId": "497d59a2-dd75-4831-8f55-d8905875baaf",
+    "quote": "geriau A, tada visus deployink"
+  },
+  "assets": [
+    {
+      "brand": "Šilta srovė",
+      "key": "silta",
+      "approvedPath": "/Users/matasbasinskas/Library/CloudStorage/GoogleDrive-matasbasinskas1@gmail.com/My Drive/Business/JarvisWeb/management/favicon-review-20261026/silta-favicon-concept-v1-256.png",
+      "approvedSha256": "6c2d84b20f963f6f4e0791ec708007db282bc845ff5273a2d06529cec9de9ff4",
+      "files": [
+        {
+          "path": "src/assets/client-favicons/silta-32.png",
+          "size": 32,
+          "sha256": "7282b026a66d22f71e1933c0ea875d56ea686943b59f3a59dc7e5938fde877c6"
+        },
+        {
+          "path": "src/assets/client-favicons/silta-180.png",
+          "size": 180,
+          "sha256": "3ec806a283280398395727bc86a510d7b21b50c0447ddf7f3c2a6225d7ad352c"
+        }
+      ]
+    },
+    {
+      "brand": "MasAukštalipiai",
+      "key": "mas",
+      "approvedPath": "/Users/matasbasinskas/Library/CloudStorage/GoogleDrive-matasbasinskas1@gmail.com/My Drive/Business/JarvisWeb/management/favicon-review-20261026/mas-favicon-concept-v1-256.png",
+      "approvedSha256": "a12616b10535f23bd977f00b5409e1c5bac60f98e2fa947843fbcde2f34de1e1",
+      "files": [
+        {
+          "path": "src/assets/client-favicons/mas-32.png",
+          "size": 32,
+          "sha256": "549987fbe0a683852826229fe31636f794629e37f5617256b0e47561520a3285"
+        },
+        {
+          "path": "src/assets/client-favicons/mas-180.png",
+          "size": 180,
+          "sha256": "16eca3f4b68bf8259f869793086ef3d4c4728412f400c090a8534ebf451ce16f"
+        }
+      ]
+    },
+    {
+      "brand": "MesElektra",
+      "key": "meselektra",
+      "approvedPath": "/Users/matasbasinskas/Library/CloudStorage/GoogleDrive-matasbasinskas1@gmail.com/My Drive/Business/JarvisWeb/management/favicon-review-20261026/meselektra-favicon-v3-bulb-256.png",
+      "approvedSha256": "39d51c370130fface4029793c1a564f3f51a2d529d807f7a148bb1ab7edb6fc0",
+      "files": [
+        {
+          "path": "src/assets/client-favicons/meselektra-32.png",
+          "size": 32,
+          "sha256": "30d9a654e204df64e0cf7719fb1240a86cac4e067993437c97dc8738a84057a5"
+        },
+        {
+          "path": "src/assets/client-favicons/meselektra-180.png",
+          "size": 180,
+          "sha256": "0311fa81f75f3950ca68282c5a385b0b2c39293616cb1772e5d84d4403109a07"
+        }
+      ]
+    },
+    {
+      "brand": "LaiKam",
+      "key": "laikam",
+      "approvedPath": "/Users/matasbasinskas/Library/CloudStorage/GoogleDrive-matasbasinskas1@gmail.com/My Drive/Business/JarvisWeb/management/favicon-review-20261026/laikam-favicon-concept-v2-256.png",
+      "approvedSha256": "6c183405915b9603e8806acc48ca2ff7f7629ed0788a845248b0321597e5b0cd",
+      "files": [
+        {
+          "path": "src/assets/client-favicons/laikam-32.png",
+          "size": 32,
+          "sha256": "d14595799bcac2a957f0f231265a5d63b88ad456c44a558b057e57bd049cccb5"
+        },
+        {
+          "path": "src/assets/client-favicons/laikam-180.png",
+          "size": 180,
+          "sha256": "ae3cb5a1e6aeee8db68579950adc07860d70544e271383c329d19b9f8451b9c2"
+        }
+      ]
+    },
+    {
+      "brand": "VensLand",
+      "key": "vensland",
+      "approvedPath": "/Users/matasbasinskas/Library/CloudStorage/GoogleDrive-matasbasinskas1@gmail.com/My Drive/Business/JarvisWeb/management/favicon-review-20261026/vensland-favicon-concept-v2-256.png",
+      "approvedSha256": "2b00f80bee004fefa276d5129c34786c598f7ef597a03a336f0f4f437409be3a",
+      "files": [
+        {
+          "path": "src/assets/client-favicons/vensland-32.png",
+          "size": 32,
+          "sha256": "dc8efc7dadcfe153f9e0a49586de8a7a4ecc0d3ad2bac6303b9522cda967c6a4"
+        },
+        {
+          "path": "src/assets/client-favicons/vensland-180.png",
+          "size": 180,
+          "sha256": "97a394e7493b57d8410c2fac9ddca7797bb640288b5884cf183f0028975e04a3"
+        }
+      ]
+    }
+  ]
+}
