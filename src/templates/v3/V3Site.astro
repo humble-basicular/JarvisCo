@@ -133,7 +133,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
     <div class="v3-wrap v3-hero__grid">
       <div class="v3-hero__copy">
         <p class="v3-pill"><Icon name={pillIcon} />{service ? data.areas.join(' · ') : town ? `${town.name} · ${town.places.slice(0, 3).join(' · ')}` : pill}</p>
-        <h1 id="v3-h1" class="v3-h1">{service ? service.heading : <>{h1.lead} <span class="v3-hot">{h1.hot}</span>{h1.tail && ` ${h1.tail}`}</>}</h1>
+        <h1 id="v3-h1" class="v3-h1">{service ? service.heading : <>{h1.lead}{' '}<br /><span class="v3-hot">{h1.hot}</span>{h1.tail && ` ${h1.tail}`}</>}</h1>
         <p class="v3-hero__lead">{service?.lead ?? data.lead}</p>
         <div class="v3-hero__ctas">
           <a class="v3-btn v3-btn--accent v3-btn--lg" href={tel}><Icon name="phone" />Skambinti {data.phone}</a>

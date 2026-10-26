@@ -662,7 +662,8 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
 .v3-service__links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1rem; margin-block: 1.75rem !important; }
 .v3-service__links a { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.2rem; min-height: 3rem; border: 1px solid var(--v3-line); border-radius: 8px; background: white; font-weight: 700; text-decoration: none; }
 .v3-service__areas { margin-top: 1.25rem !important; }
-.v3-tile--detail > a:first-child { bottom: 3.5rem; }
+/* Detail tiles: the photo link ends exactly where the quote bar starts and clips its hover zoom, so no strip shows between them. */
+.v3-tile--detail > a:first-child { bottom: 3.5rem; overflow: hidden; }
 .v3-tile > .v3-service-quote::before { content: none; }
-.v3-tile > .v3-service-quote { position: absolute; inset: auto 0 0; z-index: 4; flex-direction: row; display: flex; justify-content: space-between; align-items: center; min-height: 3rem; padding: .8rem 1.25rem; background: var(--v3-base); color: white; font-weight: 700; text-decoration: none; }
+.v3-tile > .v3-service-quote { position: absolute; inset: auto 0 0; z-index: 4; flex-direction: row; display: flex; justify-content: space-between; align-items: center; height: 3.5rem; padding: 0 1.25rem; background: var(--v3-base); color: white; font-weight: 700; text-decoration: none; }
 @media (max-width: 48rem) { .v3-service__body { grid-template-columns: 1fr; } }
