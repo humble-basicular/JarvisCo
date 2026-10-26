@@ -1,6 +1,6 @@
 /* Synthetic only. Retains ignored fixtures/builds for inspection; never sends a form. */
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, renameSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { parse } from 'parse5';
@@ -95,4 +95,8 @@ function checkLinks(root, file) {
 }
 for (const p of data.v3.servicePages) { checkLinks(out, `${out}/paslaugos/${p.slug}/index.html`); checkLinks('dist', `dist/perziura/${slug}/paslaugos/${p.slug}/index.html`); }
 run(['scripts/client-site-deploy-check.mjs', out]);
+const archive = `previews/staging/seo-synthetic-${Date.now()}`;
+mkdirSync(archive);
+renameSync(input, `${archive}/input.json`);
+renameSync(`public/previews/${slug}`, `${archive}/photos`);
 console.log('PASS synthetic production/test/preview routes, grouped links, schema/HTML escaping, activity+town title, real/no-photo layouts, forms, sitemap, top-level 404, deploy guards and all local links. No requests sent. Fixtures retained, ignored.');
