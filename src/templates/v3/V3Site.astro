@@ -588,7 +588,8 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
     }
     // Work photo lightbox: opens at the clicked photo; swipe / arrows / keys move, Esc or × closes.
     var lb = document.querySelector('[data-lb]');
-    if (lb && typeof lb.showModal === 'function') {
+    if (lb) {
+      var modal = typeof lb.showModal === 'function';
       var track = lb.querySelector('[data-lb-track]'), count = lb.querySelector('[data-lb-count]');
       var total = track.children.length;
       var at = function () { return Math.round(track.scrollLeft / (track.clientWidth || 1)); };
@@ -597,24 +598,28 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
         track.scrollTo({ left: i * track.clientWidth, behavior: smooth ? 'smooth' : 'instant' });
         count.textContent = (i + 1) + ' / ' + total;
       };
+      // No <dialog> support: show the viewer inline below the gallery instead of as a modal.
+      if (!modal) { lb.setAttribute('open', ''); lb.classList.add('v3-lb--inline'); }
       document.querySelectorAll('[data-lb-open]').forEach(function (b) {
         b.addEventListener('click', function () {
-          lb.showModal();
-          document.documentElement.classList.add('v3-locked');
+          if (modal) { lb.showModal(); document.documentElement.classList.add('v3-locked'); }
+          else lb.scrollIntoView({ block: 'center' });
           go(+b.getAttribute('data-lb-open') || 0, false);
           track.focus({ preventScroll: true });
         });
       });
       lb.querySelector('[data-lb-prev]').addEventListener('click', function () { go(at() - 1, true); });
       lb.querySelector('[data-lb-next]').addEventListener('click', function () { go(at() + 1, true); });
-      lb.querySelector('[data-lb-close]').addEventListener('click', function () { lb.close(); });
-      lb.addEventListener('click', function (e) { if (e.target === lb || e.target.tagName === 'LI') lb.close(); });
+      if (modal) {
+        lb.querySelector('[data-lb-close]').addEventListener('click', function () { lb.close(); });
+        lb.addEventListener('click', function (e) { if (e.target === lb || e.target.tagName === 'LI') lb.close(); });
+        lb.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); });
+      }
       lb.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowLeft') { e.preventDefault(); go(at() - 1, true); }
         if (e.key === 'ArrowRight') { e.preventDefault(); go(at() + 1, true); }
       });
       track.addEventListener('scroll', function () { count.textContent = (at() + 1) + ' / ' + total; }, { passive: true });
-      lb.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); });
     }
     // Review arrows: shown only while the cards overflow; disabled at either end.
     var list = document.querySelector('[data-reviews]');
