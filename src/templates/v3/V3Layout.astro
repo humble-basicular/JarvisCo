@@ -2,6 +2,7 @@
 /* HTML shell for template v3. Preview only for now (noindex, PAVYZDYS banner, no tracking).
    Self-hosted fonts (fontsource, OFL), latin + latin-ext: Lithuanian letters live in latin-ext. */
 import './v3.css';
+import { safeJsonLd } from './service-pages.mjs';
 import archivoLatin from '@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2?url';
 import archivoExt from '@fontsource/archivo-black/files/archivo-black-latin-ext-400-normal.woff2?url';
 import barlowLatin from '@fontsource/barlow-condensed/files/barlow-condensed-latin-800-normal.woff2?url';
@@ -15,8 +16,8 @@ import { clientFavicon } from './favicons';
 import type { Banner } from '../heating/types';
 import Tracking from '../heating/parts/Tracking.astro';
 
-interface Props { title: string; description: string; theme: Theme; business?: string; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string; logoSize?: { width: number; height: number } }
-const { title, description, theme, business, banner, canonical, site, robots, logo, logoSize } = Astro.props;
+interface Props { title: string; description: string; theme: Theme; business?: string; banner?: Banner; canonical?: string; site?: import('./content').V3LiveSite; robots?: string; logo?: string; logoSize?: { width: number; height: number }; structuredData?: unknown }
+const { title, description, theme, business, banner, canonical, site, robots, logo, logoSize, structuredData } = Astro.props;
 const approvedFavicon = clientFavicon(business);
 /* One heading font per site (theme card); only that font's files are referenced. */
 const HEAD = {
@@ -58,6 +59,7 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     <meta name="referrer" content={site ? 'strict-origin-when-cross-origin' : 'no-referrer'} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {site && !site.testBuild && structuredData && <script type="application/ld+json" set:html={safeJsonLd(structuredData)} />}
     <meta name="theme-color" content={theme.base} />
     {approvedFavicon ? (
       <>

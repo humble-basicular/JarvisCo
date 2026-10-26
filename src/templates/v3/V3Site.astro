@@ -11,6 +11,8 @@ import { toE164 } from '../heating/content';
 import QuoteForm from './parts/QuoteForm.astro';
 import { LINK_ICON, LINK_LABEL, areaMap, galleryPhotos, serviceIcon, workPhotos, type V3Input, type V3Photo, type V3LiveSite } from './content';
 import Badge from './parts/Badge.astro';
+import ServiceContent from './parts/ServiceContent.astro';
+import { pageForService, serviceHref } from './service-pages.mjs';
 import Divider from './parts/Divider.astro';
 import Icon from './parts/Icon.astro';
 import { ICON, type IconName } from './icons';
@@ -28,15 +30,18 @@ interface Props {
   /** Labelled demo with DI illustrations: footer DI line. */
   demo?: boolean;
   site?: V3LiveSite;
+  service?: import('./content').V3ServicePage;
 }
-const { data, v3, towns, base, town, home = '#pradzia', demo = false, site } = Astro.props;
+const { data, v3, towns, base, town, home = '#pradzia', demo = false, site, service } = Astro.props;
+const serviceBase = site ? '' : `/perziura/${data.slug}`;
+const detail = (name: string) => { const p = pageForService(v3.servicePages, name); return p ? serviceHref(p.slug, serviceBase) : undefined; };
 const theme = v3.theme;
 const phone = toE164(data.phone);
 const tel = !demo && phone ? `tel:${phone}` : '#uzklausa';
 const d = theme.divider;
 const P = data.photos;
 const at = (i: number | undefined, fallback: number) => P[i ?? fallback] ?? P[fallback % P.length] ?? P[0];
-const hero = at(v3.photo?.hero, 0);
+const hero = service ? P[service.photoIndexes?.[0] ?? -1] : at(v3.photo?.hero, 0);
 const aboutPhoto = at(v3.photo?.about, 4);
 const faqPhoto = at(v3.photo?.faq, 2);
 const ctaPhoto = at(v3.photo?.cta, 3);
@@ -60,10 +65,10 @@ const h1 = town
 const pill = v3.pill ?? data.areas.slice(0, 4).join(' · ');
 const menuNav = () => [
   ...nav,
-  ...(!demo ? [{ href: '#atsiliepimai', label: 'Atsiliepimai' }] : []),
-  ...(data.faq?.length ? [{ href: '#duk', label: 'D.U.K.' }] : []),
+  ...(!demo && !service ? [{ href: '#atsiliepimai', label: 'Atsiliepimai' }] : []),
+  ...(!service && data.faq?.length ? [{ href: '#duk', label: 'D.U.K.' }] : []),
 ];
-const nav = [
+const nav = service ? [{ href: '#aprasymas', label: 'Apie paslaugą' }, { href: '#kitos-paslaugos', label: 'Paslaugos' }, { href: '#vietoves', label: 'Kur dirbame' }] : [
   { href: '#paslaugos', label: 'Paslaugos' },
   { href: '#eiga', label: 'Kaip dirbame' },
   { href: '#darbai', label: 'Darbai' },
@@ -123,20 +128,20 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
 
 <main id="pradzia">
   <section class:list={['v3-hero', `v3-hero--${theme.hero}`]} aria-labelledby="v3-h1">
-    <img class="v3-hero__bg" {...img(hero, '100vw')} alt="" fetchpriority="high" />
+    <>{hero && <img class="v3-hero__bg" {...img(hero, '100vw')} alt="" fetchpriority="high" />}</>
     <div class="v3-wrap v3-hero__grid">
       <div class="v3-hero__copy">
-        <p class="v3-pill"><Icon name={pillIcon} />{town ? `${town.name} · ${town.places.slice(0, 3).join(' · ')}` : pill}</p>
-        <h1 id="v3-h1" class="v3-h1">{h1.lead} <span class="v3-hot">{h1.hot}</span>{h1.tail && ` ${h1.tail}`}</h1>
-        <p class="v3-hero__lead">{data.lead}</p>
+        <p class="v3-pill"><Icon name={pillIcon} />{service ? data.areas.join(' · ') : town ? `${town.name} · ${town.places.slice(0, 3).join(' · ')}` : pill}</p>
+        <h1 id="v3-h1" class="v3-h1">{service ? service.heading : <>{h1.lead} <span class="v3-hot">{h1.hot}</span>{h1.tail && ` ${h1.tail}`}</>}</h1>
+        <p class="v3-hero__lead">{service?.lead ?? data.lead}</p>
         <div class="v3-hero__ctas">
           <a class="v3-btn v3-btn--accent v3-btn--lg" href={tel}><Icon name="phone" />Skambinti {data.phone}</a>
           <a class="v3-btn v3-btn--ghost v3-btn--lg" href="#uzklausa" data-quote>Gauti kainą</a>
         </div>
-        <ul class="v3-checks">
+        {!service && <ul class="v3-checks">
           {v3.heroChecks.map((c) => <li><Icon name="check" />{c}</li>)}
-        </ul>
-        {theme.hero === 'panel' && pins.length > 0 && (
+        </ul>}
+        {!service && theme.hero === 'panel' && pins.length > 0 && (
           <figure class="v3-pins">
             <ul>{pins.map((p) => <li><img {...img(p, '10rem')} alt={p.alt ?? ''} loading="lazy" /></li>)}</ul>
             <figcaption><Icon name="camera" />Tikros mūsų darbų nuotraukos</figcaption>
@@ -151,6 +156,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
     <Divider shape={d} from="photo" to="accent" />
   </section>
 
+  {service ? <ServiceContent data={data} service={service} pages={v3.servicePages ?? []} towns={towns} base={serviceBase} home={home} /> : <>
   <section class="v3-trust" aria-label="Kodėl mes">
     <ul class="v3-wrap v3-trust__list" style={`--n:${v3.trust.length}`}>
       {v3.trust.map((t) => (
@@ -228,8 +234,8 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
           {services.map((s, i) => {
             const p = at(v3.tilePhotos?.[i], i);
             return (
-              <li class="v3-tile">
-                <a href="#uzklausa" data-quote>
+              <li class:list={['v3-tile', detail(s.name) && 'v3-tile--detail']}>
+                <a href={detail(s.name) ?? '#uzklausa'} data-quote={!detail(s.name) ? true : undefined}>
                   <img {...img(p, '(min-width: 64rem) 24rem, (min-width: 40rem) 46vw, 92vw')} alt="" loading="lazy" />
                   <span class="v3-tile__body">
                     <span class="v3-tile__name">{s.name}</span>
@@ -237,6 +243,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
                   </span>
                   <span class="v3-tile__go"><Icon name="arrow" /></span>
                 </a>
+                {detail(s.name) && <a class="v3-service-quote" href="#uzklausa" data-quote>Aptarti darbą<Icon name="arrow" /></a>}
               </li>
             );
           })}
@@ -254,8 +261,9 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
           {services.map((s) => (
             <li class="v3-card">
               <span class="v3-card__ico"><Icon name={serviceIcon(s.name)} /></span>
-              <h3 class="v3-card__name">{s.name}</h3>
+              <h3 class="v3-card__name">{detail(s.name) ? <a href={detail(s.name)}>{s.name}</a> : s.name}</h3>
               {s.text && <p class="v3-card__text">{s.text}</p>}
+              {detail(s.name) && <a class="v3-card__go" href={detail(s.name)}>Apie paslaugą<Icon name="arrow" /></a>}
               <a class="v3-card__go" href="#uzklausa" data-quote>Aptarti darbą<Icon name="arrow" /></a>
             </li>
           ))}
@@ -484,6 +492,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
       </div>
     </div>
   </section>
+  </>}
 </main>
 
 <footer class="v3-foot" id="kontaktai">
@@ -495,7 +504,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
     </div>
     <div>
       <p class="v3-foot__h">Paslaugos</p>
-      <ul>{services.map((s) => <li><a href="#paslaugos">{s.name}</a></li>)}</ul>
+      <ul>{services.map((s) => <li><a href={detail(s.name) ?? '#paslaugos'}>{s.name}</a></li>)}</ul>
     </div>
     <div>
       <p class="v3-foot__h">Vietovės</p>

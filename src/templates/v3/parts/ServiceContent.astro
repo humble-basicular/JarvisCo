@@ -1,0 +1,32 @@
+---
+import type { SiteData, TownLink } from '../../heating/types';
+import type { V3ServicePage } from '../content';
+import { serviceHref } from '../service-pages.mjs';
+import Icon from './Icon.astro';
+interface Props { data: SiteData; service: V3ServicePage; pages: V3ServicePage[]; towns: TownLink[]; base: string; home: string }
+const { data, service, pages, towns, base, home } = Astro.props;
+const photos = (service.photoIndexes ?? []).map((i) => data.photos[i]);
+const lists = [{ title: 'Darbų apimtis', items: service.included }, { title: 'Ką pasiruošti užklausai', items: service.preparation }, { title: 'Nuo ko priklauso kaina', items: service.priceFactors }];
+---
+<section class="v3-sec v3-service" id="aprasymas" aria-label="Apie paslaugą">
+  <div class="v3-wrap">
+    <nav class="v3-service__crumbs" aria-label="Puslapio vieta"><a href={home}>{data.business}</a><span aria-hidden="true"> / </span><span aria-current="page">{service.heading}</span></nav>
+    <div class="v3-service__body">
+      <div class="v3-service__copy">
+        {service.sections.map((s) => <section class="v3-service__section"><h2 class="v3-h2">{s.heading}</h2><p>{s.text}</p></section>)}
+      </div>
+      <aside class="v3-service__scope">
+        {lists.filter((l) => l.items?.length).map((l) => <section><h2>{l.title}</h2><ul class="v3-ticks">{l.items!.map((item) => <li><span class="v3-ticks__ico"><Icon name="check" /></span>{item}</li>)}</ul></section>)}
+        <a class="v3-btn v3-btn--accent" href="#uzklausa" data-quote>Aptarti darbą<Icon name="arrow" /></a>
+      </aside>
+    </div>
+    {photos.length > 0 && <div class="v3-service__photos">{photos.map((p) => <figure><img src={p.src} srcset={p.srcset} sizes="(min-width: 64rem) 24rem, 92vw" width={p.width} height={p.height} alt={p.alt ?? ''} loading="lazy" />{p.alt && <figcaption>{p.alt}</figcaption>}</figure>)}</div>}
+    {!!service.faq?.length && <section class="v3-service__section" aria-labelledby="v3-service-faq"><h2 class="v3-h2" id="v3-service-faq">Dažniausi klausimai</h2><div class="v3-acc">{service.faq.map((f) => <details><summary>{f.q}<span class="v3-acc__plus" aria-hidden="true"></span></summary><p>{f.a}</p></details>)}</div></section>}
+  </div>
+</section>
+<section class="v3-sec v3-sec--paper" id="kitos-paslaugos" aria-labelledby="v3-related">
+  <div class="v3-wrap"><p class="v3-kicker">Paslaugos</p><h2 class="v3-h2" id="v3-related">Kitos paslaugos</h2><ul class="v3-service__links">{pages.filter((p) => p.slug !== service.slug).map((p) => <li><a href={serviceHref(p.slug, base)}>{p.heading}<Icon name="arrow" /></a></li>)}</ul><p><a href={`${home}#paslaugos`}>Visos paslaugos</a></p></div>
+</section>
+<section class="v3-sec" id="vietoves" aria-labelledby="v3-service-areas">
+  <div class="v3-wrap"><p class="v3-kicker">Kur dirbame</p><h2 class="v3-h2" id="v3-service-areas">Aptarnaujamos vietovės</h2><p class="v3-service__areas">{data.areas.join(' · ')}</p><ul class="v3-service__links">{towns.map((t) => <li><a href={t.href}>{t.name}<Icon name="arrow" /></a></li>)}</ul></div>
+</section>

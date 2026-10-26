@@ -646,3 +646,23 @@ html:has(body.v3), body.v3 { overflow-x: clip; }
   .v3-brand--large .v3-brand__name { font-size: 1.2rem; }
   .v3-brand--named .v3-brand__logo { height: 2.75rem; width: 2.75rem; }
 }
+
+/* Service details retain the client's existing type, colour, form and brand. */
+.v3-service__crumbs { margin-bottom: 2.5rem; font-size: .9rem; color: var(--v3-muted); overflow-wrap: anywhere; }
+.v3-service__body { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; }
+.v3-service__copy, .v3-service__scope { min-width: 0; }
+.v3-service__section + .v3-service__section { margin-top: 2.5rem; }
+.v3-service__section p { margin-top: 1.25rem; white-space: pre-line; overflow-wrap: anywhere; }
+.v3-service__scope { padding: 2rem; border-radius: 14px; border-top: 5px solid var(--v3-accent); background: var(--v3-paper); }
+.v3-service__scope section { margin-bottom: 1.75rem; }
+.v3-service__scope h2 { font: 700 1.25rem/1.3 var(--v3-sans); margin-bottom: 1rem; }
+.v3-service__photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1.5rem; margin-block: 3rem; }
+.v3-service__photos img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 10px; }
+.v3-service__photos figcaption { margin-top: .6rem; font-size: .9rem; color: var(--v3-muted); }
+.v3-service__links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1rem; margin-block: 1.75rem !important; }
+.v3-service__links a { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.2rem; min-height: 3rem; border: 1px solid var(--v3-line); border-radius: 8px; background: white; font-weight: 700; text-decoration: none; }
+.v3-service__areas { margin-top: 1.25rem !important; }
+.v3-tile--detail > a:first-child { bottom: 3.5rem; }
+.v3-tile > .v3-service-quote::before { content: none; }
+.v3-tile > .v3-service-quote { position: absolute; inset: auto 0 0; z-index: 4; flex-direction: row; display: flex; justify-content: space-between; align-items: center; min-height: 3rem; padding: .8rem 1.25rem; background: var(--v3-base); color: white; font-weight: 700; text-decoration: none; }
+@media (max-width: 48rem) { .v3-service__body { grid-template-columns: 1fr; } }

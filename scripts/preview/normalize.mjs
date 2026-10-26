@@ -1,3 +1,4 @@
+import { validateServicePages } from '../../src/templates/v3/service-pages.mjs';
 /* Shared PreviewInput validation: used by cli.mjs (raw input) and ../client-site.mjs (saved previews/<slug>.json). */
 function text(value, field, max, { required = false } = {}) {
   if (value == null || value === '') {
@@ -111,7 +112,7 @@ export function townSlug(name) {
   return name.toLocaleLowerCase('lt').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 /* Paths the client site (and /perziura/<slug>/…) already use. */
-const RESERVED_TOWN_SLUGS = new Set(['aciu', 'privatumo-politika', 'foto', 'robots-txt', 'sitemap-xml', 'index', '404', 'perziura', 'previews', 'pradzia']);
+const RESERVED_TOWN_SLUGS = new Set(['aciu', 'privatumo-politika', 'foto', 'robots-txt', 'sitemap-xml', 'index', '404', 'perziura', 'previews', 'pradzia', 'paslaugos']);
 
 /** Towns for town (GEO) pages. Only towns with their own `text` get a page (see the README); the
  *  generator never fills a page by swapping the name in shared text. */
@@ -428,6 +429,7 @@ export function normalize(raw) {
   if (data.photos.filter((p) => p.ai).length > MAX_AI) throw new Error(`at most ${MAX_AI} AI illustrations`);
   // Only template v3 keeps AI images out of the work gallery and discloses them.
   if (!data.v3 && data.photos.some((p) => p.ai)) throw new Error('AI illustrations (ai: true) need the v3 block');
+  if (data.v3 && raw.v3.servicePages !== undefined) data.v3.servicePages = validateServicePages(raw.v3.servicePages, data.services, data.photos);
   return { data, submission };
 }
 

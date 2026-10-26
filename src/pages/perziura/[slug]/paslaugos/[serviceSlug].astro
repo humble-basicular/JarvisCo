@@ -1,0 +1,26 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { brand } from '@data/content.js';
+import V3Layout from '../../../../templates/v3/V3Layout.astro';
+import V3Site from '../../../../templates/v3/V3Site.astro';
+import type { V3Input } from '../../../../templates/v3/content';
+import type { SiteData } from '../../../../templates/heating/types';
+import { serviceTitle } from '../../../../templates/v3/service-pages.mjs';
+import { siteTownLinks } from '../../../../templates/heating/town-pages';
+import { validateSaved } from '../../../../../scripts/preview/normalize.mjs';
+export const getStaticPaths = (() => {
+  const files = import.meta.glob('../../../../../previews/*.json', { eager: true });
+  return Object.entries(files).flatMap(([path, module]) => {
+    let data: SiteData & { v3?: V3Input };
+    try { data = validateSaved((module as { default: unknown }).default); }
+    catch (e) { throw new Error(`${path}: ${(e as Error).message}`); }
+    return (data.v3?.servicePages ?? []).map((service) => ({ params: { slug: data.slug, serviceSlug: service.slug }, props: { data, service } }));
+  });
+}) satisfies GetStaticPaths;
+const { data, service } = Astro.props;
+const home = `/perziura/${data.slug}`;
+const banner = { tag: 'PERŽIŪRA', note: 'Svetainės juodraštis, paruoštas jarvisweb.lt', href: brand.smsHref, label: 'Parašyti Matui' };
+---
+<V3Layout business={data.business} title={serviceTitle(service, data.business, true)} description={service.description} theme={data.v3.theme} banner={banner}>
+  <V3Site data={data} v3={data.v3} service={service} towns={siteTownLinks(data, home) ?? []} base={data.city} home={home} />
+</V3Layout>

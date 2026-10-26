@@ -7,6 +7,7 @@
    --allow-pending-worker reports that one gate as PENDING so the rest can be verified. */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { checkSeoArtifacts } from './service-artifacts.mjs';
 
 const dir = resolve(process.argv[2] ?? '');
 const allowPending = process.argv.includes('--allow-pending-worker');
@@ -15,10 +16,12 @@ const pending = [];
 if (!process.argv[2] || !existsSync(join(dir, 'index.html'))) problems.push(`no built site at ${dir}`);
 else {
   if (existsSync(join(dir, 'TEST-BUILD-DO-NOT-DEPLOY.txt'))) problems.push('TEST-BUILD-DO-NOT-DEPLOY.txt present: this is a local test build');
+  let v3Domain;
   const index = readFileSync(join(dir, 'index.html'), 'utf8');
   if (/data-build-mode=/.test(index)) {
     try {
       const manifest = JSON.parse(readFileSync(join(dir, 'build-manifest.json'), 'utf8'));
+      v3Domain = manifest.domain;
       if (manifest.version !== 1 || manifest.template !== 'v3' || manifest.mode !== 'production' || manifest.configurationValidated !== true || !['consent', 'disabled'].includes(manifest.mapMode) || manifest.formEndpoint !== 'https://www.jarvisweb.lt/t/form') problems.push('v3 manifest: unresolved or non-production configuration');
       if (manifest.workerRegistered !== true) (allowPending ? pending : problems).push(`Worker site "${manifest.code}" not registered yet (launch candidate): register it with origins https://${manifest.domain} and https://www.${manifest.domain}, then rebuild without --pending-worker`);
       if (!index.includes(`href="https://${manifest.domain}/"`) || !index.includes(`data-site="${manifest.code}"`) || !index.includes('data-build-mode="production"')) problems.push('v3 manifest does not match the built page');
@@ -28,7 +31,17 @@ else {
   const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
   for (const file of walk(dir).filter((f) => /\.(html|js|txt|xml|json)$/.test(f))) {
     const text = readFileSync(file, 'utf8');
+    if (file.endsWith('.html')) {
+      const path = file.slice(dir.length + 1);
+      const expected = ['404.html', 'aciu/index.html'].includes(path);
+      if (!expected && /name="robots" content="[^"]*noindex/.test(text)) problems.push(`${path}: unexpectedly noindex`);
+    }
     if (/localhost|127\.0\.0\.1/.test(text)) problems.push(`${file.slice(dir.length + 1)}: points at a local endpoint`);
+  }
+  if (v3Domain) {
+    const serviceDir = join(dir, 'paslaugos');
+    const services = existsSync(serviceDir) ? readdirSync(serviceDir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => ({ slug: d.name })) : [];
+    problems.push(...checkSeoArtifacts(dir, { domain: v3Domain, services }));
   }
   if (/name="robots" content="noindex/.test(readFileSync(join(dir, 'index.html'), 'utf8'))) problems.push('index.html is noindex');
 }

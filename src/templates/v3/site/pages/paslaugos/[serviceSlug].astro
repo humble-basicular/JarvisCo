@@ -1,0 +1,16 @@
+---
+import V3Layout from '../../../V3Layout.astro';
+import V3Site from '../../../V3Site.astro';
+import formScript from '../../../form.js?raw';
+import { businessSchema, serviceHref, serviceTitle } from '../../../service-pages.mjs';
+import { siteTownLinks } from '../../../../heating/town-pages';
+import { loadBuild } from '../../load';
+export function getStaticPaths() { return (loadBuild().data.v3.servicePages ?? []).map((service) => ({ params: { serviceSlug: service.slug }, props: { service } })); }
+const { data, site } = loadBuild();
+const { service } = Astro.props;
+const canonical = `https://${site.domain}${serviceHref(service.slug)}`;
+---
+<V3Layout business={data.business} title={serviceTitle(service, data.business)} description={service.description} theme={data.v3.theme} site={site} logo={data.logo?.src} logoSize={data.v3.clientLogo} canonical={canonical} structuredData={businessSchema(data, site.domain, { page: service, canonical })}>
+  <V3Site data={data} v3={data.v3} service={service} site={site} towns={siteTownLinks(data, '') ?? []} base={data.city} home="/" />
+  <script is:inline set:html={formScript}></script>
+</V3Layout>

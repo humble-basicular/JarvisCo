@@ -1,0 +1,8 @@
+---
+import V3Layout from '../../V3Layout.astro';
+import { loadBuild } from '../load';
+const { data, site } = loadBuild();
+---
+<V3Layout business={data.business} title={`Puslapis nerastas – ${data.business}`} description="Šis puslapis nerastas." theme={data.v3.theme} site={site} robots="noindex,nofollow" logo={data.logo?.src} logoSize={data.v3.clientLogo}>
+  <main class="v3-wrap v3-page"><h1>Puslapis nerastas</h1><p>Patikrinkite adresą arba grįžkite į pradžią.</p><p><a class="v3-btn v3-btn--accent" href="/">Į pradžią</a></p></main>
+</V3Layout>

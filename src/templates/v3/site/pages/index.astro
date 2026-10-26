@@ -1,5 +1,6 @@
 ---
 import V3Layout from '../../V3Layout.astro';
+import { businessSchema } from '../../service-pages.mjs';
 import V3Site from '../../V3Site.astro';
 import formScript from '../../form.js?raw';
 import { pageDescription, pageTitle } from '../../../heating/content';
@@ -7,7 +8,7 @@ import { siteTownLinks } from '../../../heating/town-pages';
 import { loadBuild } from '../load';
 const { data, site } = loadBuild();
 ---
-<V3Layout business={data.business} title={pageTitle(data)} description={pageDescription(data)} theme={data.v3.theme} site={site} logo={data.logo?.src} logoSize={data.v3.clientLogo} canonical={`https://${site.domain}/`}>
+<V3Layout business={data.business} title={pageTitle(data)} description={pageDescription(data)} theme={data.v3.theme} site={site} logo={data.logo?.src} logoSize={data.v3.clientLogo} structuredData={businessSchema(data, site.domain)} canonical={`https://${site.domain}/`}>
   <V3Site data={data} v3={data.v3} site={site} towns={siteTownLinks(data, '') ?? []} base={data.city} home="/" />
   <script is:inline set:html={formScript}></script>
 </V3Layout>

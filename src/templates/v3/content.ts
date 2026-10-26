@@ -30,7 +30,23 @@ export interface V3LiveSite {
   privacy?: V3Privacy;
 }
 
+export interface V3ServicePage {
+  slug: string;
+  serviceNames: string[];
+  heading: string;
+  description: string;
+  lead: string;
+  sections: { heading: string; text: string }[];
+  included?: string[];
+  preparation?: string[];
+  priceFactors?: string[];
+  faq?: { q: string; a: string }[];
+  photoIndexes?: number[];
+}
+
 export interface V3Input {
+  /** Optional complete mapping of the existing service cards to detail pages. */
+  servicePages?: V3ServicePage[];
   /** Opt-in branding/copy changes. Absent flags preserve existing previews. */
   hideTagline?: boolean;
   largeWordmark?: boolean;

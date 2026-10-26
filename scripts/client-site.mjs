@@ -11,6 +11,7 @@ import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkLogoFile, cleanLogo, toE164, validateSaved } from './preview/normalize.mjs';
 import { validateLaunchConfig } from '../src/templates/v3/build-config.mjs';
+import { checkSeoArtifacts } from './service-artifacts.mjs';
 
 const ROOT = realpathSync(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
 const PREVIEWS = join(ROOT, 'previews');
@@ -178,6 +179,10 @@ for (const t of towns) {
   if (!index.includes(`href="/${t}/"`)) fail(`index.html does not link to /${t}/`);
 }
 if (logo && !index.includes(`src="${logo.src}"`)) fail('logo missing in built index.html');
+if (data.v3) {
+  const problems = checkSeoArtifacts(target, { domain, test: !!test, services: data.v3.servicePages ?? [] });
+  if (problems.length) fail(problems.join('\n'));
+}
 
 if (data.v3) writeFileSync(join(target, 'build-manifest.json'), JSON.stringify({ version: 1, template: 'v3', mode: test ? 'test' : 'production', domain, code, formEndpoint: build.site.formEndpoint, configurationValidated: !!launch?.privacy && !test, workerRegistered: !!launch?.workerRegistered, mapMode: launch.mapMode }, null, 2) + '\n');
 
