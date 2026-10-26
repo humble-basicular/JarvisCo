@@ -1,0 +1,676 @@
+{
+  "stage": "seo-20261026-release",
+  "status": "deployed-and-live-verified",
+  "recordedAt": "2026-10-26T17:36:14.135443+00:00",
+  "approvalRecord": "/Users/matasbasinskas/WebAgency-Biz-worktrees/seo-implementation-20261026/research/seo-implementation-2026-10-26/acceptance.md#review2-final",
+  "rollback": {
+    "capturedAt": "2026-10-26T17:32:52.127Z",
+    "cloudflare": {
+      "project": "jarvisweb-meselektra",
+      "domains": [
+        "jarvisweb-meselektra.pages.dev",
+        "meselektra.lt",
+        "www.meselektra.lt"
+      ],
+      "productionBranch": "main",
+      "rollbackDeploymentId": "b82838d3-10a2-4145-9792-787d00d084d8",
+      "environment": "production",
+      "url": "https://b82838d3.jarvisweb-meselektra.pages.dev"
+    },
+    "vercel": {
+      "project": "jarvis-co",
+      "rollbackDeploymentId": "dpl_GWCxPM4EjHmppAa4DwLcpy1K2VqR",
+      "aliases": [
+        "jarvisweb.lt",
+        "www.jarvisweb.lt"
+      ]
+    },
+    "sourceCodeCommit": "c158e712381b9b10efb2eab62e9610b00088f812",
+    "approvedCatalogueSha256": "7f18169cf26d654e36de51f2f523daf1c6754f0a71b55d1f6442c7536c94a191"
+  },
+  "commits": {
+    "acceptedCode": "c158e712381b9b10efb2eab62e9610b00088f812",
+    "buildRelease": "56e0c2c47aecbd1bfdb2df126a712dd20c85b8c0",
+    "sourceIntegrationBefore": "69ce164c0dfa7b2c62384bf6907a8352980d5e8e"
+  },
+  "deployments": {
+    "vercel": {
+      "id": "dpl_BbX65LNyW14FdZGUpmfFrtVs73hT",
+      "url": "jarvis-7ll8mw1zp-jarvisworkscos-projects.vercel.app",
+      "state": "READY",
+      "aliases": [
+        "jarvisweb.lt",
+        "jarvis-co.vercel.app",
+        "www.jarvisweb.lt",
+        "jarvis-co-jarvisworkscos-projects.vercel.app"
+      ],
+      "method": "Node 26 local production prebuilt from assigned worktree with approved private inputs; isolated output/project metadata only, no git metadata"
+    },
+    "cloudflare": {
+      "verifiedAt": "2026-10-26T17:35:20.877Z",
+      "project": "jarvisweb-meselektra",
+      "domains": [
+        "jarvisweb-meselektra.pages.dev",
+        "meselektra.lt",
+        "www.meselektra.lt"
+      ],
+      "deploymentId": "fab25a88-a375-4017-8749-0b682ab4dd50",
+      "url": "https://fab25a88.jarvisweb-meselektra.pages.dev",
+      "environment": "production",
+      "status": "success"
+    }
+  },
+  "buildChecks": {
+    "node": "26.7.0",
+    "agencyCheck": "npm run check exit 0; static-check 93 pages",
+    "prebuilt": "vercel build --prod exit 0; 32 artifact routes and approved catalogue equality verified",
+    "mesElektra": "production standalone --site meselektra --domain meselektra.lt --config private current live config; deploy-check exit 0 without pending-worker",
+    "contentEdited": false
+  },
+  "liveVerification": {
+    "verifiedAt": "2026-10-26T17:35:30.023041+00:00",
+    "counts": {
+      "previewServicePages": 32,
+      "liveServicePages": 7,
+      "liveCanonicals": 7,
+      "liveServiceSchema": 7,
+      "liveBreadcrumbSchema": 7,
+      "sitemapServiceUrls": 7,
+      "homeServiceLinks": 7,
+      "faviconResponses": 12,
+      "unknownPath404": true
+    },
+    "pages": [
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/sildymo-sistemu-montavimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/sildymo-sistemu-montavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/grindinis-sildymas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/grindinis-sildymas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/silumos-siurbliu-irengimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/silumos-siurbliu-irengimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/vandentiekis-kanalizacija-santechnika/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/vandentiekis-kanalizacija-santechnika/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/radiatoriai-ir-boileriai/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/radiatoriai-ir-boileriai/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/buitines-technikos-pajungimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/buitines-technikos-pajungimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/vedinimo-sistemu-montavimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/486rd84se6/paslaugos/vedinimo-sistemu-montavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/ejgb7a33zs/paslaugos/ip-kameru-montavimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/ejgb7a33zs/paslaugos/ip-kameru-montavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/ejgb7a33zs/paslaugos/telefonspyniu-montavimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/ejgb7a33zs/paslaugos/telefonspyniu-montavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/ejgb7a33zs/paslaugos/interneto-wifi-rysio-stiprinimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/ejgb7a33zs/paslaugos/interneto-wifi-rysio-stiprinimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/elektros-instaliacija/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/elektros-instaliacija/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "live",
+        "url": "https://meselektra.lt/paslaugos/elektros-instaliacija/",
+        "effectiveUrl": "https://meselektra.lt/paslaugos/elektros-instaliacija/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "selfCanonical": true,
+          "indexFollow": true,
+          "serviceSchema": true,
+          "breadcrumbSchema": true,
+          "formsPost": true,
+          "linkedFromHome": true,
+          "listedInSitemap": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/elektriko-iskvietimas-smulkus-darbai/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/elektriko-iskvietimas-smulkus-darbai/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "live",
+        "url": "https://meselektra.lt/paslaugos/elektriko-iskvietimas-smulkus-darbai/",
+        "effectiveUrl": "https://meselektra.lt/paslaugos/elektriko-iskvietimas-smulkus-darbai/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "selfCanonical": true,
+          "indexFollow": true,
+          "serviceSchema": true,
+          "breadcrumbSchema": true,
+          "formsPost": true,
+          "linkedFromHome": true,
+          "listedInSitemap": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/led-juostu-montavimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/led-juostu-montavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "live",
+        "url": "https://meselektra.lt/paslaugos/led-juostu-montavimas/",
+        "effectiveUrl": "https://meselektra.lt/paslaugos/led-juostu-montavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "selfCanonical": true,
+          "indexFollow": true,
+          "serviceSchema": true,
+          "breadcrumbSchema": true,
+          "formsPost": true,
+          "approvedLedCopy": true,
+          "linkedFromHome": true,
+          "listedInSitemap": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/kaitlentes-orkaites-pajungimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/kaitlentes-orkaites-pajungimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "live",
+        "url": "https://meselektra.lt/paslaugos/kaitlentes-orkaites-pajungimas/",
+        "effectiveUrl": "https://meselektra.lt/paslaugos/kaitlentes-orkaites-pajungimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "selfCanonical": true,
+          "indexFollow": true,
+          "serviceSchema": true,
+          "breadcrumbSchema": true,
+          "formsPost": true,
+          "linkedFromHome": true,
+          "listedInSitemap": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/elektros-irenginiu-prijungimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/elektros-irenginiu-prijungimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "live",
+        "url": "https://meselektra.lt/paslaugos/elektros-irenginiu-prijungimas/",
+        "effectiveUrl": "https://meselektra.lt/paslaugos/elektros-irenginiu-prijungimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "selfCanonical": true,
+          "indexFollow": true,
+          "serviceSchema": true,
+          "breadcrumbSchema": true,
+          "formsPost": true,
+          "linkedFromHome": true,
+          "listedInSitemap": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/pramonines-automatikos-darbai/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/pramonines-automatikos-darbai/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "live",
+        "url": "https://meselektra.lt/paslaugos/pramonines-automatikos-darbai/",
+        "effectiveUrl": "https://meselektra.lt/paslaugos/pramonines-automatikos-darbai/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "selfCanonical": true,
+          "indexFollow": true,
+          "serviceSchema": true,
+          "breadcrumbSchema": true,
+          "formsPost": true,
+          "linkedFromHome": true,
+          "listedInSitemap": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/senos-instaliacijos-demontavimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cg6j485ktf/paslaugos/senos-instaliacijos-demontavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "live",
+        "url": "https://meselektra.lt/paslaugos/senos-instaliacijos-demontavimas/",
+        "effectiveUrl": "https://meselektra.lt/paslaugos/senos-instaliacijos-demontavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "selfCanonical": true,
+          "indexFollow": true,
+          "serviceSchema": true,
+          "breadcrumbSchema": true,
+          "formsPost": true,
+          "linkedFromHome": true,
+          "listedInSitemap": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/tarpblokiniu-siuliu-remontas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/tarpblokiniu-siuliu-remontas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/fasadu-dazymas-balkonu-remontas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/fasadu-dazymas-balkonu-remontas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/angokrasciu-piliastru-tinkavimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/angokrasciu-piliastru-tinkavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/fasadu-plovimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/fasadu-plovimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/sniego-valymas-nuo-stogu/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/cfa9bwee8q/paslaugos/sniego-valymas-nuo-stogu/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-irengimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-irengimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/laistymo-sistemos/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/laistymo-sistemos/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-aeravimas-core/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-aeravimas-core/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-skarifikavimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-skarifikavimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-lyginimas-levelingas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-lyginimas-levelingas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-tresimas-purskimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/vejos-tresimas-purskimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/zoles-pjovimas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/zoles-pjovimas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/apleistu-sklypu-tvarkymas/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/apleistu-sklypu-tvarkymas/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/mini-ekskavatoriaus-paslaugos/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/mini-ekskavatoriaus-paslaugos/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      },
+      {
+        "kind": "preview",
+        "url": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/gyvatvoriu-sodinimas-prieziura/",
+        "effectiveUrl": "https://jarvisweb.lt/perziura/aewz4kawy3/paslaugos/gyvatvoriu-sodinimas-prieziura/",
+        "status": 200,
+        "checks": {
+          "http200": true,
+          "noindex": true,
+          "formsInert": true
+        }
+      }
+    ],
+    "notFound": {
+      "url": "https://meselektra.lt/seo-release-unknown-path-20261026/",
+      "status": 404,
+      "checks": {
+        "http404": true,
+        "noindex": true
+      }
+    },
+    "favicons": [
+      {
+        "url": "https://jarvisweb.lt/_astro/silta-32.B2jwx2hq.png",
+        "sha256": "7282b026a66d22f71e1933c0ea875d56ea686943b59f3a59dc7e5938fde877c6",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/silta-180.iNm49Z7P.png",
+        "sha256": "3ec806a283280398395727bc86a510d7b21b50c0447ddf7f3c2a6225d7ad352c",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/laikam-32.CTzOUS_q.png",
+        "sha256": "d14595799bcac2a957f0f231265a5d63b88ad456c44a558b057e57bd049cccb5",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/laikam-180.DounfMRQ.png",
+        "sha256": "ae3cb5a1e6aeee8db68579950adc07860d70544e271383c329d19b9f8451b9c2",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/meselektra-32.RF2XgOFL.png",
+        "sha256": "30d9a654e204df64e0cf7719fb1240a86cac4e067993437c97dc8738a84057a5",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/meselektra-180.BFldzbxW.png",
+        "sha256": "0311fa81f75f3950ca68282c5a385b0b2c39293616cb1772e5d84d4403109a07",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://meselektra.lt/_astro/meselektra-32.RF2XgOFL.png",
+        "sha256": "30d9a654e204df64e0cf7719fb1240a86cac4e067993437c97dc8738a84057a5",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://meselektra.lt/_astro/meselektra-180.BFldzbxW.png",
+        "sha256": "0311fa81f75f3950ca68282c5a385b0b2c39293616cb1772e5d84d4403109a07",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/mas-32.Buqytj4Y.png",
+        "sha256": "549987fbe0a683852826229fe31636f794629e37f5617256b0e47561520a3285",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/mas-180.D5SbcKoX.png",
+        "sha256": "16eca3f4b68bf8259f869793086ef3d4c4728412f400c090a8534ebf451ce16f",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/vensland-32.BOg7XX_x.png",
+        "sha256": "dc8efc7dadcfe153f9e0a49586de8a7a4ecc0d3ad2bac6303b9522cda967c6a4",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      },
+      {
+        "url": "https://jarvisweb.lt/_astro/vensland-180.CLJp9W86.png",
+        "sha256": "97a394e7493b57d8410c2fac9ddca7797bb640288b5884cf183f0028975e04a3",
+        "checks": {
+          "http200": true,
+          "approvedHash": true
+        }
+      }
+    ],
+    "failures": [],
+    "formSubmissions": 0
+  },
+  "constraints": {
+    "productionDeploys": 2,
+    "formSubmissions": 0,
+    "customerMessages": 0,
+    "crmWrites": 0,
+    "workerOrTrialWrites": 0,
+    "dnsOrDomainChanges": 0,
+    "arbCutChanges": 0
+  },
+  "rollbackUsed": false,
+  "notVerified": [
+    "Search-engine indexing, rankings and rich-result adoption",
+    "Field Core Web Vitals and real-device browser rendering in this stage",
+    "End-to-end form delivery (no form submissions authorized)",
+    "Remote git push (local source integration only)",
+    "Lead independent final verification remains owned by lead"
+  ]
+}
