@@ -168,6 +168,8 @@ instead of the heating template. Shape: `V3Input` in `src/templates/v3/content.t
 - Reviews: real quotes from `reviews` get their own section (`#atsiliepimai`); `v3.gbp.url` / `v3.gbp.reviewUrl`
   (https) add "Atsiliepimai Google" / "Palikti atsiliepimą" buttons. Without them the section shows
   "Google atsiliepimai – netrukus".
+  `v3.gbp.platform` renames the box when the client collects reviews elsewhere (e.g. `"Paslaugos.lt"`, review link
+  `https://paslaugos.lt/atsiliepimas/<tv-id>` from the profile's "Rašyti atsiliepimą" button).
 - Map: a live Google map loads with the page (no click step), pinned on the base town (town pages: that
   town). Once the Google Business Profile exists set `v3.map.query` to its name + address (optional `zoom` 5–18).
   Previews only (user decision 2026-10-21). Before a live launch: the embed sends visitor data to Google

@@ -84,7 +84,8 @@ export interface V3Input {
    *  they must be sharp (see EMPHASIS_MIN_WIDTH) – a real high-resolution photo or an AI illustration. */
   photo?: { hero?: number; pins?: number[]; about?: number; faq?: number; cta?: number; reviews?: number };
   /** Google Business Profile: reviews link + "leave a review" link. Absent → review section shows a "coming" note. */
-  gbp?: { url?: string; reviewUrl?: string };
+  /** Review profile. platform labels the box (default Google), e.g. 'Paslaugos.lt' when the client collects reviews there. */
+  gbp?: { url?: string; reviewUrl?: string; platform?: string };
   /** Show the client's own logo file (top-level `logo`, read on a light plate) instead of the generated badge.
    *  Opt-in so existing previews keep their badge; width/height = the file's intrinsic size. */
   clientLogo?: { width: number; height: number; showName?: boolean; formBadge?: boolean };

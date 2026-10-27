@@ -355,7 +355,8 @@ function v3(value) {
     gbp: v.gbp == null ? undefined : (() => {
       const g = obj(v.gbp, 'v3.gbp');
       for (const k of ['url', 'reviewUrl']) if (g[k] != null && !/^https:\/\/[^\s"<>]+$/.test(g[k])) throw new Error(`v3.gbp.${k} must be https://…`);
-      return { ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}) };
+      if (g.platform != null && (typeof g.platform !== 'string' || !/^[\p{L}0-9 .-]{2,30}$/u.test(g.platform))) throw new Error('v3.gbp.platform must be a short name like Paslaugos.lt');
+      return { ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}), ...(g.platform ? { platform: g.platform } : {}) };
     })(),
     // Use the client's own logo file (top-level `logo`) instead of the generated badge; intrinsic size for the <img>.
     clientLogo: v.clientLogo == null ? undefined : (() => {

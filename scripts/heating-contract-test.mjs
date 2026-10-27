@@ -98,6 +98,8 @@ check('v3: reviews background is an emphasised slot', () => {
 check('v3: gbp links must be https, map zoom bounded', () => {
   const v3 = (x) => normalize({ ...base, v3: { ...V3_MIN, ...x } }).data.v3;
   assert.deepEqual(v3({ gbp: { url: 'https://g.page/x', reviewUrl: 'https://g.page/r/x/review' } }).gbp, { url: 'https://g.page/x', reviewUrl: 'https://g.page/r/x/review' });
+  assert.deepEqual(v3({ gbp: { reviewUrl: 'https://paslaugos.lt/atsiliepimas/tv1', platform: 'Paslaugos.lt' } }).gbp, { reviewUrl: 'https://paslaugos.lt/atsiliepimas/tv1', platform: 'Paslaugos.lt' });
+  assert.throws(() => v3({ gbp: { platform: '<b>x</b>' } }));
   assert.throws(() => v3({ gbp: { url: 'http://g.page/x' } }), /v3\.gbp\.url/);
   assert.throws(() => v3({ map: { zoom: 30 } }), /v3\.map\.zoom/);
   assert.equal(v3({ map: { query: 'Įmonė, Gatvė 1, Kaunas' } }).map.query, 'Įmonė, Gatvė 1, Kaunas');

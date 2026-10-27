@@ -86,6 +86,7 @@ const MONTHS = ['sausio', 'vasario', 'kovo', 'balandžio', 'gegužės', 'biržel
 const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]} m. ${MONTHS[+m[2] - 1]} ${+m[3]} d.` : undefined; };
 const reviews = data.reviews ?? [];
 const gbp = v3.gbp ?? {};
+const reviewPlatform = gbp.platform || 'Google';
 const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => ({ src: p.src, srcset: p.srcset, sizes: p.srcset ? sizes : undefined, width: p.width, height: p.height, decoding: 'async', ...extra });
 // Badge glyphs without a 24 px line icon (rope) fall back to the shield in the hero pill.
 const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconName : 'shield';
@@ -391,12 +392,12 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
           </div>
         )}
         {(!v3.hidePendingGoogle || gbp.url || gbp.reviewUrl) && <div class="v3-reviews__google">
-          <p class="v3-reviews__gtitle">Įvertinkite mus Google</p>
+          <p class="v3-reviews__gtitle">Įvertinkite mus {reviewPlatform}</p>
           {gbp.reviewUrl && <p class="v3-reviews__gstars" aria-hidden="true">☆☆☆☆☆</p>}
           {gbp.reviewUrl
             ? <a class="v3-btn v3-btn--accent v3-btn--lg" href={gbp.reviewUrl} rel="noopener" target="_blank">Palikti atsiliepimą</a>
             : <p class="v3-reviews__soon">Google profilis ruošiamas – atsiliepimus galėsite palikti netrukus</p>}
-          {gbp.url && <a class="v3-reviews__all" href={gbp.url} rel="noopener" target="_blank">Visi atsiliepimai Google</a>}
+          {gbp.url && <a class="v3-reviews__all" href={gbp.url} rel="noopener" target="_blank">Visi atsiliepimai {reviewPlatform}</a>}
         </div>}
       </div>
     </section>
