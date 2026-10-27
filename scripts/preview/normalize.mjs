@@ -456,6 +456,15 @@ function checkEmphasis(v3, photos, services) {
 /** A saved previews/<slug>.json (what the CLI wrote): the same checks as normalize(), plus the photo records. */
 export function validateSaved(saved) {
   if (!saved || typeof saved !== 'object' || Array.isArray(saved)) throw new Error('input must be a JSON object');
+  // User rule (2026-10-21, repeated 2026-10-27): no AI disclaimers anywhere on a client site: footer, gallery note, captions, alt text.
+  // An AI word together with illustration/generation wording. A product feature such as "AI fiksavimas" stays allowed.
+  const aiWord = /(?<![\p{L}\p{N}])(?:DI|AI)(?![\p{L}\p{N}])|[Dd]irbtin\p{L}* intelekt/u, aiPhrase = /iliustr|sugeneruot|sukurt|generat/iu;
+  const scanAi = (v, at) => {
+    if (typeof v === 'string') { if (!/^\/previews\//.test(v) && (aiWord.test(v) && aiPhrase.test(v))) throw new Error(`${at} mentions AI ("${v.slice(0, 60)}"): client sites carry no AI disclaimers`); }
+    else if (Array.isArray(v)) v.forEach((x, i) => scanAi(x, `${at}[${i}]`));
+    else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) if (k !== 'ai') scanAi(x, at ? `${at}.${k}` : k);
+  };
+  scanAi(saved, '');
   if (!Array.isArray(saved.photos ?? [])) throw new Error('photos must be a list');
   const photos = saved.photos ?? [];
   photos.forEach((p, i) => {

@@ -44,6 +44,10 @@ check('fixture accents: dark and blue keep white text, light switches to ink', (
   assert.equal(accentTokens(FIXTURES.light).field, FIXTURES.light, 'light accent keeps its colour');
 });
 check('unsafe review URL is rejected', () => assert.throws(() => normalize({ ...base, reviews: [{ name: 'Test', text: 'Test', url: 'javascript:alert(1)' }] }), /https/));
+check('client previews refuse AI disclaimers anywhere (2026-10-27)', () => {
+  assert.throws(() => validateSaved({ ...base, slug: 'test', v3: { galleryNote: 'Dalis iliustracijų sugeneruota DI' } }), /no AI disclaimers/);
+  assert.throws(() => validateSaved({ ...base, slug: 'test', photos: [{ src: '/x.jpg', width: 10, height: 10, alt: 'DI iliustracija: veja' }] }), /no AI disclaimers/);
+});
 check('saved image dimensions are validated', () => assert.throws(() => validateSaved({ ...base, slug: 'test', photos: [{ src: '/x.jpg', width: 0, height: 10 }] }), /positive integer/));
 
 // Photo rules (Jarvis 2026-10-21): emphasised slots sharp or AI; AI illustrations flagged and kept out of the work gallery.
