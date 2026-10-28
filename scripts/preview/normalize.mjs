@@ -368,7 +368,11 @@ function v3(value) {
     map: v.map == null ? undefined : (() => {
       const m = obj(v.map, 'v3.map');
       if (m.zoom != null && (!Number.isInteger(m.zoom) || m.zoom < 5 || m.zoom > 18)) throw new Error('v3.map.zoom must be an integer 5–18');
-      return { ...(m.query ? { query: text(m.query, 'v3.map.query', 120) } : {}), ...(m.zoom ? { zoom: m.zoom } : {}) };
+      if (m.embedUrl != null) {
+        let u; try { u = new URL(m.embedUrl); } catch { throw new Error('v3.map.embedUrl must be a Google Maps embed URL'); }
+        if (typeof m.embedUrl !== 'string' || u.protocol !== 'https:' || u.host !== 'www.google.com' || u.pathname !== '/maps/embed' || u.username || u.password || u.hash || !u.searchParams.get('pb') || [...u.searchParams.keys()].some((k) => k !== 'pb')) throw new Error('v3.map.embedUrl must be a Google Maps embed URL');
+      }
+      return { ...(m.query ? { query: text(m.query, 'v3.map.query', 120) } : {}), ...(m.zoom ? { zoom: m.zoom } : {}), ...(m.embedUrl ? { embedUrl: m.embedUrl } : {}) };
     })(),
     ctaTitle: text(v.ctaTitle, 'v3.ctaTitle', 80, { required: true }),
     ctaText: text(v.ctaText, 'v3.ctaText', 200, { required: true }),

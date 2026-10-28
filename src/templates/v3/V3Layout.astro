@@ -59,6 +59,7 @@ const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www
     <meta name="referrer" content={site ? 'strict-origin-when-cross-origin' : 'no-referrer'} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {site && !site.testBuild && business && <meta property="og:site_name" content={business} />}
     {site && !site.testBuild && structuredData && <script type="application/ld+json" set:html={safeJsonLd(structuredData)} />}
     <meta name="theme-color" content={theme.base} />
     {approvedFavicon ? (

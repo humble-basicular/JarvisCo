@@ -79,8 +79,11 @@ export function businessSchema(data, domain, { page, town, canonical } = {}) {
   const business = { '@type': 'LocalBusiness', '@id': businessId, name: data.business, url: `${origin}/`, telephone: data.phone,
     areaServed: areas.map((name) => ({ '@type': 'Place', name })),
     ...(data.email ? { email: data.email } : {}),
+    ...(data.v3?.gbp?.url ? { sameAs: [data.v3.gbp.url] } : {}),
     ...(data.logo?.src ? { logo: new URL(data.logo.src, origin).href } : {}) };
   const graph = [business];
+  if (!page && !town) graph.push({ '@type': 'WebSite', '@id': `${origin}/#website`, name: data.business,
+    url: `${origin}/`, publisher: { '@id': businessId } });
   if (page) graph.push({ '@type': 'Service', '@id': `${canonical}#service`, name: page.heading, serviceType: page.serviceNames, description: page.description,
     url: canonical, provider: { '@id': businessId }, areaServed: business.areaServed });
   if (canonical && (page || town)) graph.push({ '@type': 'BreadcrumbList', itemListElement: [

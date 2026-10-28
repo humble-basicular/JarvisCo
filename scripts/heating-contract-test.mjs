@@ -107,6 +107,8 @@ check('v3: gbp links must be https, map zoom bounded', () => {
   assert.throws(() => v3({ gbp: { url: 'http://g.page/x' } }), /v3\.gbp\.url/);
   assert.throws(() => v3({ map: { zoom: 30 } }), /v3\.map\.zoom/);
   assert.equal(v3({ map: { query: 'Įmonė, Gatvė 1, Kaunas' } }).map.query, 'Įmonė, Gatvė 1, Kaunas');
+  assert.equal(v3({ map: { embedUrl: 'https://www.google.com/maps/embed?pb=synthetic' } }).map.embedUrl, 'https://www.google.com/maps/embed?pb=synthetic');
+  for (const embedUrl of ['https://evil.example/maps/embed?pb=x', 'https://www.google.com.evil.example/maps/embed?pb=x', 'http://www.google.com/maps/embed?pb=x', 'https://www.google.com/maps/embed?pb=x&key=secret', 'https://www.google.com/maps/embed?pb=', 123]) assert.throws(() => v3({ map: { embedUrl } }), /embedUrl/);
 });
 
 // Optional `logo` and `towns` (both absent → nothing changes).

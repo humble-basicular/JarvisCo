@@ -20,6 +20,8 @@ const run = (args, ok = true) => {
 const theme = { archetype: 'heat', base: '#142a37', base2: '#203d4d', accent: '#b8430a', accentHi: '#ffcc66', paper: '#f4f4f4', heading: 'archivo-black', divider: 'angle', hero: 'photo', services: 'tiles', logo: { shape: 'round', glyph: 'flame', ring: 'Synthetic', line: 'Test fixture' } };
 const page = { slug: 'service-one', serviceNames: ['A', 'B'], heading: 'Synthetic service in Town', description: 'Scope </script><script>bad()</script> & details', lead: 'Synthetic service description.', sections: [{ heading: 'Scope', text: 'Literal <img src=x onerror=bad()> text.' }], included: ['Only synthetic work'], preparation: ['A description'], priceFactors: ['Scope'], faq: [{ q: 'What to send?', a: 'A description.' }], photoIndexes: [0] };
 const data = { syntheticSeoFixture: true, slug, business: 'Synthetic SEO test', phone: '+37060000000', city: 'Kaunas', areas: ['Kaunas', 'Jonava'], services: ['A', { name: 'B', text: 'B description' }, 'C'], tagline: 'Synthetic activity in Kaunas', lead: 'Synthetic lead', photos: [{ src: `/previews/${slug}/1.jpg`, width: 1600, height: 1000, alt: 'Synthetic test photo' }], towns: [{ name: 'Jonava', slug: 'jonava', text: 'Synthetic local scope.', tagline: 'Synthetic service Jonavoje', lead: 'Synthetic town lead.' }], v3: { theme, h1: { lead: 'Synthetic service', hot: 'Kaune' }, heroChecks: ['Synthetic'], trust: [1, 2, 3].map((i) => ({ icon: 'check', title: `T${i}`, text: 'Synthetic' })), aboutTitle: 'Synthetic about', steps: [1, 2, 3].map((i) => ({ icon: 'check', title: `S${i}`, text: 'Synthetic' })), ctaTitle: 'Synthetic contact', ctaText: 'Synthetic description.', servicePages: [page, { ...page, slug: 'service-two', serviceNames: ['C'], heading: 'Second synthetic service', description: 'Second scope', photoIndexes: [] }] } };
+data.v3.map = { query: 'PRIVATE ADDRESS SHOULD NOT LEAK', embedUrl: 'https://www.google.com/maps/embed?pb=synthetic' };
+data.v3.gbp = { url: 'https://www.google.com/maps?cid=123', reviewUrl: 'https://g.page/r/synthetic/review' };
 if (existsSync(input)) assert.equal(JSON.parse(readFileSync(input)).syntheticSeoFixture, true, 'refuse overwriting another fixture');
 mkdirSync(`public/previews/${slug}`, { recursive: true });
 await sharp({ create: { width: 1600, height: 1000, channels: 3, background: '#395664' } }).jpeg().toFile(`public/previews/${slug}/1.jpg`);
@@ -27,7 +29,7 @@ writeFileSync(input, JSON.stringify(data));
 assert.equal(validateSaved(data).v3.servicePages.length, 2, 'saved input retains validated contract');
 const configPath = `previews/staging/seo-synthetic-config.json`;
 mkdirSync('previews/staging', { recursive: true });
-writeFileSync(configPath, JSON.stringify({ mapMode: 'disabled', privacy: { controller: { name: 'Synthetic', email: 'synthetic@example.lt' }, processor: { name: 'Synthetic', email: 'synthetic@example.lt' }, retention: 'Synthetic fixture only', legalBasis: 'Synthetic fixture only', rights: 'Synthetic fixture only', hosting: 'Synthetic fixture only', updatedAt: '2026-10-26' }, worker: { configured: true, site: 'seo-synthetic', origins: ['https://synthetic.example.lt', 'https://www.synthetic.example.lt'], recipients: ['synthetic@example.lt'] } }));
+writeFileSync(configPath, JSON.stringify({ mapMode: 'consent', privacy: { controller: { name: 'Synthetic', email: 'synthetic@example.lt' }, processor: { name: 'Synthetic', email: 'synthetic@example.lt' }, retention: 'Synthetic fixture only', legalBasis: 'Synthetic fixture only', rights: 'Synthetic fixture only', hosting: 'Synthetic fixture only', updatedAt: '2026-10-26' }, worker: { configured: true, site: 'seo-synthetic', origins: ['https://synthetic.example.lt', 'https://www.synthetic.example.lt'], recipients: ['synthetic@example.lt'] } }));
 const args = ['scripts/client-site.mjs', input, '--site', 'seo-synthetic', '--domain', 'synthetic.example.lt'];
 // First build the original optional-interface shape: no servicePages.
 writeFileSync(input, JSON.stringify({ ...data, v3: { ...data.v3, servicePages: undefined } }));
@@ -42,6 +44,15 @@ run([...args, '--config', configPath]);
 assert.deepEqual(checkSeoArtifacts(out, { domain: 'synthetic.example.lt', services: data.v3.servicePages }), []);
 run(['scripts/client-site-deploy-check.mjs', out]);
 const home = read(`${out}/index.html`);
+assert.equal(attr(home.nodes.find((n) => attr(n, 'property') === 'og:site_name'), 'content'), data.business);
+const homeSchema = JSON.parse(text(home.nodes.find((n) => attr(n, 'type') === 'application/ld+json')))['@graph'];
+assert.equal(homeSchema.find((n) => n['@type'] === 'WebSite').name, data.business);
+assert.deepEqual(homeSchema.find((n) => n['@type'] === 'LocalBusiness').sameAs, [data.v3.gbp.url]);
+assert.ok(home.nodes.some((n) => attr(n, 'href') === data.v3.gbp.reviewUrl));
+assert.ok(home.nodes.some((n) => attr(n, 'href') === data.v3.gbp.url));
+assert.ok(!home.html.includes(data.v3.map.query), 'private map query stays out of standalone output');
+assert.ok(home.nodes.some((n) => attr(n, 'data-map-src') === data.v3.map.embedUrl));
+assert.equal(home.nodes.filter((n) => n.tagName === 'iframe').length, 0, 'map requires consent before loading');
 for (const [i, expected] of ['service-one', 'service-one', 'service-two'].entries()) {
   const tile = home.nodes.filter((n) => n.tagName === 'li' && (attr(n, 'class') ?? '').split(' ').includes('v3-tile'))[i];
   const links = nodes(tile).filter((n) => n.tagName === 'a');
@@ -63,6 +74,7 @@ const noPhoto = read(`${out}/paslaugos/service-two/index.html`);
 assert.ok(!noPhoto.nodes.some((n) => (attr(n, 'class') ?? '').includes('v3-hero__bg')));
 const town = read(`${out}/jonava/index.html`);
 assert.equal(text(town.nodes.find((n) => n.tagName === 'title')), 'Synthetic service Jonavoje – Synthetic SEO test');
+assert.ok(attr(town.nodes.find((n) => n.tagName === 'a' && text(n) === 'Atidaryti Google Maps'), 'href').includes('query=Jonava'), 'town map keeps its own area');
 // Mutating only our synthetic output verifies a deploy guard catches accidental service noindex.
 const serviceFile = `${out}/paslaugos/service-one/index.html`, saved = readFileSync(serviceFile, 'utf8');
 writeFileSync(serviceFile, saved.replace('content="index,follow"', 'content="noindex,nofollow"'));

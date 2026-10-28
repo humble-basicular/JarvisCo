@@ -90,7 +90,7 @@ export interface V3Input {
    *  Opt-in so existing previews keep their badge; width/height = the file's intrinsic size. */
   clientLogo?: { width: number; height: number; showName?: boolean; formBadge?: boolean };
   /** Google map pin: `query` = business name + address once the GBP exists; default = base town (or the town page's town). */
-  map?: { query?: string; zoom?: number };
+  map?: { query?: string; zoom?: number; embedUrl?: string };
 }
 
 /** Minimum pixel width for emphasised photo slots (hero/CTA background, service tiles). */

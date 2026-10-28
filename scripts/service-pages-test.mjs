@@ -39,3 +39,12 @@ test('generic inputs without v3 or servicePages stay valid', () => {
   const base = { business: 'Synthetic', phone: '+37060000000', city: 'Town', areas: ['Town'], services: ['A'], photos: [] };
   assert.equal(normalize(base).data.v3, undefined); assert.equal(validateSaved({ ...base, slug: '23456789ab' }).services[0], 'A');
 });
+test('homepage names the website and links only the supplied business profile', () => {
+  const data = { business: 'Test', phone: '+37060000000', city: 'Town', areas: [], v3: { gbp: { url: 'https://maps.google.com/?cid=123', reviewUrl: 'https://g.page/r/example/review' } } };
+  const graph = businessSchema(data, 'example.lt')['@graph'];
+  assert.deepEqual(graph[0].sameAs, [data.v3.gbp.url]);
+  assert.deepEqual(graph[1], { '@type': 'WebSite', '@id': 'https://example.lt/#website', name: 'Test', url: 'https://example.lt/', publisher: { '@id': graph[0]['@id'] } });
+  assert.equal(businessSchema({ ...data, v3: {} }, 'example.lt')['@graph'][0].sameAs, undefined);
+  const townGraph = businessSchema(data, 'example.lt', { town: { name: 'Town' }, canonical: 'https://example.lt/town/' })['@graph'];
+  assert.equal(townGraph.some((x) => x['@type'] === 'WebSite'), false);
+});

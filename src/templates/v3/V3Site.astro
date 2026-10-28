@@ -77,10 +77,14 @@ const nav = service ? [{ href: '#aprasymas', label: 'Apie paslaugą' }, { href: 
   { href: '#vietoves', label: 'Kur dirbame' },
 ];
 const map = areaMap(base, towns.map((t) => t.name), town?.name);
-/* Live Google map straight away (no click-to-load). Pin = v3.map.query (GBP name + address once it exists), else the town. */
+/* Use Google's public share/embed URL for an identified business, never a private address.
+   Town pages retain their area map. Live embeds still require the existing consent action. */
+const businessMap = !town && v3.map?.embedUrl;
 const mapQuery = town ? `${town.name}, Lietuva` : v3.map?.query ?? `${base}, Lietuva`;
+const mapTitle = businessMap ? data.business : mapQuery;
+const mapLink = businessMap && v3.gbp?.url ? v3.gbp.url : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 const mapZoom = (!town && v3.map?.zoom) || (town ? 12 : map?.zoom ?? 11);
-const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=${mapZoom}&hl=lt&output=embed`;
+const mapSrc = businessMap || `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=${mapZoom}&hl=lt&output=embed`;
 const nearby = (town ? town.places : data.areas.filter((a) => !towns.some((t) => t.name === a) && a !== base)).slice(0, 8);
 const MONTHS = ['sausio', 'vasario', 'kovo', 'balandžio', 'gegužės', 'birželio', 'liepos', 'rugpjūčio', 'rugsėjo', 'spalio', 'lapkričio', 'gruodžio'];
 const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]} m. ${MONTHS[+m[2] - 1]} ${+m[3]} d.` : undefined; };
@@ -473,11 +477,11 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
       </div>
       <figure class="v3-map">
         <div class="v3-map__frame">
-          {!site ? <iframe src={mapSrc} title={`Google žemėlapis: ${mapQuery}`} loading="eager" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-            : site.mapMode === 'consent' ? <div class="v3-map-consent"><p>Žemėlapį teikia Google. Jį įjungus duomenys perduodami Google.</p><button type="button" class="v3-btn v3-btn--accent" data-map-src={mapSrc} data-map-title={`Google žemėlapis: ${mapQuery}`}>Rodyti žemėlapį</button><a href="/privatumo-politika/">Privatumo politika</a></div>
+          {!site ? <iframe src={mapSrc} title={`Google žemėlapis: ${mapTitle}`} loading="eager" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+            : site.mapMode === 'consent' ? <div class="v3-map-consent"><p>Žemėlapį teikia Google. Jį įjungus duomenys perduodami Google.</p><button type="button" class="v3-btn v3-btn--accent" data-map-src={mapSrc} data-map-title={`Google žemėlapis: ${mapTitle}`}>Rodyti žemėlapį</button><a href="/privatumo-politika/">Privatumo politika</a></div>
             : <p class="v3-map-consent">{baseLine}</p>}
         </div>
-        <figcaption><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`} rel="noopener" target="_blank">Atidaryti Google Maps</a></figcaption>
+        <figcaption><a href={mapLink} rel="noopener" target="_blank">Atidaryti Google Maps</a></figcaption>
       </figure>
     </div>
   </section>
