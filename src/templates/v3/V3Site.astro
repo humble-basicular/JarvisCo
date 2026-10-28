@@ -91,6 +91,7 @@ const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2}
 const reviews = data.reviews ?? [];
 const gbp = v3.gbp ?? {};
 const reviewPlatform = gbp.platform || 'Google';
+const rateFlow = gbp.reviewFlow === 'rating-dialog' && !!gbp.reviewUrl && !!data.email;
 const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => ({ src: p.src, srcset: p.srcset, sizes: p.srcset ? sizes : undefined, width: p.width, height: p.height, decoding: 'async', ...extra });
 // Badge glyphs without a 24 px line icon (rope) fall back to the shield in the hero pill.
 const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconName : 'shield';
@@ -395,7 +396,12 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
             )}
           </div>
         )}
-        {(!v3.hidePendingGoogle || gbp.url || gbp.reviewUrl) && <div class="v3-reviews__google">
+        {rateFlow && <div class="v3-reviews__google v3-reviews__google--rate">
+          <p class="v3-reviews__gtitle">Įvertinkite mus {reviewPlatform}</p>
+          <p class="v3-reviews__gstars" aria-hidden="true">★★★★★</p>
+          <a class="v3-btn v3-btn--gold v3-btn--lg" href={gbp.reviewUrl} rel="noopener" target="_blank" data-rate-open>Palikti atsiliepimą</a>
+        </div>}
+        {!rateFlow && (!v3.hidePendingGoogle || gbp.url || gbp.reviewUrl) && <div class="v3-reviews__google">
           <p class="v3-reviews__gtitle">Įvertinkite mus {reviewPlatform}</p>
           {gbp.reviewUrl && <p class="v3-reviews__gstars" aria-hidden="true">☆☆☆☆☆</p>}
           {gbp.reviewUrl
@@ -531,6 +537,41 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
     <p>{demo && 'Dalis iliustracijų sukurta DI. · '}Programavimas: <a href="https://jarvisweb.lt" rel="noopener">jarvisweb.lt</a></p>
   </div>
 </footer>
+
+{rateFlow && (
+  <dialog class="v3-modal v3-rate" data-rate aria-labelledby="v3-rate-h" data-review-url={gbp.reviewUrl} data-mail={data.email} data-biz={data.business}>
+    <div class="v3-rate__box">
+      <button class="v3-modal__x" type="button" data-rate-close aria-label="Uždaryti"><span aria-hidden="true">×</span></button>
+      <div data-rate-step="rate">
+        <h2 id="v3-rate-h" class="v3-rate__h" tabindex="-1">Kaip įvertintumėte mūsų darbą?</h2>
+        <fieldset class="v3-rate__stars" data-rate-stars>
+          <legend class="v3-rate__sr">Įvertinimas nuo 1 iki 5 žvaigždučių</legend>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <label class="v3-rate__star">
+              <input type="radio" name="v3-rating" value={String(n)} />
+              <span aria-hidden="true">★</span>
+              <span class="v3-rate__sr">{n} {n === 1 ? 'žvaigždutė' : 'žvaigždutės'}</span>
+            </label>
+          ))}
+        </fieldset>
+        <p class="v3-rate__err" role="alert" data-rate-err hidden>Pasirinkite įvertinimą.</p>
+        <button class="v3-btn v3-btn--gold v3-btn--lg v3-btn--block" type="button" data-rate-next>Tęsti</button>
+      </div>
+      <form class="v3-rate__form" data-rate-step="private" data-rate-form hidden novalidate>
+        <h2 class="v3-rate__h" tabindex="-1" data-rate-h2>Ačiū, kad padedate mums tobulėti</h2>
+        <p class="v3-rate__lead">Apgailestaujame, kad likote nepatenkinti. Parašykite, ką galėtume daryti geriau – perskaitysime ir pasistengsime pasitaisyti.</p>
+        <label class="v3-rate__f" for="v3-rate-name">Vardas (nebūtina)<input id="v3-rate-name" type="text" autocomplete="name" maxlength="80" /></label>
+        <label class="v3-rate__f" for="v3-rate-email">El. paštas (nebūtina)<input id="v3-rate-email" type="email" autocomplete="email" maxlength="120" /></label>
+        <label class="v3-rate__f" for="v3-rate-msg">Jūsų atsiliepimas (privalomas)<textarea id="v3-rate-msg" rows="5" maxlength="1500" required></textarea></label>
+        <p class="v3-rate__err" role="alert" data-rate-ferr hidden>Parašykite trumpą žinutę.</p>
+        <p class="v3-rate__note">Mygtukas atidarys jūsų el. pašto programą su paruoštu laišku į {data.email}. Laišką išsiųsite patys – kol nepaspausite „Siųsti“ savo pašto programoje, mes nieko negausime.</p>
+        <button class="v3-btn v3-btn--gold v3-btn--lg v3-btn--block" type="submit">Atidaryti el. paštą</button>
+        <p class="v3-rate__note" data-rate-after hidden>Jei pašto programa neatsidarė, parašykite adresu <a href={`mailto:${data.email}`}>{data.email}</a>.</p>
+        <button class="v3-rate__back" type="button" data-rate-back>← Pakeisti įvertinimą</button>
+      </form>
+    </div>
+  </dialog>
+)}
 
 <dialog class="v3-modal" data-quote-modal aria-labelledby="v3-modal-title">
   <div class="v3-quote v3-quote--modal">
@@ -677,3 +718,56 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
     }
   })();
 </script>
+
+{rateFlow && (
+  <script is:inline>
+    (function () {
+      var d = document.querySelector('[data-rate]');
+      var open = document.querySelector('[data-rate-open]');
+      if (!d || !open || typeof d.showModal !== 'function') return;
+      var rate = d.querySelector('[data-rate-step="rate"]');
+      var priv = d.querySelector('[data-rate-form]');
+      var radios = d.querySelectorAll('[data-rate-stars] input');
+      var err = d.querySelector('[data-rate-err]');
+      var ferr = d.querySelector('[data-rate-ferr]');
+      var stars = d.querySelector('[data-rate-stars]');
+      var value = 0;
+      function paint(n) { radios.forEach(function (r, i) { r.parentElement.classList.toggle('is-on', i < n); }); }
+      function focusH(root) { var h = root.querySelector('h2'); if (h) h.focus(); }
+      function reset() { value = 0; radios.forEach(function (r) { r.checked = false; }); paint(0); err.hidden = true; ferr.hidden = true; priv.hidden = true; rate.hidden = false; d.querySelector('[data-rate-after]').hidden = true; }
+      open.addEventListener('click', function (e) { e.preventDefault(); reset(); d.showModal(); document.documentElement.classList.add('v3-locked'); focusH(rate); });
+      d.querySelector('[data-rate-close]').addEventListener('click', function () { d.close(); });
+      d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
+      d.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); open.focus(); });
+      radios.forEach(function (r, i) {
+        r.addEventListener('change', function () { value = i + 1; paint(value); err.hidden = true; });
+        r.parentElement.addEventListener('mouseenter', function () { paint(i + 1); });
+      });
+      stars.addEventListener('mouseleave', function () { paint(value); });
+      d.querySelector('[data-rate-next]').addEventListener('click', function () {
+        if (!value) { err.hidden = false; radios[0].focus(); return; }
+        if (value >= 4) {
+          var w = window.open(d.getAttribute('data-review-url'), '_blank', 'noopener');
+          if (!w) window.location.assign(d.getAttribute('data-review-url'));
+          d.close();
+          return;
+        }
+        rate.hidden = true; priv.hidden = false; focusH(priv);
+      });
+      d.querySelector('[data-rate-back]').addEventListener('click', function () { priv.hidden = true; rate.hidden = false; focusH(rate); });
+      priv.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var msg = d.querySelector('#v3-rate-msg');
+        if (!msg.value.trim()) { ferr.hidden = false; msg.focus(); return; }
+        var email = d.querySelector('#v3-rate-email');
+        if (email.value && !email.checkValidity()) { email.focus(); email.reportValidity(); return; }
+        ferr.hidden = true;
+        var name = d.querySelector('#v3-rate-name').value.trim();
+        var body = msg.value.trim() + '\n\n— Įvertinimas: ' + value + '/5' + (name ? '\n— Vardas: ' + name : '') + (email.value ? '\n— El. paštas: ' + email.value.trim() : '');
+        var subject = 'Atsiliepimas apie darbą (' + value + '/5) – ' + d.getAttribute('data-biz');
+        d.querySelector('[data-rate-after]').hidden = false;
+        window.location.href = 'mailto:' + d.getAttribute('data-mail') + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      });
+    })();
+  </script>
+)}

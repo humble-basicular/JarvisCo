@@ -356,7 +356,12 @@ function v3(value) {
       const g = obj(v.gbp, 'v3.gbp');
       for (const k of ['url', 'reviewUrl']) if (g[k] != null && !/^https:\/\/[^\s"<>]+$/.test(g[k])) throw new Error(`v3.gbp.${k} must be https://…`);
       if (g.platform != null && (typeof g.platform !== 'string' || !/^[\p{L}0-9 .-]{2,30}$/u.test(g.platform))) throw new Error('v3.gbp.platform must be a short name like Paslaugos.lt');
-      return { ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}), ...(g.platform ? { platform: g.platform } : {}) };
+      if (g.reviewFlow != null) {
+        if (g.reviewFlow !== 'rating-dialog') throw new Error("v3.gbp.reviewFlow must be 'rating-dialog'");
+        if (!g.reviewUrl) throw new Error('v3.gbp.reviewFlow needs v3.gbp.reviewUrl');
+        if (g.platform != null && g.platform !== 'Google') throw new Error('v3.gbp.reviewFlow is only for Google reviews');
+      }
+      return { ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}), ...(g.platform ? { platform: g.platform } : {}), ...(g.reviewFlow ? { reviewFlow: g.reviewFlow } : {}) };
     })(),
     // Use the client's own logo file (top-level `logo`) instead of the generated badge; intrinsic size for the <img>.
     clientLogo: v.clientLogo == null ? undefined : (() => {

@@ -85,7 +85,7 @@ export interface V3Input {
   photo?: { hero?: number; pins?: number[]; about?: number; faq?: number; cta?: number; reviews?: number };
   /** Google Business Profile: reviews link + "leave a review" link. Absent → review section shows a "coming" note. */
   /** Review profile. platform labels the box (default Google), e.g. 'Paslaugos.lt' when the client collects reviews there. */
-  gbp?: { url?: string; reviewUrl?: string; platform?: string };
+  gbp?: { url?: string; reviewUrl?: string; platform?: string; /** Opt-in: dark review card + rating dialog (1–3 → private email form, 4–5 → reviewUrl). Needs reviewUrl and a top-level email. */ reviewFlow?: 'rating-dialog' };
   /** Show the client's own logo file (top-level `logo`, read on a light plate) instead of the generated badge.
    *  Opt-in so existing previews keep their badge; width/height = the file's intrinsic size. */
   clientLogo?: { width: number; height: number; showName?: boolean; formBadge?: boolean };
