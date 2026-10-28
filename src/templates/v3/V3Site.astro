@@ -547,24 +547,20 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
         <fieldset class="v3-rate__stars" data-rate-stars>
           <legend class="v3-rate__sr">Įvertinimas nuo 1 iki 5 žvaigždučių</legend>
           {[1, 2, 3, 4, 5].map((n) => (
-            <label class="v3-rate__star">
-              <input type="radio" name="v3-rating" value={String(n)} />
+            <button class="v3-rate__star" type="button" data-rate-star={n} aria-label={`${n} ${n === 1 ? 'žvaigždutė' : 'žvaigždutės'}`}>
               <span aria-hidden="true">★</span>
-              <span class="v3-rate__sr">{n} {n === 1 ? 'žvaigždutė' : 'žvaigždutės'}</span>
-            </label>
+            </button>
           ))}
         </fieldset>
-        <p class="v3-rate__err" role="alert" data-rate-err hidden>Pasirinkite įvertinimą.</p>
-        <button class="v3-btn v3-btn--gold v3-btn--lg v3-btn--block" type="button" data-rate-next>Tęsti</button>
       </div>
       <form class="v3-rate__form" data-rate-step="private" data-rate-form hidden novalidate>
-        <h2 class="v3-rate__h" tabindex="-1" data-rate-h2>Ačiū, kad padedate mums tobulėti</h2>
-        <p class="v3-rate__lead">Apgailestaujame, kad likote nepatenkinti. Parašykite, ką galėtume daryti geriau – perskaitysime ir pasistengsime pasitaisyti.</p>
+        <h2 id="v3-rate-private-h" class="v3-rate__h" tabindex="-1" data-rate-h2>Padėkite mums tobulėti</h2>
+        <p class="v3-rate__lead">Apgailestaujame, kad likote nepatenkinti. Parašykite, ką galėtume pagerinti.</p>
         <label class="v3-rate__f" for="v3-rate-name">Vardas (nebūtina)<input id="v3-rate-name" type="text" autocomplete="name" maxlength="80" /></label>
         <label class="v3-rate__f" for="v3-rate-email">El. paštas (nebūtina)<input id="v3-rate-email" type="email" autocomplete="email" maxlength="120" /></label>
         <label class="v3-rate__f" for="v3-rate-msg">Jūsų atsiliepimas (privalomas)<textarea id="v3-rate-msg" rows="5" maxlength="1500" required></textarea></label>
         <p class="v3-rate__err" role="alert" data-rate-ferr hidden>Parašykite trumpą žinutę.</p>
-        <p class="v3-rate__note">Mygtukas atidarys jūsų el. pašto programą su paruoštu laišku į {data.email}. Laišką išsiųsite patys – kol nepaspausite „Siųsti“ savo pašto programoje, mes nieko negausime.</p>
+        <p class="v3-rate__note">Atsiliepimą išsiųsite savo el. pašto programoje adresu {data.email}.</p>
         <button class="v3-btn v3-btn--gold v3-btn--lg v3-btn--block" type="submit">Atidaryti el. paštą</button>
         <p class="v3-rate__note" data-rate-after hidden>Jei pašto programa neatsidarė, parašykite adresu <a href={`mailto:${data.email}`}>{data.email}</a>.</p>
         <button class="v3-rate__back" type="button" data-rate-back>← Pakeisti įvertinimą</button>
@@ -727,34 +723,33 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
       if (!d || !open || typeof d.showModal !== 'function') return;
       var rate = d.querySelector('[data-rate-step="rate"]');
       var priv = d.querySelector('[data-rate-form]');
-      var radios = d.querySelectorAll('[data-rate-stars] input');
-      var err = d.querySelector('[data-rate-err]');
+      var ratings = d.querySelectorAll('[data-rate-star]');
       var ferr = d.querySelector('[data-rate-ferr]');
       var stars = d.querySelector('[data-rate-stars]');
       var value = 0;
-      function paint(n) { radios.forEach(function (r, i) { r.parentElement.classList.toggle('is-on', i < n); }); }
+      function paint(n) { ratings.forEach(function (r, i) { r.classList.toggle('is-on', i < n); }); }
       function focusH(root) { var h = root.querySelector('h2'); if (h) h.focus(); }
-      function reset() { value = 0; radios.forEach(function (r) { r.checked = false; }); paint(0); err.hidden = true; ferr.hidden = true; priv.hidden = true; rate.hidden = false; d.querySelector('[data-rate-after]').hidden = true; }
+      function reset() { value = 0; paint(0); ferr.hidden = true; priv.hidden = true; rate.hidden = false; d.setAttribute('aria-labelledby', 'v3-rate-h'); d.querySelector('[data-rate-after]').hidden = true; }
       open.addEventListener('click', function (e) { e.preventDefault(); reset(); d.showModal(); document.documentElement.classList.add('v3-locked'); focusH(rate); });
       d.querySelector('[data-rate-close]').addEventListener('click', function () { d.close(); });
       d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
       d.addEventListener('close', function () { document.documentElement.classList.remove('v3-locked'); open.focus(); });
-      radios.forEach(function (r, i) {
-        r.addEventListener('change', function () { value = i + 1; paint(value); err.hidden = true; });
-        r.parentElement.addEventListener('mouseenter', function () { paint(i + 1); });
+      ratings.forEach(function (r, i) {
+        r.addEventListener('click', function () {
+          value = i + 1;
+          paint(value);
+          if (value >= 4) {
+            d.close();
+            window.location.assign(d.getAttribute('data-review-url'));
+            return;
+          }
+          rate.hidden = true; priv.hidden = false; d.setAttribute('aria-labelledby', 'v3-rate-private-h'); focusH(priv);
+        });
+        r.addEventListener('mouseenter', function () { paint(i + 1); });
+        r.addEventListener('focus', function () { paint(i + 1); });
       });
       stars.addEventListener('mouseleave', function () { paint(value); });
-      d.querySelector('[data-rate-next]').addEventListener('click', function () {
-        if (!value) { err.hidden = false; radios[0].focus(); return; }
-        if (value >= 4) {
-          var w = window.open(d.getAttribute('data-review-url'), '_blank', 'noopener');
-          if (!w) window.location.assign(d.getAttribute('data-review-url'));
-          d.close();
-          return;
-        }
-        rate.hidden = true; priv.hidden = false; focusH(priv);
-      });
-      d.querySelector('[data-rate-back]').addEventListener('click', function () { priv.hidden = true; rate.hidden = false; focusH(rate); });
+      d.querySelector('[data-rate-back]').addEventListener('click', function () { priv.hidden = true; rate.hidden = false; d.setAttribute('aria-labelledby', 'v3-rate-h'); focusH(rate); });
       priv.addEventListener('submit', function (e) {
         e.preventDefault();
         var msg = d.querySelector('#v3-rate-msg');
