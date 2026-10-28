@@ -49,6 +49,7 @@ const homeSchema = JSON.parse(text(home.nodes.find((n) => attr(n, 'type') === 'a
 assert.equal(homeSchema.find((n) => n['@type'] === 'WebSite').name, data.business);
 assert.deepEqual(homeSchema.find((n) => n['@type'] === 'LocalBusiness').sameAs, [data.v3.gbp.url]);
 assert.ok(home.nodes.some((n) => attr(n, 'href') === data.v3.gbp.reviewUrl));
+assert.ok(home.nodes.filter((n) => [data.v3.gbp.url, data.v3.gbp.reviewUrl].includes(attr(n, 'href'))).every((n) => (attr(n, 'rel') ?? '').split(' ').includes('noopener')));
 assert.ok(home.nodes.some((n) => attr(n, 'href') === data.v3.gbp.url));
 assert.ok(!home.html.includes(data.v3.map.query), 'private map query stays out of standalone output');
 assert.ok(home.nodes.some((n) => attr(n, 'data-map-src') === data.v3.map.embedUrl));
@@ -75,6 +76,7 @@ assert.ok(!noPhoto.nodes.some((n) => (attr(n, 'class') ?? '').includes('v3-hero_
 const town = read(`${out}/jonava/index.html`);
 assert.equal(text(town.nodes.find((n) => n.tagName === 'title')), 'Synthetic service Jonavoje – Synthetic SEO test');
 assert.ok(attr(town.nodes.find((n) => n.tagName === 'a' && text(n) === 'Atidaryti Google Maps'), 'href').includes('query=Jonava'), 'town map keeps its own area');
+for (const candidate of [home, town, service, noPhoto]) assert.ok(!candidate.html.includes(data.v3.map.query), 'private query absent from every page type');
 // Mutating only our synthetic output verifies a deploy guard catches accidental service noindex.
 const serviceFile = `${out}/paslaugos/service-one/index.html`, saved = readFileSync(serviceFile, 'utf8');
 writeFileSync(serviceFile, saved.replace('content="index,follow"', 'content="noindex,nofollow"'));
@@ -106,6 +108,16 @@ function checkLinks(root, file) {
   }
 }
 for (const p of data.v3.servicePages) { checkLinks(out, `${out}/paslaugos/${p.slug}/index.html`); checkLinks('dist', `dist/perziura/${slug}/paslaugos/${p.slug}/index.html`); }
+run(['scripts/client-site-deploy-check.mjs', out]);
+// An identified Google embed must never override disabled-map policy.
+const disabledConfig = { ...JSON.parse(readFileSync(configPath, 'utf8')), mapMode: 'disabled' };
+writeFileSync(configPath, JSON.stringify(disabledConfig));
+run([...args, '--config', configPath]);
+for (const path of ['index.html', 'jonava/index.html', 'paslaugos/service-one/index.html', 'paslaugos/service-two/index.html']) {
+  const disabled = read(`${out}/${path}`);
+  assert.ok(!disabled.nodes.some((n) => n.tagName === 'iframe' || attr(n, 'data-map-src') !== undefined), `${path}: disabled map must stay disabled`);
+  assert.ok(!disabled.html.includes(data.v3.map.query));
+}
 run(['scripts/client-site-deploy-check.mjs', out]);
 const archive = `previews/staging/seo-synthetic-${Date.now()}`;
 mkdirSync(archive);

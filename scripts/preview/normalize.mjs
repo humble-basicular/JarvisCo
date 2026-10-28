@@ -369,8 +369,9 @@ function v3(value) {
       const m = obj(v.map, 'v3.map');
       if (m.zoom != null && (!Number.isInteger(m.zoom) || m.zoom < 5 || m.zoom > 18)) throw new Error('v3.map.zoom must be an integer 5–18');
       if (m.embedUrl != null) {
+        if (typeof m.embedUrl !== 'string' || !m.embedUrl.length || m.embedUrl.length > 4096) throw new Error('v3.map.embedUrl must be a Google Maps embed URL of at most 4096 characters');
         let u; try { u = new URL(m.embedUrl); } catch { throw new Error('v3.map.embedUrl must be a Google Maps embed URL'); }
-        if (typeof m.embedUrl !== 'string' || u.protocol !== 'https:' || u.host !== 'www.google.com' || u.pathname !== '/maps/embed' || u.username || u.password || u.hash || !u.searchParams.get('pb') || [...u.searchParams.keys()].some((k) => k !== 'pb')) throw new Error('v3.map.embedUrl must be a Google Maps embed URL');
+        if (u.protocol !== 'https:' || u.host !== 'www.google.com' || u.pathname !== '/maps/embed' || u.username || u.password || u.hash || !u.searchParams.get('pb') || u.searchParams.getAll('pb').length !== 1 || [...u.searchParams.keys()].some((k) => k !== 'pb')) throw new Error('v3.map.embedUrl must be a Google Maps embed URL');
       }
       return { ...(m.query ? { query: text(m.query, 'v3.map.query', 120) } : {}), ...(m.zoom ? { zoom: m.zoom } : {}), ...(m.embedUrl ? { embedUrl: m.embedUrl } : {}) };
     })(),
