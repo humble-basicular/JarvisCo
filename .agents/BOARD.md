@@ -1,5 +1,8 @@
 # JarvisWeb proof-site autonomous run
 
+## MesElektra + VensLand security/attribution — 29 October 2026, deployed
+Lead Codex2; source main5e97220 integrated from release/two-sites-20261029. Worker code dab28ef, live2cf13438 both enforce. MesPagesc4c2da59; Vens theme0.2.2. ArbCut excluded; unrelated SITES/bindings/feed retained.150backendtests+typecheck;19UI/WP+typecheck rerun main;3preservedtestcandidates;41livepages;both tokenless400 and labelled browser tests with attachments/provider sends pass. Canonical deployment configs retain setup. Two Claude reviews incomplete/changesrequested, lead accepted fixes + independent checks at cap. No reviewer approval claim. Inbox receipt/CRM import/search accounts/realphone/fieldCWV/fullrestore/cloudsync unverified. See source .agents/handoffs/2026-10-29-codex-two-sites-live.md and management handoff2026-10-29-1251-codex-two-sites-released.md. No active children/automation; no unrelated edits.
+
 ## Private lead preview — 2026-10-19 (Codex continuation)
 Lead: Codex GPT-6.1-Sol, explicit user override after Claude's session limit. Real inputs and assets remain git-ignored and in the existing private Drive preview folder. No publish/send; production waits for the user's “deploy” in this task.
 
