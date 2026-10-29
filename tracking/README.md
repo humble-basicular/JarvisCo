@@ -331,3 +331,27 @@ provider promise fulfilled, never inbox receipt. Notification telemetry is best
 effort so logging failure cannot suppress mail; absent result is unknown, not sent.
 No claim of mailbox verification, actual jobs or revenue. Retention reuses existing
 request-time cleanup; new tables expire after12calendar months. No new automation.
+
+### On-demand operator report
+
+From the source checkout, generate a private HTML report plus its aggregate JSON:
+
+```sh
+node scripts/site-summary.mjs --from 2026-10-29T00:00:00Z --to 2026-10-30T00:00:00Z --out '<private report folder>/metrics.html'
+```
+
+The command reads EVENTS_TOKEN from the existing private JarvisWeb secrets file
+(or `--secrets <private JSON>`), queries both sites, escapes report values and
+creates new mode0600 files without overwriting existing reports. Bounds must be
+explicit timezone-bearing dates within the endpoint's31day/retention limits.
+No scheduler or public dashboard is created. Test visits/enquiries remain in raw
+aggregates; use the dated release record to distinguish them from genuine leads.
+Phone taps, accepted enquiries, provider sends, inbox receipt and paid work remain
+separate. CRM site mapping/pull freshness is a separate acceptance item.
+
+The two-site verification-attempt cap is deliberately per site, not per visitor.
+An attacker can temporarily consume it; after five attempts/minute visitors may
+need to wait or use the phone fallback. Saturated traffic does not append security
+rows or make Siteverify calls. A5xx/network response conservatively locks the
+frontend until reload to avoid duplicate enquiries, including known upstream
+verification outages. These availability trade-offs are retained in this release.
