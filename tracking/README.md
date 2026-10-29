@@ -206,3 +206,129 @@ Set **`FORM_SITE_RECIPIENTS` as a private JSON config/secret** mapping validated
 A valid selected route has 1–10 strict ASCII mailbox values; duplicate case variants schedule one message. Each recipient gets its own plain-text message with no other client's addresses in headers. Synchronous/asynchronous send failure at one recipient does not suppress another or change the receipt. The shared persisted fingerprint claim still controls the whole notification attempt; there is no per-recipient retry, outbox or guaranteed delivery. Correcting config does not replay an already claimed submission. No attachment contents are emailed.
 
 Before deployment, replace the existing `FORM_EMAIL.destination_address` restriction with `allowed_destination_addresses` containing the union of all approved verified destinations, including the legacy owner. Keep sender `forms@jarvisweb.lt`, existing first-party mail configuration and free verified-destination path. Client-domain MX need not change for notifications. Full deployment, mail/DNS preservation, rollback and live-test instructions: [`docs/launch/RUNBOOK.md`](../docs/launch/RUNBOOK.md). No Worker deployment, DNS change or email send is part of implementation acceptance.
+
+## MesElektra / VensLand opt-in security and source reporting (29 October 2026)
+
+No change to `/t/events`, its envelope, submission keys or beacon `meta`. Migration
+`0007_inquiry_security.sql` creates separate attribution, security-decision and
+notification-result tables. No new dependencies. Only `meselektra` and `vensland`
+can opt in; all other sites and legacy forms ignore this configuration entirely.
+Unset configuration preserves current behavior (including ignoring new fields).
+
+Private Worker var (JSON string):
+
+```toml
+TWO_SITE_SECURITY = '{"meselektra":"observe","vensland":"observe"}'
+```
+
+Each site independently accepts `observe` or `enforce`; omit its entry to disable.
+Unknown modes/site keys or malformed JSON return unavailable on these two sites;
+never put ArbCut or another client in this config. Existing `SITES` remains the
+exact-origin authority and must retain every unrelated entry.
+Secrets for enforcement: `TURNSTILE_SECRET_MESELEKTRA` and
+`TURNSTILE_SECRET_VENSLAND` via Wrangler secrets, never committed or supplied by
+form callers. The frontend uses the corresponding public widget sitekey; it is
+not a Worker secret. Restrict widget hostnames in Cloudflare too.
+
+### Frontend multipart contract
+
+Continue posting existing `kind=site_inquiry`, `site`, phone/contact fields,
+`service`, honeypot `website`, files and `Accept: application/json` to `/t/form`.
+Additional scalar fields (duplicate/File token, page or timing fails enforcement;
+malformed source/landing values fall back or drop as described below):
+
+| Field | Accepted value |
+|---|---|
+| `cf-turnstile-response` | Opaque Cloudflare token, 1–2048 characters, required in enforce mode |
+| `elapsed_ms` | Decimal integer 0–86400000 since page/form initialization, required in enforce mode |
+| `page` | Current pathname only, max120 characters, required in enforce mode |
+| `landing_path` | First-touch pathname only, optional, same safe path rules |
+| `source` | One exact class below; invalid/missing becomes `directunknown` |
+| `service` | Existing service field, max120; existing CRM contract unchanged |
+
+Exact case-sensitive source classes: `GoogleAds`, `organicGoogle`, `Bing`,
+`ChatGPT`, `Perplexity`, `Copilot`, `Gemini`, `Claude`, `social`, `utm`,
+`directunknown`, `otherhost`. These are self-reported attribution, not proof of
+ad conversion. Frontend determines first touch once per tab/session, retains the
+bounded class and landing path through navigation, and sends only those values.
+Suggested precedence: Google ad marker → known search/AI/social referrer host →
+UTM presence → no referrer/direct → other host. Map recognized hostnames locally;
+never send referrer URLs, UTM values, querystrings, click IDs or arbitrary hosts.
+Backend accepts paths beginning with one slash and containing only ASCII path
+characters `/a-zA-Z0-9_~.%-`; it rejects queries/fragments, encoded query/control
+characters, nested encoding, backslashes, URLs and double leading slashes. Invalid
+optional path drops to null. Do not put personal data in paths. Invalid source
+text is never stored; all email fields use the existing one-line quoting/escaping.
+
+`observe` stores safe attribution but does not require/verify a token or timing.
+`enforce` verifies server-side against Siteverify with an8second timeout and
+requires returned hostname to equal the hostname of the **actual allowed Origin**
+(apex and www are distinct). Missing secret, invalid secret, provider/network
+failure or malformed provider response returns explicit503; missing/invalid,
+expired or replayed token or foreign hostname returns400. Tokens are never stored.
+Origin verification precedes honeypot and token checks. Existing honeypot fake
+success is retained and counted as blocked. Page/timing validation follows token
+verification; invalid context returns400 with `field`. Timing alone never rejects:
+only elapsed<800ms **and** at least4HTTP(S) links in message yields explicit422
+`abuse_detected`. No quarantine/held workflow: report `held:0`. Existing atomic
+budgets, upload limits/cleanup, receipt IDs and10minute email dedupe remain.
+The dedupe fingerprint excludes token, attribution and timing; duplicate POSTs
+still store separate enquiries but do not resend email. Source/context is stored
+atomically with each accepted opt-in submission, and email includes `Saltinis`,
+service and page. Accepted enquiries proceed to existing CRM ingestion.
+
+On opt-in failures, HTTP errors remain explicit even for HTML Accept (rather than
+legacy303 error redirect). Successful HTML submissions retain303`/aciu`. Frontend
+must show a visible error/contact fallback and preserve entered values; reset
+Turnstile after **every** submission attempt, since any later validation/budget/
+storage error may follow token consumption. Refresh expired tokens and request a
+new token before retry; do not reuse a token.503must not appear as success. Existing
+unprotected forms keep their response behavior.
+
+### Staged rollout — release owner only
+
+1. Back up database/config; apply pending migrations through0007before Worker
+   deployment. Preserve all existing bindings, site origins and recipient routes.
+2. Deploy Worker with security config absent, or `observe` for the two sites.
+   No CRM migration/code change is required. No other site's deployment needed.
+3. Create/configure widgets with correct hostnames, set per-site Worker secrets;
+   deploy two frontends with widget, new multipart fields, source mapping, error
+   handling, refresh and CSP allowing Cloudflare widget resources. Observe mode
+   allows the frontend to precede enforcement without breaking old forms.
+4. Verify each frontend/secret/origin pair and operator report, then switch each
+   site's mode independently to `enforce`. Never enforce before the frontend is
+   present. Validate production only under lead-authorized test procedure.
+5. Rollback: change affected entry to `observe` or omit it; do not remove tables
+   or roll back the database. Backend/frontend rollback must preserve existing
+   CRM feed contracts. No accounts, deployment or real mail tested by this stage.
+
+Reference reviewed29Oct2026: [Cloudflare Siteverify](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/)
+(updated22Oct): server validation mandatory, token300seconds/single use,
+2048character maximum, check success/hostname. No IP is submitted to Siteverify.
+
+### Protected aggregate report
+
+`GET /t/site-summary?site=meselektra&from=2026-10-29T00%3A00%3A00Z&to=2026-10-30T00%3A00%3A00Z`
+requires existing `Authorization: Bearer <EVENTS_TOKEN>`. Only MesElektra/VensLand;
+explicit timezone-bearing ISO dates, `from < to`, max31days, from within current
+12calendar-month retention. Bounds are inclusive-from/exclusive-to and returned
+normalized.401wrong/missing credential,503missing token/storage,400invalid bounds
+or site. All responses no-store. No names, phone numbers, addresses, paths,
+submission IDs, raw tokens or recipient mailboxes are returned.
+
+`events` groups existing site event types/counts, including durable `site_inquiry`,
+`cta_call`, `cta_sms`, `form_open` and `form_submit` when already tracked. Taps are
+not answered calls; form opens/attempts are not enquiries. All stored retries count
+as enquiries, matching existing POST semantics. `sources` counts only opt-in
+accepted rows: historical/unprotected rows are absent, not retrospectively
+attributed. `security` groups observed blocked/unavailable decisions and reasons;
+it is not a full request log (early malformed forms, origin denials and storage
+failures are not logged). `held` is always0because no quarantine is implemented.
+`notifications` counts per-recipient `attempt`, `sent`, `failure` for opt-in
+non-deduplicated notifications, by provider-attempt/result timestamp in the
+requested bounds (not enquiry cohort). A send awaiting result has attempt only.
+No binding/recipient or deduplicated mail produces no attempt. `sent` means
+provider promise fulfilled, never inbox receipt. Notification telemetry is best
+effort so logging failure cannot suppress mail; absent result is unknown, not sent.
+No claim of mailbox verification, actual jobs or revenue. Retention reuses existing
+request-time cleanup; new tables expire after12calendar months. No new automation.
