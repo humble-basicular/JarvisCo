@@ -234,14 +234,14 @@ not a Worker secret. Restrict widget hostnames in Cloudflare too.
 
 Continue posting existing `kind=site_inquiry`, `site`, phone/contact fields,
 `service`, honeypot `website`, files and `Accept: application/json` to `/t/form`.
-Additional scalar fields (duplicate/File token, page or timing fails enforcement;
+Additional scalar fields (duplicate/File token fails enforcement; invalid page/timing drops to null;
 malformed source/landing values fall back or drop as described below):
 
 | Field | Accepted value |
 |---|---|
 | `cf-turnstile-response` | Opaque Cloudflare token, 1–2048 characters, required in enforce mode |
-| `elapsed_ms` | Decimal integer 0–86400000 since page/form initialization, required in enforce mode |
-| `page` | Current pathname only, max120 characters, required in enforce mode |
+| `elapsed_ms` | Decimal integer 0–86400000 since page/form initialization; invalid/missing becomes null |
+| `page` | Current pathname only, max120 characters; invalid/missing becomes null |
 | `landing_path` | First-touch pathname only, optional, same safe path rules |
 | `source` | One exact class below; invalid/missing becomes `directunknown` |
 | `service` | Existing service field, max120; existing CRM contract unchanged |
@@ -267,14 +267,13 @@ requires returned hostname to equal the hostname of the **actual allowed Origin*
 failure or malformed provider response returns explicit503; missing/invalid,
 expired or replayed token or foreign hostname returns400. Tokens are never stored.
 Origin verification precedes honeypot and token checks. Existing honeypot fake
-success is retained and counted as blocked. Page/timing validation follows token
-verification; invalid context returns400 with `field`. Timing alone never rejects:
+success is retained with no storage or limiter claim. Page/timing metadata never rejects a valid-token enquiry; invalid or missing values become null. Timing alone never rejects:
 only elapsed<800ms **and** at least4HTTP(S) links in message yields explicit422
-`abuse_detected`. No quarantine/held workflow: report `held:0`. Existing atomic
-budgets, upload limits/cleanup, receipt IDs and10minute email dedupe remain.
+`abuse_detected`. No quarantine/held workflow: report `held:0`. Before provider calls/security logging, a separate atomic per-site attempt budget permits5checks/minute in observe/enforce mode; further requests return429 with no security row or provider call. Its saturated bucket stops updating at6; invalid attempts do not consume shared daily submission/file budgets. This supplements, rather than replaces, existing atomic
+budgets. Upload limits/cleanup, receipt IDs and10minute email dedupe remain.
 The dedupe fingerprint excludes token, attribution and timing; duplicate POSTs
 still store separate enquiries but do not resend email. Source/context is stored
-atomically with each accepted opt-in submission, and email includes `Saltinis`,
+atomically with each accepted opt-in submission, and email includes `Šaltinis`,
 service and page. Accepted enquiries proceed to existing CRM ingestion.
 
 On opt-in failures, HTTP errors remain explicit even for HTML Accept (rather than

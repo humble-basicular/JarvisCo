@@ -326,7 +326,6 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
   const protection = securityMode(env, site);
   mode.protected = protection !== 'off';
   if (data.getAll('website').some(value => typeof value !== 'string' || value.trim() !== '')) {
-    if (protection !== 'off') await recordSecurity(env.DB, site!, 'blocked', 'honeypot');
     return json({ ok: true });
   }
   if (!isSite && kind !== 'preview_request' && kind !== 'callback_request') return invalid('kind');
@@ -370,6 +369,16 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
   if (files.some(file => file.size > 10 * MB) || files.reduce((sum, file) => sum + file.size, 0) > 25 * MB) return error('too_large', 413);
   if (files.some(file => !FILE_TYPES.has(file.type))) return error('file_type', 415);
 
+  // Bound provider calls and telemetry before either occurs. Invalid attempts
+  // cannot consume the shared daily budget. Saturated buckets stop updating.
+  if (protection !== 'off') {
+    const minute = Math.floor(Date.now() / WINDOW_MS) * WINDOW_MS;
+    const attempt = await env.DB.prepare(`INSERT INTO rate_limits(code, window_start, requests) VALUES (?, ?, 1)
+      ON CONFLICT(code, window_start) DO UPDATE SET requests = requests + 1
+      WHERE requests < 6 RETURNING requests`).bind(`site-verify:${site}`, minute).first<{ requests: number }>();
+    if (!attempt || attempt.requests > 5) return json({ error: 'rate_limited' }, 429,
+      { 'Retry-After': String(Math.max(1, Math.ceil((minute + WINDOW_MS - Date.now()) / 1000))) });
+  }
   const context: InquiryContext | null = protection === 'off' ? null : inquiryContext(text);
   if (protection === 'enforce') {
     const secret = site === 'meselektra' ? env.TURNSTILE_SECRET_MESELEKTRA : env.TURNSTILE_SECRET_VENSLAND;
@@ -378,12 +387,8 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
       await recordSecurity(env.DB, site!, verification === 'unavailable' ? 'unavailable' : 'blocked', verification);
       return error(verification === 'unavailable' ? 'verification_unavailable' : 'verification_failed', verification === 'unavailable' ? 503 : 400);
     }
-    if (!context!.page || context!.elapsed_ms === null) {
-      await recordSecurity(env.DB, site!, 'blocked', 'context');
-      return invalid(!context!.page ? 'page' : 'elapsed_ms');
-    }
     // Timing alone is weak and must never discard a fast legitimate enquiry.
-    if (context!.elapsed_ms! < 800 && (values.message!.match(/https?:\/\//gi)?.length ?? 0) >= 4) {
+    if (context!.elapsed_ms !== null && context!.elapsed_ms < 800 && (values.message!.match(/https?:\/\//gi)?.length ?? 0) >= 4) {
       await recordSecurity(env.DB, site!, 'blocked', 'fast_link_flood');
       return error('abuse_detected', 422);
     }

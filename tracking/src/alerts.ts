@@ -109,7 +109,7 @@ function body(alert: Alert, config: AlertConfig, routingWarning: boolean): strin
     `Svetainė: ${quoted(alert.site)}`,
     `Vardas: ${quoted(p.name)}`, `Telefonas: ${quoted(p.phone)}`, `El. paštas: ${quoted(p.email)}`,
     `Paslaugos: ${site ? quoted(p.service) : list('services', 'services_other')}`,
-    ...(alert.context ? [`Saltinis: ${quoted(alert.context.source)}`, `Puslapis: ${quoted(alert.context.page)}`, `Pirmas puslapis: ${quoted(alert.context.landing_path)}`] : []),
+    ...(alert.context ? [`Šaltinis: ${quoted(alert.context.source)}`, `Puslapis: ${quoted(alert.context.page)}`, `Pirmas puslapis: ${quoted(alert.context.landing_path)}`] : []),
     `Vietovė: ${site ? quoted(p.location) : list('area', 'area_other')}`,
     `Susisiekimo laikas: ${p.contact_time ? quoted(time[String(p.contact_time)] ?? p.contact_time) : '—'}`,
     `Išskirtinumas / žinutė: ${quoted(site ? p.message : p.standout)}`,

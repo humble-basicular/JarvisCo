@@ -1554,6 +1554,7 @@ test('two-site verification binds hostname to actual allowed origin, rejects mis
       assert.equal((await secureForm({ site, 'cf-turnstile-response': '' })).status, 400);
     });
   }
+  await db.prepare("DELETE FROM rate_limits WHERE code LIKE 'site-verify:%'").run();
   await mockVerify({ success: true, hostname: 'www.meselektra.lt' }, async () => {
     assert.equal((await secureForm()).status, 400); // Same site's alternate hostname still mismatches actual Origin.
     assert.equal((await secureForm({}, {}, { origin: 'https://www.meselektra.lt' })).status, 200);
@@ -1578,15 +1579,37 @@ test('observe/unset rollout preserves forms and legacy/ArbCut ignores security c
   assert.equal((await secureForm({}, { TWO_SITE_SECURITY: '{"arbcut":"enforce"}' })).status, 503);
 });
 
-test('timing/page validation and layered link abuse reject explicitly, fast legitimate enquiries persist', async () => {
+test('valid tokens preserve enquiries with missing or unsafe context; fast link floods still reject', async () => {
   await mockVerify({ success: true, hostname: 'meselektra.lt' }, async () => {
-    for (const fields of [{ page: 'https://meselektra.lt/' }, { page: '/?private=secret' }, { elapsed_ms: '' }, { elapsed_ms: '-1' }]) {
-      assert.equal((await secureForm(fields)).status, 400);
+    for (const fields of [{ page: 'https://meselektra.lt/', elapsed_ms: '999999999' }, { page: '/?private=secret', elapsed_ms: '' }, { page: '/' + 'a'.repeat(121), elapsed_ms: '-1' }]) {
+      assert.equal((await secureForm(fields)).status, 200);
     }
     assert.equal((await secureForm({ elapsed_ms: '100' })).status, 200);
     assert.equal((await secureForm({ elapsed_ms: '100', message: 'https://a https://b https://c https://d' })).status, 422);
   });
-  assert.equal(await db.prepare('SELECT count(*) AS n FROM inquiry_context').first('n'), 1);
+  const rows = (await db.prepare('SELECT page,elapsed_ms FROM inquiry_context').all()).results;
+  assert.equal(rows.length, 4);
+  assert.ok(rows.slice(0,3).every(row => row.page === null && row.elapsed_ms === null));
+});
+
+test('invalid-token floods cap provider calls and telemetry without spending shared daily allowance', async () => {
+  let calls = 0;
+  await mockVerify(() => { calls++; return { success: false }; }, async () => {
+    for (let i=0;i<5;i++) assert.equal((await secureForm()).status, 400);
+    for (let i=0;i<20;i++) assert.equal((await secureForm()).status, 429);
+    assert.equal(calls,5);
+    assert.equal(await db.prepare('SELECT count(*) AS n FROM inquiry_security').first('n'),5);
+    assert.equal(await db.prepare('SELECT count(*) AS n FROM site_daily_budgets').first('n'),0);
+    assert.equal(await db.prepare("SELECT requests FROM rate_limits WHERE code='site-verify:meselektra'").first('requests'),6);
+    assert.equal((await secureForm({site:'arbcut'}, {TWO_SITE_SECURITY:'invalid'})).status,200);
+  });
+});
+
+test('protected honeypot remains a no-storage no-provider fake success', async () => {
+  await mockVerify(() => { throw Error('must not verify'); }, async () => {
+    assert.equal((await secureForm({website:'spam'})).status,200);
+  });
+  for (const table of ['rate_limits','inquiry_security','submissions']) assert.equal(await db.prepare(`SELECT count(*) AS n FROM ${table}`).first('n'),0);
 });
 
 test('durable bounded attribution/email/notification results preserve strict feed and existing dedupe', async () => {
@@ -1598,7 +1621,7 @@ test('durable bounded attribution/email/notification results preserve strict fee
     assert.equal((await secureForm({ name: 'failure' }, { FORM_EMAIL: { async send() { throw Error('provider'); } } })).status, 200);
   });
   const body = decodedMail(messages[0]).body;
-  for (const label of ['Saltinis: "ChatGPT"', 'Puslapis: "/paslaugos"', 'Paslaugos: "Test"']) assert.ok(body.includes(label));
+  for (const label of ['Šaltinis: "ChatGPT"', 'Puslapis: "/paslaugos"', 'Paslaugos: "Test"']) assert.ok(body.includes(label));
   const feed = (await (await pull()).json()).events;
   assert.deepEqual(Object.keys(feed[0]).sort(), ['at','code','id','site','submission','type','ua_class']);
   assert.deepEqual(Object.keys(feed[0].submission).sort(), ['brand','consent','contact_time','files','location','message','name','phone','service']);
