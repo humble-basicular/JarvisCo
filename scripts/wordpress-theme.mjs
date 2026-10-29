@@ -19,6 +19,7 @@ const THEME_SRC = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'wo
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const TRACK_SHA = '12d03974a79bf812e4096c00db700e899bd1514c73ac23382cb7925876410a40';
 const FETCH_SHA = '7e273968e657df7fffe1300fd6824e502f56e9b89cab2c0d2ce0108915bbebe2';
+const TEST_FORM_SHA = '9a24269726f19ff94f526073deabf7eb239287eb5ec9ace129d1534d3328b65e';
 const FETCH_START = "    fetch(form.action, {";
 const FETCH_END = "      .catch(function () { fail(UNKNOWN, true); });";
 export const TRIAL_NOTICE = 'Bandomoji versija: užklausa nebuvo išsiųsta ir niekur nesaugoma. Paskambinkite tiesiai.';
@@ -48,13 +49,13 @@ function listTheme(dir, base = dir, out = []) {
   return out;
 }
 
-export function transformPage(html, route, slugs, mode = 'trial') {
+export function transformPage(html, route, slugs, mode = 'trial', testInput = false) {
   if (html.includes('<?') || html.includes('%%VL_')) fail(`${route.slug}: PHP tags or tokens already present`);
   // 1. Preserve production tracker bytes in live mode; remove from trial/Customizer.
   const track = html.match(/<script type="module">const u="https:\/\/jarvisweb\.lt\/t\/e"[\s\S]*?<\/script>/);
   if (route.slug !== 'not-found' && (!track || sha(track[0]) !== TRACK_SHA)) fail(`${route.slug}: tracking script drifted`);
   if (track && mode !== 'live') html = html.replace(track[0], '');
-  const ep = '<meta name="jw-endpoint" content="https://www.jarvisweb.lt/t/e">';
+  const ep = `<meta name="jw-endpoint" content="${testInput ? 'http://localhost:4330' : 'https://www.jarvisweb.lt'}/t/e">`;
   if (route.slug !== 'not-found' && html.split(ep).length !== 2) fail(`${route.slug}: endpoint meta`);
   if (mode !== 'live') html = html.replace(ep, '');
   // 2. robots meta -> token (runtime: approved value, or noindex in Customizer preview).
@@ -63,10 +64,14 @@ export function transformPage(html, route, slugs, mode = 'trial') {
   html = html.replace(rm[0], '<meta name="robots" content="%%VL_ROBOTS%%">');
   // 3. Live retains the standalone form; trial/Customizer receives a local notice without fetch.
   const forms = (html.match(/data-callback-form(?:[\s=>])/g) || []).length;
-  const act = 'action="https://www.jarvisweb.lt/t/form"';
+  const act = `action="${testInput ? 'http://localhost:4330' : 'https://www.jarvisweb.lt'}/t/form"`;
   if (html.split(act).length - 1 !== forms) fail(`${route.slug}: form action count`);
   if (mode !== 'live') html = html.split(act).join('action="%%VL_SELF%%"').replace(/ data-widget-key="[^"]*"/g, '');
-  if (forms && mode !== 'live') {
+  if (testInput && forms) {
+    const formScript = html.match(/<script>\/\* Form validation,[\s\S]*?<\/script>/);
+    if (!formScript || sha(formScript[0]) !== TEST_FORM_SHA) fail(`${route.slug}: test form source drifted`);
+    html = html.replace(formScript[0], `<script>document.querySelectorAll('[data-callback-form]').forEach(function(f){f.addEventListener('submit',function(e){e.preventDefault();var b=f.querySelector('[data-form-error]');f.querySelector('[data-form-error-text]').textContent=${JSON.stringify(TRIAL_NOTICE)};b.hidden=false;b.focus();});});</script>`);
+  } else if (forms && mode !== 'live') {
     const i = html.indexOf(FETCH_START); const j = html.indexOf(FETCH_END, i) + FETCH_END.length;
     if (i < 0 || j < FETCH_END.length || html.indexOf(FETCH_START, i + 1) >= 0 || sha(html.slice(i, j)) !== FETCH_SHA) fail(`${route.slug}: form script drifted`);
     html = html.slice(0, i) + TRIAL_BLOCK + html.slice(j);
@@ -156,7 +161,8 @@ export function loadLogoOverride({ path, sha256 }) {
   return { file: 'assets/foto/logo.png', data: b, sha256, bytes: b.length };
 }
 
-export function build({ baseline, expectSha256, manifestPath, outDir, inputDir, logo, mode = 'trial', migrations = {} }) {
+export function build({ baseline, expectSha256, manifestPath, outDir, inputDir, logo, mode = 'trial', migrations = {}, testInput = false }) {
+  if (testInput && mode !== 'trial') fail('test input is trial-only');
   if (!['trial', 'live'].includes(mode)) fail('mode must be trial or live');
   const themeSlug = mode === 'live' ? LIVE_SLUG : SLUG;
   if (existsSync(outDir) && readdirSync(outDir).length) fail(`out dir not empty: ${outDir}`);
@@ -200,7 +206,7 @@ export function build({ baseline, expectSha256, manifestPath, outDir, inputDir, 
       r.robots = html.match(/<meta name="robots" content="([^"]*)">/)[1];
       const canonical = html.match(/<link rel="canonical" href="([^"]*)">/)?.[1] ?? '';
       if (r.slug !== 'not-found' && canonical !== `https://vensland.lt/${r.path}${r.path ? '/' : ''}`) fail(`canonical drift ${r.slug}`);
-      files.set(`pages/${r.slug}.html`, Buffer.from(transformPage(html, r, slugs, mode)));
+      files.set(`pages/${r.slug}.html`, Buffer.from(transformPage(html, r, slugs, mode, testInput)));
       routeTable[r.slug] = { path: r.path, file: `${r.slug}.html`, robots: r.robots, canonical, status: r.slug === 'not-found' ? 404 : 200 };
       if (mode === 'live') {
         files.set(`pages/${r.slug}-preview.html`, Buffer.from(transformPage(html, r, slugs, 'preview')));
@@ -243,7 +249,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const [cmd, ...rest] = process.argv.slice(2);
   const a = {}; for (let i = 0; i < rest.length; i += 2) a[rest[i].replace(/^--/, '')] = rest[i + 1];
   if (cmd === 'build' && a.out && (a.baseline || a['input-dir'])) {
-    const r = build({ baseline: a.baseline, expectSha256: a['expect-sha256'], manifestPath: a.manifest, outDir: resolve(a.out), mode: a.mode ?? 'trial', migrations: a.migrations ? JSON.parse(readFileSync(a.migrations, 'utf8')) : {}, logo: a.logo ? { path: resolve(a.logo), sha256: a['logo-sha256'] } : undefined, inputDir: a['input-dir'] && resolve(a['input-dir']) });
+    const r = build({ baseline: a.baseline, expectSha256: a['expect-sha256'], manifestPath: a.manifest, outDir: resolve(a.out), mode: a.mode ?? 'trial', testInput: a['test-input'] === 'true', migrations: a.migrations ? JSON.parse(readFileSync(a.migrations, 'utf8')) : {}, logo: a.logo ? { path: resolve(a.logo), sha256: a['logo-sha256'] } : undefined, inputDir: a['input-dir'] && resolve(a['input-dir']) });
     console.log(JSON.stringify({ zip: r.zipPath, sha256: r.manifest.zip.sha256, bytes: r.manifest.zip.bytes, entries: r.manifest.entries }, null, 2));
   } else if (cmd === 'verify' && a.zip) {
     const e = readZipNames(readFileSync(a.zip)); verifyZipNames(e, e[0]?.name.split('/')[0]); console.log(`ok ${e.length} entries`);

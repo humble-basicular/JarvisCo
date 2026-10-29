@@ -75,7 +75,7 @@
     status.textContent = 'Įkeliama saugumo patikra…';
     loadWidget().then(function (api) {
       loading = false;
-      widgetId = api.render(holder, { sitekey: widgetKey, 'response-field': false,
+      widgetId = api.render(holder, { sitekey: widgetKey, appearance: 'interaction-only', size: 'flexible', language: 'lt', 'response-field': false,
         callback: function (value) { token = value; status.textContent = 'Saugumo patikra atlikta. Galite siųsti užklausą.'; },
         'expired-callback': function () { token = ''; status.textContent = 'Patikra baigė galioti. Atlikite ją dar kartą.'; resetWidget(); },
         'error-callback': function () { token = ''; status.textContent = 'Patikra nepavyko. Bandykite dar kartą arba paskambinkite.'; }
@@ -234,6 +234,7 @@
     if (problemText) { fail(problemText + ' Pašalinkite pažymėtus failus.'); return; }
     var message = composed();
     if (message.length > 2000) { fail('Aprašymas per ilgas: daugiausia 2000 simbolių (dabar ' + message.length + ').'); return; }
+    if (attribution && !widgetKey) { fail('Saugumo patikra nesukonfigūruota. Paskambinkite tiesiai.'); return; }
     if (widgetKey && !attemptToken) { activate(); fail('Atlikite saugumo patikrą ir bandykite dar kartą arba paskambinkite tiesiai.'); return; }
     var data = new FormData(form);
     if (attribution) {
