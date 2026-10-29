@@ -91,7 +91,8 @@ const ltDate = (iso?: string) => { const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2}
 const reviews = data.reviews ?? [];
 const gbp = v3.gbp ?? {};
 const reviewPlatform = gbp.platform || 'Google';
-const rateFlow = gbp.reviewFlow === 'rating-dialog' && !!gbp.reviewUrl && !!data.email;
+const feedbackEmail = gbp.feedbackEmail || data.email;
+const rateFlow = gbp.reviewFlow === 'rating-dialog' && !!gbp.reviewUrl && !!feedbackEmail;
 const img = (p: V3Photo, sizes: string, extra: Record<string, string> = {}) => ({ src: p.src, srcset: p.srcset, sizes: p.srcset ? sizes : undefined, width: p.width, height: p.height, decoding: 'async', ...extra });
 // Badge glyphs without a 24 px line icon (rope) fall back to the shield in the hero pill.
 const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconName : 'shield';
@@ -427,6 +428,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
             </tbody>
           </table>
           {data.priceNote && <p class="v3-prices__note">{data.priceNote}</p>}
+          {v3.priceTitle && <h3>{v3.priceTitle}</h3>}
           {v3.priceFootnote && <p class="v3-prices__note v3-prices__footnote">* {v3.priceFootnote}</p>}
         </div>
         {v3.promise && (
@@ -539,7 +541,7 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
 </footer>
 
 {rateFlow && (
-  <dialog class="v3-modal v3-rate" data-rate aria-labelledby="v3-rate-h" data-review-url={gbp.reviewUrl} data-mail={data.email} data-biz={data.business}>
+  <dialog class="v3-modal v3-rate" data-rate aria-labelledby="v3-rate-h" data-review-url={gbp.reviewUrl} data-mail={feedbackEmail} data-biz={data.business}>
     <div class="v3-rate__box">
       <button class="v3-modal__x" type="button" data-rate-close aria-label="Uždaryti"><span aria-hidden="true">×</span></button>
       <div data-rate-step="rate">
@@ -560,9 +562,9 @@ const pillIcon: IconName = theme.logo.glyph in ICON ? theme.logo.glyph as IconNa
         <label class="v3-rate__f" for="v3-rate-email">El. paštas (nebūtina)<input id="v3-rate-email" type="email" autocomplete="email" maxlength="120" /></label>
         <label class="v3-rate__f" for="v3-rate-msg">Jūsų atsiliepimas (privalomas)<textarea id="v3-rate-msg" rows="5" maxlength="1500" required></textarea></label>
         <p class="v3-rate__err" role="alert" data-rate-ferr hidden>Parašykite trumpą žinutę.</p>
-        <p class="v3-rate__note">Atsiliepimą išsiųsite savo el. pašto programoje adresu {data.email}.</p>
+        <p class="v3-rate__note">Atidarysite el. pašto juodraštį adresu {feedbackEmail}.</p>
         <button class="v3-btn v3-btn--gold v3-btn--lg v3-btn--block" type="submit">Atidaryti el. paštą</button>
-        <p class="v3-rate__note" data-rate-after hidden>Jei pašto programa neatsidarė, parašykite adresu <a href={`mailto:${data.email}`}>{data.email}</a>.</p>
+        <p class="v3-rate__note" data-rate-after hidden>Jei pašto programa neatsidarė, parašykite adresu <a href={`mailto:${feedbackEmail}`}>{feedbackEmail}</a>.</p>
         <button class="v3-rate__back" type="button" data-rate-back>← Pakeisti įvertinimą</button>
       </form>
     </div>

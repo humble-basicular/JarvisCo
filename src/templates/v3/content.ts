@@ -26,6 +26,7 @@ export interface V3LiveSite {
   /** Anonymous call-tap / form-open counts (src/scripts/inquiry-track.ts). */
   beaconEndpoint: string;
   testBuild?: boolean;
+  publicWidget?: { sitekey: string };
   mapMode: 'consent' | 'disabled';
   privacy?: V3Privacy;
 }
@@ -52,6 +53,9 @@ export interface V3Input {
   largeWordmark?: boolean;
   hidePendingGoogle?: boolean;
   priceFootnote?: string;
+  priceTitle?: string;
+  quoteHelperTitle?: string;
+  quoteHelper?: string;
   theme: Theme;
   /** H1 = lead + accent word + tail; on town pages the tail becomes the town ("Pasvalyje"). */
   h1: { lead: string; hot: string; tail?: string };
@@ -85,7 +89,7 @@ export interface V3Input {
   photo?: { hero?: number; pins?: number[]; about?: number; faq?: number; cta?: number; reviews?: number };
   /** Google Business Profile: reviews link + "leave a review" link. Absent → review section shows a "coming" note. */
   /** Review profile. platform labels the box (default Google), e.g. 'Paslaugos.lt' when the client collects reviews there. */
-  gbp?: { url?: string; reviewUrl?: string; platform?: string; /** Opt-in: dark review card + rating dialog (1–3 → private email form, 4–5 → reviewUrl). Needs reviewUrl and a top-level email. */ reviewFlow?: 'rating-dialog' };
+  gbp?: { feedbackEmail?: string; url?: string; reviewUrl?: string; platform?: string; /** Opt-in: dark review card + rating dialog (1–3 → private email form, 4–5 → reviewUrl). Needs reviewUrl and a top-level email. */ reviewFlow?: 'rating-dialog' };
   /** Show the client's own logo file (top-level `logo`, read on a light plate) instead of the generated badge.
    *  Opt-in so existing previews keep their badge; width/height = the file's intrinsic size. */
   clientLogo?: { width: number; height: number; showName?: boolean; formBadge?: boolean };

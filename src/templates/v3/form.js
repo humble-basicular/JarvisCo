@@ -5,10 +5,87 @@
   var doc = document;
   var liveSite = doc.body.getAttribute('data-site');
   if (!liveSite) return;
+  var started = Date.now();
+  var sourceClasses = ['GoogleAds','organicGoogle','Bing','ChatGPT','Perplexity','Copilot','Gemini','Claude','social','utm','directunknown','otherhost'];
+  function safePath(p) {
+    return typeof p === 'string' && p.length <= 120 && /^\/(?!\/)[a-zA-Z0-9_~.%/\-]*$/.test(p) && !/%(?:25|2[36f]|3[fF]|5[cC]|0[0-9a-f]|1[0-9a-f]|7f)/i.test(p) ? p : '/';
+  }
+  function firstTouch() {
+    var key = 'jw-first-touch:' + liveSite, saved;
+    try { saved = JSON.parse(sessionStorage.getItem(key)); } catch (e) {}
+    if (saved && sourceClasses.indexOf(saved.source) >= 0 && safePath(saved.path) === saved.path) return saved;
+    var q = new URLSearchParams(location.search), host = '', source = 'directunknown';
+    try { host = new URL(doc.referrer).hostname.toLowerCase(); } catch (e) {}
+    var internal = host && host.replace(/^www\./, '') === location.hostname.replace(/^www\./, '');
+    if (['gclid','gbraid','wbraid','gad_source'].some(function (k) { return q.has(k); })) source = 'GoogleAds';
+    else if (!internal && host) {
+      var matches = function (h) { return host === h || host.endsWith('.' + h); };
+      if (matches('chatgpt.com') || matches('chat.openai.com')) source = 'ChatGPT';
+      else if (matches('perplexity.ai')) source = 'Perplexity';
+      else if (matches('copilot.microsoft.com')) source = 'Copilot';
+      else if (matches('gemini.google.com')) source = 'Gemini';
+      else if (matches('claude.ai')) source = 'Claude';
+      else if (/^(www\.)?google\.(com|lt|co\.uk|de|fr|lv|ee|pl)$/.test(host)) source = 'organicGoogle';
+      else if (matches('bing.com')) source = 'Bing';
+      else if (['facebook.com','instagram.com','linkedin.com','t.co','twitter.com','x.com','tiktok.com','youtube.com'].some(matches)) source = 'social';
+      else source = 'otherhost';
+    }
+    if (source === 'directunknown' || source === 'otherhost') {
+      if (Array.from(q.keys()).some(function (k) { return /^utm_/i.test(k); })) source = 'utm';
+    }
+    saved = { source: source, path: safePath(location.pathname) };
+    try { sessionStorage.setItem(key, JSON.stringify(saved)); } catch (e) {}
+    return saved;
+  }
+  var attribution = ['meselektra','vensland'].indexOf(liveSite) >= 0 ? firstTouch() : null;
+  var loader;
+  function loadWidget() {
+    if (window.turnstile) return Promise.resolve(window.turnstile);
+    if (!loader) loader = new Promise(function (resolve, reject) {
+      var script = doc.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.onload = function () { if (window.turnstile) resolve(window.turnstile); else reject(); };
+      script.onerror = function () { loader = null; script.remove(); reject(); };
+      doc.head.appendChild(script);
+    });
+    return loader;
+  }
+
   var state = { inFlight: false, uncertain: false };
   var buttons = Array.from(doc.querySelectorAll('[data-callback-form] button[type=submit]'));
   try { sessionStorage.removeItem('hs-receipt:' + liveSite); } catch (e) {}
   doc.querySelectorAll('[data-callback-form]').forEach(function (form) {
+  var widgetKey = attribution && form.getAttribute('data-widget-key');
+  var widgetId, token = '', loading = false;
+  var status, holder;
+  if (widgetKey) {
+    form.noValidate = true;
+    status = doc.createElement('p'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+    status.textContent = 'Saugumo patikra bus įkelta pradėjus pildyti formą. Jei nepavyksta, paskambinkite tiesiai.';
+    holder = doc.createElement('div');
+    form.insertBefore(status, form.querySelector('button[type=submit]'));
+    form.insertBefore(holder, status);
+    form.addEventListener('focusin', activate);
+    form.addEventListener('pointerdown', activate);
+  }
+  function activate() {
+    if (!widgetKey || widgetId !== undefined || loading) return;
+    loading = true;
+    status.textContent = 'Įkeliama saugumo patikra…';
+    loadWidget().then(function (api) {
+      loading = false;
+      widgetId = api.render(holder, { sitekey: widgetKey, 'response-field': false,
+        callback: function (value) { token = value; status.textContent = 'Saugumo patikra atlikta. Galite siųsti užklausą.'; },
+        'expired-callback': function () { token = ''; status.textContent = 'Patikra baigė galioti. Atlikite ją dar kartą.'; resetWidget(); },
+        'error-callback': function () { token = ''; status.textContent = 'Patikra nepavyko. Bandykite dar kartą arba paskambinkite.'; }
+      });
+    }).catch(function () { loading = false; status.textContent = 'Patikros įkelti nepavyko. Palieskite formą ir bandykite dar kartą arba paskambinkite.'; });
+  }
+  function resetWidget() {
+    token = '';
+    if (widgetId !== undefined && window.turnstile) { try { window.turnstile.reset(widgetId); } catch (e) {} }
+  }
   /* ---- Upload list ---- */
   var MAX_FILES = 8, MAX_FILE = 10 * 1024 * 1024, MAX_TOTAL = 25 * 1024 * 1024;
   var TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/gif', 'application/pdf',
@@ -136,6 +213,8 @@
   form.addEventListener('submit', function (event) {
     event.preventDefault();
     if (state.inFlight || state.uncertain) return;
+    var attemptToken = token;
+    resetWidget();
     clearReceipt();
     var fail = function (text, unknown) {
       state.uncertain = !!unknown;
@@ -155,7 +234,13 @@
     if (problemText) { fail(problemText + ' Pašalinkite pažymėtus failus.'); return; }
     var message = composed();
     if (message.length > 2000) { fail('Aprašymas per ilgas: daugiausia 2000 simbolių (dabar ' + message.length + ').'); return; }
+    if (widgetKey && !attemptToken) { activate(); fail('Atlikite saugumo patikrą ir bandykite dar kartą arba paskambinkite tiesiai.'); return; }
     var data = new FormData(form);
+    if (attribution) {
+      data.set('source', attribution.source); data.set('landing_path', attribution.path);
+      data.set('page', safePath(location.pathname)); data.set('elapsed_ms', String(Math.min(86400000, Math.max(0, Date.now() - started))));
+      if (attemptToken) data.set('cf-turnstile-response', attemptToken);
+    }
     data.set('message', message);
     data.delete('files');
     files.forEach(function (f) {

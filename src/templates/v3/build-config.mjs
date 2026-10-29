@@ -10,8 +10,13 @@ const mail = (value, field) => { const out = fact(value, field, 254); if (!email
 /* pendingWorker: a launch candidate built before the infra stage registers the Worker site.
    The config must say worker.configured=false; the manifest records it and the deploy check refuses it. */
 export function validateLaunchConfig(raw, { code, domain, test = false, pendingWorker = false }) {
+  const enabled = ['meselektra', 'vensland'].includes(code);
+  const key = raw?.publicWidget?.sitekey;
+  if (raw?.publicWidget && !enabled) throw new Error('publicWidget only supports meselektra/vensland');
+  if (enabled && !test && (typeof key !== 'string' || !/^[A-Za-z0-9_-]{20,100}$/.test(key) || /^1x|^2x|^3x/.test(key))) throw new Error('production requires a real publicWidget.sitekey');
+  const publicWidget = enabled ? { sitekey: test ? '1x00000000000000000000AA' : key } : undefined;
   if (!raw) {
-    if (test) return { mapMode: 'disabled' };
+    if (test) return { mapMode: 'disabled', ...(publicWidget ? { publicWidget } : {}) };
     throw new Error('v3 production requires --config <private-launch-config.json> (privacy, map mode, Worker configuration and recipients)');
   }
   if (!['consent', 'disabled'].includes(raw.mapMode)) throw new Error('launch config: mapMode must be consent or disabled');
@@ -32,5 +37,5 @@ export function validateLaunchConfig(raw, { code, domain, test = false, pendingW
     if (!w || w.configured !== !pendingWorker || w.site !== code || !Array.isArray(w.origins) || !hosts.every((h) => w.origins.includes(`https://${h}`)) || !w.origins.every((x) => { try { const u = new URL(x); return u.protocol === 'https:' && u.origin === x; } catch { return false; } })) throw new Error('launch config: confirmed Worker site/origins must match this build');
     if (!Array.isArray(w.recipients) || !w.recipients.length || !w.recipients.every((x) => typeof x === 'string' && email.test(x) && !pending.test(x))) throw new Error('launch config: confirmed notification recipients are required');
   }
-  return { privacy, mapMode: raw.mapMode, workerRegistered: !test && !pendingWorker };
+  return { ...(publicWidget ? { publicWidget } : {}), privacy, mapMode: raw.mapMode, workerRegistered: !test && !pendingWorker };
 }

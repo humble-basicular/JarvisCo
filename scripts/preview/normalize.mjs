@@ -333,7 +333,8 @@ function v3(value) {
     hideTagline: optBool('hideTagline'),
     largeWordmark: optBool('largeWordmark'),
     hidePendingGoogle: optBool('hidePendingGoogle'),
-    priceFootnote: opt('priceFootnote', 240),
+    priceFootnote: opt('priceFootnote', 400), priceTitle: opt('priceTitle', 80),
+    quoteHelperTitle: opt('quoteHelperTitle', 80), quoteHelper: opt('quoteHelper', 500),
     h1: { lead: text(h1.lead, 'v3.h1.lead', 60, { required: true }), hot: text(h1.hot, 'v3.h1.hot', 30, { required: true }), ...(h1.tail ? { tail: text(h1.tail, 'v3.h1.tail', 30) } : {}) },
     pill: opt('pill', 90),
     heroChecks: list(v.heroChecks, 'v3.heroChecks', 4, 50),
@@ -359,9 +360,10 @@ function v3(value) {
       if (g.reviewFlow != null) {
         if (g.reviewFlow !== 'rating-dialog') throw new Error("v3.gbp.reviewFlow must be 'rating-dialog'");
         if (!g.reviewUrl) throw new Error('v3.gbp.reviewFlow needs v3.gbp.reviewUrl');
-        if (g.platform != null && g.platform !== 'Google') throw new Error('v3.gbp.reviewFlow is only for Google reviews');
+        if (g.platform != null && !['Google', 'Paslaugos.lt'].includes(g.platform)) throw new Error('unsupported review platform');
       }
-      return { ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}), ...(g.platform ? { platform: g.platform } : {}), ...(g.reviewFlow ? { reviewFlow: g.reviewFlow } : {}) };
+      if (g.feedbackEmail != null && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g.feedbackEmail)) throw new Error('invalid feedback email');
+      return { ...(g.feedbackEmail ? { feedbackEmail: g.feedbackEmail } : {}), ...(g.url ? { url: g.url } : {}), ...(g.reviewUrl ? { reviewUrl: g.reviewUrl } : {}), ...(g.platform ? { platform: g.platform } : {}), ...(g.reviewFlow ? { reviewFlow: g.reviewFlow } : {}) };
     })(),
     // Use the client's own logo file (top-level `logo`) instead of the generated badge; intrinsic size for the <img>.
     clientLogo: v.clientLogo == null ? undefined : (() => {

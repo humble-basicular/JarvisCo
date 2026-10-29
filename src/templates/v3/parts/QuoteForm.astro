@@ -11,10 +11,11 @@ const { business, phone, theme, v3, tel, uid, titleId, badge = true, clientLogo,
 {clientLogo ? <div class:list={['v3-quote__badge v3-quote__badge--client', clientLogo.width && clientLogo.height && clientLogo.width > clientLogo.height && 'v3-quote__badge--wide']}><img {...clientLogo} alt={business} /></div> : badge && <div class="v3-quote__badge"><Badge name={business} theme={theme} uid={uid} size={84} /></div>}
 <h2 class="v3-quote__title" id={titleId}>Gaukite kainą</h2>
 <p class="v3-quote__sub">{v3.quoteSub ?? 'Parašykite, ko reikia. Perskambinsime ir aptarsime darbą.'}</p>
+{v3.quoteHelper && <details class="v3-quote__sub"><summary>{v3.quoteHelperTitle}</summary><p>{v3.quoteHelper}</p></details>}
 {site?.testBuild && <p class="v3-form__note">Bandomoji forma. Užklausa siunčiama tik į vietinį testą.</p>}
-<form class="v3-form" data-callback-form={site ? true : undefined} data-inert-form={!site ? true : undefined} action={site?.formEndpoint ?? '#'} method={site ? 'post' : 'get'} enctype={site ? 'multipart/form-data' : undefined} novalidate={!site}>
+<form class="v3-form" data-widget-key={site?.publicWidget?.sitekey} data-callback-form={site ? true : undefined} data-inert-form={!site ? true : undefined} action={site?.formEndpoint ?? '#'} method={site ? 'post' : 'get'} enctype={site ? 'multipart/form-data' : undefined} novalidate={!site}>
   {site && <><input type="hidden" name="kind" value="site_inquiry" /><input type="hidden" name="site" value={site.code} /><label class="v3-honeypot" aria-hidden="true">Svetainė<input name="website" type="text" tabindex="-1" autocomplete="off" /></label></>}
-  {site && serviceName && <input type="hidden" data-compose="Paslauga" value={serviceName} />}
+  {site && serviceName && <input type="hidden" data-compose="Paslauga" name={['meselektra', 'vensland'].includes(site.code) ? 'service' : undefined} value={serviceName} />}
   <label class="v3-field"><span>Vardas</span><input type="text" name={site ? 'name' : undefined} maxlength={site ? 80 : undefined} autocomplete={site ? 'name' : 'off'} placeholder="Jūsų vardas" /></label>
   <label class="v3-field"><span>Telefonas{site && ' *'}</span><input type="tel" name={site ? 'phone' : undefined} required={!!site} minlength={site ? 8 : undefined} maxlength={site ? 20 : undefined} pattern={site ? '[0-9\\s\\+\\-\\(\\)]+' : undefined} autocomplete={site ? 'tel' : 'off'} placeholder="+370 6.. ....." /></label>
   <label class="v3-field"><span>Kokio darbo reikia?</span><textarea name={site ? 'message' : undefined} maxlength={site ? 2000 : undefined} rows="2" placeholder={serviceName ? 'Trumpai aprašykite, kokio darbo reikia' : v3.formHint ?? 'Trumpai aprašykite darbą'}></textarea></label>
