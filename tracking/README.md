@@ -355,3 +355,5 @@ need to wait or use the phone fallback. Saturated traffic does not append securi
 rows or make Siteverify calls. A5xx/network response conservatively locks the
 frontend until reload to avoid duplicate enquiries, including known upstream
 verification outages. These availability trade-offs are retained in this release.
+
+Worker-posted forms intentionally do not emit `form_submit` beacons (legacy CRM double-count guard). The report labels absent attempt beacons as not collected, rather than asserting zero attempts. Durable `site_inquiry` counts remain available.
