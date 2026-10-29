@@ -1,3 +1,4 @@
+import { securityMode, inquiryContext, verifyTurnstile, recordSecurity, SECURITY_SITES, type InquiryContext, type SecurityConfig } from './security';
 import { alertFingerprint, scheduleFormAlert, type AlertConfig } from './alerts';
 
 // Rows stored before offer-v2 §2.4 have no email/preview_via: read them as null on the two funnel kinds.
@@ -7,7 +8,7 @@ function withEmailFields(type: Event['type'], submission: Submission | SiteSubmi
   return { ...stored, email: stored.email ?? null, preview_via: stored.preview_via ?? null };
 }
 
-interface Env extends AlertConfig {
+interface Env extends AlertConfig, SecurityConfig {
   DB: D1Database;
   FILES: KVNamespace;
   EVENTS_TOKEN?: string;
@@ -144,6 +145,7 @@ async function cleanup(db: D1Database, now: Date): Promise<void> {
   `).bind(ms + CLEANUP_INTERVAL_MS, ms).first();
   if (!lease) return;
   await db.batch([
+    ...['inquiry_context', 'inquiry_security', 'inquiry_notifications'].map(table => db.prepare(`DELETE FROM ${table} WHERE at < ?`).bind(retentionCutoff(now))),
     db.prepare('DELETE FROM form_alert_claims WHERE expires_at <= ?').bind(ms),
     db.prepare('DELETE FROM submissions WHERE at < ?').bind(retentionCutoff(now)),
     db.prepare('DELETE FROM events WHERE at < ?').bind(retentionCutoff(now)),
@@ -283,7 +285,7 @@ const FILE_TYPES = new Set([
   'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain',
 ]);
 
-async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { isSite?: boolean }): Promise<Response> {
+async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { isSite?: boolean; protected?: boolean }): Promise<Response> {
   const invalid = (field: string) => json({ error: 'invalid', field }, 400);
   if ((request.headers.get('Content-Type') ?? '').split(';')[0]!.trim().toLowerCase() !== 'multipart/form-data') return invalid('kind');
   const denied = rejectForeignOrigin(request, env);
@@ -321,7 +323,12 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
     if (!site || !SITE.test(site) || !config[site] || config[site]!.kind !== (kind === 'site_inquiry' ? 'client' : 'leadgen')) return invalid('site');
     if (!allowedOrigin(request, config[site]!)) return error('origin', 403);
   } else if (!firstPartyOrigin(request)) return error('origin', 403);
-  if (data.getAll('website').some(value => typeof value !== 'string' || value.trim() !== '')) return json({ ok: true });
+  const protection = securityMode(env, site);
+  mode.protected = protection !== 'off';
+  if (data.getAll('website').some(value => typeof value !== 'string' || value.trim() !== '')) {
+    if (protection !== 'off') await recordSecurity(env.DB, site!, 'blocked', 'honeypot');
+    return json({ ok: true });
+  }
   if (!isSite && kind !== 'preview_request' && kind !== 'callback_request') return invalid('kind');
   const code = isSite ? '' : text('code');
   if (code === null || (code !== '' && !validCode(code))) return invalid('code');
@@ -363,6 +370,25 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
   if (files.some(file => file.size > 10 * MB) || files.reduce((sum, file) => sum + file.size, 0) > 25 * MB) return error('too_large', 413);
   if (files.some(file => !FILE_TYPES.has(file.type))) return error('file_type', 415);
 
+  const context: InquiryContext | null = protection === 'off' ? null : inquiryContext(text);
+  if (protection === 'enforce') {
+    const secret = site === 'meselektra' ? env.TURNSTILE_SECRET_MESELEKTRA : env.TURNSTILE_SECRET_VENSLAND;
+    const verification = await verifyTurnstile(text('cf-turnstile-response'), secret, request.headers.get('Origin')!);
+    if (verification !== 'valid') {
+      await recordSecurity(env.DB, site!, verification === 'unavailable' ? 'unavailable' : 'blocked', verification);
+      return error(verification === 'unavailable' ? 'verification_unavailable' : 'verification_failed', verification === 'unavailable' ? 503 : 400);
+    }
+    if (!context!.page || context!.elapsed_ms === null) {
+      await recordSecurity(env.DB, site!, 'blocked', 'context');
+      return invalid(!context!.page ? 'page' : 'elapsed_ms');
+    }
+    // Timing alone is weak and must never discard a fast legitimate enquiry.
+    if (context!.elapsed_ms! < 800 && (values.message!.match(/https?:\/\//gi)?.length ?? 0) >= 4) {
+      await recordSecurity(env.DB, site!, 'blocked', 'fast_link_flood');
+      return error('abuse_detected', 422);
+    }
+  }
+
   // Site budgets and legacy funnel budgets are independent. All applicable claims
   // run in one D1 transaction so concurrent isolates cannot overspend the cap.
   const now = Date.now();
@@ -397,6 +423,7 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
       RETURNING submissions`).bind(day, fileBytes, bucket, window, limit, 300 * MB),
   ]);
   if (claims[1]!.results.length === 0) {
+    if (context) await recordSecurity(env.DB, site!, 'blocked', 'rate_limited');
     const minuteDenied = (claims[0]!.results[0] as { requests: number }).requests > limit;
     return json({ error: 'rate_limited' }, 429, {
       'Retry-After': String(Math.ceil(((minuteDenied ? window + WINDOW_MS : day + 86_400_000) - now) / 1000)),
@@ -440,9 +467,12 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
         ON CONFLICT(fingerprint) DO UPDATE SET submission_id = excluded.submission_id, expires_at = excluded.expires_at
         WHERE form_alert_claims.expires_at <= ? RETURNING submission_id`).bind(fingerprint, id, now + 600_000, fingerprint, now),
       env.DB.prepare('SELECT at FROM submissions WHERE id = ?').bind(id),
+      ...(context ? [env.DB.prepare(`INSERT INTO inquiry_context(submission_id, site, at, source, page, landing_path, elapsed_ms)
+        SELECT id, site, at, ?, ?, ?, ? FROM submissions WHERE id = ?`)
+        .bind(context.source, context.page, context.landing_path, context.elapsed_ms, id)] : []),
     ]);
     if (stored[2]!.results.length) {
-      scheduleFormAlert(env, ctx, { kind: kind!, code: code || null, site, at: (stored[3]!.results[0] as { at: string }).at, payload });
+      scheduleFormAlert(env, ctx, { kind: kind!, code: code || null, site, at: (stored[3]!.results[0] as { at: string }).at, payload, ...(context ? { context, notificationDB: env.DB } : {}) });
     }
   } catch (cause) {
     // Only keys written by this failed submission; never delete existing files.
@@ -455,14 +485,14 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
 
 async function siteForm(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   let response: Response;
-  const mode: { isSite?: boolean } = {};
+  const mode: { isSite?: boolean; protected?: boolean } = {};
   try { response = await form(request, env, ctx, mode); }
   catch { response = error('unavailable', 503); }
   const origin = request.headers.get('Origin');
   const config = sites(env);
   if (mode.isSite !== false && origin && config && Object.values(config).some(site => site.origins.includes(origin))
     && (mode.isSite === true || origin !== new URL(request.url).origin)) {
-    if (!(request.headers.get('Accept') ?? '').includes('application/json')) {
+    if ((response.ok || !mode.protected) && !(request.headers.get('Accept') ?? '').includes('application/json')) {
       response = new Response(null, { status: 303, headers: {
         Location: `${origin}/aciu${response.ok ? '' : '?klaida=1'}`, 'Cache-Control': 'no-store',
         ...(response.headers.has('Retry-After') ? { 'Retry-After': response.headers.get('Retry-After')! } : {}),
@@ -564,6 +594,26 @@ async function events(request: Request, env: Env, url: URL): Promise<Response> {
   });
 }
 
+async function siteSummary(request: Request, env: Env, url: URL): Promise<Response> {
+  if (!env.EVENTS_TOKEN) return error('unavailable', 503);
+  if (!await authorized(request, env.EVENTS_TOKEN)) return json({ error: 'unauthorized' }, 401, { 'WWW-Authenticate': 'Bearer' });
+  const site = url.searchParams.get('site') ?? '';
+  const from = normalizeISO(url.searchParams.get('from'));
+  const to = normalizeISO(url.searchParams.get('to'));
+  if (!(SECURITY_SITES as readonly string[]).includes(site) || !from || !to || from >= to
+    || Date.parse(to) - Date.parse(from) > 31 * 86400000 || from < retentionCutoff(new Date())) return error('invalid_query', 400);
+  const counts = await env.DB.batch([
+    env.DB.prepare(`SELECT type, count(*) AS count FROM events WHERE site = ? AND at >= ? AND at < ? GROUP BY type`).bind(site, from, to),
+    env.DB.prepare(`SELECT source, count(*) AS count FROM inquiry_context WHERE site = ? AND at >= ? AND at < ? GROUP BY source`).bind(site, from, to),
+    env.DB.prepare(`SELECT outcome, reason, count(*) AS count FROM inquiry_security WHERE site = ? AND at >= ? AND at < ? GROUP BY outcome, reason`).bind(site, from, to),
+    env.DB.prepare(`SELECT status, count(*) AS count FROM inquiry_notifications WHERE site = ? AND at >= ? AND at < ? GROUP BY status`).bind(site, from, to),
+  ]);
+  return json({ site, from, to, bounds: '[from,to)', events: counts[0]!.results, sources: counts[1]!.results,
+    security: counts[2]!.results, held: 0, notifications: counts[3]!.results,
+    semantics: { enquiries: 'durably stored site_inquiry rows, including retries', sources: 'opt-in submissions only; self-reported first touch',
+      taps: 'anonymous taps, not answered calls', held: 'no quarantine implemented', notifications: 'per-recipient provider attempts/results, not inbox receipt; opt-in only' } });
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
@@ -579,7 +629,7 @@ export default {
         return redirect(`${PREFIXES[code[0]!]!}?r=${code}`);
       }
     }
-    if (!['/t/e', '/t/form', '/t/events'].includes(url.pathname) && !url.pathname.startsWith('/t/files/')) return error('not_found', 404);
+    if (!['/t/e', '/t/form', '/t/events', '/t/site-summary'].includes(url.pathname) && !url.pathname.startsWith('/t/files/')) return error('not_found', 404);
     if (request.method === 'OPTIONS' && ['/t/e', '/t/form'].includes(url.pathname)) {
       const config = sites(env);
       if (!config) return error('unavailable', 503);
@@ -598,6 +648,7 @@ export default {
       const response = url.pathname === '/t/e' ? await beacon(request, env)
         : url.pathname === '/t/form' ? await siteForm(request, env, ctx)
         : url.pathname.startsWith('/t/files/') ? await file(request, env, url.pathname.slice(9))
+        : url.pathname === '/t/site-summary' ? await siteSummary(request, env, url)
         : await events(request, env, url);
       // Invalid events/unauthenticated requests do not trigger database work.
       if (response.ok && url.pathname !== '/t/form') scheduleCleanup(env, ctx);

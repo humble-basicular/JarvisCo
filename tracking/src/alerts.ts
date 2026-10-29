@@ -1,3 +1,4 @@
+import type { InquiryContext } from './security';
 import { EmailMessage } from 'cloudflare:email';
 
 export interface AlertConfig {
@@ -10,6 +11,8 @@ export interface AlertConfig {
 }
 interface Alert {
   kind: string; code: string | null; site: string | null; at: string;
+  context?: InquiryContext;
+  notificationDB?: D1Database;
   payload: { files: { key: string; name: string; type: string; size: number }[] } & object;
 }
 const FROM = 'forms@jarvisweb.lt';
@@ -106,6 +109,7 @@ function body(alert: Alert, config: AlertConfig, routingWarning: boolean): strin
     `Svetainė: ${quoted(alert.site)}`,
     `Vardas: ${quoted(p.name)}`, `Telefonas: ${quoted(p.phone)}`, `El. paštas: ${quoted(p.email)}`,
     `Paslaugos: ${site ? quoted(p.service) : list('services', 'services_other')}`,
+    ...(alert.context ? [`Saltinis: ${quoted(alert.context.source)}`, `Puslapis: ${quoted(alert.context.page)}`, `Pirmas puslapis: ${quoted(alert.context.landing_path)}`] : []),
     `Vietovė: ${site ? quoted(p.location) : list('area', 'area_other')}`,
     `Susisiekimo laikas: ${p.contact_time ? quoted(time[String(p.contact_time)] ?? p.contact_time) : '—'}`,
     `Išskirtinumas / žinutė: ${quoted(site ? p.message : p.standout)}`,
@@ -138,7 +142,12 @@ export function scheduleFormAlert(config: AlertConfig, ctx: ExecutionContext, al
         'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
         base64(body(alert, config, routingWarning)).match(/.{1,76}/g)!.join('\r\n'), '',
       ].join('\r\n');
-      await binding.send(new EmailMessage(FROM, to, raw));
+      const track = async (status: string) => {
+        if (alert.notificationDB && alert.site) await alert.notificationDB.prepare('INSERT INTO inquiry_notifications(site, status) VALUES (?, ?)').bind(alert.site, status).run().catch(() => {});
+      };
+      await track('attempt');
+      try { await binding.send(new EmailMessage(FROM, to, raw)); await track('sent'); }
+      catch { await track('failure'); }
     }).catch(() => {}));
   } catch { /* Notification failures must never undo storage or change the receipt. */ }
 }

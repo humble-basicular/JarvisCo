@@ -24,7 +24,7 @@ const test_default = {
   }
 };
 `;
-const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql', '0004_sites.sql', '0005_site_beacons.sql', '0006_form_alerts.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
+const migration = (await Promise.all(['0001_events.sql', '0002_submissions.sql', '0003_form_budgets.sql', '0004_sites.sql', '0005_site_beacons.sql', '0006_form_alerts.sql', '0007_inquiry_security.sql'].map(name => readFile(new URL(`../migrations/${name}`, import.meta.url), 'utf8')))).join('\n');
 const fixedNow = Date.now();
 let mf;
 let db;
@@ -1514,4 +1514,124 @@ test('two-recipient routing keeps ten-minute dedup; failure at one mailbox does 
   await db.prepare('UPDATE form_alert_claims SET expires_at = 0').run();
   assert.equal((await launchForm('meselektra', env)).status, 200);
   assert.equal(attempted.length, 4);
+});
+
+const SECURE_SITES = JSON.stringify({ ...JSON.parse(SITES), ...CLIENT_SITES });
+const SECURE_CONFIG = JSON.stringify({ meselektra: 'enforce', vensland: 'enforce' });
+async function secureForm(fields = {}, overrides = {}, { accept = 'application/json', origin } = {}) {
+  const site = fields.site ?? 'meselektra';
+  const pending = [];
+  const response = await worker.fetch(new Request('https://jarvisweb.lt/t/form', {
+    method: 'POST', headers: { Origin: origin ?? `https://${site}.lt`, Accept: accept },
+    body: formBody({ kind: 'site_inquiry', site, phone: '12345678', page: '/paslaugos', source: 'ChatGPT',
+      landing_path: '/', elapsed_ms: '2000', 'cf-turnstile-response': 'valid-token', ...fields }),
+  }), alertEnv({ SITES: SECURE_SITES, TWO_SITE_SECURITY: SECURE_CONFIG,
+    TURNSTILE_SECRET_MESELEKTRA: 'test-secret', TURNSTILE_SECRET_VENSLAND: 'test-secret', ...overrides }), { waitUntil(task) { pending.push(task); } });
+  await Promise.all(pending);
+  return response;
+}
+async function mockVerify(result, fn) {
+  const saved = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    assert.equal(url, 'https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    const body = JSON.parse(init.body);
+    assert.deepEqual(Object.keys(body).sort(), ['response', 'secret']);
+    if (result instanceof Error) throw result;
+    return Response.json(typeof result === 'function' ? result(body) : result);
+  };
+  try { await fn(); } finally { globalThis.fetch = saved; }
+}
+
+test('two-site verification binds hostname to actual allowed origin, rejects missing/invalid/replayed tokens', async () => {
+  for (const site of ['meselektra', 'vensland']) {
+    let used = false;
+    await mockVerify(({ response }) => response === 'valid-token' && !used
+      ? (used = true, { success: true, hostname: `${site}.lt` })
+      : { success: false, 'error-codes': ['timeout-or-duplicate'] }, async () => {
+      assert.equal((await secureForm({ site })).status, 200);
+      assert.equal((await secureForm({ site })).status, 400);
+      assert.equal((await secureForm({ site, 'cf-turnstile-response': 'bad' })).status, 400);
+      assert.equal((await secureForm({ site, 'cf-turnstile-response': '' })).status, 400);
+    });
+  }
+  await mockVerify({ success: true, hostname: 'www.meselektra.lt' }, async () => {
+    assert.equal((await secureForm()).status, 400); // Same site's alternate hostname still mismatches actual Origin.
+    assert.equal((await secureForm({}, {}, { origin: 'https://www.meselektra.lt' })).status, 200);
+    assert.equal((await secureForm({}, {}, { origin: 'https://evil.test' })).status, 403);
+    assert.equal((await secureForm({ site: 'vensland' }, {}, { origin: 'https://meselektra.lt' })).status, 403);
+  });
+});
+
+test('unavailable secrets/provider fail closed with explicit 503 including HTML requests', async () => {
+  assert.equal((await secureForm({}, { TURNSTILE_SECRET_MESELEKTRA: undefined }, { accept: 'text/html' })).status, 503);
+  for (const result of [new Error('offline'), { success: false, 'error-codes': ['invalid-input-secret'] }, { success: false, 'error-codes': ['internal-error'] }, {}]) {
+    await mockVerify(result, async () => assert.equal((await secureForm()).status, 503));
+  }
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM submissions').first('n'), 0);
+});
+
+test('observe/unset rollout preserves forms and legacy/ArbCut ignores security configuration', async () => {
+  assert.equal((await secureForm({ page: '', elapsed_ms: '', 'cf-turnstile-response': '' }, { TWO_SITE_SECURITY: undefined })).status, 200);
+  assert.equal((await secureForm({ page: '', elapsed_ms: '', 'cf-turnstile-response': '' }, { TWO_SITE_SECURITY: '{"meselektra":"observe"}' })).status, 200);
+  assert.equal((await secureForm({ site: 'arbcut', page: '', elapsed_ms: '' }, { TWO_SITE_SECURITY: 'invalid' })).status, 200);
+  assert.equal((await directForm({ kind: 'preview_request', code: 'p2345' }, alertEnv({ TWO_SITE_SECURITY: 'invalid' }))).response.status, 200);
+  assert.equal((await secureForm({}, { TWO_SITE_SECURITY: '{"arbcut":"enforce"}' })).status, 503);
+});
+
+test('timing/page validation and layered link abuse reject explicitly, fast legitimate enquiries persist', async () => {
+  await mockVerify({ success: true, hostname: 'meselektra.lt' }, async () => {
+    for (const fields of [{ page: 'https://meselektra.lt/' }, { page: '/?private=secret' }, { elapsed_ms: '' }, { elapsed_ms: '-1' }]) {
+      assert.equal((await secureForm(fields)).status, 400);
+    }
+    assert.equal((await secureForm({ elapsed_ms: '100' })).status, 200);
+    assert.equal((await secureForm({ elapsed_ms: '100', message: 'https://a https://b https://c https://d' })).status, 422);
+  });
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM inquiry_context').first('n'), 1);
+});
+
+test('durable bounded attribution/email/notification results preserve strict feed and existing dedupe', async () => {
+  const messages = [];
+  await mockVerify({ success: true, hostname: 'meselektra.lt' }, async () => {
+    const env = { FORM_EMAIL: { async send(message) { messages.push(message); } } };
+    for (const elapsed_ms of ['2000', '3000']) assert.equal((await secureForm({ service: 'Test', elapsed_ms }, env)).status, 200);
+    assert.equal(messages.length, 1); // Tokens, timing and attribution never change the existing fingerprint.
+    assert.equal((await secureForm({ name: 'failure' }, { FORM_EMAIL: { async send() { throw Error('provider'); } } })).status, 200);
+  });
+  const body = decodedMail(messages[0]).body;
+  for (const label of ['Saltinis: "ChatGPT"', 'Puslapis: "/paslaugos"', 'Paslaugos: "Test"']) assert.ok(body.includes(label));
+  const feed = (await (await pull()).json()).events;
+  assert.deepEqual(Object.keys(feed[0]).sort(), ['at','code','id','site','submission','type','ua_class']);
+  assert.deepEqual(Object.keys(feed[0].submission).sort(), ['brand','consent','contact_time','files','location','message','name','phone','service']);
+  assert.equal(await db.prepare("SELECT count(*) AS n FROM inquiry_notifications WHERE status='attempt'").first('n'), 2);
+  assert.equal(await db.prepare("SELECT count(*) AS n FROM inquiry_notifications WHERE status='sent'").first('n'), 1);
+  assert.equal(await db.prepare("SELECT count(*) AS n FROM inquiry_notifications WHERE status='failure'").first('n'), 1);
+});
+
+test('source caps and encoded query/referrer paths never persist raw attribution', async () => {
+  for (const source of ['https://google.com/?secret=1', 'x'.repeat(10000), '<script>\nBcc:test']) {
+    assert.equal((await secureForm({ source, page: '/%3Fsecret', landing_path: '//evil.test/query?q=private' }, { TWO_SITE_SECURITY: '{"meselektra":"observe"}' })).status, 200);
+  }
+  const rows = (await db.prepare('SELECT source,page,landing_path FROM inquiry_context').all()).results;
+  assert.ok(rows.every(row => row.source === 'directunknown' && row.page === null && row.landing_path === null));
+});
+
+test('summary requires auth, two-site scope, bounded explicit dates; returns counts with honest semantics and no PII', async () => {
+  const now = new Date();
+  const from = new Date(now.getTime() - 3600000).toISOString();
+  const to = new Date(now.getTime() + 3600000).toISOString();
+  const query = new URLSearchParams({ site: 'meselektra', from, to });
+  assert.equal((await request(`/t/site-summary?${query}`)).status, 401);
+  for (const params of [{ site: 'arbcut', from, to }, { site: 'meselektra' }, { site: 'vensland', from: to, to: from }, { site: 'vensland', from: '2026-01-01T00:00:00Z', to }]) {
+    assert.equal((await request(`/t/site-summary?${new URLSearchParams(params)}`, { headers: { Authorization: `Bearer ${TOKEN}` } })).status, 400);
+  }
+  assert.equal((await secureForm({ name: 'PRIVATE NAME' }, { TWO_SITE_SECURITY: '{"meselektra":"observe"}' })).status, 200);
+  const result = await request(`/t/site-summary?${query}`, { headers: { Authorization: `Bearer ${TOKEN}` } });
+  assert.equal(result.status, 200);
+  assert.equal(result.headers.get('Cache-Control'), 'no-store');
+  const report = await result.json();
+  assert.equal(report.events.find(row => row.type === 'site_inquiry').count, 1);
+  assert.deepEqual(report.sources, [{ source: 'ChatGPT', count: 1 }]);
+  assert.equal(report.held, 0);
+  assert.ok(!JSON.stringify(report).includes('PRIVATE NAME'));
+  assert.match(report.semantics.notifications, /not inbox receipt/);
 });
