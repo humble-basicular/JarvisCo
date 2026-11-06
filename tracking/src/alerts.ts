@@ -24,8 +24,13 @@ const SUBJECT = 'JarvisWeb: nauja formos užklausa';
 const ATTACHMENT_TYPES: Record<string, string> = {
   'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/heic': 'heic', 'image/heif': 'heif', 'image/gif': 'gif',
 };
-// Base64 adds a third; this stays under the 25 MiB send_email message limit.
-const ATTACHMENT_BYTES = 18 * 1024 * 1024;
+// Sized for the 128 MB isolate, not the 25 MiB send_email limit: the upload, its
+// base64 and one assembled message are all in memory at once.
+const ATTACHMENT_BYTES = 8 * 1024 * 1024;
+// waitUntil ends about 30 s after the response, so a stuck send cannot hold up the
+// other mailboxes for long; late recipients get the text alert instead.
+const ATTACHMENT_SEND_MS = 10_000;
+const ATTACHMENT_WINDOW_MS = 20_000;
 
 async function sha256(bytes: BufferSource): Promise<string> {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
@@ -100,7 +105,8 @@ function proofLink(config: string | undefined, code: string | null): string | nu
 }
 
 function attachmentsEnabled(config: AlertConfig, alert: Alert): boolean {
-  if (alert.kind !== 'site_inquiry' || !alert.site || !alert.uploads?.length || !config.FORM_ATTACHMENT_SITES) return false;
+  if (alert.kind !== 'site_inquiry' || !alert.site || !config.FORM_ATTACHMENT_SITES) return false;
+  if (!alert.uploads?.some(file => ATTACHMENT_TYPES[file.type])) return false;
   try {
     const sites: unknown = JSON.parse(config.FORM_ATTACHMENT_SITES);
     return Array.isArray(sites) && sites.includes(alert.site);
@@ -189,29 +195,42 @@ export function scheduleFormAlert(config: AlertConfig, ctx: ExecutionContext, al
     const text = (photoLine?: string) => base64(body(alert, config, routingWarning, photoLine)).match(/.{1,76}/g)!.join('\r\n');
     const plain = (to: string, photoLine?: string) => [...headers(to),
       'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', text(photoLine), ''].join('\r\n');
-    const failed = 'Nuotraukų prisegti nepavyko; jos išsaugotos sistemoje.';
-    // Built once for every mailbox. Any failure falls back to the text alert below.
+    const failed = 'Nuotraukų prisegti nepavyko; jos išsaugotos sistemoje, paskambinkite klientui.';
+    // Encoded once for every mailbox. Any failure falls back to the text alert below.
     const prepared = attachmentsEnabled(config, alert) ? attachmentParts(alert).catch(() => null) : undefined;
+    const started = Date.now();
+    let turn: Promise<unknown> = Promise.resolve();
     // One private message per mailbox. A failed/slow destination cannot suppress
     // another, and neither changes the existing durable fingerprint claim.
-    for (const to of targets) ctx.waitUntil(Promise.resolve().then(async () => {
-      const track = async (status: string) => {
-        if (alert.notificationDB && alert.site) await alert.notificationDB.prepare('INSERT INTO inquiry_notifications(site, status) VALUES (?, ?)').bind(alert.site, status).run().catch(() => {});
+    for (const to of targets) {
+      const task = async () => {
+        const track = async (status: string) => {
+          if (alert.notificationDB && alert.site) await alert.notificationDB.prepare('INSERT INTO inquiry_notifications(site, status) VALUES (?, ?)').bind(alert.site, status).run().catch(() => {});
+        };
+        await track('attempt');
+        const parts = prepared && Date.now() - started < ATTACHMENT_WINDOW_MS ? await prepared : null;
+        if (parts?.length) {
+          const boundary = `jw-${crypto.randomUUID()}`;
+          const line = `Prisegta nuotraukų: ${parts.length} iš ${alert.payload.files.length}`;
+          const raw = [...headers(to), `Content-Type: multipart/mixed; boundary="${boundary}"`, '',
+            `--${boundary}`, 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', text(line),
+            ...parts.flatMap(part => [`--${boundary}`, part]), `--${boundary}--`, ''].join('\r\n');
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          try {
+            await Promise.race([binding.send(new EmailMessage(FROM, to, raw)),
+              new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('timeout')), ATTACHMENT_SEND_MS); })]);
+            await track('sent');
+            return;
+          } catch { /* The enquiry still has to reach the mailbox, without its photos. */ }
+          finally { if (timer !== undefined) clearTimeout(timer); }
+        }
+        try { await binding.send(new EmailMessage(FROM, to, plain(to, prepared ? failed : undefined))); await track('sent'); }
+        catch { await track('failure'); }
       };
-      await track('attempt');
-      const parts = await prepared;
-      if (parts?.length) {
-        const boundary = `jw-${crypto.randomUUID()}`;
-        const line = `Prisegta nuotraukų: ${parts.length} iš ${alert.payload.files.length}`;
-        const raw = [...headers(to), `Content-Type: multipart/mixed; boundary="${boundary}"`, '',
-          `--${boundary}`, 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', text(line),
-          ...parts.flatMap(part => [`--${boundary}`, part]), `--${boundary}--`, ''].join('\r\n');
-        try { await binding.send(new EmailMessage(FROM, to, raw)); await track('sent'); return; }
-        catch { /* The enquiry still has to reach the mailbox, without its photos. */ }
-      }
-      const note = prepared === undefined ? undefined : parts?.length || parts === null ? failed : undefined;
-      try { await binding.send(new EmailMessage(FROM, to, plain(to, note))); await track('sent'); }
-      catch { await track('failure'); }
-    }).catch(() => {}));
+      // With attachments, one full message exists at a time. Plain alerts stay concurrent.
+      const run = prepared ? turn.then(task) : Promise.resolve().then(task);
+      turn = run.catch(() => {});
+      ctx.waitUntil(run.catch(() => {}));
+    }
   } catch { /* Notification failures must never undo storage or change the receipt. */ }
 }

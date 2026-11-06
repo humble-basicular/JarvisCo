@@ -1340,14 +1340,63 @@ test('every routed recipient gets the attachments; base64 lines stay within 76 c
 test('photos over the attachment budget stay in storage and the alert says so', async () => {
   const messages = [];
   const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
-  const big = Buffer.alloc(10 * 1024 * 1024 - 1, 1);
-  const { response, pending } = await directForm(arbcutInquiry('Per daug'), env, [{ type: 'image/jpeg', body: big }, { type: 'image/jpeg', body: big }]);
+  const photo = Buffer.alloc(5 * 1024 * 1024, 1);
+  const { response, pending } = await directForm(arbcutInquiry('Per daug'), env, [{ type: 'image/jpeg', body: photo }, { type: 'image/jpeg', body: photo }]);
   assert.equal(response.status, 200);
   await Promise.all(pending);
   const parts = mimeParts(messages[0].raw);
   assert.equal(parts.length, 2);
   assert.ok(parts[0].data.toString('utf8').includes('Prisegta nuotraukų: 1 iš 2'));
-  assert.ok(messages[0].raw.length < 25 * 1024 * 1024);
+  assert.ok(messages[0].raw.length < 8 * 1024 * 1024 * 1.4);
+});
+
+test('when no photo fits, the text alert tells the mailbox to call', async () => {
+  const messages = [];
+  const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  const { pending } = await directForm(arbcutInquiry('Nė viena'), env, [{ type: 'image/jpeg', body: Buffer.alloc(9 * 1024 * 1024, 2) }]);
+  await Promise.all(pending);
+  assert.ok(decodedMail(messages[0]).body.includes('Nuotraukų prisegti nepavyko'));
+});
+
+test('documents alone keep the plain alert with no photo warning', async () => {
+  const messages = [];
+  const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  const { pending } = await directForm(arbcutInquiry('Tik PDF'), env, [{ type: 'application/pdf', body: 'pdf-bytes' }]);
+  await Promise.all(pending);
+  assert.ok(!decodedMail(messages[0]).body.includes('Nuotraukų prisegti'));
+});
+
+test('mailboxes are served one at a time, so only one full message is buffered', async () => {
+  const seen = [];
+  let active = 0, peak = 0;
+  const routes = Array.from({ length: 5 }, (_, n) => `box${n}@example.com`);
+  const env = alertEnv({ ...PHOTO_SITE, FORM_SITE_RECIPIENTS: JSON.stringify({ arbcut: routes }), FORM_EMAIL: { async send(message) {
+    peak = Math.max(peak, ++active);
+    await new Promise(done => setTimeout(done, 5));
+    active--;
+    seen.push(message.to);
+  } } });
+  const { pending } = await directForm(arbcutInquiry('Eilė'), env, [{ type: 'image/jpeg', body: 'queued-photo' }]);
+  await Promise.all(pending);
+  assert.equal(peak, 1);
+  assert.deepEqual(seen, routes);
+});
+
+test('a stuck attachment send falls back to text and does not block the next mailbox', async () => {
+  const delivered = [];
+  const env = alertEnv({ ...PHOTO_SITE, FORM_SITE_RECIPIENTS: JSON.stringify({ arbcut: ['stuck@example.com', 'next@example.com'] }), FORM_EMAIL: {
+    send(message) {
+      if (message.to === 'stuck@example.com' && message.raw.includes('multipart/mixed')) return new Promise(() => {});
+      delivered.push([message.to, message.raw.includes('multipart/mixed')]);
+      return Promise.resolve();
+    } } });
+  const realTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = (run, ms, ...rest) => realTimeout(run, ms === 10_000 ? 1 : ms, ...rest);
+  try {
+    const { pending } = await directForm(arbcutInquiry('Užstrigo'), env, [{ type: 'image/jpeg', body: 'stuck-photo' }]);
+    await Promise.all(pending);
+  } finally { globalThis.setTimeout = realTimeout; }
+  assert.deepEqual(delivered, [['stuck@example.com', false], ['next@example.com', true]]);
 });
 
 test('a failed send with photos still delivers the text alert', async () => {
@@ -1360,7 +1409,7 @@ test('a failed send with photos still delivers the text alert', async () => {
   assert.equal(response.status, 200);
   await Promise.all(pending);
   assert.equal(messages.length, 1);
-  assert.ok(decodedMail(messages[0]).body.includes('Nuotraukų prisegti nepavyko; jos išsaugotos sistemoje.'));
+  assert.ok(decodedMail(messages[0]).body.includes('Nuotraukų prisegti nepavyko; jos išsaugotos sistemoje, paskambinkite klientui.'));
 });
 
 test('sites not opted in, malformed lists and funnel kinds keep the plain text alert', async () => {
@@ -1381,13 +1430,25 @@ test('sites not opted in, malformed lists and funnel kinds keep the plain text a
 
 test('workerd still reads uploads in waitUntil after the response has been sent', async () => {
   await mf.dispose();
-  // The runtime's EmailMessage hides its body, so this test records the raw string instead.
-  const mailScript = script.replace(/new EmailMessage\(/g, 'recordedMail(').replace('const pending = [];', `const pending = [];
+  // Own wrapper: the shared test script drains waitUntil before responding, which would hide this case.
+  // The second read of the upload (the first is the fingerprint) waits long enough for the response to leave.
+  // The runtime's EmailMessage hides its body, so the raw string is recorded instead.
+  const mailScript = productionScript.replace('index_default as default', 'test_default as default').replace(/new EmailMessage\(/g, 'recordedMail(') + `
+function recordedMail(from, to, raw) { return { from, to, raw }; }
+const realRead = Blob.prototype.arrayBuffer;
+let reads = 0;
+Blob.prototype.arrayBuffer = async function () {
+  if (++reads > 1) await new Promise(done => setTimeout(done, 400));
+  return realRead.call(this);
+};
+const test_default = {
+  fetch(request, env, ctx) {
     env.FORM_ALERT_TO = '${ALERT_TO}';
     env.FORM_ATTACHMENT_SITES = '["arbcut"]';
-    env.FORM_EMAIL = { async send(message) {
-      await env.DB.prepare('INSERT INTO test_mail VALUES (?)').bind(message.raw).run();
-    } };`) + 'function recordedMail(from, to, raw) { return { from, to, raw }; }';
+    env.FORM_EMAIL = { async send(message) { await env.DB.prepare('INSERT INTO test_mail VALUES (?)').bind(message.raw).run(); } };
+    return index_default.fetch(request, env, ctx);
+  }
+};`;
   mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: mailScript, compatibilityDate: '2026-10-01',
     d1Databases: { DB: 'attachment-db' }, kvNamespaces: { FILES: 'attachment-files' }, bindings: { SITES } }));
   db = await mf.getD1Database('DB');
@@ -1398,7 +1459,14 @@ test('workerd still reads uploads in waitUntil after the response has been sent'
   const response = await mf.dispatchFetch(encoded.url, { method: 'POST', body: new Uint8Array(await encoded.arrayBuffer()),
     headers: { 'Content-Type': encoded.headers.get('Content-Type'), Origin: 'https://arbcut.lt', Accept: 'application/json' } });
   assert.equal(response.status, 200);
-  const { raw } = await db.prepare('SELECT raw FROM test_mail').first();
+  await response.text();
+  assert.equal(await db.prepare('SELECT count(*) AS n FROM test_mail').first('n'), 0, 'the alert must still be pending after the response');
+  let raw = null;
+  for (let n = 0; n < 60 && !raw; n++) {
+    await new Promise(done => setTimeout(done, 50));
+    raw = (await db.prepare('SELECT raw FROM test_mail').first())?.raw ?? null;
+  }
+  assert.ok(raw, 'the alert was never sent');
   assert.ok(mimeParts(raw)[1].data.equals(photo));
 });
 
