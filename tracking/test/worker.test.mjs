@@ -1296,8 +1296,9 @@ function mimeParts(raw) {
 }
 const PHOTO_SITE = { FORM_ATTACHMENT_SITES: '["arbcut"]' };
 const arbcutInquiry = (name) => ({ kind: 'site_inquiry', site: 'arbcut', phone: '12345678', name });
+const isPhotoMail = (message) => message.raw.includes('multipart/mixed');
 
-test('opted-in site alerts attach images under generated names and keep documents in storage only', async () => {
+test('opted-in sites get the normal text alert plus a separate photo email with generated names', async () => {
   const messages = [];
   const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
   const { response, pending } = await directForm(arbcutInquiry('Su nuotraukomis'), env, [
@@ -1307,15 +1308,15 @@ test('opted-in site alerts attach images under generated names and keep document
   ]);
   assert.equal(response.status, 200);
   await Promise.all(pending);
-  assert.equal(messages.length, 1);
-  const { raw } = messages[0];
-  assert.match(raw, /Content-Type: multipart\/mixed; boundary="jw-/);
+  assert.equal(messages.length, 2);
+  const text = decodedMail(messages.find(m => !isPhotoMail(m))).body;
+  assert.ok(text.includes('Failų skaičius: 3') && text.includes('Nuotraukos siunčiamos atskiru laišku: 2 iš 3. Negavus paskambinkite klientui.'));
+  const { raw } = messages.find(isPhotoMail);
   assert.ok(!raw.includes('Bcc') && !raw.includes('evil') && !raw.includes('doc.pdf'));
   for (const line of raw.split('\r\n')) assert.ok(line.length <= 998);
-  const [text, first, second, ...rest] = mimeParts(raw);
+  const [note, first, second, ...rest] = mimeParts(raw);
   assert.equal(rest.length, 0);
-  const body = text.data.toString('utf8');
-  assert.ok(body.includes('Failų skaičius: 3') && body.includes('Prisegta nuotraukų: 2 iš 3') && body.includes('Su nuotraukomis'));
+  assert.ok(note.data.toString('utf8').includes('"12345678"') && note.data.toString('utf8').includes('Su nuotraukomis'));
   assert.match(first.head, /Content-Type: image\/jpeg; name="nuotrauka-1\.jpg"/);
   assert.match(first.head, /Content-Disposition: attachment; filename="nuotrauka-1\.jpg"/);
   assert.equal(first.data.toString(), 'first-photo-bytes');
@@ -1323,54 +1324,58 @@ test('opted-in site alerts attach images under generated names and keep document
   assert.equal(second.data.toString(), 'second-photo-bytes');
 });
 
-test('every routed recipient gets the attachments; base64 lines stay within 76 characters', async () => {
+test('every routed recipient gets the photos; base64 lines stay within 76 characters', async () => {
   const messages = [];
   const photo = Buffer.alloc(100_000, 7);
   const env = alertEnv({ ...PHOTO_SITE, FORM_SITE_RECIPIENTS: JSON.stringify({ arbcut: ['client@example.com', ALERT_TO] }),
     FORM_EMAIL: { async send(message) { messages.push(message); } } });
   const { pending } = await directForm(arbcutInquiry('Du gavėjai'), env, [{ type: 'image/webp', body: photo }]);
   await Promise.all(pending);
-  assert.deepEqual(messages.map(m => m.to).sort(), [ALERT_TO, 'client@example.com'].sort());
-  for (const { raw } of messages) {
+  const photoMail = messages.filter(isPhotoMail);
+  assert.deepEqual(photoMail.map(m => m.to).sort(), [ALERT_TO, 'client@example.com'].sort());
+  for (const { raw } of photoMail) {
     assert.ok(mimeParts(raw)[1].data.equals(photo));
-    for (const line of mimeParts(raw) && raw.split('\r\n').filter(l => /^[A-Za-z0-9+/=]+$/.test(l))) assert.ok(line.length <= 76);
+    for (const line of raw.split('\r\n').filter(l => /^[A-Za-z0-9+/=]+$/.test(l))) assert.ok(line.length <= 76);
   }
 });
 
-test('photos over the attachment budget stay in storage and the alert says so', async () => {
+test('photos over the budget stay in storage and the text alert counts only what is sent', async () => {
   const messages = [];
   const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
   const photo = Buffer.alloc(5 * 1024 * 1024, 1);
   const { response, pending } = await directForm(arbcutInquiry('Per daug'), env, [{ type: 'image/jpeg', body: photo }, { type: 'image/jpeg', body: photo }]);
   assert.equal(response.status, 200);
   await Promise.all(pending);
-  const parts = mimeParts(messages[0].raw);
-  assert.equal(parts.length, 2);
-  assert.ok(parts[0].data.toString('utf8').includes('Prisegta nuotraukų: 1 iš 2'));
-  assert.ok(messages[0].raw.length < 8 * 1024 * 1024 * 1.4);
+  assert.ok(decodedMail(messages.find(m => !isPhotoMail(m))).body.includes('1 iš 2'));
+  const raw = messages.find(isPhotoMail).raw;
+  assert.equal(mimeParts(raw).length, 2);
+  assert.ok(raw.length < 8 * 1024 * 1024 * 1.4);
 });
 
-test('when no photo fits, the text alert tells the mailbox to call', async () => {
+test('when no photo fits, there is no photo email and the text alert says to call', async () => {
   const messages = [];
   const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
   const { pending } = await directForm(arbcutInquiry('Nė viena'), env, [{ type: 'image/jpeg', body: Buffer.alloc(9 * 1024 * 1024, 2) }]);
   await Promise.all(pending);
-  assert.ok(decodedMail(messages[0]).body.includes('Nuotraukų prisegti nepavyko'));
+  assert.equal(messages.length, 1);
+  assert.ok(decodedMail(messages[0]).body.includes('Nuotraukos per didelės laiškui'));
 });
 
-test('documents alone keep the plain alert with no photo warning', async () => {
+test('documents alone keep the plain alert with no photo line', async () => {
   const messages = [];
   const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
   const { pending } = await directForm(arbcutInquiry('Tik PDF'), env, [{ type: 'application/pdf', body: 'pdf-bytes' }]);
   await Promise.all(pending);
-  assert.ok(!decodedMail(messages[0]).body.includes('Nuotraukų prisegti'));
+  assert.equal(messages.length, 1);
+  assert.ok(!/Nuotraukos (siunčiamos|per didelės)/.test(decodedMail(messages[0]).body));
 });
 
-test('mailboxes are served one at a time, so only one full message is buffered', async () => {
+test('photo emails go to one mailbox at a time, so only one full message is buffered', async () => {
   const seen = [];
   let active = 0, peak = 0;
   const routes = Array.from({ length: 5 }, (_, n) => `box${n}@example.com`);
   const env = alertEnv({ ...PHOTO_SITE, FORM_SITE_RECIPIENTS: JSON.stringify({ arbcut: routes }), FORM_EMAIL: { async send(message) {
+    if (!isPhotoMail(message)) return;
     peak = Math.max(peak, ++active);
     await new Promise(done => setTimeout(done, 5));
     active--;
@@ -1382,49 +1387,55 @@ test('mailboxes are served one at a time, so only one full message is buffered',
   assert.deepEqual(seen, routes);
 });
 
-test('a stuck attachment send falls back to text and does not block the next mailbox', async () => {
-  const delivered = [];
+test('a stuck or failing photo email never affects any text alert', async () => {
+  for (const mode of ['stuck', 'reject', 'throw']) {
+    const texts = [];
+    let photoAttempts = 0;
+    const env = alertEnv({ ...PHOTO_SITE, FORM_SITE_RECIPIENTS: JSON.stringify({ arbcut: ['first@example.com', 'second@example.com'] }), FORM_EMAIL: {
+      send(message) {
+        if (!isPhotoMail(message)) { texts.push(message.to); return Promise.resolve(); }
+        photoAttempts++;
+        if (mode === 'stuck') return new Promise(() => {});
+        if (mode === 'throw') throw Error('sync failure');
+        return Promise.reject(Error('too large'));
+      } } });
+    const { response, pending } = await directForm(arbcutInquiry(`Nuotraukų klaida ${mode}`), env, [{ type: 'image/jpeg', body: `photo-${mode}` }]);
+    assert.equal(response.status, 200);
+    await Promise.race([Promise.all(pending), new Promise(done => setTimeout(done, 50))]);
+    assert.deepEqual(texts.sort(), ['first@example.com', 'second@example.com']);
+    assert.equal(photoAttempts, mode === 'stuck' ? 1 : 2);
+  }
+});
+
+test('a stuck text alert does not stop other mailboxes getting theirs', async () => {
+  const texts = [];
   const env = alertEnv({ ...PHOTO_SITE, FORM_SITE_RECIPIENTS: JSON.stringify({ arbcut: ['stuck@example.com', 'next@example.com'] }), FORM_EMAIL: {
     send(message) {
-      if (message.to === 'stuck@example.com' && message.raw.includes('multipart/mixed')) return new Promise(() => {});
-      delivered.push([message.to, message.raw.includes('multipart/mixed')]);
+      if (isPhotoMail(message)) return Promise.resolve();
+      if (message.to === 'stuck@example.com') return new Promise(() => {});
+      texts.push(message.to);
       return Promise.resolve();
     } } });
-  const realTimeout = globalThis.setTimeout;
-  globalThis.setTimeout = (run, ms, ...rest) => realTimeout(run, ms === 10_000 ? 1 : ms, ...rest);
-  try {
-    const { pending } = await directForm(arbcutInquiry('Užstrigo'), env, [{ type: 'image/jpeg', body: 'stuck-photo' }]);
-    await Promise.all(pending);
-  } finally { globalThis.setTimeout = realTimeout; }
-  assert.deepEqual(delivered, [['stuck@example.com', false], ['next@example.com', true]]);
+  const { pending } = await directForm(arbcutInquiry('Tekstas užstrigo'), env, [{ type: 'image/jpeg', body: 'other-photo' }]);
+  await Promise.race([Promise.all(pending), new Promise(done => setTimeout(done, 50))]);
+  assert.deepEqual(texts, ['next@example.com']);
 });
 
-test('a failed send with photos still delivers the text alert', async () => {
-  const messages = [];
-  const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) {
-    if (message.raw.includes('multipart/mixed')) throw Error('too large');
-    messages.push(message);
-  } } });
-  const { response, pending } = await directForm(arbcutInquiry('Atsarginis'), env, [{ type: 'image/jpeg', body: 'photo' }]);
-  assert.equal(response.status, 200);
-  await Promise.all(pending);
-  assert.equal(messages.length, 1);
-  assert.ok(decodedMail(messages[0]).body.includes('Nuotraukų prisegti nepavyko; jos išsaugotos sistemoje, paskambinkite klientui.'));
-});
-
-test('sites not opted in, malformed lists and funnel kinds keep the plain text alert', async () => {
+test('sites not opted in, malformed lists and funnel kinds send only the plain text alert', async () => {
   for (const [n, list] of [undefined, '["meselektra"]', '{bad', '{"arbcut":true}'].entries()) {
     const messages = [];
     const env = alertEnv({ FORM_ATTACHMENT_SITES: list, FORM_EMAIL: { async send(message) { messages.push(message); } } });
     const { pending } = await directForm(arbcutInquiry(`Be priedų ${n}`), env, [{ type: 'image/jpeg', body: `photo-${n}` }]);
     await Promise.all(pending);
+    assert.equal(messages.length, 1);
     assert.ok(decodedMail(messages[0]).body.includes('Failų skaičius: 1'));
-    assert.ok(!decodedMail(messages[0]).body.includes('Prisegta'));
+    assert.ok(!/Nuotraukos (siunčiamos|per didelės)/.test(decodedMail(messages[0]).body));
   }
   const messages = [];
   const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
   const { pending } = await directForm({ kind: 'callback_request', phone: '12345678', name: 'Funnel' }, env, [{ type: 'image/jpeg', body: 'funnel-photo' }]);
   await Promise.all(pending);
+  assert.equal(messages.length, 1);
   decodedMail(messages[0]);
 });
 
@@ -1460,13 +1471,14 @@ const test_default = {
     headers: { 'Content-Type': encoded.headers.get('Content-Type'), Origin: 'https://arbcut.lt', Accept: 'application/json' } });
   assert.equal(response.status, 200);
   await response.text();
-  assert.equal(await db.prepare('SELECT count(*) AS n FROM test_mail').first('n'), 0, 'the alert must still be pending after the response');
+  const photoMail = "SELECT raw FROM test_mail WHERE raw LIKE '%multipart/mixed%'";
+  assert.equal(await db.prepare(photoMail).first(), null, 'the photo email must still be pending after the response');
   let raw = null;
   for (let n = 0; n < 60 && !raw; n++) {
     await new Promise(done => setTimeout(done, 50));
-    raw = (await db.prepare('SELECT raw FROM test_mail').first())?.raw ?? null;
+    raw = (await db.prepare(photoMail).first())?.raw ?? null;
   }
-  assert.ok(raw, 'the alert was never sent');
+  assert.ok(raw, 'the photo email was never sent');
   assert.ok(mimeParts(raw)[1].data.equals(photo));
 });
 
