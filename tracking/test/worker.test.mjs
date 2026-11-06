@@ -1287,6 +1287,121 @@ test('duplicate concurrent POSTs in separate workerd isolates sharing D1 schedul
   assert.equal(await db.prepare('SELECT count(*) AS n FROM form_alert_claims').first('n'), 1);
 });
 
+function mimeParts(raw) {
+  const boundary = raw.match(/boundary="([^"]+)"/)[1];
+  return raw.split(`--${boundary}`).slice(1, -1).map(part => {
+    const [head, ...rest] = part.trim().split('\r\n\r\n');
+    return { head, data: Buffer.from(rest.join('').replace(/\r\n/g, ''), 'base64') };
+  });
+}
+const PHOTO_SITE = { FORM_ATTACHMENT_SITES: '["arbcut"]' };
+const arbcutInquiry = (name) => ({ kind: 'site_inquiry', site: 'arbcut', phone: '12345678', name });
+
+test('opted-in site alerts attach images under generated names and keep documents in storage only', async () => {
+  const messages = [];
+  const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  const { response, pending } = await directForm(arbcutInquiry('Su nuotraukomis'), env, [
+    { type: 'image/jpeg', body: 'first-photo-bytes', name: 'evil"\r\nBcc: x@example.com.jpg' },
+    { type: 'application/pdf', body: 'document-bytes', name: 'doc.pdf' },
+    { type: 'image/png', body: 'second-photo-bytes', name: 'b.png' },
+  ]);
+  assert.equal(response.status, 200);
+  await Promise.all(pending);
+  assert.equal(messages.length, 1);
+  const { raw } = messages[0];
+  assert.match(raw, /Content-Type: multipart\/mixed; boundary="jw-/);
+  assert.ok(!raw.includes('Bcc') && !raw.includes('evil') && !raw.includes('doc.pdf'));
+  for (const line of raw.split('\r\n')) assert.ok(line.length <= 998);
+  const [text, first, second, ...rest] = mimeParts(raw);
+  assert.equal(rest.length, 0);
+  const body = text.data.toString('utf8');
+  assert.ok(body.includes('Failų skaičius: 3') && body.includes('Prisegta nuotraukų: 2 iš 3') && body.includes('Su nuotraukomis'));
+  assert.match(first.head, /Content-Type: image\/jpeg; name="nuotrauka-1\.jpg"/);
+  assert.match(first.head, /Content-Disposition: attachment; filename="nuotrauka-1\.jpg"/);
+  assert.equal(first.data.toString(), 'first-photo-bytes');
+  assert.match(second.head, /filename="nuotrauka-2\.png"/);
+  assert.equal(second.data.toString(), 'second-photo-bytes');
+});
+
+test('every routed recipient gets the attachments; base64 lines stay within 76 characters', async () => {
+  const messages = [];
+  const photo = Buffer.alloc(100_000, 7);
+  const env = alertEnv({ ...PHOTO_SITE, FORM_SITE_RECIPIENTS: JSON.stringify({ arbcut: ['client@example.com', ALERT_TO] }),
+    FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  const { pending } = await directForm(arbcutInquiry('Du gavėjai'), env, [{ type: 'image/webp', body: photo }]);
+  await Promise.all(pending);
+  assert.deepEqual(messages.map(m => m.to).sort(), [ALERT_TO, 'client@example.com'].sort());
+  for (const { raw } of messages) {
+    assert.ok(mimeParts(raw)[1].data.equals(photo));
+    for (const line of mimeParts(raw) && raw.split('\r\n').filter(l => /^[A-Za-z0-9+/=]+$/.test(l))) assert.ok(line.length <= 76);
+  }
+});
+
+test('photos over the attachment budget stay in storage and the alert says so', async () => {
+  const messages = [];
+  const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  const big = Buffer.alloc(10 * 1024 * 1024 - 1, 1);
+  const { response, pending } = await directForm(arbcutInquiry('Per daug'), env, [{ type: 'image/jpeg', body: big }, { type: 'image/jpeg', body: big }]);
+  assert.equal(response.status, 200);
+  await Promise.all(pending);
+  const parts = mimeParts(messages[0].raw);
+  assert.equal(parts.length, 2);
+  assert.ok(parts[0].data.toString('utf8').includes('Prisegta nuotraukų: 1 iš 2'));
+  assert.ok(messages[0].raw.length < 25 * 1024 * 1024);
+});
+
+test('a failed send with photos still delivers the text alert', async () => {
+  const messages = [];
+  const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) {
+    if (message.raw.includes('multipart/mixed')) throw Error('too large');
+    messages.push(message);
+  } } });
+  const { response, pending } = await directForm(arbcutInquiry('Atsarginis'), env, [{ type: 'image/jpeg', body: 'photo' }]);
+  assert.equal(response.status, 200);
+  await Promise.all(pending);
+  assert.equal(messages.length, 1);
+  assert.ok(decodedMail(messages[0]).body.includes('Nuotraukų prisegti nepavyko; jos išsaugotos sistemoje.'));
+});
+
+test('sites not opted in, malformed lists and funnel kinds keep the plain text alert', async () => {
+  for (const [n, list] of [undefined, '["meselektra"]', '{bad', '{"arbcut":true}'].entries()) {
+    const messages = [];
+    const env = alertEnv({ FORM_ATTACHMENT_SITES: list, FORM_EMAIL: { async send(message) { messages.push(message); } } });
+    const { pending } = await directForm(arbcutInquiry(`Be priedų ${n}`), env, [{ type: 'image/jpeg', body: `photo-${n}` }]);
+    await Promise.all(pending);
+    assert.ok(decodedMail(messages[0]).body.includes('Failų skaičius: 1'));
+    assert.ok(!decodedMail(messages[0]).body.includes('Prisegta'));
+  }
+  const messages = [];
+  const env = alertEnv({ ...PHOTO_SITE, FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  const { pending } = await directForm({ kind: 'callback_request', phone: '12345678', name: 'Funnel' }, env, [{ type: 'image/jpeg', body: 'funnel-photo' }]);
+  await Promise.all(pending);
+  decodedMail(messages[0]);
+});
+
+test('workerd still reads uploads in waitUntil after the response has been sent', async () => {
+  await mf.dispose();
+  // The runtime's EmailMessage hides its body, so this test records the raw string instead.
+  const mailScript = script.replace(/new EmailMessage\(/g, 'recordedMail(').replace('const pending = [];', `const pending = [];
+    env.FORM_ALERT_TO = '${ALERT_TO}';
+    env.FORM_ATTACHMENT_SITES = '["arbcut"]';
+    env.FORM_EMAIL = { async send(message) {
+      await env.DB.prepare('INSERT INTO test_mail VALUES (?)').bind(message.raw).run();
+    } };`) + 'function recordedMail(from, to, raw) { return { from, to, raw }; }';
+  mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: mailScript, compatibilityDate: '2026-10-01',
+    d1Databases: { DB: 'attachment-db' }, kvNamespaces: { FILES: 'attachment-files' }, bindings: { SITES } }));
+  db = await mf.getD1Database('DB');
+  await db.batch(migration.split(';').map(s => s.trim()).filter(Boolean).map(s => db.prepare(s)));
+  await db.prepare('CREATE TABLE test_mail(raw TEXT)').run();
+  const photo = Buffer.alloc(300_000, 9);
+  const encoded = new Request('https://jarvisweb.lt/t/form', { method: 'POST', body: formBody(arbcutInquiry('Workerd'), [{ type: 'image/jpeg', body: photo }]) });
+  const response = await mf.dispatchFetch(encoded.url, { method: 'POST', body: new Uint8Array(await encoded.arrayBuffer()),
+    headers: { 'Content-Type': encoded.headers.get('Content-Type'), Origin: 'https://arbcut.lt', Accept: 'application/json' } });
+  assert.equal(response.status, 200);
+  const { raw } = await db.prepare('SELECT raw FROM test_mail').first();
+  assert.ok(mimeParts(raw)[1].data.equals(photo));
+});
+
 test('untrusted fields cannot add headers or body lines; malformed recipient and proof configuration are safe', async () => {
   const messages = [];
   const binding = { async send(message) { messages.push(message); } };

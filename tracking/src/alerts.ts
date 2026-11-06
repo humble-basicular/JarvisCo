@@ -8,15 +8,24 @@ export interface AlertConfig {
   FORM_SITE_RECIPIENTS?: string;
   // Trusted operator configuration: proof code -> exact, verified Paslaugos URL.
   FORM_PROOF_LINKS?: string;
+  // Trusted private JSON array of site codes whose alerts carry uploaded photos.
+  FORM_ATTACHMENT_SITES?: string;
 }
 interface Alert {
   kind: string; code: string | null; site: string | null; at: string;
   context?: InquiryContext;
   notificationDB?: D1Database;
   payload: { files: { key: string; name: string; type: string; size: number }[] } & object;
+  uploads?: File[];
 }
 const FROM = 'forms@jarvisweb.lt';
 const SUBJECT = 'JarvisWeb: nauja formos užklausa';
+// Images only: an alert must not deliver submitted documents to a mailbox.
+const ATTACHMENT_TYPES: Record<string, string> = {
+  'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/heic': 'heic', 'image/heif': 'heif', 'image/gif': 'gif',
+};
+// Base64 adds a third; this stays under the 25 MiB send_email message limit.
+const ATTACHMENT_BYTES = 18 * 1024 * 1024;
 
 async function sha256(bytes: BufferSource): Promise<string> {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
@@ -90,7 +99,48 @@ function proofLink(config: string | undefined, code: string | null): string | nu
   } catch { return null; }
 }
 
-function body(alert: Alert, config: AlertConfig, routingWarning: boolean): string {
+function attachmentsEnabled(config: AlertConfig, alert: Alert): boolean {
+  if (alert.kind !== 'site_inquiry' || !alert.site || !alert.uploads?.length || !config.FORM_ATTACHMENT_SITES) return false;
+  try {
+    const sites: unknown = JSON.parse(config.FORM_ATTACHMENT_SITES);
+    return Array.isArray(sites) && sites.includes(alert.site);
+  } catch { return false; }
+}
+
+function bytesBase64(bytes: Uint8Array): string {
+  const native = (bytes as Uint8Array & { toBase64?: () => string }).toBase64;
+  if (native) return native.call(bytes);
+  let out = '';
+  // A multiple of three, so no padding appears before the final chunk.
+  for (let at = 0; at < bytes.length; at += 24576) out += btoa(String.fromCharCode(...bytes.subarray(at, at + 24576)));
+  return out;
+}
+
+function wrapped(encoded: string): string {
+  const lines: string[] = [];
+  for (let at = 0; at < encoded.length; at += 76) lines.push(encoded.slice(at, at + 76));
+  return lines.join('\r\n');
+}
+
+// File names and types come from the validated type map and the position, so no
+// submitted value enters a MIME header. Over budget, later photos stay in storage.
+async function attachmentParts(alert: Alert): Promise<string[]> {
+  const parts: string[] = [];
+  let bytes = 0;
+  for (const file of alert.uploads ?? []) {
+    const ext = ATTACHMENT_TYPES[file.type];
+    if (!ext || bytes + file.size > ATTACHMENT_BYTES) continue;
+    bytes += file.size;
+    const name = `nuotrauka-${parts.length + 1}.${ext}`;
+    parts.push([
+      `Content-Type: ${file.type}; name="${name}"`, `Content-Disposition: attachment; filename="${name}"`,
+      'Content-Transfer-Encoding: base64', '', wrapped(bytesBase64(new Uint8Array(await file.arrayBuffer()))),
+    ].join('\r\n'));
+  }
+  return parts;
+}
+
+function body(alert: Alert, config: AlertConfig, routingWarning: boolean, photoLine?: string): string {
   const p = alert.payload as Record<string, unknown>;
   const site = alert.kind === 'site_inquiry';
   const list = (key: string, other: string) => [...(p[key] as string[]), ...(p[other] ? [p[other]] : [])].map(quoted).join(', ') || '—';
@@ -116,6 +166,7 @@ function body(alert: Alert, config: AlertConfig, routingWarning: boolean): strin
     `Peržiūros kanalas: ${quoted(p.preview_via)}`, `Nuotraukos: ${quoted(p.photos_ok)}`,
     `Įrodymo kodas: ${quoted(alert.code)}`, `Paslaugos nuoroda: ${link ?? '— (nepriskirta)'}`,
     `Failų skaičius: ${alert.payload.files.length}`,
+    ...(photoLine ? [photoLine] : []),
     'Pateikti duomenys rodomi kabutėse; valdymo simboliai užkoduoti.',
   ].join('\r\n');
 }
@@ -134,19 +185,32 @@ export function scheduleFormAlert(config: AlertConfig, ctx: ExecutionContext, al
     if (!['preview_request', 'callback_request', 'site_inquiry'].includes(alert.kind) || !config.FORM_EMAIL) return;
     const { targets, routingWarning } = recipients(config, alert);
     const binding = config.FORM_EMAIL;
+    const headers = (to: string) => [`From: ${FROM}`, `To: ${to}`, `Date: ${new Date(alert.at).toUTCString()}`, `Subject: =?UTF-8?B?${base64(SUBJECT)}?=`, 'MIME-Version: 1.0'];
+    const text = (photoLine?: string) => base64(body(alert, config, routingWarning, photoLine)).match(/.{1,76}/g)!.join('\r\n');
+    const plain = (to: string, photoLine?: string) => [...headers(to),
+      'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', text(photoLine), ''].join('\r\n');
+    const failed = 'Nuotraukų prisegti nepavyko; jos išsaugotos sistemoje.';
+    // Built once for every mailbox. Any failure falls back to the text alert below.
+    const prepared = attachmentsEnabled(config, alert) ? attachmentParts(alert).catch(() => null) : undefined;
     // One private message per mailbox. A failed/slow destination cannot suppress
     // another, and neither changes the existing durable fingerprint claim.
     for (const to of targets) ctx.waitUntil(Promise.resolve().then(async () => {
-      const raw = [
-        `From: ${FROM}`, `To: ${to}`, `Date: ${new Date(alert.at).toUTCString()}`, `Subject: =?UTF-8?B?${base64(SUBJECT)}?=`,
-        'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
-        base64(body(alert, config, routingWarning)).match(/.{1,76}/g)!.join('\r\n'), '',
-      ].join('\r\n');
       const track = async (status: string) => {
         if (alert.notificationDB && alert.site) await alert.notificationDB.prepare('INSERT INTO inquiry_notifications(site, status) VALUES (?, ?)').bind(alert.site, status).run().catch(() => {});
       };
       await track('attempt');
-      try { await binding.send(new EmailMessage(FROM, to, raw)); await track('sent'); }
+      const parts = await prepared;
+      if (parts?.length) {
+        const boundary = `jw-${crypto.randomUUID()}`;
+        const line = `Prisegta nuotraukų: ${parts.length} iš ${alert.payload.files.length}`;
+        const raw = [...headers(to), `Content-Type: multipart/mixed; boundary="${boundary}"`, '',
+          `--${boundary}`, 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', text(line),
+          ...parts.flatMap(part => [`--${boundary}`, part]), `--${boundary}--`, ''].join('\r\n');
+        try { await binding.send(new EmailMessage(FROM, to, raw)); await track('sent'); return; }
+        catch { /* The enquiry still has to reach the mailbox, without its photos. */ }
+      }
+      const note = prepared === undefined ? undefined : parts?.length || parts === null ? failed : undefined;
+      try { await binding.send(new EmailMessage(FROM, to, plain(to, note))); await track('sent'); }
       catch { await track('failure'); }
     }).catch(() => {}));
   } catch { /* Notification failures must never undo storage or change the receipt. */ }

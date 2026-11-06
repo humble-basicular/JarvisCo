@@ -477,7 +477,7 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
         .bind(context.source, context.page, context.landing_path, context.elapsed_ms, id)] : []),
     ]);
     if (stored[2]!.results.length) {
-      scheduleFormAlert(env, ctx, { kind: kind!, code: code || null, site, at: (stored[3]!.results[0] as { at: string }).at, payload, ...(context ? { context, notificationDB: env.DB } : {}) });
+      scheduleFormAlert(env, ctx, { kind: kind!, code: code || null, site, at: (stored[3]!.results[0] as { at: string }).at, payload, uploads: files, ...(context ? { context, notificationDB: env.DB } : {}) });
     }
   } catch (cause) {
     // Only keys written by this failed submission; never delete existing files.
