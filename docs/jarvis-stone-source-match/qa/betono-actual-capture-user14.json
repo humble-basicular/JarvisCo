@@ -1,0 +1,99 @@
+{
+  "base": "http://127.0.0.1:53657/",
+  "blocked": [],
+  "posts": [],
+  "overflow": {},
+  "checks": {},
+  "scenes": {},
+  "fields": [
+    {
+      "name": "vardas",
+      "placeholder": "Jūsų vardas *",
+      "rect": {
+        "x": 540,
+        "y": 211.828125,
+        "width": 360,
+        "height": 47.59375,
+        "top": 211.828125,
+        "right": 900,
+        "bottom": 259.421875,
+        "left": 540
+      }
+    },
+    {
+      "name": "telefonas",
+      "placeholder": "Telefonas *",
+      "rect": {
+        "x": 540,
+        "y": 263.421875,
+        "width": 360,
+        "height": 47.59375,
+        "top": 263.421875,
+        "right": 900,
+        "bottom": 311.015625,
+        "left": 540
+      }
+    },
+    {
+      "name": "el_pastas",
+      "placeholder": "El. paštas",
+      "rect": {
+        "x": 540,
+        "y": 315.015625,
+        "width": 360,
+        "height": 47.59375,
+        "top": 315.015625,
+        "right": 900,
+        "bottom": 362.609375,
+        "left": 540
+      }
+    },
+    {
+      "name": "preke",
+      "placeholder": "Dominanti prekė",
+      "rect": {
+        "x": 540,
+        "y": 366.609375,
+        "width": 360,
+        "height": 47.59375,
+        "top": 366.609375,
+        "right": 900,
+        "bottom": 414.203125,
+        "left": 540
+      }
+    },
+    {
+      "name": "klausimas",
+      "placeholder": "Jūsų klausimas",
+      "rect": {
+        "x": 540,
+        "y": 418.203125,
+        "width": 360,
+        "height": 86.78125,
+        "top": 418.203125,
+        "right": 900,
+        "bottom": 504.984375,
+        "left": 540
+      }
+    },
+    {
+      "name": "submit",
+      "rect": {
+        "x": 540,
+        "y": 534.984375,
+        "width": 360,
+        "height": 55,
+        "top": 534.984375,
+        "right": 900,
+        "bottom": 589.984375,
+        "left": 540
+      }
+    }
+  ],
+  "brand": {
+    "title": "Betoniniai šulinių žiedai, dangčiai, šulinių kasimas | UAB „Dailius ir ko“",
+    "name": "Dailius ir ko – www.betonogaminiai.lt",
+    "previewBanner": false,
+    "formsInert": true
+  }
+}
