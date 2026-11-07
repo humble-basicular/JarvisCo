@@ -1,0 +1,33 @@
+---
+/* /kainos — Stone pricing template: grey band, centred heading, ONE large gold plan card, feature list,
+   then process + pricing questions + talk. Own first-5 terms only (o2.js facts); no annual toggle, no badge claims. */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import Steps from '@components/o2/Steps.astro';
+import Talk from '@components/o2/Talk.astro';
+import Icon from '@components/o2/Icon.astro';
+import { o2, O2_CTA } from '@data/o2.js';
+import { pages } from '@data/o2-pages.js';
+const P = pages.kainos; const L = P.plan;
+const qs = P.faq.map((n) => o2.faq.items[Number(n)]);
+---
+<O2Layout title={P.title} description={P.description} path="/kainos">
+  <PageHead title={P.h} flat>
+    <article class="plan">
+      <p class="plan__badge">{L.badge}</p>
+      <h2 class="plan__name">{L.name}</h2>
+      <p class="plan__price"><b>{L.price}</b><span>{L.per}</span></p>
+      <ul class="plan__terms">{L.terms.map(([v, t]) => <li><b>{v}</b> {t}</li>)}</ul>
+      <a class="btn plan__cta" href="/kontaktai" data-book-open data-track="cta_book">{O2_CTA}</a>
+      <h3 class="plan__inc">Kas įeina</h3>
+      <ul class="plan__list">{L.includes.map((t) => <li><Icon name="badge" size={22} />{t}</li>)}</ul>
+      <p class="plan__extra">{L.extra}</p>
+    </article>
+  </PageHead>
+  <Steps />
+  <section class="faq faq--sub" aria-labelledby="kq-h">
+    <h2 class="h1c h1c--900" id="kq-h">Klausimai apie kainą</h2>
+    <div class="faq__list">{qs.map((q, i) => <details class="faq__it" open={i === 0}><summary>{q.q}<Icon name="down" size={24} /></summary><p>{q.a}</p></details>)}</div>
+  </section>
+  <Talk />
+</O2Layout>

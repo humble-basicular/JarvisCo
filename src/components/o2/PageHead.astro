@@ -1,0 +1,10 @@
+---
+/* Subpage title band (Stone subpages): grey, large centred navy heading, optional lead, V-shaped bottom join. */
+interface Props { title: string[]; lead?: string; flat?: boolean }
+const { title, lead, flat = false } = Astro.props;
+---
+<section class={`phead sec--grey${flat ? '' : ' chev'}`}>
+  <h1 class="h1c h1c--900 phead__h">{title.map((l) => <span>{l}</span>)}</h1>
+  {lead && <p class="phead__lead">{lead}</p>}
+  <slot />
+</section>

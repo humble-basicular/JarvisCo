@@ -25,11 +25,11 @@ export const o2 = {
     description: 'Svetainės užklausos tampa SMS pokalbiais, praleistas skambutis gauna žinutę, atsiliepimų prašymai ir kampanijos buvusiems klientams – vienoje programėlėje. Pirmiems 5: 50 € paruošimas ir 30 dienų nemokamai.',
   },
   nav: [
-    { label: 'Funkcijos', href: '#funkcijos' },
-    { label: 'Kainos', href: '#duk' },
-    { label: 'Atsiliepimai', href: '#atsiliepimai-sistema' },
-    { label: 'Mūsų darbai', href: '/rezultatai' },
-    { label: 'Apie', href: '#kodel' },
+    { label: 'Funkcijos', href: '/funkcijos' },
+    { label: 'Kainos', href: '/kainos' },
+    { label: 'Atsiliepimai', href: '/atsiliepimai' },
+    { label: 'Mūsų darbai', href: '/musu-darbai' },
+    { label: 'Apie', href: '/apie' },
   ],
   login: 'Prisijungti',
   menu: 'Meniu', close: 'Uždaryti',
@@ -40,7 +40,7 @@ export const o2 = {
   },
   features: {
     title: ['Paprastos sistemos, kurios tiesiog veikia', 'Diplomo nereikia'],
-    demoBtn: 'Trumpa demonstracija',
+    demoBtn: 'Trumpa demonstracija', moreBtn: 'Plačiau',
     items: [
       {
         id: 'svetaine', scene: 'web', title: 'Funkcionali svetainė',
@@ -141,15 +141,15 @@ export const o2 = {
     timesSpoken: { morning: 'rytą', day: 'dieną', evening: 'vakare', '': 'artimiausiu metu' },
     previewOk: 'Tai peržiūros versija, todėl registracija neišsiųsta. Pokalbiui paskambinkite:',
     err: `Nepavyko išsiųsti. Skambinkite ${brand.phone}.`, errPhone: 'Patikrinkite telefono numerį.',
-    orCall: 'Arba paskambinkite', context: 'Jarvis Systems: pokalbis dėl sistemos (pradžios puslapis)',
+    orCall: 'Arba paskambinkite', context: 'Jarvis Systems: pokalbis dėl sistemos',
     mascotAlt: 'Jarvis Systems talismanas rodo į pokalbio mygtuką',
   },
   demo: { close: 'Uždaryti demonstraciją' },
   footer: {
     ready: 'Pasiruošę pradėti?', learn: 'Norite sužinoti daugiau, kaip galime padėti?',
     colLinks: 'Nuorodos', colAbout: 'Apie', colFeatures: 'Funkcijos',
-    links: [['Kainos', '#duk'], ['Atsiliepimai', '#atsiliepimai-sistema'], ['Mūsų darbai', '/rezultatai'], ['Svetainės', '/svetaines']],
-    about: [['Kaip dirbame', '#procesas'], ['Sritys', '#sritys'], ['Kodėl mes', '#kodel'], ['Kontaktai', '#pokalbis']],
+    links: [['Kainos', '/kainos'], ['Atsiliepimai', '/atsiliepimai'], ['Mūsų darbai', '/musu-darbai'], ['Svetainės', '/svetaines']],
+    about: [['Kaip dirbame', '/kaip-dirbame'], ['Sritys', '/sritys'], ['Apie', '/apie'], ['Kontaktai', '/kontaktai']],
     privacy: 'Privatumo politika', terms: 'Taisyklės',
   },
 };

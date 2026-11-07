@@ -1,0 +1,32 @@
+---
+/* /musu-darbai — Stone "Our work": centred heading on grey, two-column showcases (one on mobile).
+   Only own work: actual latest betonogaminiai.lt capture and ArbCut with dated, screenshot-backed figures. */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import Talk from '@components/o2/Talk.astro';
+import Icon from '@components/o2/Icon.astro';
+import { pages } from '@data/o2-pages.js';
+const P = pages.darbai;
+---
+<O2Layout title={P.title} description={P.description} path="/musu-darbai">
+  <PageHead title={P.h} flat>
+    <ul class="work">
+      {P.items.map((w) => (
+        <li class="work__it">
+          <div class={`work__media${w.mobile ? ' work__media--phone' : ''}`}>
+            <img src={w.img} width={w.w} height={w.h} alt={`${w.name} – ${w.site} svetainės ekrano kopija`} loading="lazy" />
+            {w.img2 && <img class="work__second" src={w.img2} width="1440" height="783" alt={`${w.site} užklausos forma`} loading="lazy" />}
+          </div>
+          <div class="work__txt">
+            <h2>{w.name}</h2>
+            <p class="work__site">{w.site}</p>
+            <p>{w.text}</p>
+            <ul class="work__tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
+            {w.more && <a class="work__more" href={w.more[1]}>{w.more[0]} <Icon name="arrow" size={18} /></a>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  </PageHead>
+  <Talk />
+</O2Layout>

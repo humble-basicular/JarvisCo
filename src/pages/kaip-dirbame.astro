@@ -1,0 +1,20 @@
+---
+/* /kaip-dirbame — Stone "Our process": heading, the three shared steps, what we need from the client, talk. */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import Steps from '@components/o2/Steps.astro';
+import Talk from '@components/o2/Talk.astro';
+import Icon from '@components/o2/Icon.astro';
+import { pages } from '@data/o2-pages.js';
+const P = pages.procesas;
+---
+<O2Layout title={P.title} description={P.description} path="/kaip-dirbame">
+  <PageHead title={P.h} lead={P.lead} flat />
+  <Steps heading={false} />
+  <section class="need">
+    <h2 class="h1c">{P.need[0]}</h2>
+    <ul class="need__list">{P.need[1].map((t) => <li><Icon name="badge" size={22} />{t}</li>)}</ul>
+    <p class="need__more">Kainos ir sąlygos – <a href="/kainos">puslapyje „Kainos“</a>.</p>
+  </section>
+  <Talk />
+</O2Layout>

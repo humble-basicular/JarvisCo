@@ -1,0 +1,21 @@
+---
+/* /apie — Stone "About": centred heading on grey; text column + own mascot (no team photos, no history we lack). */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import Talk from '@components/o2/Talk.astro';
+import { pages } from '@data/o2-pages.js';
+const P = pages.apie;
+---
+<O2Layout title={P.title} description={P.description} path="/apie">
+  <PageHead title={P.h} flat>
+    <div class="about">
+      <div class="about__txt">
+        {P.paras.map((t) => <p>{t}</p>)}
+        <dl class="about__facts">{P.facts.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+        <p class="about__links"><a href="/kaip-dirbame">Kaip dirbame</a> · <a href="/musu-darbai">Mūsų darbai</a> · <a href="/kontaktai">Kontaktai</a></p>
+      </div>
+      <img class="about__img" src="/jarvis-systems/mascot-arms-crossed.webp" width="700" height="1050" alt="Jarvis Systems talismanas – statybininkas geltona liemene" loading="lazy" />
+    </div>
+  </PageHead>
+  <Talk />
+</O2Layout>

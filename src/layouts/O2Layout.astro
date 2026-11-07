@@ -1,13 +1,18 @@
 ---
-/* Jarvis Systems homepage shell — Stone reference: white 100px NON-sticky header (stacked mascot
+/* Jarvis Systems O2 shell (homepage + separate pages, USER13) — Stone reference: white 100px NON-sticky header (stacked mascot
    logo 200×73, nav, gold CTA), mobile menu in a native <dialog>, dark footer. Sora only (kit v4). */
 import '../styles/o2.css';
 import { brand } from '@data/content.js';
 import { o2, O2_CTA, NAME, APP_URL } from '@data/o2.js';
 import Icon from '@components/o2/Icon.astro';
-interface Props { title: string; description: string }
-const { title, description } = Astro.props;
-const canonical = new URL('/', brand.url).href;
+import BookDialog from '@components/o2/BookDialog.astro';
+import { FEATURE_PAGES } from '@data/o2-pages.js';
+/* `path` = this route ('/', '/kainos', '/funkcijos/kampanijos' …): canonical, active nav and booking context. */
+interface Props { title: string; description: string; path?: string }
+const { title, description, path = '/' } = Astro.props;
+const canonical = new URL(path, brand.url).href;
+const active = (href: string) => path === href || path.startsWith(`${href}/`);
+const feats = o2.features.items.map((it) => ({ title: it.title, href: `/funkcijos/${FEATURE_PAGES[it.id].slug}` }));
 const shareBase = process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : brand.url;
 const ogImage = new URL('/jarvis-systems/og-1200x630.jpg', shareBase).href;
 const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
@@ -45,10 +50,15 @@ const year = new Date().getFullYear();
       <div class="hdr__in">
         <a class="hdr__logo" href="/" aria-label={`${NAME} – pradžia`}><img src="/jarvis-systems/logo-on-white.webp" width="200" height="73" alt={NAME} /></a>
         <nav class="hdr__nav" aria-label="Pagrindinė navigacija">
-          {o2.nav.map((n) => <a href={n.href}>{n.label}</a>)}
+          {o2.nav.map((n, i) => i === 0 ? (
+            <div class="hdr__dd">
+              <a href={n.href} aria-current={active(n.href) ? 'page' : undefined}>{n.label}<Icon name="down" size={16} /></a>
+              <ul class="hdr__ddl">{feats.map((f) => <li><a href={f.href} aria-current={path === f.href ? 'page' : undefined}>{f.title}</a></li>)}</ul>
+            </div>
+          ) : <a href={n.href} aria-current={active(n.href) ? 'page' : undefined}>{n.label}</a>)}
         </nav>
         <a class="hdr__login" href={APP_URL}>{o2.login}</a>
-        <a class="btn hdr__cta" href="#pokalbis" data-book-open data-track="cta_book">{O2_CTA}</a>
+        <a class="btn hdr__cta" href="/kontaktai" data-book-open data-track="cta_book">{O2_CTA}</a>
         <button class="hdr__burger" type="button" data-menu-open aria-label={o2.menu} aria-haspopup="dialog"><Icon name="menu" size={34} /></button>
       </div>
     </header>
@@ -58,23 +68,27 @@ const year = new Date().getFullYear();
         <button type="button" class="menu__x" data-menu-close aria-label={o2.close}><Icon name="x" size={30} /></button>
       </div>
       <nav aria-label={o2.menu}>
-        {o2.nav.map((n) => <a href={n.href} data-menu-link>{n.label}</a>)}
+        {o2.nav.map((n, i) => (<>
+          <a href={n.href} data-menu-link aria-current={active(n.href) ? 'page' : undefined}>{n.label}</a>
+          {i === 0 && <div class="menu__sub">{feats.map((f) => <a href={f.href} data-menu-link aria-current={path === f.href ? 'page' : undefined}>{f.title}</a>)}</div>}
+        </>))}
         <a href={APP_URL} data-menu-link>{o2.login}</a>
       </nav>
-      <a class="btn" href="#pokalbis" data-menu-link data-book-open>{O2_CTA}</a>
+      <a class="btn" href="/kontaktai" data-menu-link data-book-open>{O2_CTA}</a>
     </dialog>
     <main id="turinys"><slot /></main>
+    <BookDialog path={path} />
     <footer class="ftr">
       <div class="ftr__in">
         <div class="ftr__row">
           <img src="/jarvis-systems/logo-on-navy.webp" width="240" height="88" alt={NAME} loading="lazy" />
-          <p class="ftr__ready">{f.ready} <a class="btn btn--sm" href="#pokalbis" data-book-open>{O2_CTA}</a></p>
+          <p class="ftr__ready">{f.ready} <a class="btn btn--sm" href="/kontaktai" data-book-open>{O2_CTA}</a></p>
         </div>
         <div class="ftr__cols">
-          <div class="ftr__learn"><p>{f.learn}</p><a class="btn" href="#pokalbis" data-book-open>{O2_CTA}</a></div>
+          <div class="ftr__learn"><p>{f.learn}</p><a class="btn" href="/kontaktai" data-book-open>{O2_CTA}</a></div>
           <div><h2>{f.colLinks}</h2><ul>{f.links.map(([l, h]) => <li><a href={h}>{l}</a></li>)}<li><a href={APP_URL}>{o2.login}</a></li></ul></div>
           <div><h2>{f.colAbout}</h2><ul>{f.about.map(([l, h]) => <li><a href={h}>{l}</a></li>)}</ul></div>
-          <div class="ftr__feat"><h2>{f.colFeatures}</h2><ul>{o2.features.items.map((it) => <li><a href={`#${it.id}`}>{it.title}</a></li>)}</ul></div>
+          <div class="ftr__feat"><h2>{f.colFeatures}</h2><ul>{feats.map((it) => <li><a href={it.href}>{it.title}</a></li>)}</ul></div>
         </div>
         <div class="ftr__legal"><a href="/taisykles">{f.terms}</a><a href="/privatumo-politika">{f.privacy}</a><a href={brand.telHref}>{brand.phone}</a><a href={`mailto:${brand.email}`}>{brand.email}</a></div>
         <p class="ftr__copy">© {year} {NAME} · {brand.owner}, {brand.status.toLowerCase()} · {brand.city}, Lietuva</p>
