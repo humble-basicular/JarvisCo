@@ -26,3 +26,8 @@ export function glassMatrix(quad, w = SCREEN_W, h = SCREEN_H) {
   const m = [a / w, d / w, 0, g / w, b / h, e / h, 0, k / h, 0, 0, 1, 0, x0, y0, 0, 1];
   return `matrix3d(${m.map((n) => +n.toFixed(8)).join(',')})`;
 }
+
+/* Blank front-facing laptop (built-in imagegen 2026-11-07, public/jarvis-systems/laptop-blank.webp, 1080×1336).
+   Glass rectangle measured from the file's own pixels (inner edge of the thin black bezel, luminance scan
+   at y395/620/860 and x540): x106–974, y391–863. The demo website is laid out at 1.5× and scaled 2/3. */
+export const LAPTOP = { src: '/jarvis-systems/laptop-blank.webp', glass: { x: 106, y: 391, w: 868, h: 472 }, scale: 2 / 3 };

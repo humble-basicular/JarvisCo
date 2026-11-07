@@ -1,32 +1,31 @@
-# Handoff — jarvis-stone-source-match implementation (Claude Opus 5.5) — 2026-11-07
+# Handoff — jarvis-stone-source-match RETRY1 (Claude Opus 5.5) — 2026-11-07
 
-Status: STOPPED at soft input budget (1.61M > 1.6M steer). NO source edits made. Not done, not verified.
+Status: source-matched page + 5 animated scenes IMPLEMENTED and committed; stopped at soft input budget (4.02M > 4.0M).
+Mechanical QA ran; VISUAL inspection of the screenshots was NOT done (no image opened after the build). Not accepted until a visual pass.
 Branch/cwd: t3/jarvis-stone-source-match @ /Users/matasbasinskas/.ai-powerhouse/worktrees/JarvisCo/t3-df9e82cd
-Base: fast-forwarded main e04a251 → a5a752e (frozen candidate + SPEC/assets). This note is the only new commit.
 
-## Read (no need to re-read; reuse these findings)
-- SPEC.md in full. User screenshots: SOURCEhero (5febd71e), SOURCEwhy (72777071), FunctionalWebsite (d2c12eea), badtrades (c398bc2d).
-- All 5 timeline sheets in mainDrive source-evidence; media-durations.json (13.99/9.99/13.99/13.99/9.99 s, loop 0); computed-metrics.json; extra-details.json; google-profile.json (Maps cid=6399877159958550530 shows JarvisCo 5,0; no review text).
-- Archive desktop-01 (proof cards), -06/-07 (trades, 3×2 photo cards ~371×200, white caption, gold chevron arrows, CTA "See All Trades…", navy V-bottom), -08 (process: 3 gold circles, dotted wave, centred text), -11 (FAQ: gold open row, chevron icon right), -12 (talk card: centred copy left, presenting mascot right), -13 (footer: logo + "Ready to get started?" CTA row; rule; "Want to learn more…"+CTA | Links | About | Products 2 cols; legal row; ©).
-- Full source copy is in archive text.txt (features/bullets/process/why/FAQ questions/footer).
+## What changed (owned files only)
+- src/data/o2.js: LT translation of source structure; truthful rewrites (no review gating, no 87 %, own process facts, own FAQ facts); APP_URL, GOOGLE (5,0 verified; "1 atsiliepimas" user-reported).
+- src/pages/index.astro: hero (3-line H1, lead+CTA, Google badge) → Google proof card → 5 feature rows (Scene) with per-row "Trumpa demonstracija" dialog → trades (10 Pexels stock photos, 2 rows, V edges) → process → why (3×348 left-aligned, white 50px icons) → navy join → FAQ → talk card → booking dialog. Removed SMS demo section, app row, captions, Pavyzdys pills, letter placeholders.
+- src/layouts/O2Layout.astro: nav Funkcijos/Kainos/Atsiliepimai/Mūsų darbai/Apie, gold "Prisijungti" → https://jarvisweb-sistema.jarvisworks-co.workers.dev/, CTA opens booking dialog; source footer columns.
+- src/components/o2/Scene.astro (new; Phone.astro removed): timeline → generated keyframes; web 13.99 s laptop form typing/tick/click → phone SMS; reviews 9.99 s (right) CTA click → Google compose stars/text/post → posted; missed 13.99 s incoming call → blue SMS → reply; campaign 13.99 s (right) form → launch → confetti success → SMS → reply; seo 9.99 s map cards, own card moves 3→1, badge 20→1. Base CSS = final state (reduced motion). Loops play only in view.
+- src/components/o2/Icon.astro: computed 16-point seal + tick; 6 why pictograms.
+- src/data/o2-device.js: LAPTOP glass x106–974 y391–863 (pixel scan). src/data/o2-trades.js. public/jarvis-systems/demo/bg-*.webp (from read-only betonogaminiai assets).
+- src/scripts/o2.ts: demo-backend code removed; menu close always restores opener unless link-nav; demo dialog; booking preview no-send + call link after use.
+- src/checks/o2-check.mjs: new contract. scripts/o2-qa.mjs: local CDP QA (own profile, all non-local requests blocked, POSTs recorded).
 
-## Section order to build (source)
-header (static 100px: logo · Produktai/Kainos/Atsiliepimai/Mūsų darbai/Blog?/Apie · gold "Prisijungti" text link · CTA)
-→ hero navy (3-line H1 w/ left rule, lead para + CTA, Google 5,0 badge only, mascot 748px right)
-→ proof grey + chevron (one genuine Google 5,0 card linking brand.gbp; no quote/author)
-→ features white: H2 "Paprastos sistemos, kurios tiesiog veikia / …" + 5 rows (website laptop→phone L, reviews R, missed-call L, campaigns R, Local SEO L), each "Trumpa demonstracija" → feature-specific demo (e.g. dialog replaying that row's scene)
-→ trades navy slant (2-row carousel, stock photo in EVERY card, licences recorded internally, no public note)
-→ process grey chevron → why white (3×348 gap16 pad16 r8, white 50px outline icons top-left, left-aligned white text, source 6 concepts in order) → navy join chevron → FAQ grey → talk card → footer (source columns).
-REMOVE: #demo two-card SMS section + its o2.ts demo code (section 4) and data `demo`; "Pavyzdys" pill (Phone.astro .scr__app small); `screenNote` figcaption; trades `note`; hero "Kad nė viena…"; why "Septintos neradome"; app feature row; hero face/phone-number nav.
-FIX in o2.ts: menu close → `if (!menuNav) menuOpener?.focus()` unconditionally; booking keeps truthful no-send status only after use.
+## Verified (commands)
+- `O2_BOOKING=preview npx astro build` OK; `node src/checks/o2-check.mjs` ok; `npm run check:copy` ok (13 pages) after removing "geriausi".
+- `node scripts/o2-qa.mjs /tmp/o2-qa` → receipt copied to docs/jarvis-stone-source-match/qa/receipt-20261107.json: blocked=[], posts=[], missing assets=[], no horizontal overflow at 320/390/768/1024/1280/1440; 5 scenes with durations 13990/9990/13990/13990/9990 ms, iterations Infinity; menu Escape→opener ✓; booking open/invalid/preview no-send/button re-enabled/Escape→opener ✓; 5 demo dialogs open the right scene, focus returns ✓; carousel scrolls, 10 images load ✓; reduced motion → 0 running animations ✓.
+- Screenshots (90 files) in /tmp/o2-qa (full-*, sec-390/1440-*, scene-<kind>-<t>, reduced-*, dlg-*) — generated, NOT looked at.
 
-## Open items / unknowns
-- App login URL: NOT found yet. Was about to read jarvisweb-sistema handoffs (`/Users/matasbasinskas/Work/Code projects/jarvisweb-sistema`) — grep there timed out; bounded lookup needed. Do not invent a URL.
-- Truthfulness traps in source copy: "Showcase your best reviews / bad reviews hidden", "5-Star Reviews Only", "guiding to 5-star" = review gating → must be rephrased to the neutral real mechanism (everyone gets the link). "87% visit on phone" statistic not verified → drop or rephrase without number. Process "7–10 days" / "20 mins" → use own facts (15–20 min call, 50 € first 5, 30 days free) only.
-- Blog: no blog page exists → omit or point to /rezultatai; no dead pages.
-- Stock photos: not sourced yet (Unsplash/Pexels; record URL + licence in docs/OFFER2-ASSETS.md).
-- Betono gaminiai demo website for laptop glass: not built; laptop-blank.webp glass quad not measured yet.
-- None of acceptance (build, check:o2 update, 1440/390/320/768/1024/1280 renders, 5 animation cycle evidence, keyboard/reduced-motion) has been run.
+## Not verified / known gaps
+- No visual review vs source/user images; layout numbers (hero H1 72px fit, wave position .steps__wave margin-top:-340px, SEO/laptop text legibility, confetti) are unchecked guesses until someone opens the shots.
+- QA flags `menuCloseAlwaysOpener` and `bookFromMenu` = false: the checks read focus synchronously, but <dialog> close events fire asynchronously; likely test artefacts, not confirmed.
+- `npm run check:static` crashes on src/templates/heating/content.ts (.ts import under Node 22) — not my file; not confirmed whether it also fails on the base commit.
+- check:js only partially seen (other pages under budget); homepage JS size not read.
+- No T3 preview opened; no dev server left running.
+- docs/OFFER2-ASSETS.md not updated (stock provenance lives in stock-manifest.json).
 
-## Next (owner: lead decides — new implementation round with fresh budget)
-Implement from this note + SPEC directly; estimated remaining work is the entire reconstruction (copy, 5 animated scenes, stock, CSS, checks, full visual QA).
+## Next (owner: lead)
+Open /tmp/o2-qa shots (or re-run scripts/o2-qa.mjs), fix visual mismatches, then Codex review of `git diff e04a251...HEAD -- src scripts/o2-qa.mjs public/jarvis-systems/demo`.

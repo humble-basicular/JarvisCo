@@ -3,7 +3,7 @@
    logo 200×73, nav, gold CTA), mobile menu in a native <dialog>, dark footer. Sora only (kit v4). */
 import '../styles/o2.css';
 import { brand } from '@data/content.js';
-import { o2, O2_CTA, NAME } from '@data/o2.js';
+import { o2, O2_CTA, NAME, APP_URL } from '@data/o2.js';
 import Icon from '@components/o2/Icon.astro';
 interface Props { title: string; description: string }
 const { title, description } = Astro.props;
@@ -47,8 +47,8 @@ const year = new Date().getFullYear();
         <nav class="hdr__nav" aria-label="Pagrindinė navigacija">
           {o2.nav.map((n) => <a href={n.href}>{n.label}</a>)}
         </nav>
-        <a class="hdr__tel" href={brand.telHref} data-track="cta_call">{brand.phone}</a>
-        <a class="btn hdr__cta" href="#pokalbis" data-track="cta_book">{O2_CTA}</a>
+        <a class="hdr__login" href={APP_URL}>{o2.login}</a>
+        <a class="btn hdr__cta" href="#pokalbis" data-book-open data-track="cta_book">{O2_CTA}</a>
         <button class="hdr__burger" type="button" data-menu-open aria-label={o2.menu} aria-haspopup="dialog"><Icon name="menu" size={34} /></button>
       </div>
     </header>
@@ -59,25 +59,25 @@ const year = new Date().getFullYear();
       </div>
       <nav aria-label={o2.menu}>
         {o2.nav.map((n) => <a href={n.href} data-menu-link>{n.label}</a>)}
-        <a href={brand.telHref} data-menu-link>{brand.phone}</a>
+        <a href={APP_URL} data-menu-link>{o2.login}</a>
       </nav>
-      <a class="btn" href="#pokalbis" data-menu-link>{O2_CTA}</a>
+      <a class="btn" href="#pokalbis" data-menu-link data-book-open>{O2_CTA}</a>
     </dialog>
     <main id="turinys"><slot /></main>
     <footer class="ftr">
       <div class="ftr__in">
         <div class="ftr__row">
-          <img src="/jarvis-systems/logo-on-navy.webp" width="200" height="73" alt={NAME} loading="lazy" />
-          <p class="ftr__ready">{f.ready} <a class="btn" href="#pokalbis">{O2_CTA}</a></p>
+          <img src="/jarvis-systems/logo-on-navy.webp" width="240" height="88" alt={NAME} loading="lazy" />
+          <p class="ftr__ready">{f.ready} <a class="btn btn--sm" href="#pokalbis" data-book-open>{O2_CTA}</a></p>
         </div>
-        <div class="ftr__learn"><p>{f.learn}</p><a class="btn btn--ghost" href={brand.telHref}>{brand.phone}</a></div>
         <div class="ftr__cols">
-          <div><h2>{f.colLinks}</h2><ul>{o2.nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}<li><a href="/rezultatai">{f.results}</a></li></ul></div>
-          <div><h2>{f.colFeatures}</h2><ul>{o2.features.items.map((it) => <li><a href={`#${it.id}`}>{it.title}</a></li>)}</ul></div>
-          <div><h2>{f.colContact}</h2><ul><li><a href={brand.telHref}>{brand.phone}</a></li><li><a href={`mailto:${brand.email}`}>{brand.email}</a></li><li>{brand.city}, Lietuva</li></ul></div>
+          <div class="ftr__learn"><p>{f.learn}</p><a class="btn" href="#pokalbis" data-book-open>{O2_CTA}</a></div>
+          <div><h2>{f.colLinks}</h2><ul>{f.links.map(([l, h]) => <li><a href={h}>{l}</a></li>)}<li><a href={APP_URL}>{o2.login}</a></li></ul></div>
+          <div><h2>{f.colAbout}</h2><ul>{f.about.map(([l, h]) => <li><a href={h}>{l}</a></li>)}</ul></div>
+          <div class="ftr__feat"><h2>{f.colFeatures}</h2><ul>{o2.features.items.map((it) => <li><a href={`#${it.id}`}>{it.title}</a></li>)}</ul></div>
         </div>
-        <p class="ftr__line">{f.line}</p>
-        <div class="ftr__legal"><span>© {year} {NAME} · {brand.owner}, {brand.status.toLowerCase()}</span><span><a href="/privatumo-politika">{f.privacy}</a> · <a href="/taisykles">{f.terms}</a></span></div>
+        <div class="ftr__legal"><a href="/taisykles">{f.terms}</a><a href="/privatumo-politika">{f.privacy}</a><a href={brand.telHref}>{brand.phone}</a><a href={`mailto:${brand.email}`}>{brand.email}</a></div>
+        <p class="ftr__copy">© {year} {NAME} · {brand.owner}, {brand.status.toLowerCase()} · {brand.city}, Lietuva</p>
       </div>
     </footer>
     <script src="../scripts/o2.ts"></script>
