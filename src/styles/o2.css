@@ -438,3 +438,6 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .contact__app a{color:var(--navy);font-weight:600}
 .contact__img{max-width:300px;width:100%}
 @media (max-width:800px){.contact{grid-template-columns:1fr}.contact__img{display:none}.contact__card{padding:22px 18px}.contact__card dl div{grid-template-columns:1fr;gap:0}}
+.fdet__grid>*,.fdet__panel>*,.fhub__card>*{min-width:0}
+.fdet__panel{grid-template-columns:minmax(0,1fr)}
+.fdet__vis,.fhub__vis{overflow:hidden}
