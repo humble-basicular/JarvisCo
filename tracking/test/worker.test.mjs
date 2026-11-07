@@ -1861,3 +1861,44 @@ test('summary requires auth, two-site scope, bounded explicit dates; returns cou
   assert.ok(!JSON.stringify(report).includes('PRIVATE NAME'));
   assert.match(report.semantics.notifications, /not inbox receipt/);
 });
+
+test('private review feedback: contact optional (phone or email), message required, own subject, counted apart', async () => {
+  const review = (fields) => siteSubmit({ topic: 'review', service: 'Privatus įvertinimas: 2/5', ...fields });
+  assert.equal((await review({ phone: '', message: ' Liko šakos ' })).status, 200);
+  assert.equal((await review({ phone: '', email: ' Rasa@Example.com ', message: 'Vėlavo' })).status, 200);
+  assert.equal((await review({ phone: '+370 612 34567', message: 'Su telefonu' })).status, 200);
+  assert.deepEqual(await (await review({ phone: '', message: ' ' })).json(), { error: 'invalid', field: 'message' });
+  assert.deepEqual(await (await review({ phone: '', email: 'not-an-email', message: 'x' })).json(), { error: 'invalid', field: 'email' });
+  assert.deepEqual(await (await review({ phone: '123', message: 'x' })).json(), { error: 'invalid', field: 'phone' });
+  assert.deepEqual(await (await siteSubmit({ topic: 'other' })).json(), { error: 'invalid', field: 'topic' });
+  // A normal enquiry still needs a phone and still ignores email.
+  assert.deepEqual(await (await siteSubmit({ phone: '', email: 'a@b.lt', message: 'x' })).json(), { error: 'invalid', field: 'phone' });
+  assert.equal((await siteSubmit({ email: 'a@b.lt', message: 'Įprasta' })).status, 200);
+  const subs = (await (await pull()).json()).events.map(e => e.submission);
+  assert.deepEqual(subs.map(s => [s.topic, s.email, s.phone, s.message]), [
+    ['review', null, null, 'Liko šakos'], ['review', 'rasa@example.com', null, 'Vėlavo'],
+    ['review', null, '+370 612 34567', 'Su telefonu'], [undefined, undefined, '+37061234567', 'Įprasta']]);
+
+  const messages = [];
+  const env = alertEnv({ FORM_EMAIL: { async send(message) { messages.push(message); } } });
+  const { response, pending } = await directForm({ kind: 'site_inquiry', site: 'arbcut', topic: 'review', email: 'k@example.com',
+    service: 'Privatus įvertinimas: 1/5', message: 'Nepatiko' }, env);
+  assert.equal(response.status, 200);
+  await Promise.all(pending);
+  assert.equal(messages.length, 1);
+  const [headers, encoded] = messages[0].raw.split('\r\n\r\n');
+  assert.equal(Buffer.from(headers.match(/Subject: =\?UTF-8\?B\?([^?]+)\?=/)[1], 'base64').toString('utf8'), 'JarvisWeb: privatus kliento atsiliepimas');
+  const text = Buffer.from(encoded, 'base64').toString('utf8');
+  assert.match(text, /Formos rūšis: Privatus atsiliepimas/);
+  assert.match(text, /El\. paštas: „k@example\.com“|El\. paštas: "k@example\.com"|k@example\.com/);
+  assert.match(text, /Nepatiko/);
+
+  const now = new Date();
+  const query = new URLSearchParams({ site: 'meselektra', from: new Date(now.getTime() - 3600000).toISOString(), to: new Date(now.getTime() + 3600000).toISOString() });
+  assert.equal((await secureForm({ topic: 'review', phone: '', message: 'Blogai' }, { TWO_SITE_SECURITY: '{"meselektra":"observe"}' })).status, 200);
+  assert.equal((await secureForm({}, { TWO_SITE_SECURITY: '{"meselektra":"observe"}' })).status, 200);
+  const report = await (await request(`/t/site-summary?${query}`, { headers: { Authorization: `Bearer ${TOKEN}` } })).json();
+  assert.equal(report.events.find(row => row.type === 'site_inquiry').count, 2);
+  assert.equal(report.review_feedback, 1);
+  assert.match(report.semantics.enquiries, /subtract review_feedback/);
+});

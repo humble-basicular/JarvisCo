@@ -276,6 +276,8 @@ interface SiteSubmission {
   name: string | null; phone: string | null; message: string | null;
   service: string | null; location: string | null; brand: string | null;
   contact_time: string | null; consent: boolean; files: StoredFile[];
+  // Only on private review feedback (site_inquiry with topic=review): contact is optional, phone or email.
+  topic?: 'review'; email?: string | null;
 }
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MB = 1024 * 1024;
@@ -341,8 +343,14 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
     values[field] = value;
   }
   const phone = values.phone!;
-  // Optional on the two funnel kinds (spec offer-v2 §2.4); stored lower-case.
-  const rawEmail = isSite ? '' : text('email');
+  // Private review feedback from a client's rating page: same kind and storage as an enquiry,
+  // but phone and email are both optional and the message is required.
+  const topic = kind === 'site_inquiry' ? text('topic') : '';
+  if (topic === null || !['', 'review'].includes(topic)) return invalid('topic');
+  const review = topic === 'review';
+  if (review && !values.message) return invalid('message');
+  // Optional on the two funnel kinds (spec offer-v2 §2.4) and on review feedback; stored lower-case.
+  const rawEmail = isSite && !review ? '' : text('email');
   if (rawEmail === null) return invalid('email');
   const email = rawEmail.toLowerCase();
   if (email.length > 254 || (email && !EMAIL.test(email))) return invalid('email');
@@ -351,7 +359,7 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
   if (via === 'email' && !email) return invalid('email');
   // A homepage preview with only an email is reachable; every other no-code case still needs a phone.
   const emailOnly = kind === 'preview_request' && !code && !phone && !!email && via === 'email';
-  if ((!code && !phone && !emailOnly) || (phone && (!/^[0-9 +()\-]+$/.test(phone) || phone.replace(/\D/g, '').length < 8))) return invalid('phone');
+  if ((!code && !phone && !emailOnly && !review) || (phone && (!/^[0-9 +()\-]+$/.test(phone) || phone.replace(/\D/g, '').length < 8))) return invalid('phone');
   const lists: Record<string, string[]> = {};
   for (const field of isSite ? [] : ['services', 'area']) {
     const entries = data.getAll(field);
@@ -455,6 +463,7 @@ async function form(request: Request, env: Env, ctx: ExecutionContext, mode: { i
       name: values.name || null, phone: phone || null, message: values.message || null,
       service: values.service || null, location: values.location || null, brand: values.brand || null,
       contact_time: time || null, consent: consent === 'yes', files: descriptors,
+      ...(review ? { topic: 'review' as const, email: email || null } : {}),
     } : {
       name: values.name || null, phone: phone || null,
       email: email || null, preview_via: (via || null) as Submission['preview_via'],
@@ -615,10 +624,13 @@ async function siteSummary(request: Request, env: Env, url: URL): Promise<Respon
     env.DB.prepare(`SELECT source, count(*) AS count FROM inquiry_context WHERE site = ? AND at >= ? AND at < ? GROUP BY source`).bind(site, from, to),
     env.DB.prepare(`SELECT outcome, reason, count(*) AS count FROM inquiry_security WHERE site = ? AND at >= ? AND at < ? GROUP BY outcome, reason`).bind(site, from, to),
     env.DB.prepare(`SELECT status, count(*) AS count FROM inquiry_notifications WHERE site = ? AND at >= ? AND at < ? GROUP BY status`).bind(site, from, to),
+    env.DB.prepare(`SELECT count(*) AS count FROM submissions WHERE site = ? AND kind = 'site_inquiry' AND at >= ? AND at < ?
+      AND json_extract(payload, '$.topic') = 'review'`).bind(site, from, to),
   ]);
   return json({ site, from, to, bounds: '[from,to)', events: counts[0]!.results, sources: counts[1]!.results,
     security: counts[2]!.results, held: 0, notifications: counts[3]!.results,
-    semantics: { enquiries: 'durably stored site_inquiry rows, including retries', sources: 'opt-in submissions only; self-reported first touch',
+    review_feedback: (counts[4]!.results[0] as { count: number } | undefined)?.count ?? 0,
+    semantics: { enquiries: 'durably stored site_inquiry rows, including retries; subtract review_feedback (private rating-page feedback stored as site_inquiry)', sources: 'opt-in submissions only; self-reported first touch',
       taps: 'anonymous taps, not answered calls', held: 'no quarantine implemented', notifications: 'per-recipient provider attempts/results, not inbox receipt; opt-in only' } });
 }
 

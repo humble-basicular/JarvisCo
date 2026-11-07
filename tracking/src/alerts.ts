@@ -21,6 +21,7 @@ interface Alert {
 const FROM = 'forms@jarvisweb.lt';
 const SUBJECT = 'JarvisWeb: nauja formos užklausa';
 const PHOTO_SUBJECT = 'JarvisWeb: nuotraukos prie užklausos';
+const REVIEW_SUBJECT = 'JarvisWeb: privatus kliento atsiliepimas';
 // Images only: an alert must not deliver submitted documents to a mailbox.
 const ATTACHMENT_TYPES: Record<string, string> = {
   'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/heic': 'heic', 'image/heif': 'heif', 'image/gif': 'gif',
@@ -156,6 +157,7 @@ function body(alert: Alert, config: AlertConfig, routingWarning: boolean, photoL
   const kinds: Record<string, string> = {
     preview_request: 'Svetainės peržiūros užklausa', callback_request: 'Prašymas susisiekti', site_inquiry: 'Svetainės užklausa',
   };
+  if (site && p.topic === 'review') kinds.site_inquiry = 'Privatus atsiliepimas (įvertinimo puslapis, viešai nepaskelbtas)';
   const at = new Intl.DateTimeFormat('lt-LT', { timeZone: 'Europe/Vilnius',
     year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
   }).format(new Date(alert.at));
@@ -204,7 +206,7 @@ export function scheduleFormAlert(config: AlertConfig, ctx: ExecutionContext, al
     // One private message per mailbox. A failed/slow destination cannot suppress
     // another, and neither changes the existing durable fingerprint claim.
     for (const to of targets) ctx.waitUntil(Promise.resolve().then(async () => {
-      const raw = [...headers(to, SUBJECT), 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
+      const raw = [...headers(to, (alert.payload as { topic?: string }).topic === 'review' ? REVIEW_SUBJECT : SUBJECT), 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
         encoded(body(alert, config, routingWarning, photoLine)), ''].join('\r\n');
       const track = async (status: string) => {
         if (alert.notificationDB && alert.site) await alert.notificationDB.prepare('INSERT INTO inquiry_notifications(site, status) VALUES (?, ?)').bind(alert.site, status).run().catch(() => {});
