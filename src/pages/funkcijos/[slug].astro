@@ -37,7 +37,6 @@ const others = o2.features.items.filter((x) => x.id !== it.id);
     <h2 class="h1c">Kaip tai veikia</h2>
     <ol class="fhow__list">{F.how.map(([t, d], n) => <li><span class="steps__n">{n + 1}</span><h3>{t}</h3><p>{d}</p></li>)}</ol>
     <ul class="fhow__pts">{it.points.map(([t, d]) => <li><h3><Icon name="badge" size={22} />{t}</h3><p>{d}</p></li>)}</ul>
-    <p class="fhow__note">{F.note}</p>
     <p class="fhow__cta"><a class="btn" href="/kontaktai" data-book-open data-track="cta_book">{O2_CTA}</a></p>
   </section>
   <nav class="fmore" aria-label="Kitos funkcijos">

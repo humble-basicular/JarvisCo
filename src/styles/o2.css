@@ -101,8 +101,8 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .scr__bar{left:0;right:0;top:0;display:flex;justify-content:space-between;padding:20px 36px 0;height:62px;font-weight:600;font-size:17px;z-index:4}
 .scr__sig{width:44px;height:12px;border-radius:3px;background:linear-gradient(90deg,#111 0 60%,transparent 60% 70%,#111 70%);margin-top:6px}
 .scr__bg{inset:-30px;background:#cfd3da center/cover;filter:blur(14px) saturate(.9)}
-.scr__bg--reviews,.scr__bg--campaign{background-image:url('/jarvis-systems/demo/bg-ziedai.webp')}
-.scr__bg--missed{background-image:url('/jarvis-systems/demo/bg-ziedai.webp');filter:blur(16px) brightness(.55)}
+.scr__bg--reviews,.scr__bg--campaign{background-image:url('/jarvis-systems/demo/betono-actual/home.webp')}
+.scr__bg--missed{background-image:url('/jarvis-systems/demo/betono-actual/home.webp');filter:blur(16px) brightness(.55)}
 .scr--missed .scr__bar,.scr--missed .scr__sig{color:#fff}.scr--missed .scr__sig{background:linear-gradient(90deg,#fff 0 60%,transparent 60% 70%,#fff 70%)}
 .scr__bg--seo{background:#e9ebee;background-image:linear-gradient(90deg,transparent 46%,#fff 46% 50%,transparent 50%),linear-gradient(0deg,transparent 30%,#fff 30% 33%,transparent 33%),linear-gradient(35deg,transparent 60%,#fff 60% 63%,transparent 63%),radial-gradient(circle at 20% 70%,#c8e6c9 0 18%,transparent 19%),radial-gradient(circle at 80% 20%,#c8e6c9 0 14%,transparent 15%),linear-gradient(#aecbfa,#aecbfa);background-size:100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,30% 22%;background-repeat:no-repeat;background-position:0 0,0 0,0 0,0 0,0 0,90% 80%;filter:blur(5px)}
 .cur{position:absolute;left:0;top:0;z-index:6;opacity:0;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));transform-origin:5px 3px}

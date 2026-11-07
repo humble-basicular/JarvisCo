@@ -89,7 +89,7 @@ export const pages = {
     title: 'Funkcijos – Jarvis Systems',
     description: 'Svetainės užklausos SMS, atsiliepimų prašymai, žinutė po praleisto skambučio, kampanijos buvusiems klientams ir vietinis SEO.',
     h: ['Viskas, ko reikia užklausoms', 'vienoje programėlėje'],
-    lead: 'Penkios dalys, kurios veikia kartu. Kiekvieną galite pamatyti trumpoje demonstracijoje.',
+    lead: 'Svetainės, užklausų sistemos ir vietinis SEO. Kiekvieną galite pamatyti trumpoje demonstracijoje.',
     more: 'Plačiau',
   },
   kainos: {
@@ -153,7 +153,6 @@ export const pages = {
     h: ['Apie mus'],
     paras: [
       `Jarvis Systems – tai ${brand.owner} iš Kauno. Kuriu svetaines ir paprastas sistemas, kad smulkaus verslo užklausos ir skambučiai neliktų be atsakymo.`,
-      'Pradėjau nuo svetainių vietiniams meistrams. Pamačiau, kad gera svetainė – tik pusė darbo: užklausa ateina, bet atsakoma per vėlai arba visai neatsakoma. Taip atsirado Jarvis Systems.',
       'Dirbu vienas, todėl kalbatės su tuo, kuris viską ir daro. Tiksliai pasakau, ką padarysiu, ir to, ko nepadarysiu, nežadu.',
     ],
     facts: [['Kas', `${brand.owner}, ${brand.status.toLowerCase()}`], ['Kur', `${brand.city}, Lietuva`], ['Ką darome', 'Svetainės, užklausų sistema, vietinis SEO']],
@@ -169,7 +168,7 @@ export const pages = {
     title: 'Sritys – Jarvis Systems',
     description: 'Dirbame su statybų, remonto, aplinkos tvarkymo, techninio aptarnavimo ir kitomis paslaugų sritimis.',
     h: ['Sritys, su kuriomis dirbame'],
-    lead: 'Sistema tinka paslaugų verslui, kuriam svarbūs skambučiai ir užklausos. Neradote savo srities? Paklauskite.',
+    lead: 'Sistema tinka verslams, kurių užsakymai prasideda skambučiu ar rašytine užklausa. Neradote savo srities? Paklauskite.',
   },
   kontaktai: {
     title: 'Kontaktai – Jarvis Systems',

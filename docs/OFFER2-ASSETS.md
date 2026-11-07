@@ -18,7 +18,13 @@ The identity files below come from the approved kit (Drive `Business/JarvisWeb/b
 | `demo/bg-{hero,ziedai}.webp` | read-only own `betonogaminiai-site/src/assets/` images | laptop example website/background; no changes to that project |
 
 ## Phone screen overlay
-Both frames have blank screens. `src/data/o2-device.js` `FRAMES` holds each glass quad, fitted to the inner bezel line of the frame's own pixels (left: TL 325,90 · TR 789,82 · BR 879,1129 · BL 436,1187; right: TL 302,89 · TR 761,79 · BR 645,1191 · BL 189,1121; islands 523,105 114×49 and 452,105 122×49) and turns it into a `matrix3d`. `src/components/o2/Scene.astro` draws frame → HTML screen → a pixel copy of the Dynamic Island on top. `o2.ts` scales the 1080 px stage to its box. Screen content is a Lithuanian mechanism animation. Per user correction it has no extra captions or pills. All five cycles use own hardware and UI, not Stone media.
+Both original kit frames remain unchanged. `scripts/o2-device-masks.mjs` derives alpha glass masks from their pixels into `public/jarvis-systems/device/`. Current quads and fitted laptop glass are in `src/data/o2-device.js`. `Scene.astro` overlays the projected UI through those masks: rounded glass edges and the original Dynamic Island stay in the frame; there is no rectangular screen spill or duplicated island layer. `o2.ts` scales the 1080×1336 stage. All five cycles remain owned HTML/CSS UI, with no extra technical captions on the homepage.
+
+## USER13 actual site and stock replacements (8 November)
+- The laptop uses actual latest local `betonogaminiai-site` HEAD `9a94599`: `demo/betono-actual/{home,form-empty,form-filled,logo-light}.webp`. Root captured the current branded browser render at1440×783 in an isolated temp build; removed the preview banner in that capture DOM only. The original project was not edited. Exact rectangles/provenance: `docs/jarvis-stone-source-match/qa/betono-actual-capture-user14.json`.
+- The 13.99s sequence shows the real home, UŽSISAKYTI click, real quote dialog and five typed fields, then phone acknowledgement/reply. Other phone scenes use Dailius ir ko identity where appropriate; neutral SEO cards are not actual ranking proof.
+- All10trade photos replaced with topical equipment/site details whose served crops contain no people, with primary photo/license URLs and SHA256 in `stock-manifest.json`. Construction source's distant person is excluded by the recorded crop. Previous photos are retained in git history. No generated photos, paid stock or borrowed client-work claims.
+- `work/arbcut-mobile.webp` is a resized derivative of owned `src/assets/proof/arbcut-mobile-2026-10-15.png`, used on `/musu-darbai`. Dates/figures come from existing `arbcut-proof.json`; that case source is unchanged.
 
 ## Not used / still missing
 - Stone proof blocks with no Jarvis equivalent: testimonials (2nd slot), press, partners → omitted.
