@@ -101,7 +101,9 @@ if (book) {
     const company = String(fd.get('company') ?? '').trim();
     if (book.dataset.bookMode !== 'live') {
       // Review build: no /t/form route on this host. Validate, then say plainly that nothing was sent.
-      status.dataset.tone = ''; status.textContent = msgs.previewOk; if (call) call.hidden = false; status.focus();
+      status.dataset.tone = ''; status.textContent = msgs.previewOk; if (call) call.hidden = false;
+      book.querySelector('[data-book-next]')?.removeAttribute('hidden');
+      status.focus();
       return;
     }
     const body = new FormData();

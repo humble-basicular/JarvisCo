@@ -45,7 +45,7 @@ export const o2 = {
     more: 'Žiūrėti',
   },
   features: {
-    title: ['Paprastos sistemos, kurios tiesiog veikia', 'Diplomų nereikia – užtenka šalmo'],
+    title: ['Paprastos sistemos, kurios tiesiog veikia', 'Diplomo nereikia'],
     demoBtn: 'Trumpa demonstracija',
     items: [
       {

@@ -137,6 +137,7 @@ const ext = (h: string) => /^https?:/.test(href(h));
       </div>
       <p class="status" data-status role="status" aria-live="polite" tabindex="-1"></p>
       <p class="book__call" data-book-call hidden><a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
+      {!bookingLive && <p data-book-next hidden><a href="/pavyzdys/pokalbis">Peržiūrėti kitą žingsnį <Icon name="arrow" size={18} /></a></p>}
     </form>
     <p class="talk__or">{talk.orCall}: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
   </dialog>

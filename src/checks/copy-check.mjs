@@ -57,7 +57,7 @@ const ZERO = /(?<![\d,.])0\s?€/gu;
 const V4_PAGES = new Set(['svetaines/index.html', 'sildymui/index.html', 'noriu/index.html', 'rezultatai/index.html', '404.html']);
 // Offer2 homepage (index.html, 2026-11-05): its own claims rules. It legitimately talks about missed calls,
 // automatic SMS and Google reviews, so the website-offer bans above do not apply to it.
-const O2_PAGE = 'index.html';
+const O2_PAGES = new Set(['index.html', 'pavyzdys/pokalbis/index.html']);
 const o2Banned = [
   /197\s?€/u, /\b49\s?€/u, /39\s?€/u,                 // only the first-five terms (50 € / 30 d. / 97 €) are agreed
   /garantuoj(?:ame|u)\b/iu,                           // no result guarantees ("Ar garantuojate" question stays allowed)
@@ -73,7 +73,7 @@ for (const page of built) {
   const labels = page.nodes.flatMap((node) => (node.attrs ?? [])
     .filter((a) => ['alt', 'aria-label', 'title', 'placeholder', 'data-caption', 'data-messages', 'content'].includes(a.name))
     .map((a) => a.value)).join(' ');
-  const rules = page.path === O2_PAGE ? o2Banned : page.path.startsWith('perziura/') ? banned : [...banned, ...agencyOnly];
+  const rules = O2_PAGES.has(page.path) ? o2Banned : page.path.startsWith('perziura/') ? banned : [...banned, ...agencyOnly];
   for (const re of rules) {
     const match = normalized(`${visible} ${labels}`).match(re);
     if (match) errors.push(`${page.file}: forbidden ${JSON.stringify(match[0])}`);

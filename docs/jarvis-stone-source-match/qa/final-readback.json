@@ -1,0 +1,41 @@
+{
+  "directory": "/Users/matasbasinskas/Library/CloudStorage/GoogleDrive-matasbasinskas1@gmail.com/My Drive/Business/JarvisWeb/branding-2026-11-07/website-rebuild-20261107/final-review-20261107",
+  "files": [
+    {
+      "file": "full-1440.png",
+      "bytes": 2712811,
+      "sha256": "80e4c398e670cdb4dd3a88c4c0fb822e5ab166b78a9f1e5311dbbb38bf8f12e5"
+    },
+    {
+      "file": "full-390.png",
+      "bytes": 1350432,
+      "sha256": "2dfa329d003a318efad7a81c943d1b134c99a135b703ef08a4181f969caf9b36"
+    },
+    {
+      "file": "callback-390.png",
+      "bytes": 82046,
+      "sha256": "155a8193059e6985b4dc32411368793d19c6a3def3ba046b44cd068dd48ed3f9"
+    },
+    {
+      "file": "receipt.json",
+      "bytes": 4133,
+      "sha256": "2c11f06e113706276d9ead60090d167a3dbe7dfb67b02cbd56cc786fefb79228"
+    },
+    {
+      "file": "book.png",
+      "bytes": 55082,
+      "sha256": "c743af47a0a324d675a8053e9a2f27994ffb05ac33aa6f35f8618aa53fa8a8bb"
+    },
+    {
+      "file": "demo.png",
+      "bytes": 101568,
+      "sha256": "653a6f7fbce778a765b3a7798143607ead88d482a4d659399393ba68c9b1a3eb"
+    },
+    {
+      "file": "steps-768.png",
+      "bytes": 93639,
+      "sha256": "6d08ad6dad0bf03814680a62d251913691f90531887e97e9bd77c984d9981be7"
+    }
+  ],
+  "cloudSyncVerified": false
+}
