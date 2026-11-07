@@ -3,16 +3,17 @@
    Layers: frame image → screen overlay (matrix3d, clipped to the glass) → pixel copy of the
    Dynamic Island on top. The mascot leaning on the frame is part of the approved image, so the
    elbow contact stays exactly as delivered. Illustrative content only. */
-import { glassMatrix, ISLAND, CANVAS, SCREEN_W, SCREEN_H } from '@data/o2-device.js';
-interface Msg { 0: string; 1: string }
-interface Props { app: string; msgs?: [string, string][]; rows?: [string, string, string][]; note: string; label: string }
-const { app, msgs = [], rows = [], note, label } = Astro.props;
-const m = glassMatrix();
+import { glassMatrix, FRAMES, CANVAS, SCREEN_W, SCREEN_H } from '@data/o2-device.js';
+interface Props { app: string; msgs?: [string, string][]; rows?: [string, string, string][]; note: string; label: string; side?: 'left' | 'right' }
+const { app, msgs = [], rows = [], note, label, side = 'left' } = Astro.props;
+const F = FRAMES[side];
+const ISLAND = F.island;
+const m = glassMatrix(F.quad);
 const isl = `inset(${ISLAND.y}px ${CANVAS.w - ISLAND.x - ISLAND.w}px ${CANVAS.h - ISLAND.y - ISLAND.h}px ${ISLAND.x}px round ${ISLAND.h / 2}px)`;
 ---
-<figure class="dev" data-dev>
+<figure class="dev" data-dev data-side={side}>
   <div class="dev__stage" role="img" aria-label={label}>
-    <img class="dev__frame" src="/jarvis-systems/phone.webp" width="1080" height="1336" alt="" loading="lazy" decoding="async" />
+    <img class="dev__frame" src={F.src} width="1080" height="1336" alt="" loading="lazy" decoding="async" />
     <div class="scr" style={`width:${SCREEN_W}px;height:${SCREEN_H}px;transform:${m}`} aria-hidden="true">
       <div class="scr__bar"><span>9:41</span><span class="scr__sig"></span></div>
       <div class="scr__app">{app}<small>Pavyzdys</small></div>
@@ -27,7 +28,7 @@ const isl = `inset(${ISLAND.y}px ${CANVAS.w - ISLAND.x - ISLAND.w}px ${CANVAS.h 
         </ol>
       )}
     </div>
-    <img class="dev__isl" src="/jarvis-systems/phone.webp" width="1080" height="1336" alt="" loading="lazy" decoding="async" style={`clip-path:${isl}`} />
+    <img class="dev__isl" src={F.src} width="1080" height="1336" alt="" loading="lazy" decoding="async" style={`clip-path:${isl}`} />
   </div>
   <figcaption class="dev__note">{note}</figcaption>
 </figure>

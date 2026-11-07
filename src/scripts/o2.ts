@@ -77,7 +77,9 @@ if (demo) {
     .then((r) => (r.ok ? r.json() : null)).then(classify).catch(() => 'unknown' as typeof mode)
     .then((m) => { clearTimeout(timer); mode = m; demo.querySelector<HTMLElement>('[data-sim-badge]')?.toggleAttribute('hidden', m !== 'simulator'); return m; });
   };
-  let health = checkHealth();
+  const preview = demo.dataset.build === 'preview';
+  // Review builds never contact the demo backend: no health request, no enquiry POST.
+  let health: Promise<typeof mode> = preview ? Promise.resolve('unknown') : checkHealth();
 
   demo.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -88,16 +90,19 @@ if (demo) {
     if (!ok) { demo.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(); return; }
     submit.disabled = true; const label = submit.textContent; submit.textContent = msgs.sending;
     status.textContent = ''; status.dataset.tone = '';
+    if (preview) {
+      // Local simulation only: nothing leaves the browser and nothing is stored.
+      const req = (service || 'svetaines forma').normalize('NFD').replace(/[\u0300-\u036f]/g, '').slice(0, 30);
+      status.dataset.tone = ''; status.textContent = msgs.ok.previewSim;
+      if (bubble) bubble.textContent = msgs.demoAck.replace('{req}', req);
+      if (simLabel) simLabel.hidden = false;
+      result?.classList.add('is-done');
+      demo.reset();
+      return;
+    }
     try {
       await health;
-      // Review builds re-check every time (the provider could have been switched since page load); live builds only when still unknown.
-      if (mode === 'unknown' || demo.dataset.build === 'preview') await (health = checkHealth());
-      // Review builds only talk to the simulator: if the backend reports real sending, nothing is posted from here.
-      if (demo.dataset.build === 'preview' && mode !== 'simulator') {
-        status.dataset.tone = 'err';
-        status.textContent = mode === 'live' ? msgs.ok.previewLive : msgs.ok.previewUnknown;
-        return;
-      }
+      if (mode === 'unknown') await (health = checkHealth());
       const res = await fetch(`${api}/api/public/enquiry/${tenant}`, {
         method: 'POST', credentials: 'omit', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name: String(fd.get('name') ?? '').trim(), phone, service, website: String(fd.get('website') ?? '') }),
@@ -131,7 +136,16 @@ if (demo) {
   });
 }
 
-// ---------- 5. Booking ----------
+// ---------- 5. Booking (inside a <dialog>) ----------
+const bookDlg = document.querySelector<HTMLDialogElement>('[data-book-dialog]');
+let bookOpener: HTMLElement | null = null;
+document.querySelectorAll<HTMLElement>('[data-book-open]').forEach((o) => o.addEventListener('click', (e) => {
+  if (!bookDlg) return; e.preventDefault(); bookOpener = o; bookDlg.showModal();
+  bookDlg.querySelector<HTMLElement>('input[name="name"]')?.focus();
+}));
+bookDlg?.querySelector('[data-book-close]')?.addEventListener('click', () => bookDlg.close());
+bookDlg?.addEventListener('click', (e) => { if (e.target === bookDlg) bookDlg.close(); });
+bookDlg?.addEventListener('close', () => bookOpener?.focus());
 const book = document.querySelector<HTMLFormElement>('[data-book-form]');
 if (book) {
   const msgs = JSON.parse(book.dataset.messages ?? '{}');
@@ -173,3 +187,7 @@ if (book) {
     }
   });
 }
+
+// Forms ship with submit disabled so a no-JS visitor can never native-submit; enable once listeners are attached.
+document.querySelectorAll<HTMLButtonElement>('[data-demo-form] button[type=submit], [data-book-form] button[type=submit]').forEach((b) => { b.disabled = false; });
+document.querySelectorAll<HTMLElement>('[data-nojs]').forEach((n) => { n.hidden = true; });

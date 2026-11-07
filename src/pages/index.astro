@@ -12,6 +12,11 @@ import { showDrafts, bookingLive } from '@data/o2-env.js';
 import { brand } from '@data/content.js';
 import face from '@assets/people/matas-face.webp';
 const { hero, demo, features, trades, process: proc, why, faq, talk } = o2;
+// Two-row carousel (Stone): photo illustrations interleaved with text-only niche cards (no stock photos invented).
+const photos = trades.items.map(([img, label]) => ({ img, label }));
+const niches = trades.more.map((label) => ({ img: null, label }));
+const cards = [];
+for (let i = 0; i < Math.max(photos.length, niches.length); i++) { if (photos[i]) cards.push(photos[i]); if (niches[i]) cards.push(niches[i]); }
 const whyIcons = ['smile', 'unlock', 'chat', 'badge', 'phone', 'shield'];
 const build = showDrafts ? 'preview' : 'live';
 const demoMsgs = JSON.stringify({ errors: demo.errors, ok: demo.ok, sending: demo.sending, demoAck: demo.demoAck });
@@ -41,7 +46,8 @@ const bookMsgs = JSON.stringify({ errPhone: talk.errPhone, previewOk: talk.previ
       <form class="card demo" data-demo-form data-api={DEMO.api} data-tenant={DEMO.tenant} data-build={build} data-messages={demoMsgs} novalidate>
         <h3>{demo.formTitle}</h3>
         <p class="muted">{demo.formNote}</p>
-        <p class="sim" data-sim-badge hidden>{demo.simBadge}</p>
+        {build === 'preview' ? <p class="sim">{demo.previewBadge}</p> : <p class="sim" data-sim-badge hidden>{demo.simBadge}</p>}
+        <noscript><p class="sim">{demo.noJs} <a href={brand.telHref}>{brand.phone}</a></p></noscript>
         <label>{demo.name}<input name="name" autocomplete="given-name" maxlength="40" /></label>
         <label>{demo.phone}<input name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="d-ph-h d-ph-e" /></label>
         <small id="d-ph-h" class="muted">{demo.phoneHint}</small><span class="err" id="d-ph-e" data-err="phone"></span>
@@ -50,7 +56,7 @@ const bookMsgs = JSON.stringify({ errPhone: talk.errPhone, previewOk: talk.previ
         <label class="hp" aria-hidden="true">Svetainė<input name="website" tabindex="-1" autocomplete="off" /></label>
         <label class="chk"><input type="checkbox" name="consent" aria-describedby="d-c-e" /> <span>{demo.consent} <a href="/privatumo-politika">{demo.privacyLink}</a></span></label>
         <span class="err" id="d-c-e" data-err="consent"></span>
-        <button class="btn" type="submit">{demo.submit}</button>
+        <button class="btn" type="submit" disabled>{demo.submit}</button>
         <p class="status" data-status role="status" aria-live="polite" tabindex="-1"></p>
       </form>
       <div class="card result" data-demo-result>
@@ -65,7 +71,7 @@ const bookMsgs = JSON.stringify({ errPhone: talk.errPhone, previewOk: talk.previ
     <h2 class="h1c h1c--900" id="f-h">{features.title.map((l) => <span>{l}</span>)}</h2>
     {features.items.map((it, i) => (
       <article class={`feat${i % 2 ? ' feat--rev' : ''}`} id={it.id} data-in>
-        <div class="feat__vis"><Phone app={it.screen.app} msgs={it.screen.msgs} rows={it.screen.rows} note={features.screenNote} label={`${it.title}: programėlės pavyzdys telefone`} /></div>
+        <div class="feat__vis"><Phone side={i % 2 ? 'right' : 'left'} app={it.screen.app} msgs={it.screen.msgs} rows={it.screen.rows} note={features.screenNote} label={`${it.title}: programėlės pavyzdys telefone`} /></div>
         <div class="feat__txt">
           <h3 class="feat__h">{it.title}</h3>
           <p class="feat__q">{it.quote}</p>
@@ -84,17 +90,19 @@ const bookMsgs = JSON.stringify({ errPhone: talk.errPhone, previewOk: talk.previ
     <div class="car">
       <button class="car__btn car__btn--prev" type="button" data-car="-1" aria-label={trades.prev}><Icon name="chev" size={26} /></button>
       <ul class="car__track" data-car-track>
-        {trades.items.map(([img, label]) => <li class="tcard"><img src={`/jarvis-systems/trades/${img}.webp`} width="371" height="200" alt="" loading="lazy" decoding="async" /><span>{label}</span></li>)}
+        {cards.map((c) => c.img
+          ? <li class="tcard"><img src={`/jarvis-systems/trades/${c.img}.webp`} width="371" height="200" alt="" loading="lazy" decoding="async" /><span>{c.label}</span></li>
+          : <li class="tcard tcard--txt"><span class="tcard__ph" aria-hidden="true">{c.label[0]}</span><span>{c.label}</span></li>)}
       </ul>
       <button class="car__btn" type="button" data-car="1" aria-label={trades.next}><Icon name="chev" size={26} /></button>
     </div>
-    <ul class="trades__more">{trades.more.map((t) => <li>{t}</li>)}</ul>
     <p class="trades__note">{trades.note}</p>
     <a class="btn" href="#pokalbis">{O2_CTA}</a>
   </section>
 
   <section class="steps sec--grey chev" id="procesas" aria-labelledby="p-h">
     <h2 class="h1c h1c--900" id="p-h">{proc.title}</h2>
+    <svg class="steps__wave" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true"><path d="M140 60 C 260 -10, 380 130, 500 60 S 740 -10, 860 60" /></svg>
     <ol class="steps__row">
       {proc.steps.map(([t, s, d], i) => <li data-in><span class="steps__n">{i + 1}</span><h3>{t} <small>{s}</small></h3><p>{d}</p></li>)}
     </ol>
@@ -119,6 +127,16 @@ const bookMsgs = JSON.stringify({ errPhone: talk.errPhone, previewOk: talk.previ
       <div class="talk__copy">
         <h2 class="talk__h" id="k-h">{talk.title}</h2>
         <p class="talk__text">{talk.text}</p>
+        <a class="btn btn--big" href={brand.telHref} data-book-open data-track="cta_book">{talk.open}</a>
+        <p class="talk__or">{talk.orCall}: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
+      </div>
+      <img class="talk__mascot" src="/jarvis-systems/mascot-present.webp" width="520" height="780" alt={talk.mascotAlt} loading="lazy" />
+    </div>
+  </section>
+
+  <dialog class="bookdlg" data-book-dialog aria-labelledby="bd-h">
+    <div class="bookdlg__top"><h2 id="bd-h">{talk.dialogTitle}</h2><button type="button" class="menu__x" data-book-close aria-label={talk.close}><Icon name="x" size={28} /></button></div>
+    <p class="muted">{talk.text}</p>
         <form class="book" action="/t/form" method="post" data-book-form data-book-mode={bookingLive ? 'live' : 'preview'} data-messages={bookMsgs} novalidate>
           <div class="book__f" data-book-fields>
             <label>{talk.name}<input name="name" autocomplete="given-name" maxlength="60" /></label>
@@ -127,14 +145,10 @@ const bookMsgs = JSON.stringify({ errPhone: talk.errPhone, previewOk: talk.previ
             <label class="book__wide">{talk.company}<input name="company" maxlength="80" /></label>
             <fieldset class="book__wide"><legend>{talk.time}</legend>{talk.times.map(([v, l], i) => <label class="rad"><input type="radio" name="contact_time" value={v} checked={i === 1} /> {l}</label>)}</fieldset>
             <label class="hp" aria-hidden="true">Svetainė<input name="website" tabindex="-1" autocomplete="off" /></label>
-            <button class="btn btn--big" type="submit">{talk.submit}</button>
+            <button class="btn btn--big" type="submit" disabled>{talk.submit}</button>
           </div>
           {!bookingLive && <p class="muted book__pv">{talk.previewNote}</p>}
           <p class="status" data-status role="status" aria-live="polite" tabindex="-1"></p>
         </form>
-        <p class="talk__or">{talk.orCall}: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
-      </div>
-      <img class="talk__mascot" src="/jarvis-systems/mascot-present.webp" width="520" height="780" alt={talk.mascotAlt} loading="lazy" />
-    </div>
-  </section>
+  </dialog>
 </O2Layout>

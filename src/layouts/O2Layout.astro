@@ -9,7 +9,7 @@ interface Props { title: string; description: string }
 const { title, description } = Astro.props;
 const canonical = new URL('/', brand.url).href;
 const shareBase = process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : brand.url;
-const ogImage = new URL('/assets/og-v4.png', shareBase).href;
+const ogImage = new URL('/jarvis-systems/og-1200x630.jpg', shareBase).href;
 const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 const f = o2.footer;
 const year = new Date().getFullYear();
@@ -33,6 +33,8 @@ const year = new Date().getFullYear();
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="lt_LT" />
     <script is:inline>document.documentElement.classList.add('js');</script>
     {cfToken && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: cfToken })}></script>}

@@ -4,12 +4,17 @@
    projected onto that quad with matrix3d (square→quad homography, Heckbert). Dynamic Island box is a
    pixel copy of the same frame drawn above the overlay. */
 export const CANVAS = { w: 1080, h: 1336 };
-export const GLASS = [[336, 90], [789, 84], [870, 1128], [430, 1188]];
-export const ISLAND = { x: 519, y: 103, w: 122, h: 54 };
+/* Glass quads measured 2026-11-07 by fitting the inner black bezel line of each frame's own pixels
+   (TL, TR, BR, BL on the 1080×1336 canvas). "right" is the separately generated opposite-angle
+   sibling (docs/jarvis-stone-lt-review/opposite-phone-provenance.md), not a mirror. */
+export const FRAMES = {
+  left: { src: '/jarvis-systems/phone.webp', quad: [[325, 90], [789, 82], [879, 1129], [436, 1187]], island: { x: 523, y: 105, w: 114, h: 49 } },
+  right: { src: '/jarvis-systems/phone-right-mascot.webp', quad: [[302, 89], [761, 79], [645, 1191], [189, 1121]], island: { x: 452, y: 105, w: 122, h: 49 } },
+};
 export const SCREEN_W = 390;
 export const SCREEN_H = 900;
 
-export function glassMatrix(quad = GLASS, w = SCREEN_W, h = SCREEN_H) {
+export function glassMatrix(quad, w = SCREEN_W, h = SCREEN_H) {
   const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = quad;
   const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3;
   const dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;

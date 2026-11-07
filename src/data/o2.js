@@ -47,7 +47,9 @@ export const o2 = {
     privacyLink: 'Privatumo politika',
     submit: 'Išbandyti', sending: 'Tikrinama…',
     simBadge: 'Bandomasis režimas: tikra SMS neišsiunčiama, užklausa tik įrašoma.',
-    phoneTitle: 'Ką gautų klientas', phoneNote: 'Pavyzdys. Kol SMS tiekėjas neprijungtas, tai simuliacija.',
+    previewBadge: 'Peržiūros režimas: demonstracija vyksta tik Jūsų naršyklėje. Niekas nesiunčiama ir neišsaugoma.',
+    noJs: 'Demonstracijai reikia JavaScript. Galite tiesiog paskambinti.',
+    phoneTitle: 'Ką gautų klientas', phoneNote: 'Pavyzdys. SMS tiekėjas dar neprijungtas, todėl tai simuliacija.',
     idleBubble: 'Čia atsiras žinutė, kurią gautų Jūsų klientas.',
     ok: {
       live: 'Užklausa gauta. SMS turėtų ateiti į {phone}. Atsakykite į ją – pamatysite, kaip atrodo pokalbis.',
@@ -57,6 +59,7 @@ export const o2 = {
       unknown: 'Užklausa gauta, bet nepavyko patikrinti, ar SMS išsiųsta. Jei žinutės nesulauksite, susisieksime patys.',
       sim: 'Užklausa įrašyta. Demo veikia bandomuoju režimu, todėl tikra SMS neišsiųsta. Štai ką gautumėte:',
       simLabel: 'Simuliacija – realiai neišsiųsta',
+      previewSim: 'Peržiūros režimas: niekas neišsiųsta ir neišsaugota. Tai vietinė simuliacija – štai ką gautų klientas:',
     },
     errors: {
       phone: 'Patikrinkite telefono numerį, pvz., +370 612 34567.',
@@ -181,7 +184,7 @@ export const o2 = {
     text: '15–20 minučių. Parodysime, kaip tai veiktų Jūsų versle. Jei netiks – pasakysime patys.',
     name: 'Vardas', phone: 'Telefono numeris', company: 'Įmonė ar veikla (nebūtina)', time: 'Kada patogu?',
     times: [['morning', 'Rytą'], ['day', 'Dieną'], ['evening', 'Vakare']],
-    submit: 'Užsiregistruoti pokalbiui', sending: 'Siunčiama…',
+    submit: 'Užsiregistruoti pokalbiui', open: 'Užsiregistruoti pokalbiui', dialogTitle: 'Užsiregistruoti pokalbiui', close: 'Uždaryti', sending: 'Siunčiama…',
     ok: 'Ačiū{name}. Paskambinsime {time}.',
     timesSpoken: { morning: 'rytą', day: 'dieną', evening: 'vakare', '': 'artimiausiu metu' },
     previewNote: 'Peržiūros versija: ši forma nieko nesiunčia.',
