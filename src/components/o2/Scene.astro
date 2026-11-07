@@ -1,0 +1,219 @@
+---
+/* Feature demonstration scenes on the approved own hardware (kit v4 phones + generated blank laptop).
+   Timing follows the source loops (GIF delay metadata): web 13.99 s, reviews 9.99 s, missed 13.99 s,
+   campaign 13.99 s, seo 9.99 s; loop forever. Every animated element gets generated keyframes from a
+   small timeline (t in seconds). The element's own CSS is the FINAL state, so reduced-motion users see
+   the finished scene. Content is own Lithuanian UI; the laptop website is a scoped "Betono gaminiai"
+   demo (own images from the read-only betonogaminiai project), not a published site. */
+import { glassMatrix, FRAMES, CANVAS, SCREEN_W, SCREEN_H, LAPTOP } from '@data/o2-device.js';
+interface Props { kind: 'web' | 'reviews' | 'missed' | 'campaign' | 'seo'; side: 'left' | 'right'; label: string }
+const { kind, side, label } = Astro.props;
+const T = { web: 13.99, reviews: 9.99, missed: 13.99, campaign: 13.99, seo: 9.99 }[kind];
+const F = FRAMES[side];
+const m = glassMatrix(F.quad);
+const I = F.island;
+const isl = `inset(${I.y}px ${CANVAS.w - I.x - I.w}px ${CANVAS.h - I.y - I.h}px ${I.x}px round ${I.h / 2}px)`;
+
+// ---- timeline → keyframes ----
+const css: string[] = [];
+let n = 0;
+const p = (t: number) => `${Math.max(0, Math.min(100, (t / T) * 100)).toFixed(3)}%`;
+/** frames: [t, declarations, timing?]; returns class name */
+function kf(frames: [number, string, string?][]) {
+  const name = `k-${kind}-${++n}`;
+  const body = frames.map(([t, d, tf]) => `${p(t)}{${d}${tf ? `;animation-timing-function:${tf}` : ''}}`).join('');
+  css.push(`@keyframes ${name}{${body}}.${name}{animation:${name} ${T}s linear infinite}`);
+  return name;
+}
+const E = 'ease-in-out';
+/** visible between a and b (fades f), optional entry transform */
+const vis = (a: number, b = T - 0.25, from = '', f = 0.3) => kf([
+  [0, `opacity:0${from ? `;transform:${from}` : ''}`], [a, `opacity:0${from ? `;transform:${from}` : ''}`, E],
+  [a + f, 'opacity:1;transform:none'], [b, 'opacity:1;transform:none'], [Math.min(T, b + 0.2), 'opacity:0;transform:none'], [T, 'opacity:0'],
+]);
+const pop = (a: number) => vis(a, T - 0.25, 'translateY(18px) scale(.96)', 0.35);
+/** typed text: reveal left→right in `steps` between a and b, stays to loop end */
+const typed = (a: number, b: number, steps: number) => kf([
+  [0, 'clip-path:inset(0 100% 0 0)'], [a, 'clip-path:inset(0 100% 0 0)', `steps(${steps},end)`], [b, 'clip-path:inset(0 0 0 0)'], [T, 'clip-path:inset(0 0 0 0)'],
+]);
+/** cursor path: [t, x, y, click?]; hidden before first and after `hide` */
+function cursor(path: [number, number, number, boolean?][], hide: number) {
+  const fr: [number, string, string?][] = [];
+  const at = (x: number, y: number, s = 1) => `transform:translate(${x}px,${y}px) scale(${s})`;
+  const [t0, x0, y0] = path[0];
+  fr.push([0, `opacity:0;${at(x0, y0)}`], [Math.max(0, t0 - 0.2), `opacity:0;${at(x0, y0)}`], [t0, `opacity:1;${at(x0, y0)}`, E]);
+  for (let i = 1; i < path.length; i++) {
+    const [t, x, y, click] = path[i];
+    fr.push([t, `opacity:1;${at(x, y)}`, E]);
+    if (click) fr.push([t + 0.1, `opacity:1;${at(x, y, 0.82)}`, E], [t + 0.22, `opacity:1;${at(x, y)}`, E]);
+  }
+  const [, xl, yl] = path[path.length - 1];
+  fr.push([hide, `opacity:1;${at(xl, yl)}`], [hide + 0.25, `opacity:0;${at(xl, yl)}`], [T, `opacity:0;${at(xl, yl)}`]);
+  return kf(fr);
+}
+/** short press effect on a button at t */
+const press = (t: number) => kf([[0, 'transform:none;filter:none'], [t, 'transform:none;filter:none', E], [t + 0.1, 'transform:scale(.95);filter:brightness(.85)', E], [t + 0.3, 'transform:none;filter:none'], [T, 'transform:none;filter:none']]);
+/** class swap at t (off → on), back at loop end */
+const turnOn = (t: number, off: string, on: string) => kf([[0, off], [t, off], [t + 0.12, on], [T - 0.05, on], [T, off]]);
+/** typing-dots bubble shown between a and b */
+const dots = (a: number, b: number) => kf([[0, 'opacity:0;transform:scale(.8)'], [a, 'opacity:0;transform:scale(.8)', E], [a + 0.2, 'opacity:1;transform:none'], [b - 0.1, 'opacity:1;transform:none'], [b, 'opacity:0;transform:none'], [T, 'opacity:0']]);
+const move = (a: number, b: number, from: string) => kf([[0, `transform:${from}`], [a, `transform:${from}`, E], [b, 'transform:none'], [T - 0.05, 'transform:none'], [T, `transform:${from}`]]);
+
+// ---- per-scene timelines ----
+const k: Record<string, string> = {};
+if (kind === 'web') {
+  k.lap = kf([[0, 'opacity:0'], [0.15, 'opacity:1', E], [4.0, 'opacity:1', E], [4.5, 'opacity:0'], [T, 'opacity:0']]);
+  k.ph = kf([[0, 'opacity:0'], [4.0, 'opacity:0', E], [4.6, 'opacity:1'], [T - 0.25, 'opacity:1'], [T, 'opacity:0']]);
+  k.t1 = typed(0.5, 1.1, 5); k.t2 = typed(1.4, 2.2, 14); k.t3 = typed(2.4, 3.1, 22);
+  k.tick = turnOn(3.25, 'background:#fff', 'background:#E8A743');
+  k.btn = press(3.7);
+  k.cur = cursor([[0.25, 900, 640], [0.45, 560, 266], [1.3, 740, 266], [2.25, 650, 362], [3.15, 489, 436, true], [3.55, 650, 506], [3.62, 650, 506, true]], 4.0);
+  k.d1 = dots(5.0, 6.0); k.b1 = pop(6.0); k.d2 = dots(7.2, 8.1); k.b2 = pop(8.1);
+}
+if (kind === 'reviews') {
+  k.a = vis(0.1, 1.75);
+  k.b = vis(1.95);
+  k.btn = press(1.45);
+  ['3.0', '3.3', '3.6', '3.9', '4.2'].forEach((t, i) => { k[`s${i}`] = turnOn(Number(t), 'color:#5f6368', 'color:#FBBC04'); });
+  k.txt = typed(4.8, 6.4, 26);
+  k.post = press(7.0);
+  k.ok = pop(7.3);
+  k.cur = cursor([[0.2, 300, 760], [1.2, 195, 512], [1.45, 195, 512, true], [2.6, 87, 372], [3.0, 87, 372], [3.3, 141, 372], [3.6, 195, 372], [3.9, 249, 372], [4.2, 303, 372, true], [6.6, 300, 640], [6.9, 300, 640, true]], 7.4);
+}
+if (kind === 'missed') {
+  k.call = vis(0.1, 3.0);
+  k.ring = kf([[0, 'transform:scale(1)'], [0.5, 'transform:scale(1.12)', E], [1.0, 'transform:scale(1)', E], [1.5, 'transform:scale(1.12)', E], [2.0, 'transform:scale(1)', E], [2.5, 'transform:scale(1.12)', E], [3.0, 'transform:scale(1)'], [T, 'transform:scale(1)']]);
+  k.b1 = vis(4.0, T - 0.25, 'translateY(-30px)', 0.4); k.d2 = dots(5.2, 6.1); k.b2 = pop(6.1);
+}
+if (kind === 'campaign') {
+  k.card = vis(0.1, 2.8);
+  k.t1 = typed(0.45, 1.0, 5); k.t2 = typed(1.2, 2.0, 14);
+  k.btn = press(2.6);
+  k.cur = cursor([[0.2, 320, 800], [0.4, 195, 392], [1.15, 195, 462], [2.3, 195, 602], [2.5, 195, 602, true]], 2.9);
+  k.ok = kf([[0, 'opacity:0;transform:scale(.7)'], [2.9, 'opacity:0;transform:scale(.7)', 'cubic-bezier(.3,1.6,.6,1)'], [3.3, 'opacity:1;transform:none'], [5.0, 'opacity:1;transform:none', E], [5.3, 'opacity:0;transform:none'], [T, 'opacity:0']]);
+  k.conf = kf([[0, 'opacity:0;transform:translateY(-120px)'], [2.95, 'opacity:0;transform:translateY(-120px)'], [3.1, 'opacity:1;transform:translateY(-100px)'], [5.0, 'opacity:1;transform:translateY(420px)'], [5.3, 'opacity:0;transform:translateY(460px)'], [T, 'opacity:0']]);
+  k.b1 = pop(5.5); k.d2 = dots(6.8, 7.7); k.b2 = pop(7.7);
+}
+if (kind === 'seo') {
+  const st = 150;
+  k.a = move(2.0, 3.2, `translateY(${-st}px)`); k.b = move(2.0, 3.2, `translateY(${-st}px)`); k.you = move(2.0, 3.2, `translateY(${2 * st}px)`);
+  k.c20 = kf([[0, 'opacity:1'], [3.0, 'opacity:1', E], [3.3, 'opacity:0'], [T - 0.1, 'opacity:0'], [T, 'opacity:1']]);
+  k.c1 = vis(3.4, T - 0.25, 'scale(.6)', 0.35);
+  k.arrow = kf([[0, 'opacity:0;transform:translateY(20px)'], [0.3, 'opacity:0;transform:translateY(20px)', E], [0.8, 'opacity:1;transform:none', E], [1.4, 'opacity:1;transform:translateY(-12px)', E], [2.0, 'opacity:1;transform:none', E], [2.5, 'opacity:0;transform:translateY(-30px)'], [T, 'opacity:0']]);
+}
+const styles = css.join('');
+const conf = Array.from({ length: 26 }, (_, i) => ({ x: (i * 53) % 360 + 10, y: ((i * 97) % 260) - 40, r: (i * 47) % 180, c: ['#E8A743', '#F4C45C', '#ffffff', '#D9822B'][i % 4], w: 8 + (i % 3) * 3 }));
+---
+<figure class={`dev scn scn--${kind}`} data-dev data-scene={kind} data-side={side} style={`--T:${T}s`}>
+  <div class="dev__stage" role="img" aria-label={label}>
+    {kind === 'web' && (
+      <div class={`lapl ${k.lap}`}>
+        <img class="dev__frame" src={LAPTOP.src} width="1080" height="1336" alt="" loading="lazy" decoding="async" />
+        <div class="lap" style={`left:${LAPTOP.glass.x}px;top:${LAPTOP.glass.y}px;width:${LAPTOP.glass.w}px;height:${LAPTOP.glass.h}px`} aria-hidden="true">
+          <div class="site" style={`transform:scale(${LAPTOP.scale})`}>
+            <div class="site__hero">
+              <div class="site__nav"><b>BETONO GAMINIAI</b></div>
+              <p class="site__h">Šulinių žiedai, dangčiai ir drenažas</p>
+              <p class="site__p">Gaminame ir pristatome Kauno rajone. Gaukite pasiūlymą per kelias minutes.</p>
+            </div>
+            <div class="site__pics"></div>
+            <div class="site__form">
+              <span class="site__logo">BG</span>
+              <p class="site__fh">GAUKITE PASIŪLYMĄ</p>
+              <span class="site__l" style="left:28px;top:222px">Vardas *</span>
+              <span class="site__l" style="left:208px;top:222px">Telefonas *</span>
+              <span class="site__in" style="left:28px;top:242px;width:164px"><span class={`ty ${k.t1}`}>Jonas</span></span>
+              <span class="site__in" style="left:208px;top:242px;width:164px"><span class={`ty ${k.t2}`}>+370 612 34567</span></span>
+              <span class="site__l" style="left:28px;top:304px">Ko reikia? *</span>
+              <span class="site__in site__ta" style="left:28px;top:324px;width:344px;height:80px"><span class={`ty ${k.t3}`}>Reikėtų 4 šulinio žiedų</span></span>
+              <span class={`site__box ${k.tick}`}><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 8.5l3 3 7-7" fill="none" stroke="#1F2236" stroke-width="2.4" /></svg></span>
+              <span class="site__c">Sutinku su <u>taisyklėmis</u> ir sutinku gauti SMS apie šią užklausą.</span>
+              <span class={`site__btn ${k.btn}`}>SIŲSTI</span>
+            </div>
+            <svg class={`cur ${k.cur}`} width="34" height="34" viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round" /></svg>
+          </div>
+        </div>
+      </div>
+    )}
+    <div class={`phl${kind === 'web' ? ` ${k.ph}` : ''}`}>
+      <img class="dev__frame" src={F.src} width="1080" height="1336" alt="" loading="lazy" decoding="async" />
+      <div class={`scr scr--${kind}`} style={`width:${SCREEN_W}px;height:${SCREEN_H}px;transform:${m}`} aria-hidden="true">
+        {kind !== 'web' && <div class={`scr__bg scr__bg--${kind}`}></div>}
+        <div class="scr__bar"><span>9:41</span><span class="scr__sig"></span></div>
+        {kind === 'web' && (<>
+          <div class="sms__who"><span>BG</span>Betono gaminiai</div>
+          <div class="sms">
+            <p class={`bb bb--dots bb--out ${k.d1}`}><i></i><i></i><i></i></p>
+            <p class={`bb bb--out ${k.b1}`}>Sveiki, Jonai! Gavome Jūsų užklausą dėl šulinio žiedų. Netrukus susisieksime. Gal turite klausimų?</p>
+            <p class={`bb bb--dots bb--in ${k.d2}`}><i></i><i></i><i></i></p>
+            <p class={`bb bb--in ${k.b2}`}>Ačiū už greitą atsakymą! Kol kas klausimų nėra, laukiu skambučio.</p>
+          </div>
+        </>)}
+        {kind === 'reviews' && (<>
+          <div class={`rv-a ${k.a}`}>
+            <p class="rv-a__h">ĮVERTINKITE MUS GOOGLE</p>
+            <p class="rv-stars">★★★★★</p>
+            <span class={`rv-a__btn ${k.btn}`}>Palikti atsiliepimą</span>
+          </div>
+          <div class={`rv-b ${k.b}`}>
+            <div class="rv-b__top"><span class="rv-b__av">BG</span><span><b>Betono gaminiai</b><small>Skelbiama viešai</small></span></div>
+            <p class="rv-b__stars">{[0, 1, 2, 3, 4].map((i) => <span class={k[`s${i}`]}>★</span>)}</p>
+            <p class="rv-b__ta"><span class={`ty ty--wrap ${k.txt}`}>Viskas atvežta laiku, žiedai kokybiški. Rekomenduoju!</span></p>
+            <span class={`rv-b__post ${k.post}`}>Paskelbti</span>
+          </div>
+          <p class={`rv-ok ${k.ok}`}>✓ Ačiū! Atsiliepimas paskelbtas</p>
+          <svg class={`cur ${k.cur}`} width="34" height="34" viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round" /></svg>
+        </>)}
+        {kind === 'missed' && (<>
+          <div class={`call ${k.call}`}>
+            <p class="call__n">+370 6•• •• •••</p>
+            <p class="call__s">Nežinomas numeris</p>
+            <p class="call__l">Gaunamas skambutis</p>
+            <div class="call__sl"><span>slinkite, kad atsilieptumėte</span><i class={k.ring}><svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" fill="#fff" /></svg></i></div>
+          </div>
+          <div class="sms sms--top">
+            <p class={`bb bb--out bb--wide ${k.b1}`}>Sveiki! Atsiprašau, kad nespėjau atsiliepti – esu objekte. Parašykite, ko reikia, arba užpildykite užklausą svetainėje. Perskambinsiu, kai tik galėsiu.</p>
+            <p class={`bb bb--dots bb--in ${k.d2}`}><i></i><i></i><i></i></p>
+            <p class={`bb bb--in bb--wide ${k.b2}`}>Ačiū už greitą atsakymą! Jau užpildžiau užklausą svetainėje. Lauksiu skambučio.</p>
+          </div>
+        </>)}
+        {kind === 'campaign' && (<>
+          <div class={`cp ${k.card}`}>
+            <p class="cp__h">PRIDĖTI KLIENTĄ Į KAMPANIJĄ</p>
+            <span class="cp__l">Kliento vardas</span><span class="cp__in"><span class={`ty ${k.t1}`}>Tomas</span></span>
+            <span class="cp__l">Telefonas</span><span class="cp__in"><span class={`ty ${k.t2}`}>+370 698 76543</span></span>
+            <span class="cp__l">Kampanija</span><span class="cp__in cp__sel">Pavasario pasiūlymas <b>▾</b></span>
+            <span class={`cp__btn ${k.btn}`}>PALEISTI</span>
+          </div>
+          <div class={`cp-conf ${k.conf}`}>{conf.map((c) => <i style={`left:${c.x}px;top:${c.y}px;width:${c.w}px;background:${c.c};transform:rotate(${c.r}deg)`}></i>)}</div>
+          <p class={`cp-ok ${k.ok}`}>KAMPANIJA<br />PALEISTA</p>
+          <svg class={`cur ${k.cur}`} width="34" height="34" viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round" /></svg>
+          <div class="sms sms--top">
+            <p class={`bb bb--out bb--wide ${k.b1}`}>Sveiki, Tomai! Čia Betono gaminiai. Ačiū, kad pernai rinkotės mus. Šį pavasarį – nuolaida šulinio dangčiams Jums ir Jūsų draugams. Atsisakyti: STOP</p>
+            <p class={`bb bb--dots bb--in ${k.d2}`}><i></i><i></i><i></i></p>
+            <p class={`bb bb--in bb--wide ${k.b2}`}>Ačiū, Tomai! Būtinai persiųsiu kaimynui.</p>
+          </div>
+        </>)}
+        {kind === 'seo' && (<>
+          <div class="seo__q">šulinio žiedai kaunas</div>
+          <div class="seo">
+            {([['a', 'Statybų meistrai', '4,7', '38', 0], ['b', 'Kauno stogdengiai', '4,6', '21', 1], ['you', 'Jūsų verslas', '5,0', '12', 2]] as const).map(([id, nm, r, c]) => (
+              <div class={`seo__c seo__c--${id} ${k[id]}`}>
+                <b>{nm}</b>
+                <span class="seo__r">{r} <em>★★★★★</em> ({c})</span>
+                <span class="seo__m">Statybos paslaugos · Kaunas</span>
+                <span class="seo__o"><i>Atidaryta</i> · Uždaroma 18:00</span>
+                <span class="seo__ic"><u>↗</u><u>✆</u></span>
+              </div>
+            ))}
+          </div>
+          <span class={`seo__arrow ${k.arrow}`}>↑</span>
+          <span class={`seo__rank seo__rank--20 ${k.c20}`}>20</span>
+          <span class={`seo__rank seo__rank--1 ${k.c1}`}>1</span>
+        </>)}
+      </div>
+      <img class="dev__isl" src={F.src} width="1080" height="1336" alt="" loading="lazy" decoding="async" style={`clip-path:${isl}`} />
+    </div>
+  </div>
+  <style is:inline set:html={styles}></style>
+</figure>

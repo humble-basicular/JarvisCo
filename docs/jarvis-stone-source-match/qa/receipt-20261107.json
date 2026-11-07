@@ -1,0 +1,153 @@
+{
+  "base": "http://127.0.0.1:51782/",
+  "blocked": [],
+  "posts": [],
+  "overflow": {
+    "320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    }
+  },
+  "checks": {
+    "menuOpen": true,
+    "menuEscFocus": true,
+    "menuCloseAlwaysOpener": false,
+    "bookOpen": true,
+    "bookInvalid": "true",
+    "bookPreview": {
+      "mode": "preview",
+      "status": "Tai peržiūros versija, todėl registracija neišsiųsta. Pokalbiui paskambinkite:",
+      "callShown": true,
+      "btnEnabled": true
+    },
+    "bookEscFocus": true,
+    "bookFromMenu": false,
+    "demo": [
+      {
+        "id": "svetaine",
+        "open": true,
+        "scene": "web",
+        "title": "Funkcionali svetainė",
+        "w": 312,
+        "focusBack": true
+      },
+      {
+        "id": "atsiliepimai-sistema",
+        "open": true,
+        "scene": "reviews",
+        "title": "Atsiliepimų rinkimo sistema",
+        "w": 312,
+        "focusBack": true
+      },
+      {
+        "id": "skambuciai",
+        "open": true,
+        "scene": "missed",
+        "title": "Žinutė po praleisto skambučio",
+        "w": 312,
+        "focusBack": true
+      },
+      {
+        "id": "kampanijos",
+        "open": true,
+        "scene": "campaign",
+        "title": "Kampanijos vienu paspaudimu",
+        "w": 312,
+        "focusBack": true
+      },
+      {
+        "id": "seo",
+        "open": true,
+        "scene": "seo",
+        "title": "Vietinis SEO",
+        "w": 312,
+        "focusBack": true
+      }
+    ],
+    "demoEscFocus": true,
+    "carousel": {
+      "before": 0,
+      "after": 387,
+      "max": 773,
+      "cards": 10,
+      "imgsOk": true
+    },
+    "assets": [],
+    "reducedRunning": "5:0"
+  },
+  "scenes": {
+    "web": {
+      "animations": 12,
+      "durations": [
+        13990
+      ],
+      "iterations": [
+        "Infinity"
+      ]
+    },
+    "reviews": {
+      "animations": 12,
+      "durations": [
+        9990
+      ],
+      "iterations": [
+        "Infinity"
+      ]
+    },
+    "missed": {
+      "animations": 5,
+      "durations": [
+        13990
+      ],
+      "iterations": [
+        "Infinity"
+      ]
+    },
+    "campaign": {
+      "animations": 10,
+      "durations": [
+        13990
+      ],
+      "iterations": [
+        "Infinity"
+      ]
+    },
+    "seo": {
+      "animations": 6,
+      "durations": [
+        9990
+      ],
+      "iterations": [
+        "Infinity"
+      ]
+    }
+  },
+  "served": [],
+  "missing": []
+}
