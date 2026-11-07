@@ -1,0 +1,14 @@
+# Handoff: Source-match retry1 — write first; inputs resolved
+From: codex · To: Claude retainedsession / Codex lead · Date: 2026-11-07T22:51:28.681693+02:00
+## Objective
+Unchanged user7 Stone source-copy-first LT reconstruction; oldpreview rejected. No production.
+## State / cause / changed approach
+Source-matchinitial ef10cc7 completed orientation only, no sourceedit/acceptance. Tasknode ending source-match-implementation-r1 TERMINALcompleted,nopendingchildren. Ownchildworktree t3-df9e82cd branch t3/jarvis-stone-source-match; allcontext/5timelines/SPEC/sourceimages alreadyread. Do not reread them. Repeatedsoftbudgetorientationfailure now addressed by ONEbatchedcurrent-source readmaximum then actualpageedits before any newbrowser/research; commitconcretelayout/copyfirst then animations/QA. Retain same nativeClaudeOpus5.5high session, retry1of2, nofreshorientation.
+## Resolved inputs
+RootOWNreviewbranch commit f6e4016 adds10Pexelsstockphotos public/jarvis-systems/trades-stock/** and stock-manifest.json with actualsourcepages/authors/license URLs. Images742×400, decodedandvisuallyinspectedascontactsheet; no licencepurchase or endorsementclaim. MainDrive existing website-rebuild-20261107/assets/trades-stock contains matchingcopies/manifest; cloudsyncunverified. Rootassetcreationended; child integratesvia cherry-pick f6e4016 and exclusivesourceownership afterward. Actual appentry https://jarvisweb-sistema.jarvisworks-co.workers.dev/ verifiednormalChrome documenttitleJarvisWebSistema, Prisijungimas/email/passwordfields (no credentials submitted); read-only proofapp-entry-verification.json. Nonbrowserurllib403 wastransport/clientdifference, not missingURL. Blogomitted; noinventednavpage. Existingneutralreviewfacts/ownprocessdurationskeeptruthful.
+## Source requirements / acceptance
+Retained SPEC atdocs/jarvis-stone-source-match/SPEC.md, all9userimages, sourceGIFloops/metrics inprivateDrive. Fourcorefeatures+LocalSEO, noappsection; laptopform→phonefirstfeature, correct5meaningfulcycles; genuineGoogle5.0/1(noquoteinvent), sourcehero/Why/trades/footer, noextraSMSdemoblock/publiccaptions. Useronlyreviewsafterconcretepage, noquestionnaire. Leadindependentallsections+allloops/mobile/no-sendreviewaftercodeexists. Oldbudget1.6Mfailedreadsonly;4Msoftestimate now pairedwithwrite-first/processgates, nottarget/default6M. Noadditionalagents/account/provider/modelchanges.
+## External actions
+10publicstockphotodownloadsvianormalChrome, primaryPexelslicensepagesread; read-onlyappentry. No send/login/accountedit/purchase/deploy/CRM/backendchange. RootsourcechangesONLYnewstock/helper/manifests, nofrontendpageedits. Originalkit/sourceGIFunmodified.
+## Next owner
+Claudecontinuation retry1 tocode, rootendswaitsnotification. ExacttaskIDreceiptinmainboardafteracceptance. Sourcechildownhandoffef10cc7 androotspec preservefullrefs. No rootpublicasseteditswhilechildruns.
