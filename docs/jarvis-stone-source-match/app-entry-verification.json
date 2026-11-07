@@ -1,0 +1,15 @@
+{
+  "url": "https://jarvisweb-sistema.jarvisworks-co.workers.dev/",
+  "title": "JarvisWeb Sistema",
+  "text": "Prisijungimas\nEl. paštas\nSlaptažodis\nPrisijungti",
+  "fields": [
+    {
+      "type": "email",
+      "name": ""
+    },
+    {
+      "type": "password",
+      "name": ""
+    }
+  ]
+}
