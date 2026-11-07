@@ -1,0 +1,968 @@
+{
+  "base": "http://127.0.0.1:55759",
+  "blocked": [],
+  "posts": [],
+  "routes": {
+    "/": {
+      "status": 200,
+      "title": "Jarvis Systems – svetainės ir rinkodaros sistemos Jūsų verslui",
+      "canonical": "https://jarvisweb.lt/",
+      "current": [],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/rezultatai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/funkcijos": {
+      "status": 200,
+      "title": "Funkcijos – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/funkcijos",
+      "current": [
+        "/funkcijos"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/funkcijos/funkcionali-svetaine": {
+      "status": 200,
+      "title": "Funkcionali svetainė – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/funkcijos/funkcionali-svetaine",
+      "current": [
+        "/funkcijos"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/funkcijos/atsiliepimu-rinkimas": {
+      "status": 200,
+      "title": "Atsiliepimų rinkimo sistema – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/funkcijos/atsiliepimu-rinkimas",
+      "current": [
+        "/funkcijos"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/funkcijos/praleistas-skambutis": {
+      "status": 200,
+      "title": "Žinutė po praleisto skambučio – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/funkcijos/praleistas-skambutis",
+      "current": [
+        "/funkcijos"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/funkcijos/kampanijos": {
+      "status": 200,
+      "title": "Kampanijos vienu paspaudimu – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/funkcijos/kampanijos",
+      "current": [
+        "/funkcijos"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/funkcijos/vietinis-seo": {
+      "status": 200,
+      "title": "Vietinis SEO – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/funkcijos/vietinis-seo",
+      "current": [
+        "/funkcijos"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/kainos": {
+      "status": 200,
+      "title": "Kainos – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/kainos",
+      "current": [
+        "/kainos"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/atsiliepimai": {
+      "status": 200,
+      "title": "Atsiliepimai – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/atsiliepimai",
+      "current": [
+        "/atsiliepimai"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/musu-darbai": {
+      "status": 200,
+      "title": "Mūsų darbai – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/musu-darbai",
+      "current": [
+        "/musu-darbai"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/rezultatai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/apie": {
+      "status": 200,
+      "title": "Apie – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/apie",
+      "current": [
+        "/apie"
+      ],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/kaip-dirbame",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/kaip-dirbame": {
+      "status": 200,
+      "title": "Kaip dirbame – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/kaip-dirbame",
+      "current": [],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/sritys": {
+      "status": 200,
+      "title": "Sritys – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/sritys",
+      "current": [],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    },
+    "/kontaktai": {
+      "status": 200,
+      "title": "Kontaktai – Jarvis Systems",
+      "canonical": "https://jarvisweb.lt/kontaktai",
+      "current": [],
+      "hash": [],
+      "links": [
+        "/",
+        "/funkcijos",
+        "/funkcijos/funkcionali-svetaine",
+        "/funkcijos/atsiliepimu-rinkimas",
+        "/funkcijos/praleistas-skambutis",
+        "/funkcijos/kampanijos",
+        "/funkcijos/vietinis-seo",
+        "/kainos",
+        "/atsiliepimai",
+        "/musu-darbai",
+        "/apie",
+        "/kontaktai",
+        "/pavyzdys/pokalbis",
+        "/svetaines",
+        "/kaip-dirbame",
+        "/sritys",
+        "/taisykles",
+        "/privatumo-politika"
+      ],
+      "h1": 1,
+      "brokenImgs": [],
+      "bookDialog": true,
+      "robots": ""
+    }
+  },
+  "overflow": {
+    "/@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/funkcijos@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/funkcijos@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/funkcijos@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/funkcijos@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/funkcijos@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/funkcijos@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/funkcijos/funkcionali-svetaine@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/funkcijos/funkcionali-svetaine@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/funkcijos/funkcionali-svetaine@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/funkcijos/funkcionali-svetaine@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/funkcijos/funkcionali-svetaine@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/funkcijos/funkcionali-svetaine@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/funkcijos/atsiliepimu-rinkimas@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/funkcijos/atsiliepimu-rinkimas@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/funkcijos/atsiliepimu-rinkimas@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/funkcijos/atsiliepimu-rinkimas@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/funkcijos/atsiliepimu-rinkimas@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/funkcijos/atsiliepimu-rinkimas@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/funkcijos/praleistas-skambutis@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/funkcijos/praleistas-skambutis@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/funkcijos/praleistas-skambutis@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/funkcijos/praleistas-skambutis@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/funkcijos/praleistas-skambutis@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/funkcijos/praleistas-skambutis@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/funkcijos/kampanijos@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/funkcijos/kampanijos@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/funkcijos/kampanijos@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/funkcijos/kampanijos@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/funkcijos/kampanijos@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/funkcijos/kampanijos@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/funkcijos/vietinis-seo@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/funkcijos/vietinis-seo@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/funkcijos/vietinis-seo@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/funkcijos/vietinis-seo@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/funkcijos/vietinis-seo@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/funkcijos/vietinis-seo@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/kainos@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/kainos@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/kainos@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/kainos@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/kainos@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/kainos@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/atsiliepimai@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/atsiliepimai@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/atsiliepimai@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/atsiliepimai@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/atsiliepimai@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/atsiliepimai@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/musu-darbai@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/musu-darbai@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/musu-darbai@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/musu-darbai@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/musu-darbai@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/musu-darbai@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/apie@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/apie@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/apie@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/apie@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/apie@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/apie@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/kaip-dirbame@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/kaip-dirbame@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/kaip-dirbame@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/kaip-dirbame@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/kaip-dirbame@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/kaip-dirbame@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/sritys@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/sritys@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/sritys@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/sritys@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/sritys@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/sritys@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    },
+    "/kontaktai@320": {
+      "scrollW": 320,
+      "W": 320,
+      "bad": []
+    },
+    "/kontaktai@390": {
+      "scrollW": 390,
+      "W": 390,
+      "bad": []
+    },
+    "/kontaktai@768": {
+      "scrollW": 768,
+      "W": 768,
+      "bad": []
+    },
+    "/kontaktai@1024": {
+      "scrollW": 1024,
+      "W": 1024,
+      "bad": []
+    },
+    "/kontaktai@1280": {
+      "scrollW": 1280,
+      "W": 1280,
+      "bad": []
+    },
+    "/kontaktai@1440": {
+      "scrollW": 1440,
+      "W": 1440,
+      "bad": []
+    }
+  },
+  "links": {
+    "/": 200,
+    "/funkcijos": 200,
+    "/funkcijos/funkcionali-svetaine": 200,
+    "/funkcijos/atsiliepimu-rinkimas": 200,
+    "/funkcijos/praleistas-skambutis": 200,
+    "/funkcijos/kampanijos": 200,
+    "/funkcijos/vietinis-seo": 200,
+    "/kainos": 200,
+    "/atsiliepimai": 200,
+    "/musu-darbai": 200,
+    "/apie": 200,
+    "/kontaktai": 200,
+    "/rezultatai": 200,
+    "/pavyzdys/pokalbis": 200,
+    "/svetaines": 200,
+    "/kaip-dirbame": 200,
+    "/sritys": 200,
+    "/taisykles": 200,
+    "/privatumo-politika": 200
+  },
+  "checks": {
+    "/kainos": {
+      "menuOpen": true,
+      "menuEscFocus": true,
+      "bookFromMenu": true,
+      "bookFromBody": true,
+      "emailInvalid": true,
+      "emailLive": {
+        "calls": 2,
+        "url": "http://127.0.0.1:55759/t/form",
+        "email": "jonas@example.com",
+        "omitted": true,
+        "context": "Jarvis Systems: pokalbis dėl sistemos (/kainos)"
+      },
+      "preview": {
+        "mode": "preview",
+        "status": "Tai peržiūros versija, todėl registracija neišsiųsta. Pokalbiui paskambinkite:"
+      },
+      "bookEscFocus": true
+    },
+    "/funkcijos/kampanijos": {
+      "menuOpen": true,
+      "menuEscFocus": true,
+      "bookFromMenu": true,
+      "bookFromBody": true,
+      "emailInvalid": true,
+      "emailLive": {
+        "calls": 2,
+        "url": "http://127.0.0.1:55759/t/form",
+        "email": "jonas@example.com",
+        "omitted": true,
+        "context": "Jarvis Systems: pokalbis dėl sistemos (/funkcijos/kampanijos)"
+      },
+      "preview": {
+        "mode": "preview",
+        "status": "Tai peržiūros versija, todėl registracija neišsiųsta. Pokalbiui paskambinkite:"
+      },
+      "bookEscFocus": true
+    },
+    "/kontaktai": {
+      "menuOpen": true,
+      "menuEscFocus": true,
+      "bookFromMenu": true,
+      "bookFromBody": true,
+      "emailInvalid": true,
+      "emailLive": {
+        "calls": 2,
+        "url": "http://127.0.0.1:55759/t/form",
+        "email": "jonas@example.com",
+        "omitted": true,
+        "context": "Jarvis Systems: pokalbis dėl sistemos (/kontaktai)"
+      },
+      "preview": {
+        "mode": "preview",
+        "status": "Tai peržiūros versija, todėl registracija neišsiųsta. Pokalbiui paskambinkite:"
+      },
+      "bookEscFocus": true
+    },
+    "dropdown": true
+  },
+  "missing": [],
+  "fails": []
+}
