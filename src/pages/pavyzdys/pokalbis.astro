@@ -2,8 +2,6 @@
 /* Local callback-flow preview from CALLBACK-FUNNEL-ADDENDUM.md. No submission, tracking or calendar.
    Own intro/testimonial videos do not exist yet: omit them rather than inventing proof or footage. */
 import '../../styles/o2.css';
-import Icon from '@components/o2/Icon.astro';
-import { GOOGLE } from '@data/o2.js';
 ---
 <!doctype html>
 <html lang="lt">
@@ -19,23 +17,11 @@ import { GOOGLE } from '@data/o2.js';
   <body class="o2">
     <header class="callback-head"><a href="/" aria-label="Jarvis Systems – pradžia"><img src="/jarvis-systems/logo-on-white.webp" width="196" height="72" alt="Jarvis Systems" /></a></header>
     <main class="callback">
-      <p class="callback-note" role="status">Vietinė peržiūra: užklausa neišsiųsta ir skambutis neužsakytas.</p>
       <h1>Kitas žingsnis – mūsų skambutis</h1>
       <p class="callback-lead">Veikiančioje svetainėje po pateiktos užklausos susisiekiame telefonu. Kalendoriuje rinktis laiko nereikia.</p>
       <section class="callback-step" aria-labelledby="about-call">
         <h2 id="about-call">Apie ką kalbėsimės?</h2>
         <p>Per 15–20 minučių aptarsime Jūsų veiklą ir parodysime, kaip sistema veiktų Jūsų versle.</p>
-      </section>
-      <section aria-labelledby="callback-proof">
-        <h2 id="callback-proof">Mūsų Google įvertinimas</h2>
-        <div class="proof__card">
-          <div class="proof__media"><span class="proof__big">{GOOGLE.rating}</span><span class="proof__of">iš 5 · Google</span></div>
-          <div class="proof__txt">
-            <p class="proof__stars" aria-label="5 iš 5">{[1, 2, 3, 4, 5].map(() => <Icon name="star" size={24} />)}</p>
-            <p class="proof__q">„JarvisCo“ Google verslo profilis · {GOOGLE.count}.</p>
-            <p class="proof__foot"><a href={GOOGLE.url} target="_blank" rel="noopener">Žiūrėti Google <Icon name="arrow" size={18} /></a></p>
-          </div>
-        </div>
       </section>
       <p class="callback-back"><a href="/">Grįžti į pradžią</a></p>
     </main>
@@ -45,7 +31,6 @@ import { GOOGLE } from '@data/o2.js';
 <style>
   .callback-head{height:100px;display:flex;align-items:center;justify-content:center;background:#fff}
   .callback{max-width:920px;margin:0 auto;padding:48px 24px 72px;text-align:center}
-  .callback-note{padding:14px 20px;background:#fff5df;border:1px solid var(--gold);border-radius:5px;font-size:15px;margin-bottom:36px}
   h1{font-size:44px;line-height:1.25;color:var(--navy);margin-bottom:24px}
   h2{font-size:28px;line-height:1.35;color:var(--navy);margin-bottom:16px}
   .callback-lead{font-size:20px;max-width:720px;margin:auto}

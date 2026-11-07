@@ -73,18 +73,6 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .chev--navy{margin-bottom:-125px;z-index:1}
 @media (max-width:767px){.h1c{font-size:28px}.chev{padding-bottom:90px!important;clip-path:polygon(0 0,100% 0,100% calc(100% - 44px),39% 100%,0 calc(100% - 44px))}.slant{clip-path:polygon(0 0,39% 44px,100% 0,100% 100%,0 100%)}.chev.slant{clip-path:polygon(0 0,39% 44px,100% 0,100% calc(100% - 44px),39% 100%,0 calc(100% - 44px))}.chev--navy{margin-bottom:-44px}}
 
-/* Proof: one genuine Google rating card in the source testimonial-card format */
-.proof{padding:90px 16px}
-.proof__card{max-width:632px;margin:72px auto 0;background:#fff;border-radius:10px;padding:20px;display:flex;gap:16px;align-items:stretch}
-.o2 .proof__media{flex:0 0 250px;height:210px;border-radius:10px;background:var(--navy);color:#fff;display:grid;place-content:center;justify-items:center;text-decoration:none;gap:4px}
-.proof__big{font-weight:800;font-size:72px;line-height:1}
-.proof__of{color:var(--muted);font-weight:600;font-size:15px}
-.proof__txt{display:flex;flex-direction:column;gap:14px;min-width:0;flex:1}
-.proof__stars{display:flex;gap:4px;color:#F4B400}
-.proof__q{font-size:18px;line-height:28px}
-.proof__foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:16px}
-.proof__foot a{color:var(--gold-ink);font-weight:700;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
-@media (max-width:640px){.proof__card{flex-direction:column;margin-top:36px}.o2 .proof__media{flex:none;height:150px}.proof{padding:48px 16px}}
 
 /* Features: 5 alternating rows, 580 visual + 612 text (row x76 w1288 at 1440) */
 .feats{padding:60px 0 80px}
@@ -104,11 +92,11 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .dev{margin:0;position:relative;width:100%;aspect-ratio:1080/1336;--s:.537}
 .dev__stage{position:absolute;inset:0 auto auto 0;width:1080px;height:1336px;transform-origin:0 0;transform:scale(var(--s))}
 .lapl,.phl{position:absolute;inset:0}
-.dev__frame,.dev__isl{position:absolute;inset:0;width:1080px!important;height:1336px!important;max-width:none!important}
+.dev__frame{position:absolute;inset:0;width:1080px!important;height:1336px!important;max-width:none!important}
 .dev__frame{mix-blend-mode:multiply}
-.dev__isl{z-index:3;pointer-events:none}
+.dev__mask{position:absolute;inset:0;width:1080px;height:1336px;z-index:2;-webkit-mask-size:1080px 1336px;mask-size:1080px 1336px;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 .scn:not(.is-on) *{animation-play-state:paused!important}
-.scr{position:absolute;left:0;top:0;transform-origin:0 0;border-radius:52px;overflow:hidden;background:#fff;z-index:2;font-family:Sora,Arial,sans-serif;color:#111;backface-visibility:hidden}
+.scr{position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden;background:#fff;font-family:Sora,Arial,sans-serif;color:#111;backface-visibility:hidden}
 .scr>*{position:absolute}
 .scr__bar{left:0;right:0;top:0;display:flex;justify-content:space-between;padding:20px 36px 0;height:62px;font-weight:600;font-size:17px;z-index:4}
 .scr__sig{width:44px;height:12px;border-radius:3px;background:linear-gradient(90deg,#111 0 60%,transparent 60% 70%,#111 70%);margin-top:6px}
@@ -122,7 +110,8 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .ty--wrap{white-space:normal}
 /* SMS conversation */
 .sms__who{top:70px;left:0;right:0;display:grid;justify-items:center;gap:6px;font-size:15px;font-weight:600;color:#333;padding-top:26px}
-.sms__who span{width:58px;height:58px;border-radius:50%;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-weight:800;font-size:20px}
+.av{border-radius:50%;background:#2575AC;display:grid;place-items:center;overflow:hidden}.av img{width:82%;height:auto}
+.sms__who .av{width:58px;height:58px}
 .sms{left:18px;right:18px;top:200px;display:flex;flex-direction:column;gap:14px}
 .sms--top{top:96px}
 .bb{font-size:21px;line-height:1.38;padding:14px 18px;border-radius:22px;max-width:88%;margin:0}
@@ -133,35 +122,26 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .bb--dots.bb--out{right:0}.bb--dots.bb--in{left:0}
 .sms .bb--dots{position:absolute;bottom:-60px}
 .bb--dots i{width:10px;height:10px;border-radius:50%;background:currentColor;opacity:.7}
-/* web: laptop with demo website (laid out 1302×708, scaled 2/3 onto the glass) */
+/* web: laptop showing the actual captured betonogaminiai.lt (1440×783, scaled onto the glass) */
 .lapl{opacity:0}
-.lap{position:absolute;overflow:hidden;background:#111;z-index:2}
-.site{position:absolute;left:0;top:0;width:1302px;height:708px;transform-origin:0 0;font-family:Sora,Arial,sans-serif;color:#fff;background:url('/jarvis-systems/demo/bg-hero.webp') center/cover}
-.site::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,22,34,.82),rgba(18,22,34,.35) 70%)}
-.site__hero{position:absolute;left:40px;top:28px;width:380px}
-.site__nav b{font-weight:800;font-size:22px;letter-spacing:.04em;color:var(--gold)}
-.site__h{margin-top:150px;font-weight:800;font-size:40px;line-height:1.15}
-.site__p{margin-top:18px;font-size:17px;line-height:1.5;color:#e2e4ea}
-.site__form{position:absolute;left:451px;top:0;width:400px;height:708px;background:var(--navy);box-shadow:0 0 40px rgba(0,0,0,.5)}
-.site__form>*{position:absolute}
-.site__logo{left:160px;top:56px;width:80px;height:64px;display:grid;place-items:center;background:var(--gold);color:var(--navy);font-weight:800;font-size:28px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
-.site__fh{left:0;right:0;top:150px;text-align:center;font-weight:800;font-size:28px;letter-spacing:.02em}
-.site__l{font-size:13px;font-weight:600;color:#cfd2dc}
-.site__in{height:42px;background:#fff;border-radius:4px;color:#222;font-size:16px;padding:10px 12px;overflow:hidden}
-.site__ta{padding-top:12px}
-.site__box{left:28px;top:426px;width:20px;height:20px;border-radius:3px;border:2px solid #fff;display:grid;place-items:center;background:#E8A743}
-.site__c{left:58px;top:424px;width:316px;font-size:12px;line-height:1.45;color:#cfd2dc}
-.site__btn{left:28px;top:482px;width:344px;height:48px;border-radius:5px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:800;font-size:17px;letter-spacing:.06em}
-.site__pics{position:absolute;right:0;top:0;width:451px;height:708px}
+.lap{position:absolute;overflow:hidden;background:#111}
+.bsite{position:absolute;left:0;top:0;width:1440px;height:783px;transform-origin:0 0}
+.bsite__img{position:absolute;inset:0;width:1440px!important;height:783px!important;max-width:none!important}
+.bsite__img+.bsite__img{opacity:1}
+.bsite__ty{position:absolute;background-repeat:no-repeat;background-size:1440px 783px}
+.bsite__blank{position:absolute;background:#fff;opacity:1}
+.bsite__press{position:absolute;background:rgba(0,0,0,.25);opacity:0}
+.cur--site{width:44px;height:44px}
 /* reviews */
-.rv-a{left:30px;top:370px;width:330px;padding:26px 20px;background:var(--navy);color:#fff;border-radius:14px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35);opacity:0}
+.rv-a{left:30px;top:340px;width:330px;padding:22px 20px 26px;background:#2575AC;color:#fff;border-radius:14px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35);opacity:0}
+.rv-a__logo{width:120px;margin:0 auto 10px}
 .rv-a__h{font-weight:800;font-size:22px;letter-spacing:.02em}
 .rv-stars{color:#FBBC04;font-size:30px;letter-spacing:4px;margin:8px 0 14px}
-.rv-a__btn{display:inline-block;background:var(--gold);color:var(--navy);font-weight:700;font-size:18px;padding:12px 22px;border-radius:6px}
+.rv-a__btn{display:inline-block;background:#fff;color:#2575AC;font-weight:700;font-size:18px;padding:12px 22px;border-radius:6px}
 .rv-b{left:22px;top:240px;width:346px;padding:22px;background:#2B2C30;color:#e8eaed;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .rv-b__top{display:flex;gap:12px;align-items:center}
 .rv-b__top b{display:block;font-size:19px}.rv-b__top small{font-size:14px;color:#9aa0a6}
-.rv-b__av{width:46px;height:46px;border-radius:50%;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:800}
+.rv-b__av{width:46px;height:46px;flex:none}
 .rv-b__stars{display:flex;justify-content:space-between;margin:28px 10px 22px;font-size:46px;line-height:1}
 .rv-b__stars span{color:#FBBC04}
 .rv-b__ta{min-height:130px;border:1px solid #5f6368;border-radius:8px;padding:14px;font-size:18px;line-height:1.45}

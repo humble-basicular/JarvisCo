@@ -1,6 +1,6 @@
 ---
 /* Jarvis Systems homepage — Stone source-match (docs/jarvis-stone-source-match/SPEC.md, USER7):
-   hero → Google proof → 5 feature rows (website laptop→SMS, reviews, missed call, campaigns, local SEO)
+   hero (small Google badge only; USER13 removed the big proof slot) → 5 feature rows (website laptop→SMS, reviews, missed call, campaigns, local SEO)
    → trades carousel → 3 steps → 6 "why" cards → FAQ → talk card → footer. Press, partners and the second
    testimonial strip of the source are omitted (no truthful equivalent). /svetaines is the website offer. */
 import O2Layout from '@layouts/O2Layout.astro';
@@ -10,8 +10,8 @@ import { o2, O2_CTA, GOOGLE } from '@data/o2.js';
 import { TRADES } from '@data/o2-trades.js';
 import { bookingLive } from '@data/o2-env.js';
 import { brand } from '@data/content.js';
-const { hero, proof, features, trades, process: proc, why, faq, talk } = o2;
-const bookMsgs = JSON.stringify({ errPhone: talk.errPhone, previewOk: talk.previewOk, sending: talk.sending, ok: talk.ok, timesSpoken: talk.timesSpoken, err: talk.err, context: talk.context });
+const { hero, features, trades, process: proc, why, faq, talk } = o2;
+const bookMsgs = JSON.stringify({ errEmail: talk.errEmail, errPhone: talk.errPhone, previewOk: talk.previewOk, sending: talk.sending, ok: talk.ok, timesSpoken: talk.timesSpoken, err: talk.err, context: talk.context });
 const href = (h: string) => (h === 'gbp' ? GOOGLE.url : h);
 const ext = (h: string) => /^https?:/.test(href(h));
 ---
@@ -33,20 +33,6 @@ const ext = (h: string) => /^https?:/.test(href(h));
     </div>
   </section>
 
-  <section class="proof sec--grey chev" id="atsiliepimai" aria-labelledby="pr-h">
-    <h2 class="h1c" id="pr-h">{proof.title.map((l) => <span>{l}</span>)}</h2>
-    <div class="proof__card">
-      <a class="proof__media" href={GOOGLE.url} target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
-        <span class="proof__big">{GOOGLE.rating}</span>
-        <span class="proof__of">iš 5 · Google</span>
-      </a>
-      <div class="proof__txt">
-        <p class="proof__stars" aria-label={`${GOOGLE.rating} iš 5`}>{[1, 2, 3, 4, 5].map(() => <Icon name="star" size={24} />)}</p>
-        <p class="proof__q">{proof.card}: <b>{GOOGLE.rating} iš 5</b> ({GOOGLE.count}).</p>
-        <p class="proof__foot"><b>{proof.source}</b><a href={GOOGLE.url} target="_blank" rel="noopener">{proof.more} <Icon name="arrow" size={18} /></a></p>
-      </div>
-    </div>
-  </section>
 
   <section class="feats" id="funkcijos" aria-labelledby="f-h">
     <h2 class="h1c h1c--900" id="f-h">{features.title.map((l) => <span>{l}</span>)}</h2>
@@ -130,6 +116,8 @@ const ext = (h: string) => /^https?:/.test(href(h));
         <label>{talk.name}<input name="name" autocomplete="given-name" maxlength="60" /></label>
         <label>{talk.phone}<input name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="b-ph-e" /></label>
         <span class="err" id="b-ph-e" data-err="phone"></span>
+        <label class="book__wide">{talk.email}<input name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" aria-describedby="b-em-e" /></label>
+        <span class="err" id="b-em-e" data-err="email"></span>
         <label class="book__wide">{talk.company}<input name="company" maxlength="80" /></label>
         <fieldset class="book__wide"><legend>{talk.time}</legend>{talk.times.map(([v, l], i) => <label class="rad"><input type="radio" name="contact_time" value={v} checked={i === 1} /> {l}</label>)}</fieldset>
         <label class="hp" aria-hidden="true">Svetainė<input name="website" tabindex="-1" autocomplete="off" /></label>
