@@ -76,7 +76,7 @@ for (const route of []) {
 }
 // v4 pages with the step-by-step preview form (funnel spec §2–§4, plan §4.2–§4.3).
 const WIRE = ['code', 'name', 'phone', 'services', 'services_other', 'area', 'area_other', 'photos_ok', 'standout', 'contact_time', 'files', 'website', 'email', 'preview_via'];
-for (const route of ['/', '/sildymui', '/noriu', '/rezultatai']) {
+for (const route of ['/svetaines', '/sildymui', '/noriu', '/rezultatai']) {
   const page = routes.get(route);
   check(Boolean(page), `Missing ${route}`);
   if (!page) continue;

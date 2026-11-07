@@ -10,7 +10,7 @@ import logoSvg from '../../public/brand/editorial/jarvisco-wordmark-light.svg?ra
 
 interface Props { nav: { label: string; href: string }[]; formHref?: string }
 // Pages with the form link to it in place; others go to the homepage form.
-const { nav, formHref = '/#forma' } = Astro.props;
+const { nav, formHref = '/svetaines#forma' } = Astro.props;
 const logo = logoSvg
   .replace(/<title>[\s\S]*?<\/title>/, '')
   .replace(/fill="#[0-9A-Fa-f]{6}"/g, 'fill="currentColor"')

@@ -62,10 +62,10 @@ export const nav = {
   // Legal pages and 404: anchors point back to the home page.
   other: [
     { label: 'Rezultatai', href: '/rezultatai' },
-    { label: 'Procesas', href: '/#procesas' },
-    { label: 'Kaina', href: '/#kaina' },
-    { label: 'Apie', href: '/#apie' },
-    { label: 'D.U.K.', href: '/#duk' },
+    { label: 'Procesas', href: '/svetaines#procesas' },
+    { label: 'Kaina', href: '/svetaines#kaina' },
+    { label: 'Apie', href: '/svetaines#apie' },
+    { label: 'D.U.K.', href: '/svetaines#duk' },
   ],
   menuLabel: 'Meniu',
   closeLabel: 'Uždaryti',

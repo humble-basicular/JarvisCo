@@ -1,0 +1,83 @@
+---
+/* Jarvis Systems homepage shell — Stone reference: white 100px NON-sticky header (stacked mascot
+   logo 200×73, nav, gold CTA), mobile menu in a native <dialog>, dark footer. Sora only (kit v4). */
+import '../styles/o2.css';
+import { brand } from '@data/content.js';
+import { o2, O2_CTA, NAME } from '@data/o2.js';
+import Icon from '@components/o2/Icon.astro';
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+const canonical = new URL('/', brand.url).href;
+const shareBase = process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : brand.url;
+const ogImage = new URL('/assets/og-v4.png', shareBase).href;
+const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+const f = o2.footer;
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="lt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#1F2236" />
+    <link rel="icon" href="/jarvis-systems/favicon/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/jarvis-systems/favicon/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/jarvis-systems/favicon/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/jarvis-systems/favicon/apple-touch-icon-180.png" />
+    <link rel="preload" href="/jarvis-systems/fonts/sora-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/jarvis-systems/fonts/sora-400.woff2" as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="lt_LT" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    {cfToken && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: cfToken })}></script>}
+  </head>
+  <body class="o2">
+    <a class="skip" href="#turinys">Pereiti prie turinio</a>
+    <header class="hdr">
+      <div class="hdr__in">
+        <a class="hdr__logo" href="/" aria-label={`${NAME} – pradžia`}><img src="/jarvis-systems/logo-on-white.webp" width="200" height="73" alt={NAME} /></a>
+        <nav class="hdr__nav" aria-label="Pagrindinė navigacija">
+          {o2.nav.map((n) => <a href={n.href}>{n.label}</a>)}
+        </nav>
+        <a class="hdr__tel" href={brand.telHref} data-track="cta_call">{brand.phone}</a>
+        <a class="btn hdr__cta" href="#pokalbis" data-track="cta_book">{O2_CTA}</a>
+        <button class="hdr__burger" type="button" data-menu-open aria-label={o2.menu} aria-haspopup="dialog"><Icon name="menu" size={34} /></button>
+      </div>
+    </header>
+    <dialog class="menu" data-menu aria-label={o2.menu}>
+      <div class="menu__top">
+        <img src="/jarvis-systems/logo-on-white.webp" width="160" height="58" alt="" />
+        <button type="button" class="menu__x" data-menu-close aria-label={o2.close}><Icon name="x" size={30} /></button>
+      </div>
+      <nav aria-label={o2.menu}>
+        {o2.nav.map((n) => <a href={n.href} data-menu-link>{n.label}</a>)}
+        <a href={brand.telHref} data-menu-link>{brand.phone}</a>
+      </nav>
+      <a class="btn" href="#pokalbis" data-menu-link>{O2_CTA}</a>
+    </dialog>
+    <main id="turinys"><slot /></main>
+    <footer class="ftr">
+      <div class="ftr__in">
+        <div class="ftr__row">
+          <img src="/jarvis-systems/logo-on-navy.webp" width="200" height="73" alt={NAME} loading="lazy" />
+          <p class="ftr__ready">{f.ready} <a class="btn" href="#pokalbis">{O2_CTA}</a></p>
+        </div>
+        <div class="ftr__learn"><p>{f.learn}</p><a class="btn btn--ghost" href={brand.telHref}>{brand.phone}</a></div>
+        <div class="ftr__cols">
+          <div><h2>{f.colLinks}</h2><ul>{o2.nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}<li><a href="/rezultatai">{f.results}</a></li></ul></div>
+          <div><h2>{f.colFeatures}</h2><ul>{o2.features.items.map((it) => <li><a href={`#${it.id}`}>{it.title}</a></li>)}</ul></div>
+          <div><h2>{f.colContact}</h2><ul><li><a href={brand.telHref}>{brand.phone}</a></li><li><a href={`mailto:${brand.email}`}>{brand.email}</a></li><li>{brand.city}, Lietuva</li></ul></div>
+        </div>
+        <p class="ftr__line">{f.line}</p>
+        <div class="ftr__legal"><span>© {year} {NAME} · {brand.owner}, {brand.status.toLowerCase()}</span><span><a href="/privatumo-politika">{f.privacy}</a> · <a href="/taisykles">{f.terms}</a></span></div>
+      </div>
+    </footer>
+    <script src="../scripts/o2.ts"></script>
+  </body>
+</html>

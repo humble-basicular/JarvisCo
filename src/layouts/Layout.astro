@@ -27,7 +27,7 @@ interface Props {
   /** Kept for older callers; the v4 design has no sticky bar. */
   stickyBar?: boolean;
 }
-const { title, description, nav = headerText.nav.map((i) => ({ ...i, href: `/${i.href}` })), faq = [], noindex = false, canonicalPath, formHref, ogImage: ogPath = '/assets/og-v4.png' } = Astro.props;
+const { title, description, nav = headerText.nav.map((i) => ({ ...i, href: `/svetaines${i.href}` })), faq = [], noindex = false, canonicalPath, formHref, ogImage: ogPath = '/assets/og-v4.png' } = Astro.props;
 const canonical = new URL(canonicalPath ?? (Astro.url.pathname.replace(/\/$/, '') || '/'), brand.url).href;
 // Vercel preview builds point the share card at the preview itself, so a shared
 // preview link shows the card that will go live (canonical stays jarvisweb.lt).

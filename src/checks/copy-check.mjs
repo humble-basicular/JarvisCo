@@ -46,7 +46,7 @@ const v4Shared = [
 ];
 const h1 = (lines) => lines.join(' ');
 const headings = new Map([
-  ['index.html', h1(v4.hero.home.lines)],
+  ['svetaines/index.html', h1(v4.hero.home.lines)],
   ['sildymui/index.html', h1(v4.hero.heating.lines)],
   ['noriu/index.html', h1(v4.hero.heating.lines)],
   ['rezultatai/index.html', h1(v4.hero.results.lines)],
@@ -54,7 +54,18 @@ const headings = new Map([
 const required = new Map([...headings].map(([path, title]) => [path, [...v4Shared, title]]));
 // Honest wording rule (plan §1): every "0 €" is followed by its limit, and the page names the domain fee.
 const ZERO = /(?<![\d,.])0\s?€/gu;
-const V4_PAGES = new Set(['index.html', 'sildymui/index.html', 'noriu/index.html', 'rezultatai/index.html', '404.html']);
+const V4_PAGES = new Set(['svetaines/index.html', 'sildymui/index.html', 'noriu/index.html', 'rezultatai/index.html', '404.html']);
+// Offer2 homepage (index.html, 2026-11-05): its own claims rules. It legitimately talks about missed calls,
+// automatic SMS and Google reviews, so the website-offer bans above do not apply to it.
+const O2_PAGE = 'index.html';
+const o2Banned = [
+  /197\s?€/u, /\b49\s?€/u, /39\s?€/u,                 // only the first-five terms (50 € / 30 d. / 97 €) are agreed
+  /garantuoj(?:ame|u)\b/iu,                           // no result guarantees ("Ar garantuojate" question stays allowed)
+  /5\s?žvaigžd|penkių žvaigždučių|tik geri atsiliepim/iu, // no review gating
+  /įskaičiuot\w*\s+SMS|SMS\w*\s+įskaičiuot/iu,        // SMS usage inclusion is not agreed
+  /revoliucin|geriausi|dirbtin\w+ intelekt|\bDI\b/iu,
+  /NUOTRAUKA\s*:|CITATA\s*:/iu,
+];
 const built = pages();
 const errors = [];
 for (const page of built) {
@@ -62,7 +73,8 @@ for (const page of built) {
   const labels = page.nodes.flatMap((node) => (node.attrs ?? [])
     .filter((a) => ['alt', 'aria-label', 'title', 'placeholder', 'data-caption', 'data-messages', 'content'].includes(a.name))
     .map((a) => a.value)).join(' ');
-  for (const re of page.path.startsWith('perziura/') ? banned : [...banned, ...agencyOnly]) {
+  const rules = page.path === O2_PAGE ? o2Banned : page.path.startsWith('perziura/') ? banned : [...banned, ...agencyOnly];
+  for (const re of rules) {
     const match = normalized(`${visible} ${labels}`).match(re);
     if (match) errors.push(`${page.file}: forbidden ${JSON.stringify(match[0])}`);
   }
