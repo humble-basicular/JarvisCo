@@ -2,6 +2,31 @@
   "directory": "/Users/matasbasinskas/Library/CloudStorage/GoogleDrive-matasbasinskas1@gmail.com/My Drive/Business/JarvisWeb/branding-2026-11-07/website-rebuild-20261107/final-review-20261107",
   "files": [
     {
+      "file": "FINAL-ACCEPTANCE.md",
+      "bytes": 7692,
+      "sha256": "8dc44cfea8f8d8a2fd3ac1b0cc146d7a2af6a78245e45331b8b7c135014d5e9f"
+    },
+    {
+      "file": "book.png",
+      "bytes": 55082,
+      "sha256": "c743af47a0a324d675a8053e9a2f27994ffb05ac33aa6f35f8618aa53fa8a8bb"
+    },
+    {
+      "file": "callback-390.png",
+      "bytes": 82046,
+      "sha256": "155a8193059e6985b4dc32411368793d19c6a3def3ba046b44cd068dd48ed3f9"
+    },
+    {
+      "file": "campaign-timeline.png",
+      "bytes": 186396,
+      "sha256": "7c84edd7023fc8d41163f70fb909054a547d8405290b2e28b7bf394fb43872f0"
+    },
+    {
+      "file": "demo.png",
+      "bytes": 101568,
+      "sha256": "653a6f7fbce778a765b3a7798143607ead88d482a4d659399393ba68c9b1a3eb"
+    },
+    {
       "file": "full-1440.png",
       "bytes": 2712811,
       "sha256": "80e4c398e670cdb4dd3a88c4c0fb822e5ab166b78a9f1e5311dbbb38bf8f12e5"
@@ -12,9 +37,9 @@
       "sha256": "2dfa329d003a318efad7a81c943d1b134c99a135b703ef08a4181f969caf9b36"
     },
     {
-      "file": "callback-390.png",
-      "bytes": 82046,
-      "sha256": "155a8193059e6985b4dc32411368793d19c6a3def3ba046b44cd068dd48ed3f9"
+      "file": "missed-timeline.png",
+      "bytes": 151618,
+      "sha256": "bc6643dbc922dd7994a919199135a831017f95dc079a104087eaff65ce402739"
     },
     {
       "file": "receipt.json",
@@ -22,19 +47,24 @@
       "sha256": "2c11f06e113706276d9ead60090d167a3dbe7dfb67b02cbd56cc786fefb79228"
     },
     {
-      "file": "book.png",
-      "bytes": 55082,
-      "sha256": "c743af47a0a324d675a8053e9a2f27994ffb05ac33aa6f35f8618aa53fa8a8bb"
+      "file": "reviews-timeline.png",
+      "bytes": 150487,
+      "sha256": "98b4dce0774bca162b8bcc2e7b05d2bc283ec475000dbfba821e08078cc3d12f"
     },
     {
-      "file": "demo.png",
-      "bytes": 101568,
-      "sha256": "653a6f7fbce778a765b3a7798143607ead88d482a4d659399393ba68c9b1a3eb"
+      "file": "seo-timeline.png",
+      "bytes": 101048,
+      "sha256": "ba7ccb9d4e196b0d5f33765f0eefcb31fe0e993a61ae82628ecfb17249d8d51b"
     },
     {
       "file": "steps-768.png",
       "bytes": 93639,
       "sha256": "6d08ad6dad0bf03814680a62d251913691f90531887e97e9bd77c984d9981be7"
+    },
+    {
+      "file": "web-timeline.png",
+      "bytes": 154653,
+      "sha256": "295c0684ade1b0171cebcc1c610d31bc4a406e53aa85a3ee9ae8ea180e1aa7c6"
     }
   ],
   "cloudSyncVerified": false
