@@ -1,0 +1,22 @@
+---
+/* /kontaktai — contact facts + booking (the same no-send-in-preview dialog) + app login. No # links:
+   every CTA on the site falls back to this page without JS. */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import { O2_CTA, APP_URL } from '@data/o2.js';
+import { pages } from '@data/o2-pages.js';
+import { brand } from '@data/content.js';
+const P = pages.kontaktai;
+---
+<O2Layout title={P.title} description={P.description} path="/kontaktai">
+  <PageHead title={P.h} lead={P.lead} flat>
+    <div class="contact">
+      <div class="contact__card">
+        <dl>{P.rows.map(([k, v, h]) => <div><dt>{k}</dt><dd>{h ? <a href={h}>{v}</a> : v}</dd></div>)}</dl>
+        <a class="btn" href={brand.telHref} data-book-open data-track="cta_book">{O2_CTA}</a>
+        <p class="contact__app"><a href={APP_URL}>{P.app}</a></p>
+      </div>
+      <img class="contact__img" src="/jarvis-systems/mascot-present.webp" width="520" height="780" alt="Jarvis Systems talismanas rodo į pokalbio mygtuką" loading="lazy" />
+    </div>
+  </PageHead>
+</O2Layout>

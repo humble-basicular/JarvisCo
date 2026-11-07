@@ -10,7 +10,7 @@
      only after an explicit "tęsiam". Needed new domain is client-owned and extra. New website / ads /
      local SEO are separate agency work, not part of the 50 € setup.
    - SMS provider is NOT active. Feature media are visual demonstrations, never proof of delivery.
-   - Google proof: own JarvisCo Maps profile 5,0 (verified); 1 review (user-reported). No quote/author.
+   - Google: only the small hero badge (own JarvisCo profile 5,0). USER13: no big proof slot, no Google boast elsewhere.
    - NOT decided, never stated: SMS allowance, later setup price, setup duration, support hours. */
 import { brand } from './content.js';
 
@@ -25,11 +25,11 @@ export const o2 = {
     description: 'Svetainės užklausos tampa SMS pokalbiais, praleistas skambutis gauna žinutę, atsiliepimų prašymai ir kampanijos buvusiems klientams – vienoje programėlėje. Pirmiems 5: 50 € paruošimas ir 30 dienų nemokamai.',
   },
   nav: [
-    { label: 'Funkcijos', href: '#funkcijos' },
-    { label: 'Kainos', href: '#duk' },
-    { label: 'Atsiliepimai', href: '#atsiliepimai' },
-    { label: 'Mūsų darbai', href: '/rezultatai' },
-    { label: 'Apie', href: '#kodel' },
+    { label: 'Funkcijos', href: '/funkcijos' },
+    { label: 'Kainos', href: '/kainos' },
+    { label: 'Atsiliepimai', href: '/atsiliepimai' },
+    { label: 'Mūsų darbai', href: '/musu-darbai' },
+    { label: 'Apie', href: '/apie' },
   ],
   login: 'Prisijungti',
   menu: 'Meniu', close: 'Uždaryti',
@@ -38,15 +38,9 @@ export const o2 = {
     lead: ['Be pasakų – rinkodara nėra raketų mokslas.', 'Nė viena agentūra (net ir mūsų) neturi stebuklingo sprendimo visoms Jūsų problemoms. Duosime įrankius laimėti, bet naudotis jais turėsite patys!'],
     mascotAlt: 'Jarvis Systems talismanas – statybininkas geltona liemene, rankos sukryžiuotos',
   },
-  proof: {
-    title: ['Geriau vieną kartą pamatyti…', 'Pažiūrėkite, ką apie mus sako Google'],
-    card: 'Mūsų „JarvisCo“ Google verslo profilio įvertinimas',
-    source: '-Google',
-    more: 'Žiūrėti',
-  },
   features: {
     title: ['Paprastos sistemos, kurios tiesiog veikia', 'Diplomo nereikia'],
-    demoBtn: 'Trumpa demonstracija',
+    demoBtn: 'Trumpa demonstracija', moreBtn: 'Plačiau',
     items: [
       {
         id: 'svetaine', scene: 'web', title: 'Funkcionali svetainė',
@@ -119,7 +113,7 @@ export const o2 = {
       ['price', 'Prieinama kaina', 'Kainos sukurtos tam, kad liktumėte 10 metų, o ne 10 savaičių. Planuojame dirbti ilgai.'],
       ['contract', 'Jokių sutarčių', 'Jei prieinama ir veikia puikiai, kam mums ilgalaikė sutartis… Jei būsite patenkinti, liksite.'],
       ['straight', 'Be pasakų', 'Netikime tuščiais žodžiais: tiksliai pasakome, ką padarysime, ir tai padarome. Taškas.'],
-      ['proof', 'Turime įrodymų', ['Žinome, kas veikia, o mūsų ', ['darbus', '/rezultatai'], ' ir ', ['Google įvertinimą', 'gbp'], ' galite patikrinti patys.']],
+      ['proof', 'Turime įrodymų', ['Žinome, kas veikia, o mūsų ', ['atliktus darbus', '/rezultatai'], ' galite patikrinti patys.']],
       ['improve', 'Nuolat tobuliname', 'Reguliariai atnaujiname ir tobuliname sistemas, kad už savo pinigus gautumėte kuo daugiau.'],
     ],
   },
@@ -139,7 +133,7 @@ export const o2 = {
   talk: {
     title: 'Norite susitarti dėl pokalbio?',
     text: 'Parodysime viską, ką darome, kad Jūsų verslas augtų – galėsite tai daryti patys arba leisti tai padaryti mums.',
-    name: 'Vardas', phone: 'Telefono numeris', company: 'Įmonė ar veikla (nebūtina)', time: 'Kada patogu?',
+    name: 'Vardas', phone: 'Telefono numeris', email: 'El. paštas (nebūtina)', errEmail: 'Patikrinkite el. pašto adresą.', company: 'Įmonė ar veikla (nebūtina)', time: 'Kada patogu?',
     times: [['morning', 'Rytą'], ['day', 'Dieną'], ['evening', 'Vakare']],
     submit: 'Užsiregistruoti pokalbiui', open: 'Užsiregistruoti pokalbiui', dialogTitle: 'Užsiregistruoti pokalbiui', close: 'Uždaryti', sending: 'Siunčiama…',
     dialogText: '15–20 minučių. Parodysime, kaip tai veiktų Jūsų versle. Jei netiks – pasakysime patys.',
@@ -147,15 +141,15 @@ export const o2 = {
     timesSpoken: { morning: 'rytą', day: 'dieną', evening: 'vakare', '': 'artimiausiu metu' },
     previewOk: 'Tai peržiūros versija, todėl registracija neišsiųsta. Pokalbiui paskambinkite:',
     err: `Nepavyko išsiųsti. Skambinkite ${brand.phone}.`, errPhone: 'Patikrinkite telefono numerį.',
-    orCall: 'Arba paskambinkite', context: 'Jarvis Systems: pokalbis dėl sistemos (pradžios puslapis)',
+    orCall: 'Arba paskambinkite', context: 'Jarvis Systems: pokalbis dėl sistemos',
     mascotAlt: 'Jarvis Systems talismanas rodo į pokalbio mygtuką',
   },
   demo: { close: 'Uždaryti demonstraciją' },
   footer: {
     ready: 'Pasiruošę pradėti?', learn: 'Norite sužinoti daugiau, kaip galime padėti?',
     colLinks: 'Nuorodos', colAbout: 'Apie', colFeatures: 'Funkcijos',
-    links: [['Kainos', '#duk'], ['Atsiliepimai', '#atsiliepimai'], ['Mūsų darbai', '/rezultatai'], ['Svetainės', '/svetaines']],
-    about: [['Kaip dirbame', '#procesas'], ['Sritys', '#sritys'], ['Kodėl mes', '#kodel'], ['Kontaktai', '#pokalbis']],
+    links: [['Kainos', '/kainos'], ['Atsiliepimai', '/atsiliepimai'], ['Mūsų darbai', '/musu-darbai'], ['Svetainės', '/svetaines']],
+    about: [['Kaip dirbame', '/kaip-dirbame'], ['Sritys', '/sritys'], ['Apie', '/apie'], ['Kontaktai', '/kontaktai']],
     privacy: 'Privatumo politika', terms: 'Taisyklės',
   },
 };

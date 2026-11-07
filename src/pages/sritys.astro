@@ -1,0 +1,18 @@
+---
+/* /sritys — Stone "Trades we serve": heading + photo grid of the same ten trades, ask-about-yours CTA. */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import Talk from '@components/o2/Talk.astro';
+import { o2 } from '@data/o2.js';
+import { TRADES } from '@data/o2-trades.js';
+import { pages } from '@data/o2-pages.js';
+const P = pages.sritys;
+---
+<O2Layout title={P.title} description={P.description} path="/sritys">
+  <PageHead title={P.h} lead={P.lead} flat />
+  <section class="tgrid-wrap">
+    <ul class="tgrid">{TRADES.map(([slug, label]) => <li class="tcard"><img src={`/jarvis-systems/trades-stock/${slug}.webp`} width="371" height="200" alt="" loading="lazy" decoding="async" /><span>{label}</span></li>)}</ul>
+    <p class="tgrid__cta"><a class="btn" href="/kontaktai" data-book-open>{o2.trades.cta}</a></p>
+  </section>
+  <Talk />
+</O2Layout>

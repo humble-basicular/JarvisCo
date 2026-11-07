@@ -56,7 +56,7 @@ try {
     await ev(`(async()=>{document.querySelectorAll('img[loading=lazy]').forEach(i=>i.loading='eager');await Promise.all([...document.images].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));await document.fonts.ready;return 1})()`);
     await sleep(300);
   };
-  const sections = ['header.hdr', '.hero', '#atsiliepimai', '#funkcijos', '#svetaine', '#atsiliepimai-sistema', '#skambuciai', '#kampanijos', '#seo', '#sritys', '#procesas', '#kodel', '#duk', '#pokalbis', 'footer.ftr'];
+  const sections = ['header.hdr', '.hero', '#funkcijos', '#svetaine', '#atsiliepimai-sistema', '#skambuciai', '#kampanijos', '#seo', '#sritys', '#procesas', '#kodel', '#duk', '#pokalbis', 'footer.ftr'];
   for (const w of [320, 390, 768, 1024, 1280, 1440]) {
     await load(w);
     // pause all scene loops at a representative mid-cycle moment for full-page shots
@@ -75,7 +75,7 @@ try {
   }
   // Scene frames: seek every animation of each scene to t and capture the scene box
   await load(1440);
-  const times = { web: [0.3, 1.0, 2.0, 2.9, 3.4, 3.8, 4.3, 5.5, 6.6, 9.0, 13.0], reviews: [0.5, 1.5, 2.5, 3.4, 4.3, 5.6, 7.0, 8.5], missed: [0.5, 2.0, 3.3, 4.5, 5.6, 7.0, 12.0], campaign: [0.5, 1.6, 2.5, 3.4, 4.4, 5.9, 7.2, 9.0], seo: [0.5, 1.4, 2.4, 2.9, 3.6, 6.0] };
+  const times = { web: [0.3, 0.9, 1.2, 1.5, 2.2, 3.0, 3.8, 4.6, 5.0, 5.6, 6.8, 8.0, 10.0, 13.0], reviews: [0.5, 1.5, 2.5, 3.4, 4.3, 5.6, 7.0, 8.5], missed: [0.5, 2.0, 3.3, 4.5, 5.6, 7.0, 12.0], campaign: [0.5, 1.6, 2.5, 3.4, 4.4, 5.9, 7.2, 9.0], seo: [0.5, 1.4, 2.4, 2.9, 3.6, 6.0] };
   for (const [kind, ts] of Object.entries(times)) {
     receipt.scenes[kind] = await ev(`(()=>{const s=document.querySelector('[data-scene=${kind}]');const as=s.getAnimations({subtree:true});return {animations:as.length,durations:[...new Set(as.map(a=>a.effect.getTiming().duration))],iterations:[...new Set(as.map(a=>String(a.effect.getTiming().iterations)))]}})()`);
     for (const t of ts) {
@@ -94,7 +94,12 @@ try {
   receipt.checks.menuCloseAlwaysOpener = await ev(`(async()=>{document.querySelector('.hero__cta').focus();document.querySelector('[data-menu]').showModal();const closed=new Promise(r=>document.querySelector('[data-menu]').addEventListener('close',r,{once:true}));document.querySelector('[data-menu-close]').click();await closed;return document.activeElement===document.querySelector('[data-menu-open]')})()`);
   receipt.checks.bookOpen = await ev(`(()=>{const o=document.querySelector('#pokalbis [data-book-open]');o.focus();o.click();return document.querySelector('[data-book-dialog]').open && document.activeElement.name==='name'})()`);
   receipt.checks.bookInvalid = await ev(`(()=>{const f=document.querySelector('[data-book-form]');f.querySelector('[name=phone]').value='12';f.requestSubmit();return f.querySelector('[name=phone]').getAttribute('aria-invalid')})()`);
-  receipt.checks.bookPreview = await ev(`(async()=>{const f=document.querySelector('[data-book-form]');f.querySelector('[name=phone]').value='+370 612 34567';f.requestSubmit();await new Promise(r=>setTimeout(r,200));const b=f.querySelector('button[type=submit]');return {mode:f.dataset.bookMode,status:f.querySelector('[data-status]').textContent,callShown:!f.querySelector('[data-book-call]').hidden,btnEnabled:!b.disabled,nextShown:!f.querySelector('[data-book-next]').hidden}})()`);
+  receipt.checks.emailInvalid = await ev(`(()=>{const f=document.querySelector('[data-book-form]');f.querySelector('[name=phone]').value='+370 612 34567';f.querySelector('[name=email]').value='jonas@';f.requestSubmit();return {invalid:f.querySelector('[name=email]').getAttribute('aria-invalid'),focus:document.activeElement.name,status:f.querySelector('[data-status]').textContent}})()`);
+  receipt.checks.postsAfterEmailInvalid = receipt.posts.length;
+  // Live-mode FormData contract with fetch intercepted locally (never leaves the page)
+  receipt.checks.emailLive = await ev(`(async()=>{const f=document.querySelector('[data-book-form]');const real=window.fetch;const sent=[];window.fetch=async(u,o)=>{sent.push([...o.body.entries()]);return new Response('{}',{status:200})};const mode=f.dataset.bookMode;f.dataset.bookMode='live';const run=async(em)=>{f.querySelector('[data-book-fields]').hidden=false;f.querySelector('[name=email]').value=em;f.querySelector('[name=phone]').value='+370 612 34567';f.requestSubmit();await new Promise(r=>setTimeout(r,150));};await run('jonas@example.com');await run('');window.fetch=real;f.dataset.bookMode=mode;f.querySelector('[data-book-fields]').hidden=false;f.querySelector('[data-status]').textContent='';const keys=s=>s.map(e=>e[0]);return {withEmail:sent[0]?.find(e=>e[0]==='email')?.[1]??null,withoutEmailHasKey:keys(sent[1]??[]).includes('email'),calls:sent.length}})()`);
+  await sleep(300); receipt.checks.postsAfterEmailLive = receipt.posts.length;
+  receipt.checks.bookPreview = await ev(`(async()=>{const f=document.querySelector('[data-book-form]');f.querySelector('[name=email]').value='jonas@example.com';f.querySelector('[name=phone]').value='+370 612 34567';f.requestSubmit();await new Promise(r=>setTimeout(r,200));const b=f.querySelector('button[type=submit]');return {mode:f.dataset.bookMode,status:f.querySelector('[data-status]').textContent,callShown:!f.querySelector('[data-book-call]').hidden,btnEnabled:!b.disabled,nextShown:!f.querySelector('[data-book-next]').hidden}})()`);
   await shot('dlg-book-390.png',false);
   await key('Escape');
   receipt.checks.bookEscFocus = await ev(`document.querySelector('[data-book-dialog]').open===false && document.activeElement===document.querySelector('#pokalbis [data-book-open]')`);
@@ -124,7 +129,7 @@ try {
     await cdp('Emulation.setDeviceMetricsOverride', {width:w,height:1000,deviceScaleFactor:1,mobile:w<600});
     await cdp('Page.navigate', {url:base+'pavyzdys/pokalbis'});await sleep(500);
     await ev('document.fonts.ready');
-    receipt.checks.callback.push(await ev(`({w:innerWidth,noOverflow:document.documentElement.scrollWidth===innerWidth,noForm:document.forms.length===0,noScripts:document.scripts.length===0,noindex:document.querySelector('meta[name=robots]').content==='noindex,nofollow',unsent:document.body.innerText.includes('užklausa neišsiųsta'),proofColor:getComputedStyle(document.querySelector('.proof__big')).color})`));
+    receipt.checks.callback.push(await ev(`({w:innerWidth,noOverflow:document.documentElement.scrollWidth===innerWidth,noForm:document.forms.length===0,noScripts:document.scripts.length===0,noindex:document.querySelector('meta[name=robots]').content==='noindex,nofollow',noPreviewNotice:!document.querySelector('.callback-note'),noGoogleBoast:!/Google/.test(document.body.innerText)})`));
     const height=await ev('document.documentElement.scrollHeight');
     await shot('callback-'+w+'.png',{x:0,y:0,width:w,height});
   }
@@ -139,13 +144,15 @@ try {
 const checks = receipt.checks;
 const failures = Object.entries(checks).filter(([k,v]) => ['menuOpen','menuEscFocus','menuCloseAlwaysOpener','bookOpen','bookEscFocus','bookFromMenu','demoEscFocus'].includes(k) && v !== true).map(([k])=>k);
 if (checks.bookInvalid !== 'true') failures.push('bookInvalid');
+if (checks.emailInvalid?.invalid !== 'true' || checks.emailInvalid?.focus !== 'email' || checks.emailInvalid?.status) failures.push('emailInvalid');
+if (checks.emailLive?.withEmail !== 'jonas@example.com' || checks.emailLive?.withoutEmailHasKey !== false || checks.emailLive?.calls !== 2) failures.push('emailLive');
 if (!checks.bookPreview?.btnEnabled || !checks.bookPreview?.nextShown || !checks.bookPreview?.status.includes('neišsiųsta')) failures.push('bookPreview');
 if (checks.demo?.length !== 5 || checks.demo.some(d=>!d.open || !d.focusBack)) failures.push('demo');
 if (checks.playback?.length !== 5 || checks.playback.some(s=>!s.advances || !s.loops || !s.offscreenPaused)) failures.push('playback');
 if (!checks.carousel?.imgsOk || checks.carousel.after <= checks.carousel.before || checks.carousel.cards !== 10) failures.push('carousel');
 if (checks.assets?.length || receipt.missing.length || receipt.posts.length || receipt.blocked.length) failures.push('network/assets');
 if (Object.values(receipt.overflow).some(v=>v.scrollW>v.W || v.bad.length)) failures.push('overflow');
-if (checks.callback?.length !== 3 || checks.callback.some(c=>!c.noOverflow || !c.noForm || !c.noScripts || !c.noindex || !c.unsent || c.proofColor !== 'rgb(255, 255, 255)')) failures.push('callback');
+if (checks.callback?.length !== 3 || checks.callback.some(c=>!c.noOverflow || !c.noForm || !c.noScripts || !c.noindex || !c.noPreviewNotice || !c.noGoogleBoast)) failures.push('callback');
 if (checks.reducedRunning !== '5:0') failures.push('reducedRunning');
 if (failures.length) { console.error('FAIL: '+failures.join(', ')); process.exitCode=1; }
 else console.log('PASS: all focused browser acceptance checks');

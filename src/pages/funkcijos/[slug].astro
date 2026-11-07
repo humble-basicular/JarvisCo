@@ -1,0 +1,48 @@
+---
+/* /funkcijos/<slug> — Stone feature-detail template: centred navy title on grey; three stacked fact cards left,
+   large white demo panel right (the shared live loop; website page adds the actual captured site), angled join;
+   then how-it-works, the homepage points, truthful note and the talk card. */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import Scene from '@components/o2/Scene.astro';
+import Talk from '@components/o2/Talk.astro';
+import Icon from '@components/o2/Icon.astro';
+import { o2, O2_CTA } from '@data/o2.js';
+import { FEATURE_PAGES } from '@data/o2-pages.js';
+import { BETONO } from '@data/o2-device.js';
+export function getStaticPaths() {
+  return o2.features.items.map((it, i) => ({ params: { slug: FEATURE_PAGES[it.id].slug }, props: { it, i } }));
+}
+const { it, i } = Astro.props;
+const F = FEATURE_PAGES[it.id];
+const path = `/funkcijos/${F.slug}`;
+const others = o2.features.items.filter((x) => x.id !== it.id);
+---
+<O2Layout title={`${it.title} – Jarvis Systems`} description={F.lead} path={path}>
+  <section class="fdet sec--grey chev">
+    <p class="fdet__crumb"><a href="/funkcijos">Funkcijos</a> <Icon name="chev" size={14} /> <span>{it.title}</span></p>
+    <h1 class="h1c h1c--900">{it.title}</h1>
+    <p class="phead__lead">{F.lead}</p>
+    <div class="fdet__grid">
+      <ul class="fdet__facts">
+        {F.facts.map(([t, d]) => <li><h2><Icon name="badge" size={22} />{t}</h2><p>{d}</p></li>)}
+      </ul>
+      <div class="fdet__panel">
+        <div class="fdet__vis"><Scene kind={it.scene} side={i % 2 ? 'right' : 'left'} label={`${it.title}: animuota demonstracija`} /></div>
+        {F.shot && <figure class="fdet__shot"><img src={BETONO.empty} width="1440" height="783" alt="„Dailius ir ko“ svetainės užklausos forma su vardu, telefonu ir el. paštu" loading="lazy" /><figcaption>betonogaminiai.lt – užklausos forma</figcaption></figure>}
+      </div>
+    </div>
+  </section>
+  <section class="fhow">
+    <h2 class="h1c">Kaip tai veikia</h2>
+    <ol class="fhow__list">{F.how.map(([t, d], n) => <li><span class="steps__n">{n + 1}</span><h3>{t}</h3><p>{d}</p></li>)}</ol>
+    <ul class="fhow__pts">{it.points.map(([t, d]) => <li><h3><Icon name="badge" size={22} />{t}</h3><p>{d}</p></li>)}</ul>
+    <p class="fhow__note">{F.note}</p>
+    <p class="fhow__cta"><a class="btn" href="/kontaktai" data-book-open data-track="cta_book">{O2_CTA}</a></p>
+  </section>
+  <nav class="fmore" aria-label="Kitos funkcijos">
+    <h2>Kitos funkcijos</h2>
+    <ul>{others.map((x) => <li><a href={`/funkcijos/${FEATURE_PAGES[x.id].slug}`}>{x.title} <Icon name="arrow" size={18} /></a></li>)}</ul>
+  </nav>
+  <Talk />
+</O2Layout>

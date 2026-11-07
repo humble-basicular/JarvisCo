@@ -1,0 +1,22 @@
+---
+/* /atsiliepimai — understated: one factual line linking our own Google profile (rating + count, no quote,
+   no celebration card), then real work and the review-request feature. USER13: no Google highlight block. */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import Talk from '@components/o2/Talk.astro';
+import Icon from '@components/o2/Icon.astro';
+import { GOOGLE } from '@data/o2.js';
+import { pages } from '@data/o2-pages.js';
+const P = pages.atsiliepimai;
+---
+<O2Layout title={P.title} description={P.description} path="/atsiliepimai">
+  <PageHead title={P.h} lead={P.lead}>
+    <p class="gline"><a href={GOOGLE.url} target="_blank" rel="noopener">{P.profile}: {GOOGLE.rating} iš 5 · {GOOGLE.count} <Icon name="arrow" size={16} /></a></p>
+  </PageHead>
+  <section class="cards2">
+    {[[P.work, '/musu-darbai'], [P.system, '/funkcijos/atsiliepimu-rinkimas']].map(([[h, t, l], href]) => (
+      <article class="card2"><h2>{h}</h2><p>{t}</p><a href={href}>{l} <Icon name="arrow" size={18} /></a></article>
+    ))}
+  </section>
+  <Talk />
+</O2Layout>

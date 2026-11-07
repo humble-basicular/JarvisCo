@@ -1,28 +1,28 @@
 ---
 /* Jarvis Systems homepage — Stone source-match (docs/jarvis-stone-source-match/SPEC.md, USER7):
-   hero → Google proof → 5 feature rows (website laptop→SMS, reviews, missed call, campaigns, local SEO)
+   hero (small Google badge only; USER13 removed the big proof slot) → 5 feature rows (website laptop→SMS, reviews, missed call, campaigns, local SEO)
    → trades carousel → 3 steps → 6 "why" cards → FAQ → talk card → footer. Press, partners and the second
    testimonial strip of the source are omitted (no truthful equivalent). /svetaines is the website offer. */
 import O2Layout from '@layouts/O2Layout.astro';
 import Scene from '@components/o2/Scene.astro';
 import Icon from '@components/o2/Icon.astro';
+import Talk from '@components/o2/Talk.astro';
+import Steps from '@components/o2/Steps.astro';
+import { FEATURE_PAGES } from '@data/o2-pages.js';
 import { o2, O2_CTA, GOOGLE } from '@data/o2.js';
 import { TRADES } from '@data/o2-trades.js';
-import { bookingLive } from '@data/o2-env.js';
-import { brand } from '@data/content.js';
-const { hero, proof, features, trades, process: proc, why, faq, talk } = o2;
-const bookMsgs = JSON.stringify({ errPhone: talk.errPhone, previewOk: talk.previewOk, sending: talk.sending, ok: talk.ok, timesSpoken: talk.timesSpoken, err: talk.err, context: talk.context });
+const { hero, features, trades, why, faq } = o2;
 const href = (h: string) => (h === 'gbp' ? GOOGLE.url : h);
 const ext = (h: string) => /^https?:/.test(href(h));
 ---
-<O2Layout title={o2.meta.title} description={o2.meta.description}>
+<O2Layout title={o2.meta.title} description={o2.meta.description} path="/">
   <section class="hero" data-hero>
     <div class="hero__in">
       <div class="hero__copy">
         <h1 class="hero__h">{hero.title.map((l) => <span>{l}</span>)}</h1>
         <div class="hero__row">
           <p class="hero__lead">{hero.lead[0]}<br />{hero.lead[1]}</p>
-          <a class="btn hero__cta" href="#pokalbis" data-book-open data-track="cta_book">{O2_CTA}</a>
+          <a class="btn hero__cta" href="/kontaktai" data-book-open data-track="cta_book">{O2_CTA}</a>
         </div>
         <a class="gbadge" href={GOOGLE.url} target="_blank" rel="noopener" aria-label={`Google įvertinimas ${GOOGLE.rating} iš 5`}>
           <svg class="gbadge__g" viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.1C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.4 6.9-17.7z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.6 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.2 1.5-5 2.3-8.2 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
@@ -33,20 +33,6 @@ const ext = (h: string) => /^https?:/.test(href(h));
     </div>
   </section>
 
-  <section class="proof sec--grey chev" id="atsiliepimai" aria-labelledby="pr-h">
-    <h2 class="h1c" id="pr-h">{proof.title.map((l) => <span>{l}</span>)}</h2>
-    <div class="proof__card">
-      <a class="proof__media" href={GOOGLE.url} target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
-        <span class="proof__big">{GOOGLE.rating}</span>
-        <span class="proof__of">iš 5 · Google</span>
-      </a>
-      <div class="proof__txt">
-        <p class="proof__stars" aria-label={`${GOOGLE.rating} iš 5`}>{[1, 2, 3, 4, 5].map(() => <Icon name="star" size={24} />)}</p>
-        <p class="proof__q">{proof.card}: <b>{GOOGLE.rating} iš 5</b> ({GOOGLE.count}).</p>
-        <p class="proof__foot"><b>{proof.source}</b><a href={GOOGLE.url} target="_blank" rel="noopener">{proof.more} <Icon name="arrow" size={18} /></a></p>
-      </div>
-    </div>
-  </section>
 
   <section class="feats" id="funkcijos" aria-labelledby="f-h">
     <h2 class="h1c h1c--900" id="f-h">{features.title.map((l) => <span>{l}</span>)}</h2>
@@ -59,7 +45,7 @@ const ext = (h: string) => /^https?:/.test(href(h));
           <ul class="feat__pts">
             {it.points.map(([t, d]) => <li><h4><Icon name="badge" size={22} />{t}</h4><p>{d}</p></li>)}
           </ul>
-          <button class="btn" type="button" data-demo-open={it.id} aria-haspopup="dialog">{features.demoBtn}</button>
+          <p class="feat__acts"><a class="btn" href={`/funkcijos/${FEATURE_PAGES[it.id].slug}`}>{features.moreBtn}</a><button class="btn btn--ghost" type="button" data-demo-open={it.id} aria-haspopup="dialog">{features.demoBtn}</button></p>
         </div>
       </article>
     ))}
@@ -74,16 +60,10 @@ const ext = (h: string) => /^https?:/.test(href(h));
       </ul>
       <button class="car__btn" type="button" data-car="1" aria-label={trades.next}><Icon name="chev" size={44} /></button>
     </div>
-    <a class="btn" href="#pokalbis" data-book-open>{trades.cta}</a>
+    <a class="btn" href="/kontaktai" data-book-open>{trades.cta}</a>
   </section>
 
-  <section class="steps sec--grey chev" id="procesas" aria-labelledby="p-h">
-    <h2 class="h1c h1c--900" id="p-h">{proc.title}</h2>
-    <ol class="steps__row">
-      {proc.steps.map(([t, s, d], i) => <li><span class="steps__n">{i + 1}</span><h3>{t}<br />{s}</h3><p>{d}</p></li>)}
-    </ol>
-    <svg class="steps__wave" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true"><path d="M230 20 C 300 50, 420 50, 470 20 M 530 20 C 600 50, 720 50, 770 20" /></svg>
-  </section>
+  <Steps />
 
   <section class="why" id="kodel" aria-labelledby="w-h">
     <h2 class="h1c h1c--900" id="w-h">{why.title.map((l) => <span>{l}</span>)}</h2>
@@ -106,39 +86,6 @@ const ext = (h: string) => /^https?:/.test(href(h));
     </div>
   </section>
 
-  <section class="talk sec--grey" id="pokalbis" aria-labelledby="k-h">
-    <div class="talk__card">
-      <div class="talk__copy">
-        <h2 class="talk__h" id="k-h">{talk.title}</h2>
-        <p class="talk__text">{talk.text}</p>
-        <a class="btn" href={brand.telHref} data-book-open data-track="cta_book">{talk.open}</a>
-      </div>
-      <img class="talk__mascot" src="/jarvis-systems/mascot-present.webp" width="520" height="780" alt={talk.mascotAlt} loading="lazy" />
-    </div>
-  </section>
+  <Talk />
 
-  <dialog class="demodlg" data-demo-dialog aria-labelledby="dd-h">
-    <div class="demodlg__top"><h2 id="dd-h" data-demo-title></h2><button type="button" class="menu__x" data-demo-close aria-label={o2.demo.close}><Icon name="x" size={28} /></button></div>
-    <div class="demodlg__box" data-demo-slot></div>
-  </dialog>
-
-  <dialog class="bookdlg" data-book-dialog aria-labelledby="bd-h">
-    <div class="bookdlg__top"><h2 id="bd-h">{talk.dialogTitle}</h2><button type="button" class="menu__x" data-book-close aria-label={talk.close}><Icon name="x" size={28} /></button></div>
-    <p class="muted">{talk.dialogText}</p>
-    <form class="book" action="/t/form" method="post" data-book-form data-book-mode={bookingLive ? 'live' : 'preview'} data-messages={bookMsgs} novalidate>
-      <div class="book__f" data-book-fields>
-        <label>{talk.name}<input name="name" autocomplete="given-name" maxlength="60" /></label>
-        <label>{talk.phone}<input name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="b-ph-e" /></label>
-        <span class="err" id="b-ph-e" data-err="phone"></span>
-        <label class="book__wide">{talk.company}<input name="company" maxlength="80" /></label>
-        <fieldset class="book__wide"><legend>{talk.time}</legend>{talk.times.map(([v, l], i) => <label class="rad"><input type="radio" name="contact_time" value={v} checked={i === 1} /> {l}</label>)}</fieldset>
-        <label class="hp" aria-hidden="true">Svetainė<input name="website" tabindex="-1" autocomplete="off" /></label>
-        <button class="btn btn--big" type="submit" disabled>{talk.submit}</button>
-      </div>
-      <p class="status" data-status role="status" aria-live="polite" tabindex="-1"></p>
-      <p class="book__call" data-book-call hidden><a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
-      {!bookingLive && <p data-book-next hidden><a href="/pavyzdys/pokalbis">Peržiūrėti kitą žingsnį <Icon name="arrow" size={18} /></a></p>}
-    </form>
-    <p class="talk__or">{talk.orCall}: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
-  </dialog>
 </O2Layout>

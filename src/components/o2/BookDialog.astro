@@ -1,0 +1,37 @@
+---
+/* Shared call-booking dialog + feature demo dialog (every O2 route). Preview builds validate and send nothing;
+   live builds POST callback_request to same-origin /t/form (src/scripts/o2.ts). `path` tags the page in the context. */
+import Icon from './Icon.astro';
+import { o2 } from '@data/o2.js';
+import { bookingLive } from '@data/o2-env.js';
+import { brand } from '@data/content.js';
+interface Props { path: string }
+const { path } = Astro.props;
+const { talk } = o2;
+const bookMsgs = JSON.stringify({ errEmail: talk.errEmail, errPhone: talk.errPhone, previewOk: talk.previewOk, sending: talk.sending, ok: talk.ok, timesSpoken: talk.timesSpoken, err: talk.err, context: `${talk.context} (${path})` });
+---
+<dialog class="demodlg" data-demo-dialog aria-labelledby="dd-h">
+  <div class="demodlg__top"><h2 id="dd-h" data-demo-title></h2><button type="button" class="menu__x" data-demo-close aria-label={o2.demo.close}><Icon name="x" size={28} /></button></div>
+  <div class="demodlg__box" data-demo-slot></div>
+</dialog>
+<dialog class="bookdlg" data-book-dialog aria-labelledby="bd-h">
+  <div class="bookdlg__top"><h2 id="bd-h">{talk.dialogTitle}</h2><button type="button" class="menu__x" data-book-close aria-label={talk.close}><Icon name="x" size={28} /></button></div>
+  <p class="muted">{talk.dialogText}</p>
+  <form class="book" action="/t/form" method="post" data-book-form data-book-mode={bookingLive ? 'live' : 'preview'} data-messages={bookMsgs} novalidate>
+    <div class="book__f" data-book-fields>
+      <label>{talk.name}<input name="name" autocomplete="given-name" maxlength="60" /></label>
+      <label>{talk.phone}<input name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="b-ph-e" /></label>
+      <span class="err" id="b-ph-e" data-err="phone"></span>
+      <label class="book__wide">{talk.email}<input name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" aria-describedby="b-em-e" /></label>
+      <span class="err" id="b-em-e" data-err="email"></span>
+      <label class="book__wide">{talk.company}<input name="company" maxlength="80" /></label>
+      <fieldset class="book__wide"><legend>{talk.time}</legend>{talk.times.map(([v, l], i) => <label class="rad"><input type="radio" name="contact_time" value={v} checked={i === 1} /> {l}</label>)}</fieldset>
+      <label class="hp" aria-hidden="true">Svetainė<input name="website" tabindex="-1" autocomplete="off" /></label>
+      <button class="btn btn--big" type="submit" disabled>{talk.submit}</button>
+    </div>
+    <p class="status" data-status role="status" aria-live="polite" tabindex="-1"></p>
+    <p class="book__call" data-book-call hidden><a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
+    {!bookingLive && <p data-book-next hidden><a href="/pavyzdys/pokalbis">Peržiūrėti kitą žingsnį <Icon name="arrow" size={18} /></a></p>}
+  </form>
+  <p class="talk__or">{talk.orCall}: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
+</dialog>

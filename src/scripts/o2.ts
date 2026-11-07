@@ -64,6 +64,9 @@ document.querySelectorAll<HTMLButtonElement>('[data-car]').forEach((b) => b.addE
 const PHONE_RE = /^\+?[\d\s()-]{8,20}$/;
 const digits = (v: string) => v.replace(/\D/g, '');
 const validPhone = (v: string) => PHONE_RE.test(v.trim()) && digits(v).length >= 8;
+// Optional e-mail: empty is fine; when given it must look like a deliverable address (Worker re-validates).
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/;
+const validEmail = (v: string) => !v || (v.length <= 120 && EMAIL_RE.test(v));
 function setErr(form: HTMLFormElement, name: string, msg: string) {
   const input = form.querySelector<HTMLInputElement>(`[name="${name}"]`);
   const out = form.querySelector<HTMLElement>(`[data-err="${name}"]`);
@@ -96,6 +99,8 @@ if (book) {
     const fd = new FormData(book);
     const phone = String(fd.get('phone') ?? '').trim();
     if (!setErr(book, 'phone', validPhone(phone) ? '' : msgs.errPhone)) { book.querySelector<HTMLElement>('[name="phone"]')?.focus(); return; }
+    const email = String(fd.get('email') ?? '').trim();
+    if (!setErr(book, 'email', validEmail(email) ? '' : msgs.errEmail)) { book.querySelector<HTMLElement>('[name="email"]')?.focus(); return; }
     const name = String(fd.get('name') ?? '').trim();
     const time = String(fd.get('contact_time') ?? '');
     const company = String(fd.get('company') ?? '').trim();
@@ -110,6 +115,7 @@ if (book) {
     body.append('kind', 'callback_request');
     body.append('name', name);
     body.append('phone', phone);
+    if (email) body.append('email', email);
     body.append('contact_time', time);
     body.append('standout', [msgs.context, company && `Įmonė/veikla: ${company}`].filter(Boolean).join('\n'));
     body.append('website', String(fd.get('website') ?? ''));

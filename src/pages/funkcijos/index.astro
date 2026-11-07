@@ -1,0 +1,27 @@
+---
+/* /funkcijos — hub of the five feature pages (Stone "Features" menu target). Each card: its live loop + link. */
+import O2Layout from '@layouts/O2Layout.astro';
+import PageHead from '@components/o2/PageHead.astro';
+import Scene from '@components/o2/Scene.astro';
+import Talk from '@components/o2/Talk.astro';
+import Icon from '@components/o2/Icon.astro';
+import { o2 } from '@data/o2.js';
+import { pages, FEATURE_PAGES } from '@data/o2-pages.js';
+const P = pages.funkcijos;
+---
+<O2Layout title={P.title} description={P.description} path="/funkcijos">
+  <PageHead title={P.h} lead={P.lead} />
+  <ul class="fhub">
+    {o2.features.items.map((it, i) => (
+      <li class="fhub__card">
+        <div class="fhub__vis"><Scene kind={it.scene} side={i % 2 ? 'right' : 'left'} label={`${it.title}: animuota demonstracija`} /></div>
+        <div class="fhub__txt">
+          <h2 class="fhub__h">{it.title}</h2>
+          <p>{FEATURE_PAGES[it.id].lead}</p>
+          <a class="fhub__more" href={`/funkcijos/${FEATURE_PAGES[it.id].slug}`}>{P.more} <Icon name="arrow" size={18} /></a>
+        </div>
+      </li>
+    ))}
+  </ul>
+  <Talk />
+</O2Layout>
