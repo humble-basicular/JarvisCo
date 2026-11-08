@@ -2,7 +2,8 @@
    One full package: 97 €/month; website + SEO/AEO/GEO + enquiry/SMS systems,
    one-click review requests, reactivation/marketing campaigns and connected app.
    30-day money-back guarantee replaces first-five / 50 € setup / free-trial offer.
-   Guarantee start date pending Matas's answer; do not invent refund restrictions,
+   User3: guarantee starts with the first 97 € payment; refund the entire first payment.
+   Do not invent refund restrictions,
    usage caps, unlimited messaging, billing mechanics or promised search/AI results.
    Accepted Stone design, real proof and verified Betono media remain unchanged.
    SMS provider is not active; demos do not prove real delivery. */
@@ -14,6 +15,7 @@ export const APP_URL = 'https://jarvisweb-sistema.jarvisworks-co.workers.dev/';
 export const O2_OFFER = {
   price: '97 €', per: '/mėn.', monthly: '97 €/mėn.',
   guarantee: '30 dienų pinigų grąžinimo garantija',
+  guaranteeDetails: '30 dienų skaičiuojame nuo pirmo 97 € mokėjimo. Per šį laikotarpį paprašius grąžinti pinigus, grąžiname visą pirmą mokėjimą.',
   includes: [
     'Svetainės sukūrimas ir prijungimas prie sistemos',
     'Optimizavimas Google ir AI paieškai: SEO, AEO ir GEO',
@@ -119,7 +121,7 @@ export const o2 = {
     items: [
       ['easy', 'Paprasta naudoti', 'Jarvis Systems kūrėme su viena pagrindine mintimi – kad būtų paprasta naudoti. Todėl viskas taip ir veikia.'],
       ['price', 'Viena aiški kaina', `Svetainė, SEO, AEO, GEO ir klientų sistemos – viename pakete už ${O2_OFFER.monthly}`],
-      ['contract', '30 dienų garantija', 'Pilnam paketui taikoma 30 dienų pinigų grąžinimo garantija.'],
+      ['contract', '30 dienų garantija', O2_OFFER.guaranteeDetails],
       ['straight', 'Be pasakų', 'Netikime tuščiais žodžiais: tiksliai pasakome, ką padarysime, ir tai padarome. Taškas.'],
       ['proof', 'Turime įrodymų', ['Žinome, kas veikia, o mūsų ', ['atliktus darbus', '/rezultatai'], ' galite patikrinti patys.']],
       ['improve', 'Nuolat tobuliname', 'Reguliariai atnaujiname ir tobuliname sistemas, kad už savo pinigus gautumėte kuo daugiau.'],
@@ -130,7 +132,7 @@ export const o2 = {
     items: [
       { q: 'Kada pamatysiu rezultatus?', a: 'Sistema pradeda veikti nuo paleidimo dienos: užklausa iš svetainės ar praleistas skambutis iškart sulaukia žinutės. Daugiau užsakymų nežadame – ar žmogus taps klientu, vis dar priklauso ir nuo Jūsų.' },
       { q: 'Kiek kainuoja?', a: `Pilnas paketas kainuoja ${O2_OFFER.monthly} Svetainė, SEO, AEO, GEO, automatinės žinutės, atsiliepimų prašymai, klientų kampanijos ir bendra programėlė įeina į šią kainą. Taikoma 30 dienų pinigų grąžinimo garantija.` },
-      { q: 'Ar yra pinigų grąžinimo garantija?', a: 'Taip. Pilnam Jarvis Systems paketui taikoma 30 dienų pinigų grąžinimo garantija.' },
+      { q: 'Ar yra pinigų grąžinimo garantija?', a: `Taip. ${O2_OFFER.guaranteeDetails}` },
       { q: 'Ar įeina optimizavimas Google ir AI paieškai?', a: 'Taip. Į paketą įeina svetainė ir jos optimizavimas Google bei vietinei paieškai (SEO), aiškiems atsakymams į klientų klausimus (AEO) ir generatyvinei AI paieškai (GEO). Konkreti pozicija Google ar paminėjimas AI atsakyme nėra garantuojami.' },
       { q: 'Kam to reikia, jei klientų atveda rekomendacijos?', a: 'Rekomenduotas žmogus vis tiek pirmiausia paskambina ar parašo. Sistema pasirūpina, kad toks skambutis ar užklausa neliktų be atsakymo, o laimingi klientai būtų paprašyti atsiliepimo.' },
       { q: 'Ar už svetainę ir SEO reikės mokėti papildomai?', a: `Ne. Svetainė ir SEO, AEO bei GEO optimizavimas yra pilno ${O2_OFFER.monthly} paketo dalis, kartu su užklausų, žinučių, atsiliepimų ir kampanijų sistemomis.` },

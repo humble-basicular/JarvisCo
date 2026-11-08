@@ -1,0 +1,89 @@
+{
+  "date": "2026-11-08T16:53:27.456Z",
+  "decision": "User3: 30 days from the first 97 € payment; full refund of first payment",
+  "checks": [
+    {
+      "route": "/",
+      "width": 320,
+      "w": 320,
+      "scroll": 320,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "w": 390,
+      "scroll": 390,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "w": 1440,
+      "scroll": 1440,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    },
+    {
+      "route": "/kainos",
+      "width": 320,
+      "w": 320,
+      "scroll": 320,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    },
+    {
+      "route": "/kainos",
+      "width": 390,
+      "w": 390,
+      "scroll": 390,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    },
+    {
+      "route": "/kainos",
+      "width": 1440,
+      "w": 1440,
+      "scroll": 1440,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    },
+    {
+      "route": "/taisykles",
+      "width": 320,
+      "w": 320,
+      "scroll": 320,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    },
+    {
+      "route": "/taisykles",
+      "width": 390,
+      "w": 390,
+      "scroll": 390,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    },
+    {
+      "route": "/taisykles",
+      "width": 1440,
+      "w": 1440,
+      "scroll": 1440,
+      "fromPayment": true,
+      "fullRefund": true,
+      "clipped": []
+    }
+  ],
+  "build": "O2_BOOKING=preview npm run build:27 pages/copy PASS; node src/checks/o2-check.mjs PASS; exact rendered guarantee on /,/kainos,/taisykles PASS; git diff --check PASS",
+  "limits": "No publication/sends/provider changes. Prior design/media acceptance retained; legacy v4 offering scope remains unresolved."
+}

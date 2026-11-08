@@ -106,7 +106,7 @@ export const pages = {
         ['Viena kaina –', 'svetainė, optimizavimas ir visos klientų sistemos'],
       ],
       includes: O2_OFFER.includes,
-      extra: `Visos šios paslaugos įeina į ${O2_OFFER.monthly} paketą.`,
+      extra: O2_OFFER.guaranteeDetails,
     },
     faq: [1, 2, 3, 5].map(String),
   },
