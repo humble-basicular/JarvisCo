@@ -127,7 +127,7 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .lap{position:absolute;overflow:hidden;background:#111}
 .bsite{position:absolute;left:0;top:0;width:1440px;height:783px;transform-origin:0 0}
 .bsite__img{position:absolute;inset:0;width:1440px!important;height:783px!important;max-width:none!important}
-.bsite__img+.bsite__img{opacity:1}
+.bsite__details{position:absolute;inset:0;opacity:1}
 .bsite__ty{position:absolute;background-repeat:no-repeat;background-size:1440px 783px}
 .bsite__blank{position:absolute;background:#fff;opacity:1}
 .bsite__press{position:absolute;background:rgba(0,0,0,.25);opacity:0}

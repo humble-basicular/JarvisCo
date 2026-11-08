@@ -1,0 +1,263 @@
+{
+  "base": "http://127.0.0.1:63672/",
+  "blocked": [
+    "https://maps.google.com/maps?cid=7386399265889343916&hl=lt&z=14&t=m&output=embed",
+    "https://maps.google.com/maps?cid=7386399265889343916&hl=lt&z=14&t=k&output=embed",
+    "https://maps.google.com/maps?cid=7386399265889343916&hl=lt&z=14&t=m&output=embed",
+    "https://maps.google.com/maps?cid=7386399265889343916&hl=lt&z=14&t=k&output=embed"
+  ],
+  "posts": [],
+  "overflow": {},
+  "checks": {},
+  "scenes": {},
+  "source": {
+    "baseCommit": "f589695",
+    "branch": "fix/jarvis-demo-banner-20261108",
+    "bannerRemovedInSource": true,
+    "commit": "bbc95da5e09b8142477b00268a3faeca5a029bdf",
+    "path": "/Users/matasbasinskas/Work/Code projects/betonogaminiai-site-worktrees/jarvis-demo-20261108"
+  },
+  "initial": {
+    "banner": false,
+    "robots": "noindex, nofollow",
+    "title": "Betoniniai šulinių žiedai ir dangčiai iš gamintojo | „Dailius ir ko“",
+    "hero": "Betoniniai šulinių žiedai ir dangčiai tiesiai iš gamintojo",
+    "compact": true
+  },
+  "fields": [
+    {
+      "name": "vardas",
+      "rect": {
+        "x": 962,
+        "y": 287.625,
+        "width": 173,
+        "height": 44,
+        "top": 287.625,
+        "right": 1135,
+        "bottom": 331.625,
+        "left": 962
+      },
+      "style": {
+        "padding": "10px 12px",
+        "bg": "rgb(255, 255, 255)",
+        "font": "15px / 21px Montserrat, \"Montserrat Fallback\", system-ui, sans-serif"
+      }
+    },
+    {
+      "name": "telefonas",
+      "rect": {
+        "x": 1145,
+        "y": 287.625,
+        "width": 173,
+        "height": 44,
+        "top": 287.625,
+        "right": 1318,
+        "bottom": 331.625,
+        "left": 1145
+      },
+      "style": {
+        "padding": "10px 12px",
+        "bg": "rgb(255, 255, 255)",
+        "font": "15px / 21px Montserrat, \"Montserrat Fallback\", system-ui, sans-serif"
+      }
+    },
+    {
+      "name": "el_pastas",
+      "rect": {
+        "x": 962,
+        "y": 365.421875,
+        "width": 356,
+        "height": 44,
+        "top": 365.421875,
+        "right": 1318,
+        "bottom": 409.421875,
+        "left": 962
+      },
+      "style": {
+        "padding": "10px 12px",
+        "bg": "rgb(255, 255, 255)",
+        "font": "15px / 21px Montserrat, \"Montserrat Fallback\", system-ui, sans-serif"
+      }
+    },
+    {
+      "name": "preke",
+      "rect": {
+        "x": 962,
+        "y": 443.21875,
+        "width": 356,
+        "height": 44,
+        "top": 443.21875,
+        "right": 1318,
+        "bottom": 487.21875,
+        "left": 962
+      },
+      "style": {
+        "padding": "10px 12px",
+        "bg": "rgb(255, 255, 255)",
+        "font": "15px / 21px Montserrat, \"Montserrat Fallback\", system-ui, sans-serif"
+      }
+    },
+    {
+      "name": "home-msg",
+      "rect": {
+        "x": 962,
+        "y": 521.015625,
+        "width": 356,
+        "height": 70,
+        "top": 521.015625,
+        "right": 1318,
+        "bottom": 591.015625,
+        "left": 962
+      },
+      "style": {
+        "padding": "10px 12px",
+        "bg": "rgb(255, 255, 255)",
+        "font": "15px / 21px Montserrat, \"Montserrat Fallback\", system-ui, sans-serif"
+      }
+    }
+  ],
+  "next": {
+    "x": 962,
+    "y": 603.015625,
+    "width": 356,
+    "height": 54,
+    "top": 603.015625,
+    "right": 1318,
+    "bottom": 657.015625,
+    "left": 962
+  },
+  "details": {
+    "open": true,
+    "stage": "details",
+    "rects": [
+      {
+        "name": "text",
+        "rect": {
+          "x": 512,
+          "y": 148.921875,
+          "width": 416,
+          "height": 44,
+          "top": 148.921875,
+          "right": 928,
+          "bottom": 192.921875,
+          "left": 512
+        }
+      },
+      {
+        "name": "text",
+        "rect": {
+          "x": 512,
+          "y": 226.71875,
+          "width": 416,
+          "height": 44,
+          "top": 226.71875,
+          "right": 928,
+          "bottom": 270.71875,
+          "left": 512
+        }
+      },
+      {
+        "name": "dlg-gavimas",
+        "rect": {
+          "x": 517,
+          "y": 337.515625,
+          "width": 1,
+          "height": 1,
+          "top": 337.515625,
+          "right": 518,
+          "bottom": 338.515625,
+          "left": 517
+        }
+      },
+      {
+        "name": "dlg-gavimas",
+        "rect": {
+          "x": 728,
+          "y": 337.515625,
+          "width": 1,
+          "height": 1,
+          "top": 337.515625,
+          "right": 729,
+          "bottom": 338.515625,
+          "left": 728
+        }
+      },
+      {
+        "name": "submit",
+        "rect": {
+          "x": 512,
+          "y": 649.90625,
+          "width": 416,
+          "height": 54,
+          "top": 649.90625,
+          "right": 928,
+          "bottom": 703.90625,
+          "left": 512
+        }
+      }
+    ],
+    "email": "jonas@example.com"
+  },
+  "brand": {
+    "name": "Dailius ir ko – www.betonogaminiai.lt",
+    "logo": "http://127.0.0.1:63672/_astro/logo-light.B0XzD-dX_1IUUqP.webp",
+    "previewBanner": false,
+    "formsInert": true,
+    "detailsValid": true
+  },
+  "previewSubmit": {
+    "inert": true,
+    "message": "Tai peržiūra – užklausa neišsiųsta. Paskambinkite +370 633 02 145.",
+    "url": "http://127.0.0.1:63672/"
+  },
+  "mobile": {
+    "banner": false,
+    "width": 390,
+    "scrollWidth": 390,
+    "compact": true
+  },
+  "missing": [],
+  "capture": {
+    "viewport": {
+      "width": 1440,
+      "height": 783
+    },
+    "cookieDismissedForCapture": true,
+    "previewHeaderDOMRemoval": false,
+    "steps": [
+      "untouched latest home",
+      "five inline fields including email",
+      "real Toliau click",
+      "real delivery modal",
+      "quantity + address + delivery",
+      "preview-only submit: inert"
+    ],
+    "finalSubmitOnlyInPreviewTest": true
+  },
+  "assets": {
+    "details-empty.webp": {
+      "sha256": "ceaab2c15a529d92823469acccb0a7fa0e02dae54595fe4693633f55f5fd3e63",
+      "bytes": 91042
+    },
+    "details-filled.webp": {
+      "sha256": "f691e7d135217bc36c64af0c31f4227eba0c9c253b3a6594b988bc9bc1037998",
+      "bytes": 91210
+    },
+    "form-empty.webp": {
+      "sha256": "4db8cf944fbb4a93151d6e4a974c726406c94ba17c055115c74056d2a07350c3",
+      "bytes": 133648
+    },
+    "form-filled.webp": {
+      "sha256": "49592cfead727470b24e7cead737debe4d745e2b309eee9c292beb31607bd4fd",
+      "bytes": 138632
+    },
+    "home.webp": {
+      "sha256": "4db8cf944fbb4a93151d6e4a974c726406c94ba17c055115c74056d2a07350c3",
+      "bytes": 133648
+    },
+    "logo-light.webp": {
+      "sha256": "862f757a0bbc6d449ff5f81f7e42de6af2ccd5bf6c41147bbab4b354afee570c",
+      "bytes": 19486
+    }
+  }
+}

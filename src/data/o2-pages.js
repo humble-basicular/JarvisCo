@@ -134,7 +134,7 @@ export const pages = {
       {
         name: 'UAB „Dailius ir ko“', site: 'betonogaminiai.lt',
         img: '/jarvis-systems/demo/betono-actual/home.webp', w: 1440, h: 783,
-        img2: '/jarvis-systems/demo/betono-actual/form-empty.webp',
+        img2: '/jarvis-systems/demo/betono-actual/details-filled.webp',
         text: 'Betoninių gaminių gamintojo svetainės naujausia versija: paslaugų puslapiai ir „Gauti pasiūlymą“ forma su vardu, telefonu, el. paštu ir preke.',
         tags: ['Svetainė', 'Užklausos forma', 'Telefone'],
       },

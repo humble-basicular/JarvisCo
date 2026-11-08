@@ -62,15 +62,18 @@ const move = (a: number, b: number, from: string) => kf([[0, `transform:${from}`
 // ---- per-scene timelines ----
 const k: Record<string, string> = {};
 if (kind === 'web') {
-  // actual site: home → click UŽSISAKYTI → real quote dialog → five fields typed (captured filled pixels revealed) → submit
-  k.lap = kf([[0, 'opacity:0'], [0.15, 'opacity:1', E], [5.3, 'opacity:1', E], [5.8, 'opacity:0'], [T, 'opacity:0']]);
-  k.ph = kf([[0, 'opacity:0'], [5.4, 'opacity:0', E], [6.0, 'opacity:1'], [T - 0.25, 'opacity:1'], [T, 'opacity:0']]);
-  k.form = kf([[0, 'opacity:0'], [0.95, 'opacity:0', E], [1.15, 'opacity:1'], [T - 0.05, 'opacity:1'], [T, 'opacity:0']]);
-  const tw = [[1.3, 1.6], [1.8, 2.4], [2.55, 3.25], [3.4, 3.95], [4.1, 4.75]];
+  // Latest real rebuild: inline contact form → Toliau → delivery dialog → SMS. No old modal flow.
+  k.lap = kf([[0, 'opacity:0'], [0.15, 'opacity:1', E], [7.0, 'opacity:1', E], [7.5, 'opacity:0'], [T, 'opacity:0']]);
+  k.ph = kf([[0, 'opacity:0'], [7.1, 'opacity:0', E], [7.7, 'opacity:1'], [T - 0.25, 'opacity:1'], [T, 'opacity:0']]);
+  const tw = [[0.9, 1.2], [1.35, 1.95], [2.1, 2.8], [2.95, 3.5], [3.65, 4.3]];
   B.fields.forEach((f, i) => { k[`t${i}`] = typed(tw[i][0], tw[i][1], f.chars); k[`z${i}`] = turnOn(tw[i][0], 'opacity:0', 'opacity:1'); });
-  k.btn = kf([[0, 'opacity:0'], [4.95, 'opacity:0', E], [5.05, 'opacity:1', E], [5.25, 'opacity:0'], [T, 'opacity:0']]);
-  k.cur = cursor([[0.25, 900, 640], [0.8, 1190, 66, true], [1.2, 590, 240], [1.7, 590, 292], [2.45, 590, 344], [3.3, 590, 396], [4.0, 590, 452], [4.9, 720, 562, true]], 5.3);
-  k.d1 = dots(6.4, 7.3); k.b1 = pop(7.3); k.d2 = dots(8.6, 9.5); k.b2 = pop(9.5);
+  k.details = turnOn(4.6, 'opacity:0', 'opacity:1');
+  [[4.9, 5.1], [5.2, 6.05]].forEach(([a, b], i) => { k[`dt${i}`] = typed(a, b, B.detailFields[i].chars); k[`dz${i}`] = turnOn(a, 'opacity:0', 'opacity:1'); });
+  k.delivery = turnOn(6.3, 'opacity:0', 'opacity:1');
+  k.next = kf([[0, 'opacity:0'], [4.4, 'opacity:0', E], [4.5, 'opacity:1', E], [4.6, 'opacity:0'], [T, 'opacity:0']]);
+  k.btn = kf([[0, 'opacity:0'], [6.6, 'opacity:0', E], [6.7, 'opacity:1', E], [6.9, 'opacity:0'], [T, 'opacity:0']]);
+  k.cur = cursor([[0.25, 900, 640], [0.8, 1010, 310, true], [1.25, 1200, 310, true], [2.0, 1050, 388, true], [2.85, 1050, 466, true], [3.55, 1050, 548, true], [4.4, 1140, 630, true], [4.85, 570, 173, true], [5.15, 650, 250, true], [6.25, 615, 356, true], [6.6, 720, 677, true]], 7.0);
+  k.d1 = dots(7.9, 8.7); k.b1 = pop(8.7); k.d2 = dots(10.3, 11.1); k.b2 = pop(11.1);
 }
 if (kind === 'reviews') {
   k.a = vis(0.1, 1.75);
@@ -115,9 +118,16 @@ const conf = Array.from({ length: 26 }, (_, i) => ({ x: (i * 53) % 360 + 10, y: 
           <div class="lap" style={`left:${LAPTOP.glass.x}px;top:${LAPTOP.glass.y}px;width:${LAPTOP.glass.w}px;height:${LAPTOP.glass.h}px`}>
             <div class="bsite" style={`transform:scale(${LAPTOP.scale})`}>
               <img class="bsite__img" src={B.home} width="1440" height="783" alt="" loading="lazy" decoding="async" />
-              <img class={`bsite__img ${k.form}`} src={B.empty} width="1440" height="783" alt="" loading="lazy" decoding="async" />
+              <img class="bsite__img" src={B.empty} width="1440" height="783" alt="" loading="lazy" decoding="async" />
               {B.fields.map((f, i) => <span class={`bsite__blank ${k[`z${i}`]}`} style={`left:${f.x}px;top:${f.y}px;width:${f.pw}px;height:${f.h}px`}></span>)}
               {B.fields.map((f, i) => <span class={`bsite__ty ${k[`t${i}`]}`} style={`left:${f.x}px;top:${f.y}px;width:${f.w}px;height:${f.h}px;background-image:url('${B.filled}');background-position:-${f.x}px -${f.y}px`}></span>)}
+              <span class={`bsite__press ${k.next}`} style={`left:${B.next.x}px;top:${B.next.y}px;width:${B.next.w}px;height:${B.next.h}px`}></span>
+              <div class={`bsite__details ${k.details}`}>
+                <img class="bsite__img" src={B.details} width="1440" height="783" alt="" loading="lazy" decoding="async" />
+                {B.detailFields.map((f, i) => <span class={`bsite__blank ${k[`dz${i}`]}`} style={`left:${f.x}px;top:${f.y}px;width:${f.pw}px;height:${f.h}px`}></span>)}
+                {B.detailFields.map((f, i) => <span class={`bsite__ty ${k[`dt${i}`]}`} style={`left:${f.x}px;top:${f.y}px;width:${f.w}px;height:${f.h}px;background-image:url('${B.detailsFilled}');background-position:-${f.x}px -${f.y}px`}></span>)}
+                <img class={`bsite__img ${k.delivery}`} src={B.detailsFilled} width="1440" height="783" alt="" loading="lazy" decoding="async" />
+              </div>
               <span class={`bsite__press ${k.btn}`} style={`left:${B.submit.x}px;top:${B.submit.y}px;width:${B.submit.w}px;height:${B.submit.h}px`}></span>
               <svg class={`cur cur--site ${k.cur}`} width="34" height="34" viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round" /></svg>
             </div>

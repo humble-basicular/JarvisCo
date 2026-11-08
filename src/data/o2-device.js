@@ -35,24 +35,30 @@ export function glassMatrix(quad, w = SCREEN_W, h = SCREEN_H) {
    Glass rectangle measured from the file's own pixels (inner edge of the thin black bezel, luminance scan
    at y395/620/860 and x540): x106–974, y391–863. The demo website is laid out at 1.5× and scaled 2/3. */
 export const LAPTOP = { src: '/jarvis-systems/laptop-blank.webp', mask: '/jarvis-systems/device/laptop-glass.webp', glass: { x: 104, y: 389, w: 872, h: 475 }, scale: 872 / 1440 };
-/* Actual latest betonogaminiai.lt (UAB „Dailius ir ko“, source HEAD 9a94599) captured by root at 1440×783 with
-   forms inert and no preview banner: docs/jarvis-stone-source-match/qa/betono-actual-capture-user14.json.
-   Field rectangles are from that receipt (1440-px page coordinates); w = revealed text width (estimate,
-   over-wide is harmless: the reveal shows only the captured filled pixels); pw = white blank that hides the
-   placeholder from the first keystroke, as a real input does. */
+/* User19 correction: newest NON-LIVE Betono rebuild f589695, not main9a94599. The preview banner
+   is removed in the actual source (fix/jarvis-demo-banner-20261108); noindex/no-send remain enabled.
+   Actual browser captures + field rectangles: qa/betono-actual-capture-user19.json. Canvas1440×783.
+   Text strips reveal captured pixels inside real input borders; no reconstructed website UI. */
 export const BETONO = {
   home: '/jarvis-systems/demo/betono-actual/home.webp',
   empty: '/jarvis-systems/demo/betono-actual/form-empty.webp',
   filled: '/jarvis-systems/demo/betono-actual/form-filled.webp',
+  details: '/jarvis-systems/demo/betono-actual/details-empty.webp',
+  detailsFilled: '/jarvis-systems/demo/betono-actual/details-filled.webp',
   logo: '/jarvis-systems/demo/betono-actual/logo-light.webp',
   name: 'Dailius ir ko', blue: '#2575AC',
-  order: { x: 1116, y: 43, w: 174, h: 50 },
   fields: [
-    { x: 540, y: 222, w: 64, pw: 110, h: 32, chars: 5 },
-    { x: 540, y: 274, w: 118, pw: 118, h: 32, chars: 14 },
-    { x: 540, y: 326, w: 160, pw: 160, h: 32, chars: 16 },
-    { x: 540, y: 378, w: 190, pw: 190, h: 32, chars: 24 },
-    { x: 540, y: 430, w: 300, pw: 300, h: 32, chars: 40 },
+    { x: 974, y: 298, w: 54, pw: 149, h: 24, chars: 5 },
+    { x: 1157, y: 298, w: 149, pw: 149, h: 24, chars: 14 },
+    { x: 974, y: 376, w: 168, pw: 332, h: 24, chars: 17 },
+    { x: 974, y: 454, w: 230, pw: 332, h: 24, chars: 25 },
+    { x: 974, y: 531, w: 332, pw: 332, h: 50, chars: 47 },
   ],
-  submit: { x: 540, y: 535, w: 360, h: 55 },
+  next: { x: 962, y: 603, w: 356, h: 54 },
+  detailFields: [
+    { x: 524, y: 159, w: 20, pw: 392, h: 24, chars: 1 },
+    { x: 524, y: 237, w: 190, pw: 392, h: 24, chars: 21 },
+  ],
+  delivery: { x: 512, y: 335, w: 205, h: 42 },
+  submit: { x: 512, y: 650, w: 416, h: 54 },
 };
