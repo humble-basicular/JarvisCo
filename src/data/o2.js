@@ -1,28 +1,36 @@
-/* Jarvis Systems homepage copy — Stone source-match (USER7, 2026-11-07). Lithuanian translation of the
-   source page structure (docs/jarvis-stone-source-match/SPEC.md); wording review comes after the full page.
-   Source claims that are not true for us were rewritten to the real mechanism (no review gating, no
-   unverified statistics, own process facts). Single text source for src/pages/index.astro + O2Layout.
-
-   Facts (do not change without a new decision):
-   - Bundle: website enquiry/form → SMS conversation + owner alert; review requests + one reminder;
-     missed call → SMS; past-customer campaigns (STOP opt-out, preview/schedule/cancel); one client app.
-   - First 5 only: 50 € preparation upfront, 30 days free from a verified working launch, then 97 €/mėn.
-     only after an explicit "tęsiam". Needed new domain is client-owned and extra. New website / ads /
-     local SEO are separate agency work, not part of the 50 € setup.
-   - SMS provider is NOT active. Feature media are visual demonstrations, never proof of delivery.
-   - Google: only the small hero badge (own JarvisCo profile 5,0). USER13: no big proof slot, no Google boast elsewhere.
-   - NOT decided, never stated: SMS allowance, later setup price, setup duration, support hours. */
+/* Jarvis Systems O2 copy. Commercial decision: Matas, 2026-11-08, current thread user2.
+   One full package: 97 €/month; website + SEO/AEO/GEO + enquiry/SMS systems,
+   one-click review requests, reactivation/marketing campaigns and connected app.
+   30-day money-back guarantee replaces first-five / 50 € setup / free-trial offer.
+   Guarantee start date pending Matas's answer; do not invent refund restrictions,
+   usage caps, unlimited messaging, billing mechanics or promised search/AI results.
+   Accepted Stone design, real proof and verified Betono media remain unchanged.
+   SMS provider is not active; demos do not prove real delivery. */
 import { brand } from './content.js';
 
 export const NAME = 'Jarvis Systems';
 export const O2_CTA = 'Užsiregistruoti pokalbiui';
 export const APP_URL = 'https://jarvisweb-sistema.jarvisworks-co.workers.dev/';
+export const O2_OFFER = {
+  price: '97 €', per: '/mėn.', monthly: '97 €/mėn.',
+  guarantee: '30 dienų pinigų grąžinimo garantija',
+  includes: [
+    'Svetainės sukūrimas ir prijungimas prie sistemos',
+    'Optimizavimas Google ir AI paieškai: SEO, AEO ir GEO',
+    'Svetainės užklausos – SMS pokalbiai ir pranešimai Jums',
+    'Automatinė žinutė po praleisto skambučio',
+    'Atsiliepimų prašymai vienu paspaudimu ir automatinis priminimas',
+    'Buvusių klientų susigrąžinimo kampanijos',
+    'Rinkodaros kampanijos vienu paspaudimu',
+    'Verslo numeris ir viską sujungianti programėlė',
+  ],
+};
 export const GOOGLE = { rating: '5,0', count: '1 atsiliepimas', url: brand.gbp };
 
 export const o2 = {
   meta: {
     title: 'Jarvis Systems – svetainės ir rinkodaros sistemos Jūsų verslui',
-    description: 'Svetainės užklausos tampa SMS pokalbiais, praleistas skambutis gauna žinutę, atsiliepimų prašymai ir kampanijos buvusiems klientams – vienoje programėlėje. Pirmiems 5: 50 € paruošimas ir 30 dienų nemokamai.',
+    description: `Svetainė, SEO, AEO, GEO, automatinės žinutės, atsiliepimų prašymai ir klientų kampanijos vienoje programėlėje. Pilnas paketas – ${O2_OFFER.monthly} ${O2_OFFER.guarantee}.`,
   },
   nav: [
     { label: 'Funkcijos', href: '/funkcijos' },
@@ -35,7 +43,7 @@ export const o2 = {
   menu: 'Meniu', close: 'Uždaryti',
   hero: {
     title: ['Svetainės ir', 'rinkodaros sistemos', 'Jūsų verslui'],
-    lead: ['Be pasakų – rinkodara nėra raketų mokslas.', 'Nė viena agentūra (net ir mūsų) neturi stebuklingo sprendimo visoms Jūsų problemoms. Duosime įrankius laimėti, bet naudotis jais turėsite patys!'],
+    lead: ['Be pasakų – rinkodara nėra raketų mokslas.', `Svetainė, optimizavimas Google ir AI paieškai bei klientų sistemos vienoje programėlėje. Viskas už ${O2_OFFER.monthly}, su 30 dienų pinigų grąžinimo garantija.`],
     mascotAlt: 'Jarvis Systems talismanas – statybininkas geltona liemene, rankos sukryžiuotos',
   },
   features: {
@@ -49,7 +57,7 @@ export const o2 = {
           ['Jus tikrai randa internete', 'Jei klientas ieško Jūsų Google ir neranda – nejauku… Nesijaudinkite, pasirūpinsime, kad taip nenutiktų.'],
           ['Parodykite tikrus atsiliepimus', 'Tikri klientų atsiliepimai svetainėje parodo naujam klientui, kad Jumis jau pasitiki kiti.'],
           ['Patogi telefone', 'Dauguma žmonių svetaines naršo telefone. Pasirūpinsime, kad Jūsų verslas telefone atrodytų puikiai.'],
-          ['Pritaikyta vietinei Google paieškai', 'Turėtų būti savaime suprantama, bet vis tiek pasakysime: pasirūpiname, kad Jūsų verslą rastų Google.'],
+          ['Pritaikyta Google ir AI paieškai', 'Svetainę optimizuojame Google paieškai ir AI atsakymams. SEO, AEO ir GEO įeina į bendrą paketą.'],
         ],
       },
       {
@@ -79,16 +87,16 @@ export const o2 = {
           ['Paruošta už Jus', 'Vėl – paprastai. Paruoštą žinutę peržiūrite ir paleidžiate vienu paspaudimu.'],
           ['Rekomendacijų kampanijos', 'Dirbate gerai, ir klientai Jus mėgsta. Priminkime jiems papasakoti apie Jus draugams.'],
           ['Grįžtančių klientų kampanijos', 'Lojalūs klientai – sėkmingo verslo pagrindas. Priminkite apie save su specialiu pasiūlymu.'],
-          ['Kampanijos po ranka', 'Spaudžiate mygtuką, o žinutės išeina tik tiems, kurie neatsisakė (STOP). Rinkodaros komandos nereikia.'],
+          ['Kampanijos po ranka', 'Peržiūrite žinutę ir paleidžiate kampaniją vienu paspaudimu. Siunčiame sutikusiems gauti rinkodaros žinutes; atsisakyti galima parašius STOP.'],
         ],
       },
       {
-        id: 'seo', scene: 'seo', title: 'Vietinis SEO',
-        quote: '„Pirma vieta Google per savaitę!“ Juokaujame – SEO reikia laiko…',
+        id: 'seo', scene: 'seo', title: 'SEO, AEO ir GEO',
+        quote: 'Kad Jūsų verslą būtų lengviau rasti Google ir AI paieškoje. Optimizavimas jau įeina į paketą.',
         points: [
-          ['Tikslingos užklausos', 'Skamba geriau nei mokėti už užklausą, kurios autorius net neatsiliepia į skambutį, tiesa?'],
-          ['Nebemokėkite už netikslingas užklausas', 'Kaip sakydavo mama: kokybė svarbiau už kiekį. Ar sutinkame su ja? Taip.'],
-          ['Organinių užklausų sistema', 'Kurkite savo tikslingas užklausas, užuot mokėję už smalsuolius.'],
+          ['Google paieška ir žemėlapiai', 'Tvarkome svetainės struktūrą, paslaugų puslapius ir Google verslo profilį pagal Jūsų paslaugas bei vietoves.'],
+          ['Aiškūs atsakymai klientams', 'AEO – atsakymų paieškos optimizavimas. Aiškiai atsakome į klausimus, kuriuos klientai užduoda apie Jūsų paslaugas.'],
+          ['Turinys AI paieškai', 'GEO – optimizavimas generatyvinei paieškai. Sutvarkome turinį ir verslo informaciją, kad AI sistemoms būtų lengviau juos suprasti.'],
         ],
       },
     ],
@@ -102,16 +110,16 @@ export const o2 = {
     title: 'Kaip atrodo darbas su mumis…',
     steps: [
       ['Pokalbis', '(15–20 min.)', 'Iš tikrųjų tai pardavimo pokalbis – tik nenorėjome Jūsų išgąsdinti. O rimtai: atsakysime į klausimus ir parodysime, kaip sistema veiktų Jūsų versle.'],
-      ['Paruošiame sistemą', '(50 € pirmiems 5)', 'Surenkame pagrindinę informaciją apie verslą. Tada paruošiame verslo numerį, programėlę, SMS tekstus Jūsų vardu ir formos prijungimą.'],
-      ['Paleidimo pokalbis', '(30 dienų nemokamai)', 'Parodome, kaip „viskas“ veikia, ir atsakome į klausimus. O „viskas“ – tai iš esmės du mygtukai. Toliau mokate tik pasakę „tęsiam“.'],
+      ['Paruošiame visą paketą', '(svetainė + sistemos)', 'Sukuriame svetainę, optimizuojame ją Google ir AI paieškai, prijungiame užklausas, žinutes, atsiliepimų prašymus ir kampanijas prie vienos programėlės.'],
+      ['Paleidžiame ir parodome', `(${O2_OFFER.monthly})`, 'Kartu patikriname svetainę ir sistemas, parodome programėlę bei atsakome į klausimus. Pilnam paketui taikoma 30 dienų pinigų grąžinimo garantija.'],
     ],
   },
   why: {
     title: ['Kodėl mes „visiškai unikalūs“…', 'kaip ir visi kiti, tiesa?'],
     items: [
       ['easy', 'Paprasta naudoti', 'Jarvis Systems kūrėme su viena pagrindine mintimi – kad būtų paprasta naudoti. Todėl viskas taip ir veikia.'],
-      ['price', 'Prieinama kaina', 'Kainos sukurtos tam, kad liktumėte 10 metų, o ne 10 savaičių. Planuojame dirbti ilgai.'],
-      ['contract', 'Jokių sutarčių', 'Jei prieinama ir veikia puikiai, kam mums ilgalaikė sutartis… Jei būsite patenkinti, liksite.'],
+      ['price', 'Viena aiški kaina', `Svetainė, SEO, AEO, GEO ir klientų sistemos – viename pakete už ${O2_OFFER.monthly}`],
+      ['contract', '30 dienų garantija', 'Pilnam paketui taikoma 30 dienų pinigų grąžinimo garantija.'],
       ['straight', 'Be pasakų', 'Netikime tuščiais žodžiais: tiksliai pasakome, ką padarysime, ir tai padarome. Taškas.'],
       ['proof', 'Turime įrodymų', ['Žinome, kas veikia, o mūsų ', ['atliktus darbus', '/rezultatai'], ' galite patikrinti patys.']],
       ['improve', 'Nuolat tobuliname', 'Reguliariai atnaujiname ir tobuliname sistemas, kad už savo pinigus gautumėte kuo daugiau.'],
@@ -121,18 +129,18 @@ export const o2 = {
     title: 'Dažniausi klausimai',
     items: [
       { q: 'Kada pamatysiu rezultatus?', a: 'Sistema pradeda veikti nuo paleidimo dienos: užklausa iš svetainės ar praleistas skambutis iškart sulaukia žinutės. Daugiau užsakymų nežadame – ar žmogus taps klientu, vis dar priklauso ir nuo Jūsų.' },
-      { q: 'Kiek kainuoja?', a: 'Pirmiems 5 klientams: 50 € paruošimas, mokamas iš anksto. Tada 30 dienų nemokamai, skaičiuojant nuo dienos, kai patikriname, kad viskas veikia. Toliau 97 € per mėnesį – tik jei aiškiai pasakote, kad tęsiame. Niekas savaime nenuskaičiuojama.' },
-      { q: 'Kas nutinka, jei nuspręsiu nutraukti?', a: 'Ilgalaikės sutarties nėra. Persigalvojote, kol dar nepradėjome darbų – grąžiname visus 50 €. Dėl mūsų kaltės nepavyko paleisti to, ką sutarėme – grąžiname visus 50 €. Nutraukiate paruošimo metu – grąžiname likutį, atskaičiavę jau atliktą sutartą darbą. Viskas veikia, bet nusprendėte netęsti – 50 € lieka už paruošimą, mėnesinio mokesčio nėra.' },
-      { q: 'Ar mano svetainę ras Google?', a: 'Sistema prijungiama prie Jūsų esamos svetainės formos. Naują svetainę ar vietinį SEO darome atskirai, ir tai į 50 € paruošimą neįeina – aptarsime pokalbio metu. Pirmos vietos per savaitę nežadame.' },
+      { q: 'Kiek kainuoja?', a: `Pilnas paketas kainuoja ${O2_OFFER.monthly} Svetainė, SEO, AEO, GEO, automatinės žinutės, atsiliepimų prašymai, klientų kampanijos ir bendra programėlė įeina į šią kainą. Taikoma 30 dienų pinigų grąžinimo garantija.` },
+      { q: 'Ar yra pinigų grąžinimo garantija?', a: 'Taip. Pilnam Jarvis Systems paketui taikoma 30 dienų pinigų grąžinimo garantija.' },
+      { q: 'Ar įeina optimizavimas Google ir AI paieškai?', a: 'Taip. Į paketą įeina svetainė ir jos optimizavimas Google bei vietinei paieškai (SEO), aiškiems atsakymams į klientų klausimus (AEO) ir generatyvinei AI paieškai (GEO). Konkreti pozicija Google ar paminėjimas AI atsakyme nėra garantuojami.' },
       { q: 'Kam to reikia, jei klientų atveda rekomendacijos?', a: 'Rekomenduotas žmogus vis tiek pirmiausia paskambina ar parašo. Sistema pasirūpina, kad toks skambutis ar užklausa neliktų be atsakymo, o laimingi klientai būtų paprašyti atsiliepimo.' },
-      { q: 'Kas į kainą neįeina?', a: 'Naujas domenas, jei jo prireikia (registruojamas Jūsų vardu, apmokamas atskirai). Nauja svetainė, vietinis SEO ir reklamos biudžetas – aptariame atskirai. SMS naudojimo, pagalbos ir nutraukimo sąlygas surašome raštu prieš mokėjimą.' },
+      { q: 'Ar už svetainę ir SEO reikės mokėti papildomai?', a: `Ne. Svetainė ir SEO, AEO bei GEO optimizavimas yra pilno ${O2_OFFER.monthly} paketo dalis, kartu su užklausų, žinučių, atsiliepimų ir kampanijų sistemomis.` },
       { q: 'Ar pasikeis mano numeris?', a: 'Ne. Jūsų telefonas ir numeris lieka. Papildomai gaunate verslo numerį, kurį skelbiate ten, kur norite gauti užklausų. Nutraukus paslaugą verslo numeris išjungiamas ir neperduodamas.' },
       { q: 'Ar veiks mano telefone? Ar atsako robotas?', a: 'Taip, ir iPhone, ir Android: programėlė atsidaro naršyklėje ir įsidiegia į telefono ekraną. Automatinė yra tik pirma žinutė – toliau su klientu rašote Jūs, kaip įprastai.' },
     ],
   },
   talk: {
     title: 'Norite susitarti dėl pokalbio?',
-    text: 'Parodysime viską, ką darome, kad Jūsų verslas augtų – galėsite tai daryti patys arba leisti tai padaryti mums.',
+    text: `Parodysime, kaip svetainė, SEO, AI paieškos optimizavimas ir klientų sistemos veiktų Jūsų versle. Pilnas paketas – ${O2_OFFER.monthly}`,
     name: 'Vardas', phone: 'Telefono numeris', email: 'El. paštas (nebūtina)', errEmail: 'Patikrinkite el. pašto adresą.', company: 'Įmonė ar veikla (nebūtina)', time: 'Kada patogu?',
     times: [['morning', 'Rytą'], ['day', 'Dieną'], ['evening', 'Vakare']],
     submit: 'Užsiregistruoti pokalbiui', open: 'Užsiregistruoti pokalbiui', dialogTitle: 'Užsiregistruoti pokalbiui', close: 'Uždaryti', sending: 'Siunčiama…',
@@ -148,7 +156,7 @@ export const o2 = {
   footer: {
     ready: 'Pasiruošę pradėti?', learn: 'Norite sužinoti daugiau, kaip galime padėti?',
     colLinks: 'Nuorodos', colAbout: 'Apie', colFeatures: 'Funkcijos',
-    links: [['Kainos', '/kainos'], ['Atsiliepimai', '/atsiliepimai'], ['Mūsų darbai', '/musu-darbai'], ['Svetainės', '/svetaines']],
+    links: [['Kainos', '/kainos'], ['Atsiliepimai', '/atsiliepimai'], ['Mūsų darbai', '/musu-darbai'], ['Svetainės', '/funkcijos/funkcionali-svetaine']],
     about: [['Kaip dirbame', '/kaip-dirbame'], ['Sritys', '/sritys'], ['Apie', '/apie'], ['Kontaktai', '/kontaktai']],
     privacy: 'Privatumo politika', terms: 'Taisyklės',
   },

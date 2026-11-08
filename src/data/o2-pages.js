@@ -1,17 +1,18 @@
 /* Jarvis Systems separate pages (USER13, 2026-11-08). Short truthful drafts; Matas locks wording later.
-   Same facts as src/data/o2.js (header comment there). No statistics, team, reviews or video we do not have.
+   Commercial source: O2_OFFER in src/data/o2.js; full package agreed by Matas on 2026-11-08. No statistics, team, reviews or video we do not have.
    Layout types follow the Stone page map in docs/jarvis-stone-source-match/USER13-DESIGN-CORRECTIONS.md. */
 import { brand } from './content.js';
+import { O2_OFFER } from './o2.js';
 import proof from './arbcut-proof.json';
 
 /** Feature detail routes /funkcijos/<slug>; `id` = homepage row id, `scene` = shared loop. */
 export const FEATURE_PAGES = {
   svetaine: {
     slug: 'funkcionali-svetaine',
-    lead: 'Svetainės užklausa iškart tampa SMS pokalbiu, o Jūs gaunate pranešimą telefone.',
+    lead: 'Sukuriame svetainę, optimizuojame ją Google ir AI paieškai bei prijungiame prie klientų sistemos. Užklausa tampa SMS pokalbiu, o Jūs gaunate pranešimą telefone.',
     facts: [
       ['Užklausa – į telefoną', 'Kai klientas užpildo formą, jis gauna žinutę, o Jūs – pranešimą su jo kontaktais.'],
-      ['Esama arba nauja svetainė', 'Sistemą prijungiame prie Jūsų esamos formos. Naują svetainę darome atskirai.'],
+      ['Svetainė įeina į paketą', `Svetainės sukūrimas, optimizavimas ir prijungimas prie sistemos yra pilno ${O2_OFFER.monthly} paketo dalis.`],
       ['Patogi telefone', 'Forma ir puslapiai turi gerai veikti telefone, nes ten naršo dauguma žmonių.'],
     ],
     how: [
@@ -58,7 +59,7 @@ export const FEATURE_PAGES = {
     facts: [
       ['Grįžtantys klientai', 'Priminkite apie save su sezoniniu pasiūlymu tiems, kurie jau pirko.'],
       ['Rekomendacijos', 'Paprašykite patenkintų klientų papasakoti apie Jus draugams.'],
-      ['Tik sutikusiems', 'Žinutės išeina tik tiems, kurie neatsisakė (STOP).'],
+      ['Tik sutikusiems', 'Žinutės siunčiamos sutikusiems gauti rinkodarą. Atsisakyti galima parašius STOP.'],
     ],
     how: [
       ['Pasirenkate kampaniją', 'Žinutės tekstą paruošiame kartu, Jūs jį peržiūrite.'],
@@ -69,52 +70,45 @@ export const FEATURE_PAGES = {
   },
   seo: {
     slug: 'vietinis-seo',
-    lead: 'Vietinis SEO padeda Jus rasti Google paieškoje ir žemėlapyje. Tai atskiras darbas, ir jam reikia laiko.',
+    lead: 'Google paieška, žemėlapiai ir AI atsakymai: SEO, AEO ir GEO optimizavimas įeina į pilną paketą.',
     facts: [
-      ['Atskira paslauga', 'Į 50 € paruošimą neįeina – apimtį ir kainą aptariame pokalbyje.'],
-      ['Puslapiai paslaugoms ir miestams', 'Kuriame puslapius tam, ko žmonės realiai ieško Jūsų regione.'],
-      ['Google verslo profilis', 'Sutvarkome profilį, kad jis atitiktų svetainę ir paslaugas.'],
+      ['SEO: Google ir vietinė paieška', 'Sutvarkome svetainės struktūrą, paslaugų puslapius ir Google verslo profilį.'],
+      ['AEO: atsakymai į klausimus', 'Turinyje aiškiai atsakome į klausimus apie Jūsų paslaugas, kad atsakymus būtų lengviau rasti ir suprasti.'],
+      ['GEO: generatyvinė AI paieška', 'Sutvarkome turinį ir verslo informaciją, kad juos būtų lengviau suprasti AI paieškos sistemoms.'],
     ],
     how: [
-      ['Paieškų peržiūra', 'Pažiūrime, ką žmonės ieško Jūsų srityje ir mieste.'],
-      ['Puslapiai ir profilis', 'Sukuriame ar pataisome puslapius ir Google verslo profilį.'],
-      ['Matuojame', 'Paspaudimus ir užklausas tikriname Google Search Console ir formų duomenyse.'],
+      ['Peržiūrime Jūsų verslą', 'Aptariame paslaugas, vietoves ir klausimus, kuriuos užduoda klientai.'],
+      ['Optimizuojame svetainę ir profilį', 'Tvarkome puslapių struktūrą, informaciją apie verslą ir atsakymus į klientų klausimus.'],
+      ['Tikriname duomenis', 'Google paieškos paspaudimus ir svetainės užklausas stebime per Search Console bei formų duomenis.'],
     ],
-    note: 'Pirmos vietos per savaitę nežadame. Ką tai davė vienam klientui, rodo puslapis „Mūsų darbai“.',
+    note: 'Optimizavimas įeina į paketą. Konkreti pozicija Google ar paminėjimas AI atsakymuose nėra garantuojami.',
   },
 };
 
 export const pages = {
   funkcijos: {
     title: 'Funkcijos – Jarvis Systems',
-    description: 'Svetainės užklausos SMS, atsiliepimų prašymai, žinutė po praleisto skambučio, kampanijos buvusiems klientams ir vietinis SEO.',
-    h: ['Viskas, ko reikia užklausoms', 'vienoje programėlėje'],
-    lead: 'Svetainės, užklausų sistemos ir vietinis SEO. Kiekvieną galite pamatyti trumpoje demonstracijoje.',
+    description: 'Pilnas Jarvis Systems paketas: svetainė, SEO, AEO, GEO, užklausų ir žinučių sistemos, atsiliepimų prašymai bei klientų kampanijos vienoje programėlėje.',
+    h: ['Svetainė ir klientų sistemos', 'viename pakete'],
+    lead: `Svetainė, SEO, AEO, GEO ir visos žemiau esančios sistemos už ${O2_OFFER.monthly} Valdymas – vienoje programėlėje.`,
     more: 'Plačiau',
   },
   kainos: {
     title: 'Kainos – Jarvis Systems',
-    description: 'Pirmiems 5 klientams: 50 € paruošimas, 30 dienų nemokamai, toliau 97 €/mėn. tik aiškiai pasakius „tęsiam“.',
-    h: ['Paprasta kaina', 'be ilgalaikės sutarties'],
+    description: `Pilnas paketas už ${O2_OFFER.monthly}: svetainė, SEO, AEO, GEO ir klientų sistemos vienoje programėlėje. ${O2_OFFER.guarantee}.`,
+    h: ['Viskas viename pakete', `už ${O2_OFFER.monthly}`],
     plan: {
-      badge: 'Pirmiems 5 klientams',
+      badge: 'Pilnas paketas',
       name: 'Jarvis Systems',
-      price: '97 €', per: '/mėn.',
+      price: O2_OFFER.price, per: O2_OFFER.per,
       terms: [
-        ['50 €', 'paruošimas, mokamas iš anksto'],
-        ['30 d.', 'nemokamai nuo dienos, kai patikriname, kad viskas veikia'],
-        ['97 €/mėn.', 'tik jei aiškiai pasakote „tęsiam“ – niekas savaime nenuskaičiuojama'],
+        ['30 dienų', 'pinigų grąžinimo garantija'],
+        ['Viena kaina –', 'svetainė, optimizavimas ir visos klientų sistemos'],
       ],
-      includes: [
-        'Svetainės formos užklausos – SMS pokalbiai ir pranešimas Jums',
-        'Žinutė po praleisto skambučio',
-        'Atsiliepimų prašymai su vienu priminimu',
-        'Kampanijos buvusiems klientams (su STOP atsisakymu)',
-        'Verslo numeris ir viena programėlė telefone',
-      ],
-      extra: 'Atskirai: nauja svetainė, vietinis SEO, reklamos biudžetas ir naujas domenas (registruojamas Jūsų vardu).',
+      includes: O2_OFFER.includes,
+      extra: `Visos šios paslaugos įeina į ${O2_OFFER.monthly} paketą.`,
     },
-    faq: [0, 1, 2, 5].map(String),
+    faq: [1, 2, 3, 5].map(String),
   },
   atsiliepimai: {
     title: 'Atsiliepimai – Jarvis Systems',
@@ -155,14 +149,14 @@ export const pages = {
       `Jarvis Systems – tai ${brand.owner} iš Kauno. Kuriu svetaines ir paprastas sistemas, kad smulkaus verslo užklausos ir skambučiai neliktų be atsakymo.`,
       'Dirbu vienas, todėl kalbatės su tuo, kuris viską ir daro. Tiksliai pasakau, ką padarysiu, ir to, ko nepadarysiu, nežadu.',
     ],
-    facts: [['Kas', `${brand.owner}, ${brand.status.toLowerCase()}`], ['Kur', `${brand.city}, Lietuva`], ['Ką darome', 'Svetainės, užklausų sistema, vietinis SEO']],
+    facts: [['Kas', `${brand.owner}, ${brand.status.toLowerCase()}`], ['Kur', `${brand.city}, Lietuva`], ['Ką darome', 'Svetainės, SEO, AEO, GEO ir klientų sistemos']],
   },
   procesas: {
     title: 'Kaip dirbame – Jarvis Systems',
-    description: 'Trys žingsniai: pokalbis, sistemos paruošimas ir paleidimo pokalbis. 30 dienų nemokamai, toliau – tik jei tęsiame.',
+    description: `Pokalbis, svetainės ir sistemų paruošimas, bendras paleidimas. Pilnas paketas – ${O2_OFFER.monthly}, su 30 dienų pinigų grąžinimo garantija.`,
     h: ['Kaip dirbame'],
-    lead: 'Nuo pirmo pokalbio iki veikiančios sistemos – trys žingsniai.',
-    need: ['Ko reikės iš Jūsų', ['Pagrindinė informacija apie verslą ir paslaugas', 'Prieiga prie svetainės formos (arba nauja svetainė atskirai)', 'Telefono numeris, į kurį peradresuosime skambučius', 'Jūsų patvirtinimas SMS tekstams prieš paleidimą']],
+    lead: 'Nuo pirmo pokalbio iki veikiančios svetainės ir klientų sistemų – trys žingsniai.',
+    need: ['Ko reikės iš Jūsų', ['Pagrindinė informacija apie verslą ir paslaugas', 'Turimos svetainės ir domeno prieigos, jei juos jau turite', 'Telefono numeris, į kurį peradresuosime skambučius', 'Jūsų patvirtinimas SMS tekstams prieš paleidimą']],
   },
   sritys: {
     title: 'Sritys – Jarvis Systems',

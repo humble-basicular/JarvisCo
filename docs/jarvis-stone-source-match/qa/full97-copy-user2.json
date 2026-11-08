@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-08T16:33:00.992Z",
+  "scope": "Agreed O2 full97 copy, guarantee start unresolved",
+  "preview": "http://127.0.0.1:4381/",
+  "browser": "Native T3 collaborative preview",
+  "routes": [
+    "/",
+    "/kainos",
+    "/funkcijos",
+    "/funkcijos/funkcionali-svetaine",
+    "/funkcijos/vietinis-seo",
+    "/kaip-dirbame",
+    "/apie",
+    "/kontaktai",
+    "/taisykles"
+  ],
+  "widths": [
+    320,
+    390,
+    768,
+    1024,
+    1280,
+    1440
+  ],
+  "layoutChecks": 54,
+  "layoutFailures": [],
+  "behavior": {
+    "mode": "preview",
+    "opened": true,
+    "invalidPhone": true,
+    "invalidEmail": true,
+    "status": "Tai peržiūros versija, todėl registracija neišsiųsta. Pokalbiui paskambinkite:",
+    "calls": [],
+    "closed": true,
+    "focusRestored": true
+  },
+  "visuallyInspected": [
+    "Pricing desktop1440",
+    "Pricing mobile390",
+    "Homepage mobile390"
+  ],
+  "artifacts": {
+    "priceDesktop": "/Users/matasbasinskas/.ai-powerhouse/userdata/browser-artifacts/browser-screenshot-127-0-0-1-mw81uutf-0fd55e31.png",
+    "priceMobile": "/Users/matasbasinskas/.ai-powerhouse/userdata/browser-artifacts/browser-screenshot-127-0-0-1-mw81v1cj-afd1373c.png",
+    "homeMobile": "/Users/matasbasinskas/.ai-powerhouse/userdata/browser-artifacts/browser-screenshot-127-0-0-1-mw81vn8w-a34c4e53.png"
+  },
+  "limits": [
+    "Guarantee start and exact refund wording await Matas's pending question answer",
+    "Legacy v4 campaign pages unchanged; not a whole-site pricing unification",
+    "No new provider review authorized; lead reviewed scoped copy directly",
+    "No publication, provider changes or real sends",
+    "Continuation metadata writes rejected by orchestration dispatch; original state remains paused"
+  ]
+}

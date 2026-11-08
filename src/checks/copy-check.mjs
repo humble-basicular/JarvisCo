@@ -61,9 +61,11 @@ const V4_PAGES = new Set(['svetaines/index.html', 'sildymui/index.html', 'noriu/
 // exactly these 13 routes, no prefix wildcard, so every other page keeps the stricter agency rules.
 const O2_SUBPAGES = ['funkcijos', ...['funkcionali-svetaine', 'atsiliepimu-rinkimas', 'praleistas-skambutis', 'kampanijos', 'vietinis-seo'].map((s) => `funkcijos/${s}`),
   'kainos', 'atsiliepimai', 'musu-darbai', 'apie', 'kaip-dirbame', 'sritys', 'kontaktai'].map((r) => `${r}/index.html`);
-const O2_PAGES = new Set(['index.html', 'pavyzdys/pokalbis/index.html', ...O2_SUBPAGES]);
+// Shared terms now describe the same full O2 package; legacy content pages retain their own rules.
+const O2_PAGES = new Set(['index.html', 'taisykles/index.html', 'pavyzdys/pokalbis/index.html', ...O2_SUBPAGES]);
 const o2Banned = [
-  /197\s?€/u, /\b49\s?€/u, /39\s?€/u,                 // only the first-five terms (50 € / 30 d. / 97 €) are agreed
+  /197\s?€/u, /\b49\s?€/u, /39\s?€/u,                 // current O2 offer: one full 97 €/month package
+  /50\s?€|pirm(?:iems|iesiems)\s+5|30\s+(?:dienų|d\.)\s+nemokamai|tik\s+(?:jei|pasakę)[^.]*tęsi/iu, // superseded pilot terms
   /garantuoj(?:ame|u)\b/iu,                           // no result guarantees ("Ar garantuojate" question stays allowed)
   /5\s?žvaigžd|penkių žvaigždučių|tik geri atsiliepim/iu, // no review gating
   /įskaičiuot\w*\s+SMS|SMS\w*\s+įskaičiuot/iu,        // SMS usage inclusion is not agreed
