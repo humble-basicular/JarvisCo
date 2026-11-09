@@ -2,7 +2,8 @@
    One full package: 97 €/month; website + SEO/AEO/GEO + enquiry/SMS systems,
    one-click review requests, reactivation/marketing campaigns and connected app.
    30-day money-back guarantee replaces first-five / 50 € setup / free-trial offer.
-   User3: guarantee starts with the first 97 € payment; refund the entire first payment.
+   User3: guarantee starts with the first 97 € payment.
+   User4 (2026-11-09): refund 60 % of the first payment (58,20 €); ~25 € setup is a fixed cost.
    Do not invent refund restrictions,
    usage caps, unlimited messaging, billing mechanics or promised search/AI results.
    Accepted Stone design, real proof and verified Betono media remain unchanged.
@@ -15,7 +16,7 @@ export const APP_URL = 'https://jarvisweb-sistema.jarvisworks-co.workers.dev/';
 export const O2_OFFER = {
   price: '97 €', per: '/mėn.', monthly: '97 €/mėn.',
   guarantee: '30 dienų pinigų grąžinimo garantija',
-  guaranteeDetails: '30 dienų skaičiuojame nuo pirmo 97 € mokėjimo. Per šį laikotarpį paprašius grąžinti pinigus, grąžiname visą pirmą mokėjimą.',
+  guaranteeDetails: '30 dienų skaičiuojame nuo pirmo 97 € mokėjimo. Per šį laikotarpį paprašius grąžinti pinigus, grąžiname 60 % pirmo mokėjimo (58,20 €). Likusi dalis padengia jau atliktus paleidimo darbus.',
   includes: [
     'Svetainės sukūrimas ir prijungimas prie sistemos',
     'Optimizavimas Google ir AI paieškai: SEO, AEO ir GEO',
