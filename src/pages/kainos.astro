@@ -22,6 +22,8 @@ const qs = P.faq.map((n) => o2.faq.items[Number(n)]);
       <h3 class="plan__inc">Kas įeina</h3>
       <ul class="plan__list">{L.includes.map((t) => <li><Icon name="badge" size={22} />{t}</li>)}</ul>
       <p class="plan__extra">{L.extra}</p>
+      <h3 class="plan__inc">Jei atsisakote</h3>
+      {L.exit.map((t) => <p class="plan__extra">{t}</p>)}
     </article>
   </PageHead>
   <Steps />

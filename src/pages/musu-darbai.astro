@@ -1,6 +1,6 @@
 ---
 /* /musu-darbai — Stone "Our work": centred heading on grey, two-column showcases (one on mobile).
-   Only own work: actual latest betonogaminiai.lt capture and ArbCut with dated, screenshot-backed figures. */
+   Only own work: Betono + ArbCut case studies with dated audit figures, plus other live client sites (laikam.lt excluded: Hostinger AI Builder site, not our build). */
 import O2Layout from '@layouts/O2Layout.astro';
 import PageHead from '@components/o2/PageHead.astro';
 import Talk from '@components/o2/Talk.astro';
@@ -19,12 +19,20 @@ const P = pages.darbai;
           </div>
           <div class="work__txt">
             <h2>{w.name}</h2>
-            <p class="work__site">{w.site}</p>
+            <a class="work__site" href={w.url} target="_blank" rel="noopener">{w.site}</a>
             <p>{w.text}</p>
+            {w.facts && <dl class="work__facts">{w.facts.map(([n, t]) => <div><dt>{n}</dt><dd>{t}</dd></div>)}</dl>}
+            {w.note && <p class="work__note">{w.note}</p>}
             <ul class="work__tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
             {w.more && <a class="work__more" href={w.more[1]}>{w.more[0]} <Icon name="arrow" size={18} /></a>}
           </div>
         </li>
+      ))}
+    </ul>
+    <h2 class="work__live-h">{P.liveTitle}</h2>
+    <ul class="work__live">
+      {P.live.map(([name, what, url]) => (
+        <li><a href={url} target="_blank" rel="noopener"><strong>{name}</strong><span>{what}</span><span class="work__site">{url.replace(/^https:\/\/|\/$/g, '')}</span></a></li>
       ))}
     </ul>
   </PageHead>

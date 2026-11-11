@@ -67,8 +67,7 @@ const o2Banned = [
   /197\s?€/u, /\b49\s?€/u, /39\s?€/u,                 // current O2 offer: one full 97 €/month package
   /50\s?€|pirm(?:iems|iesiems)\s+5|30\s+(?:dienų|d\.)\s+nemokamai|tik\s+(?:jei|pasakę)[^.]*tęsi/iu, // superseded pilot terms
   /garantuoj(?:ame|u)\b/iu,                           // no result guarantees ("Ar garantuojate" question stays allowed)
-  /5\s?žvaigžd|penkių žvaigždučių|tik geri atsiliepim/iu, // no review gating
-  /įskaičiuot\w*\s+SMS|SMS\w*\s+įskaičiuot/iu,        // SMS usage inclusion is not agreed
+  /penkių žvaigždučių|tik geri atsiliepim/iu,        // review filter decided 2026-11-10 (OFFER.md §1); still no 'only good reviews' claim
   /revoliucin|geriausi|dirbtin\w+ intelekt|\bDI\b/iu,
   /NUOTRAUKA\s*:|CITATA\s*:/iu,
 ];

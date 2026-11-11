@@ -29,14 +29,14 @@ export const FEATURE_PAGES = {
     facts: [
       ['Vienas paspaudimas', 'Prašymą išsiunčiate iš programėlės, kai darbas baigtas.'],
       ['Vienas priminimas', 'Jei klientas pamiršta, išeina vienas mandagus priminimas – ne daugiau.'],
-      ['Nuoroda kiekvienam', 'Prašymą gauna kiekvienas klientas, ne tik tie, kurie atrodo patenkinti.'],
+      ['Pirmiausia – žvaigždutės', 'Patenkinti klientai nukreipiami į Google, o nepatenkinti parašo tiesiai Jums.'],
     ],
     how: [
       ['Darbas baigtas', 'Programėlėje pažymite, kad darbas atliktas.'],
       ['Klientas gauna nuorodą', 'SMS su tiesiogine nuoroda į Jūsų Google atsiliepimų langą.'],
       ['Matote, kas atidarė', 'Programėlėje matote, kas nuorodą atidarė, o kam išėjo priminimas.'],
     ],
-    note: 'Atsiliepimų nefiltruojame ir nerenkame tik teigiamų: nuoroda vienoda visiems klientams.',
+    note: 'Klientas pirmiausia pasirenka žvaigždutes: 4–5 žvaigždutės nukreipia į Google, 1–3 – į privačią žinutę Jums.',
   },
   skambuciai: {
     slug: 'praleistas-skambutis',
@@ -59,7 +59,7 @@ export const FEATURE_PAGES = {
     facts: [
       ['Grįžtantys klientai', 'Priminkite apie save su sezoniniu pasiūlymu tiems, kurie jau pirko.'],
       ['Rekomendacijos', 'Paprašykite patenkintų klientų papasakoti apie Jus draugams.'],
-      ['Tik sutikusiems', 'Žinutės siunčiamos sutikusiems gauti rinkodarą. Atsisakyti galima parašius STOP.'],
+      ['Be skubos', 'Kampanija išeina palaipsniui dienos metu, ne visa iš karto ir ne naktį.'],
     ],
     how: [
       ['Pasirenkate kampaniją', 'Žinutės tekstą paruošiame kartu, Jūs jį peržiūrite.'],
@@ -102,13 +102,18 @@ export const pages = {
       name: 'Jarvis Systems',
       price: O2_OFFER.price, per: O2_OFFER.per,
       terms: [
+        ['Be', 'įrengimo mokesčio'],
         ['30 dienų', 'pinigų grąžinimo garantija'],
-        ['Viena kaina –', 'svetainė, optimizavimas ir visos klientų sistemos'],
+        ['Atsisakyti', 'galite bet kada'],
+        ['Paleidžiame', 'per 7 dienas'],
+        ['Domenas', 'įskaičiuotas'],
+        ['100 SMS', 'per mėnesį įskaičiuota, papildoma – 0,08 €'],
       ],
       includes: O2_OFFER.includes,
       extra: O2_OFFER.guaranteeDetails,
+      exit: [O2_OFFER.cancelDetails, O2_OFFER.keepSite, O2_OFFER.number],
     },
-    faq: [1, 2, 3, 5].map(String),
+    faq: [1, 2, 3, 4, 5].map(String),
   },
   atsiliepimai: {
     title: 'Atsiliepimai – Jarvis Systems',
@@ -122,25 +127,47 @@ export const pages = {
   },
   darbai: {
     title: 'Mūsų darbai – Jarvis Systems',
-    description: 'Tikri mūsų darbai: „Dailius ir ko“ (betonogaminiai.lt) nauja svetainė ir ArbCut (arbcut.lt) svetainė su užklausų ir paieškos duomenimis.',
+    description: 'Tikri mūsų darbai: betonogaminiai.lt, arbcut.lt, vensland.lt ir meselektra.lt. Atvejai su datuotais, patikrinamais skaičiais.',
     h: ['Mūsų darbai', 'tikri, ne pavyzdiniai'],
+    // Case-study figures: Drive Business/JarvisWeb/management/audits/betonogaminiai-2026-11-09/REPORT.md (E1, E5, E9, E10)
+    // and audits/arbcut-2026-11-11/REPORT.md (C1, C2, F4, evidence log); ArbCut clicks/forms from arbcut-proof.json.
+    // Single dated observations, not promises. No testimonials.
     items: [
       {
-        name: 'UAB „Dailius ir ko“', site: 'betonogaminiai.lt',
+        name: 'UAB „Dailius ir ko“', site: 'betonogaminiai.lt', url: 'https://www.betonogaminiai.lt/',
         img: '/jarvis-systems/demo/betono-actual/home.webp', w: 1440, h: 783,
         img2: '/jarvis-systems/demo/betono-actual/details-filled.webp',
-        text: 'Betoninių gaminių gamintojo svetainės naujausia versija: paslaugų puslapiai ir „Gauti pasiūlymą“ forma su vardu, telefonu, el. paštu ir preke.',
-        tags: ['Svetainė', 'Užklausos forma', 'Telefone'],
+        text: 'Betoninių gaminių gamintojas Ražiškiuose. Naują svetainę paleidome 2026-11-08: prekių ir paslaugų puslapiai, kainos ir „Gauti pasiūlymą“ forma.',
+        facts: [
+          ['36', 'puslapiai svetainės žemėlapyje'],
+          ['94 / 100', 'Lighthouse mobiliam: greitis / SEO (pradžios puslapis)'],
+          ['#2', 'Google paieškoje „šulinių žiedai kaunas“'],
+          ['1-as', 'paminėtas Google AI režimo atsakyme apie šulinių žiedus Kaune'],
+        ],
+        note: 'Patikrinta 2026-11-09, vienkartinis stebėjimas: pozicijos keičiasi pagal vietą ir įrenginį.',
+        tags: ['Svetainė', 'Vietinis SEO', 'Užklausos forma'],
       },
       {
-        name: 'ArbCut – arboristas Kaune', site: 'arbcut.lt',
+        name: 'ArbCut – arboristas Kaune', site: 'arbcut.lt', url: 'https://arbcut.lt/',
         img: '/jarvis-systems/work/arbcut-mobile.webp', w: 390, h: 844, mobile: true,
-        text: `Svetainė su paslaugų ir miestų puslapiais. Per 3 mėnesius (${proof.gsc.from}–${proof.gsc.to}) – ${proof.gsc.clicks} paspaudimai iš Google paieškos; nuo ${proof.forms.created} iki ${proof.forms.captured} – ${proof.forms.total} formos užklausos. Duomenys iš Search Console ir Web3Forms ekrano kopijų.`,
+        text: 'Medžių pjovimo ir darbų aukštyje svetainė su atskirais paslaugų ir miestų puslapiais.',
+        facts: [
+          [String(proof.gsc.clicks), `paspaudimai iš Google paieškos per 3 mėn. (${proof.gsc.from}–${proof.gsc.to})`],
+          [String(proof.forms.total), `formos užklausos (${proof.forms.created}–${proof.forms.captured})`],
+          ['12 + 18', 'paslaugų ir miestų puslapių'],
+          ['AI', 'arbcut.lt cituojamas Google AI apžvalgoje „medžių pjovimas Kaune“'],
+        ],
+        note: 'Paspaudimai ir užklausos – iš Search Console ir Web3Forms ekrano kopijų; AI apžvalga patikrinta 2026-11-11.',
         tags: ['Svetainė', 'Vietinis SEO', 'Užklausos forma'],
-        more: ['Žiūrėti įrodymus', '/rezultatai'],
       },
     ],
+    liveTitle: 'Kitos veikiančios svetainės',
+    live: [
+      ['VensLand', 'Vejos įrengimas ir priežiūra Vilniuje', 'https://vensland.lt/'],
+      ['MesElektra', 'Elektrikas Klaipėdoje', 'https://meselektra.lt/'],
+    ],
   },
+
   apie: {
     title: 'Apie – Jarvis Systems',
     description: `Jarvis Systems kuria ${brand.owner} iš Kauno: svetainės ir užklausų sistemos smulkiam verslui.`,

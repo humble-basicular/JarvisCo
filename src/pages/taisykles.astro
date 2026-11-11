@@ -1,33 +1,46 @@
 ---
+/* Terms page. Every commercial term comes from O2_OFFER (src/data/o2.js), which mirrors
+   ~/WebAgency Biz/brains/v2/OFFER.md §1 (closed 2026-11-10). Legal form: individuali veikla, not VAT-registered. */
 import LegalPage from '@components/LegalPage.astro';
-import { brand, offer } from '@data/content.js';
+import { brand } from '@data/content.js';
 import { O2_OFFER } from '@data/o2.js';
 ---
-<LegalPage title="Taisyklės" description="Svetainės jarvisweb.lt naudojimo taisyklės ir pasiūlymo sąlygos." updated="2026-11-08">
+<LegalPage title="Taisyklės" description="Jarvis Systems paslaugos sąlygos: kaina, SMS, garantija, atsisakymas ir svetainės išsipirkimas." updated="2026-11-10">
   <h2>Kas teikia paslaugą</h2>
   <p>
-    {brand.owner}, {brand.status.toLowerCase()}, {brand.city}. El. paštas
+    {brand.owner}, {brand.status.toLowerCase()} (individualios veiklos pažyma Nr. 1509154), {brand.city}.
+    PVM mokėtojas nesu, todėl nurodytos kainos yra galutinės. El. paštas
     <a href={brand.emailHref}>{brand.email}</a>, tel. <a href={brand.telHref}>{brand.phone}</a>.
   </p>
 
-  <h2>Jarvis Systems pilnas paketas</h2>
-  <p>Pilno paketo kaina – {O2_OFFER.monthly} Į šią kainą įeina:</p>
+  <h2>Jarvis Systems paketas</h2>
+  <p>Kaina – {O2_OFFER.monthly} Įrengimo mokesčio nėra. Domenas įskaičiuotas į kainą. Į paketą įeina:</p>
   <ul>{O2_OFFER.includes.map((item) => <li>{item}</li>)}</ul>
-  <p>{O2_OFFER.guarantee}.</p>
-  <p>{O2_OFFER.guaranteeDetails}</p>
-  <p>Tikslią darbų apimtį ir įgyvendinimo sąlygas nurodome raštu prieš mokėjimą.</p>
+  <p>Svetainę ir sistemas paleidžiame per 7 dienas nuo tada, kai gauname informaciją apie Jūsų verslą ir reikalingas prieigas. Tikslią darbų apimtį suderiname raštu prieš pirmą mokėjimą.</p>
 
-  <h2>Anksčiau sutarti pasiūlymai</h2>
-  <p>Anksčiau atskirai sutartoms paslaugoms taikomos su Jumis raštu suderintos sąlygos.</p>
+  <h2>Mokėjimas</h2>
+  <p>Prenumerata mėnesinė: {O2_OFFER.monthly} nuskaičiuojama kas mėnesį iš kortelės, kurią nurodote apmokėdami pirmą kartą.</p>
+
+  <h2>SMS žinutės</h2>
+  <p>{O2_OFFER.smsDetails}</p>
+  <p>Automatinės žinutės (po praleisto skambučio, po užklausos, atsiliepimų prašymai, kampanijos) siunčiamos Jūsų verslo vardu. Žinutes, kurias rašote patys, klientas gauna iš Jūsų verslo numerio.</p>
+
+  <h2>Pinigų grąžinimo garantija</h2>
+  <p>{O2_OFFER.guaranteeDetails}</p>
+
+  <h2>Atsisakymas</h2>
+  <p>{O2_OFFER.cancelDetails}</p>
+  <p>{O2_OFFER.keepSite}</p>
+  <p>{O2_OFFER.number}</p>
 
   <h2>Rezultatai</h2>
   <p>
-    Svetainėje rodomi vieno kliento (arbcut.lt) rezultatai su originaliomis ekrano kopijomis. Tai nėra
-    pažadas ar garantija, kad kita svetainė gaus tiek pat užklausų ar paspaudimų.
+    Konkretaus užklausų ar užsakymų skaičiaus, pozicijos Google ar paminėjimo AI atsakymuose nežadame. Sistema
+    padeda greičiau atsakyti ir nepraleisti užklausų; ar žmogus taps klientu, priklauso ir nuo Jūsų.
   </p>
 
-  <h2>Nuosavybė</h2>
-  <p>{offer.ownership}</p>
+  <h2>Anksčiau sutarti pasiūlymai</h2>
+  <p>Anksčiau atskirai sutartoms paslaugoms taikomos su Jumis raštu suderintos sąlygos.</p>
 
   <h2>Klausimai</h2>
   <p>Klausimus ir pastabas siųskite <a href={brand.emailHref}>{brand.email}</a>.</p>
