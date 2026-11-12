@@ -42,6 +42,12 @@ export const O2_OFFER = {
   ],
 };
 export const GOOGLE = { rating: '5,0', count: '1 atsiliepimas', url: brand.gbp };
+/* Landing + /susisieksime proof (Matas 2026-11-12): ArbCut only. 605 = GSC organic clicks, 3 months; 31 = Web3Forms total
+   (no period). Sources: src/assets/proof/PROVENANCE.md. Betono stays on /musu-darbai only. */
+export const PROOF = [
+  ['605', 'organiniai paspaudimai iš Google per 3 mėn.', 'arbcut.lt'],
+  ['31', 'užklausa per svetainės formą', 'arbcut.lt'],
+];
 
 export const o2 = {
   meta: {
@@ -160,12 +166,28 @@ export const o2 = {
   talk: {
     title: 'Norite susitarti dėl pokalbio?',
     text: `Parodysime, kaip svetainė, SEO, AI paieškos optimizavimas ir klientų sistemos veiktų Jūsų versle. Pilnas paketas – ${O2_OFFER.monthly}, atsisakyti galite bet kada.`,
-    name: 'Vardas', phone: 'Telefono numeris', email: 'El. paštas (nebūtina)', errEmail: 'Patikrinkite el. pašto adresą.', company: 'Įmonė ar veikla (nebūtina)', time: 'Kada patogu?',
-    times: [['morning', 'Rytą'], ['day', 'Dieną'], ['evening', 'Vakare']],
+    errEmail: 'Įveskite el. pašto adresą, pvz. vardas@imone.lt.', errPhone: 'Įveskite Lietuvos telefono numerį, pvz. +370 612 34567.',
+    errName: 'Įveskite vardą.', errCompany: 'Įrašykite įmonę arba veiklą.',
+    /* Stone-style booking quiz (Matas 2026-11-12): one question per slide, choices auto-advance, then four required fields. */
+    quiz: {
+      title: `Daugiau užklausų Jūsų verslui už ${O2_OFFER.monthly.replace(' ', '\u00a0')}`,
+      back: 'Atgal', next: 'Tęsti', submit: 'Taip, noriu daugiau užklausų', progress: 'Užpildyta',
+      questions: [
+        ['audience', 'Kam dirbate?', ['Gyventojams', 'Įmonėms', 'Abiem', 'Neturiu paslaugų verslo']],
+        ['state', 'Kaip dabar sekasi?', ['Trūksta darbų', 'Darbų yra, bet nepastoviai', 'Užimtas, darbų pilna', 'Tik pradedu']],
+        ['when', 'Kada norėtumėte tai spręsti?', ['Iš karto', 'Per 1–2 mėn.', 'Vėliau šiais metais', 'Tik domiuosi']],
+        ['revenue', 'Mėnesio apyvarta?', ['iki 3 000 €', '3–10 tūkst. €', '10–30 tūkst. €', 'daugiau nei 30 tūkst. €']],
+      ],
+      fields: [
+        ['phone', 'Telefono numeris', 'Paskambinsime šiuo numeriu.', { type: 'tel', inputmode: 'tel', autocomplete: 'tel', maxlength: '20', placeholder: '+370 612 34567' }],
+        ['email', 'El. paštas', 'Atsiųsime pokalbio santrauką.', { type: 'email', inputmode: 'email', autocomplete: 'email', maxlength: '120', placeholder: 'vardas@imone.lt' }],
+        ['name', 'Vardas', 'Kaip į Jus kreiptis?', { autocomplete: 'given-name', maxlength: '60' }],
+        ['company', 'Įmonė ar veikla', 'Pvz. „Stogų dengimas, Kaunas“.', { autocomplete: 'organization', maxlength: '80' }],
+      ],
+    },
     submit: 'Užsiregistruoti pokalbiui', open: 'Užsiregistruoti pokalbiui', dialogTitle: 'Užsiregistruoti pokalbiui', close: 'Uždaryti', sending: 'Siunčiama…',
     dialogText: '15–20 minučių. Parodysime, kaip tai veiktų Jūsų versle. Jei netiks – pasakysime patys.',
-    ok: 'Ačiū{name}. Paskambinsime {time}.',
-    timesSpoken: { morning: 'rytą', day: 'dieną', evening: 'vakare', '': 'artimiausiu metu' },
+    ok: 'Ačiū{name}. Paskambinsime artimiausiu metu.',
     previewOk: 'Tai peržiūros versija, todėl registracija neišsiųsta. Pokalbiui paskambinkite:',
     err: `Nepavyko išsiųsti. Skambinkite ${brand.phone}.`, errPhone: 'Patikrinkite telefono numerį.',
     orCall: 'Arba paskambinkite', context: 'Jarvis Systems: pokalbis dėl sistemos',

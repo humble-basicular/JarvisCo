@@ -17,8 +17,21 @@ check(!/demo\/bg-hero\.webp|site__form|>BG<|Betono gaminiai/.test(html), 'invent
 check(['phone-left', 'phone-right', 'laptop'].every((d) => html.includes(`/jarvis-systems/device/${d}-glass.webp`) && existsSync(`public/jarvis-systems/device/${d}-glass.webp`)) && !html.includes('dev__isl'), 'device screens must be trimmed by the derived glass masks');
 check(!/class="proof|proof__/.test(html) && (html.match(/class="pbar"/g) ?? []).length === 1 && /pbar__it[^>]*Google įvertinimas/.test(html), 'USER13: big Google proof slot removed; Matas 2026-11-12: Stone-style hero proof bar with Google');
 check(!/Google įvertinim[aą]\b(?![^<]*iš 5)/.test(html.replace(/aria-label="Google įvertinimas [^"]*"/, '')), 'no Google boast outside the hero badge');
-check(/<input name="email" type="email"[^>]*autocomplete="email"/.test(html) && !/name="email"[^>]*required/.test(html), 'booking form has an optional e-mail field');
-check(/if \(email\) body\.append\('email', email\)/.test(ts) && /validEmail\(email\)/.test(ts), 'e-mail is validated when given and sent as `email`');
+// Booking quiz (Matas 2026-11-12): 4 choice slides, then phone → email → name → company, all required; no contact time.
+const steps = [...html.matchAll(/data-q-step="(\d+)"/g)].map((m) => m[1]);
+check(steps.join() === '0,1,2,3,4,5,6,7', `quiz needs 8 slides in order, got ${steps}`);
+check(['Kam dirbate?', 'Kaip dabar sekasi?', 'Kada norėtumėte tai spręsti?', 'Mėnesio apyvarta?'].every((q) => html.includes(`>${q}</legend>`)), 'quiz questions Q1–Q4');
+check((html.match(/data-q-pick=/g) ?? []).length === 16 && html.includes('data-q-pick="Neturiu paslaugų verslo"') && html.includes('data-q-pick="daugiau nei 30 tūkst. €"'), 'four answers per question');
+check([...html.matchAll(/data-q-field="(\w+)"/g)].map((m) => m[1]).join() === 'phone,email,name,company', 'fields in order phone → email → name → company');
+check(['phone', 'email', 'name', 'company'].every((n) => new RegExp(`<input[^>]*name="${n}"[^>]*required|<input[^>]*required[^>]*name="${n}"`).test(html)), 'every quiz field is required');
+check(/Daugiau užklausų Jūsų verslui už 97(?:\u00a0|&nbsp;| )€\/mėn\./.test(html) && html.includes('>Taip, noriu daugiau užklausų</button>') && /aria-valuenow="50"/.test(html), 'quiz title, final button, progress starts at 50 %');
+check(!/name="contact_time"/.test(html) && /name="website"/.test(html), 'contact time removed, honeypot kept');
+check(/validPhone = \(v: string\) => \/\^\(\?:\\\+370\|00370\|8\)\?\[3-9\]/.test(ts) && /body\.append\('email', email\)/.test(ts) && /body\.append\('company', company\)/.test(ts) && /\.\.\.answers/.test(ts), 'LT phone check; live POST carries email, company and the quiz answers in standout');
+check(/class="pbar"[\s\S]*?>605<[\s\S]*?>31<[\s\S]*?<\/ul>/.test(html) && !/786|betonogaminiai\.lt/.test(html.slice(html.indexOf('class="pbar"'), html.indexOf('</ul>', html.indexOf('class="pbar"')))), 'landing proof bar: Google | 605 | 31 (ArbCut), no Betono');
+const cb = readFileSync('dist/susisieksime/index.html', 'utf8');
+check(cb.includes('>605<') && cb.includes('>31<') && !/786|betonogaminiai/.test(cb) && !/data-cb-time|rytą|vakare/.test(cb), '/susisieksime: ArbCut 605 + 31 proof, no Betono, no contact time');
+const darbai = readFileSync('dist/musu-darbai/index.html', 'utf8');
+check((darbai.match(/<a href="[^"]+\.webp" data-zoom/g) ?? []).length >= 3 && !/case__gsc"><a[^>]*target="_blank"/.test(darbai) && /data-zoom-dialog/.test(darbai) && /betonogaminiai/.test(darbai), '/musu-darbai: GSC + forms shots open in the lightbox; Betono stays');
 check(!/data-demo-form|Pavyzdys<|Iliustracija\.|Nuotraukos – iliustracijos|Kad nė viena|Septintos neradome|tcard--txt|programele"/.test(html), 'removed demo section, captions, placeholders and rejected copy must stay gone');
 check((html.match(/trades-stock\/[a-z-]+\.webp/g) ?? []).length === 10, 'all 10 trade cards need stock photos');
 check(html.includes('href="https://jarvisweb-sistema.jarvisworks-co.workers.dev/"'), 'login must point to the verified app entry');

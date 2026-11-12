@@ -1,7 +1,7 @@
 ---
 /* /musu-darbai — Stone "Our work": two case studies with real proof screenshots (Betono, ArbCut only),
    then every site we built (live client domains + client previews) as desktop + phone captures.
-   Figures and their sources: src/data/o2-pages.js (pages.darbai) and src/assets/proof/PROVENANCE.md. No JS. */
+   Screenshots open in a lightbox (src/scripts/zoom.ts; without JS the link opens the image). Figures and their sources: src/data/o2-pages.js (pages.darbai) and src/assets/proof/PROVENANCE.md. */
 import { Image, getImage } from 'astro:assets';
 import O2Layout from '@layouts/O2Layout.astro';
 import PageHead from '@components/o2/PageHead.astro';
@@ -16,7 +16,7 @@ const host = (u: string) => u.replace(/^https:\/\/(www\.)?|\/$/g, '');
 const shot = async ([name, caption]: [string, string]) => {
   const src = proofImage(name);
   const full = await getImage({ src, width: Math.min(src.width, 1600), format: 'webp', quality: 90 });
-  return { src, href: full.src, caption };
+  return { src, href: full.src, w: Number(full.attributes.width), h: Number(full.attributes.height), caption };
 };
 const items = await Promise.all(P.items.map(async (w) => ({
   ...w,
@@ -39,7 +39,7 @@ const items = await Promise.all(P.items.map(async (w) => ({
           </div>
           <div class="case__body">
             <figure class="case__gsc">
-              <a href={w.gsc.href} target="_blank" rel="noopener"><Image src={w.gsc.src} width={900} alt={`${w.gsc.caption}: ${w.site}`} format="webp" quality={90} loading="lazy" /></a>
+              <a href={w.gsc.href} data-zoom data-w={w.gsc.w} data-h={w.gsc.h} data-alt={`${w.gsc.caption}: ${w.site}`} data-caption={`${w.gsc.caption} – ${w.site}`} aria-label={`Padidinti: ${w.gsc.caption} – ${w.site}`}><Image src={w.gsc.src} width={900} alt={`${w.gsc.caption}: ${w.site}`} format="webp" quality={90} loading="lazy" /></a>
               <figcaption>{w.gsc.caption}</figcaption>
             </figure>
             <div class="case__side">
@@ -49,7 +49,7 @@ const items = await Promise.all(P.items.map(async (w) => ({
               </div>
               {w.forms && (
                 <figure class="case__forms">
-                  <Image src={w.forms.src} width={262} alt={`${w.forms.caption}: 31`} format="webp" quality={90} loading="lazy" />
+                  <a href={w.forms.href} data-zoom data-w={w.forms.w} data-h={w.forms.h} data-alt={`${w.forms.caption}: 31`} data-caption={`${w.forms.caption} – ${w.site}`} aria-label={`Padidinti: ${w.forms.caption} – ${w.site}`}><Image src={w.forms.src} width={262} alt={`${w.forms.caption}: 31`} format="webp" quality={90} loading="lazy" /></a>
                   <figcaption>{w.forms.caption}</figcaption>
                 </figure>
               )}
@@ -75,4 +75,14 @@ const items = await Promise.all(P.items.map(async (w) => ({
     </ul>
   </PageHead>
   <Talk />
+  <dialog class="o2zoom" data-zoom-dialog aria-labelledby="zoom-caption">
+    <form method="dialog" class="o2zoom__bar">
+      <p class="o2zoom__cap" id="zoom-caption" data-zoom-caption>Ekrano nuotrauka</p>
+      <button class="menu__x" type="submit" aria-label="Uždaryti"><Icon name="x" size={28} /></button>
+    </form>
+    <div class="zoom__stage o2zoom__stage"><img alt="" decoding="async" /></div>
+  </dialog>
 </O2Layout>
+<script>
+  import '../scripts/zoom';
+</script>
