@@ -12,14 +12,23 @@ import { O2_OFFER } from '@data/o2.js';
 import { brand } from '@data/content.js';
 ---
 <O2Layout title="Ačiū – paskambinsime Jums | Jarvis Systems" description="Registracija pokalbiui gauta. Paskambinsime Jums patys." path="/susisieksime" noindex funnel>
-  <section class="fnl__top">
-    <p class="cb__ok"><Icon name="badge" size={22} /> <span data-cb-status>Ačiū<span data-cb-name></span>! Registracija gauta</span></p>
+  <section class="fnl__top" data-gate data-locked>
+    <p class="cb__ok" data-unlocked-only><Icon name="badge" size={22} /> <span data-cb-status>Ačiū<span data-cb-name></span>! Registracija gauta</span></p>
     <p class="fnl__kicker">Meistrams</p>
     <h1 class="fnl__h">Kaip su AI ir funkcionalia svetaine padedame meistrams augti – tik už</h1>
     <p class="fnl__price fnl__price--blue">{O2_OFFER.monthly}</p>
-    <p class="fnl__steps"><b>1 žingsnis:</b> pažiūrėkite šį <u>trumpą video</u> (įjunkite garsą).<br /><b>Toliau:</b> susisieksime su Jumis patys – kalendoriuje rinktis laiko nereikia.</p>
-    <YtFacade video={VIDEOS.pokalbis} class="fnl__vid" />
+    <div class="fnl__lock" data-locked-only>
+      <img src={VIDEOS.pokalbis.poster} alt="" width="1280" height="720" loading="lazy" />
+      <div class="fnl__lockbox">
+        <span class="fnl__lockicon" aria-hidden="true">🔒</span>
+        <p><b>Video atsirakina užpildžius trumpą anketą</b> (4 klausimai, ~1 min.).</p>
+        <a class="fnl__cta" href="/registracija" data-track="cta_book">Atsakyti į klausimus</a>
+      </div>
+    </div>
+    <p class="fnl__steps" data-unlocked-only><b>1 žingsnis:</b> pažiūrėkite šį <u>trumpą video</u> (įjunkite garsą).<br /><b>Toliau:</b> susisieksime su Jumis patys – kalendoriuje rinktis laiko nereikia.</p>
+    <div data-unlocked-only><YtFacade video={VIDEOS.pokalbis} class="fnl__vid" /></div>
   </section>
+  <script is:inline>try{if(sessionStorage.getItem('o2_reg')==='1')document.querySelector('[data-gate]').removeAttribute('data-locked')}catch(e){}</script>
   <FunnelProof />
   <p class="cb__call">Norite greičiau? Skambinkite: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
 </O2Layout>

@@ -157,11 +157,14 @@ if (book) {
     if (bad) { show(steps.findIndex((s) => s.dataset.qField === bad)); return; }
     const answers = steps.flatMap((s) => { const h = s.querySelector<HTMLInputElement>('input[type=hidden]'); return h ? [`${h.dataset.qLabel} ${h.value || '–'}`] : []; });
     const [name, phone, email, company] = ['name', 'phone', 'email', 'company'].map(val);
+    // Stone-style: the /susisieksime video is only unlocked once the quiz is completed (same tab session).
+    const unlockVideo = () => { try { sessionStorage.setItem('o2_reg', '1'); } catch { /* storage blocked: page stays locked, CTA still works */ } };
     const submit = steps[step]!.querySelector<HTMLButtonElement>('button[type=submit]')!;
     if (book.dataset.bookMode !== 'live') {
       // Review build: no /t/form route on this host. Validate, then say plainly that nothing was sent.
       status.dataset.tone = ''; status.textContent = msgs.previewOk; if (call) call.hidden = false;
       // data-no-redirect: QA script keeps the dialog in place to assert the message.
+      unlockVideo();
       if (!book.dataset.noRedirect) location.href = `/susisieksime?${new URLSearchParams({ v: name, p: '1' })}`;
       return;
     }
@@ -182,6 +185,7 @@ if (book) {
       book.querySelector('[data-book-fields]')?.setAttribute('hidden', '');
       status.textContent = msgs.ok.replace('{name}', name ? `, ${name}` : '');
       // Stone-style next step: confirmation + pre-call video + proof (no calendar).
+      unlockVideo();
       if (!book.dataset.noRedirect) location.href = `/susisieksime?${new URLSearchParams({ v: name })}`;
     } catch {
       status.dataset.tone = 'err';
