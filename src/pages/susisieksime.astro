@@ -1,0 +1,43 @@
+---
+/* /susisieksime — Stone-style callback step after "Užsiregistruoti pokalbiui" (CALLBACK-FUNNEL-ADDENDUM.md):
+   confirmation that we call them (no calendar), short pre-call video, real proof. Name/time come from the query
+   string set by the booking form (src/scripts/o2.ts). noindex. */
+import O2Layout from '@layouts/O2Layout.astro';
+import YtFacade from '@components/o2/YtFacade.astro';
+import Icon from '@components/o2/Icon.astro';
+import { VIDEOS } from '@data/o2-videos.js';
+import { GOOGLE } from '@data/o2.js';
+import { brand } from '@data/content.js';
+---
+<O2Layout title="Ačiū – paskambinsime Jums | Jarvis Systems" description="Registracija pokalbiui gauta. Paskambinsime Jums patys." path="/susisieksime" noindex>
+  <section class="cb">
+    <p class="cb__ok"><Icon name="badge" size={26} /> <span data-cb-status>Registracija gauta</span></p>
+    <h1 class="h1c h1c--900">Ačiū<span data-cb-name></span>! Paskambinsime Jums <span data-cb-time>artimiausiu metu</span></h1>
+    <p class="cb__lead">Kalendoriuje rinktis laiko nereikia – susisieksime patys numeriu, kurį nurodėte.</p>
+
+    <div class="cb__step">
+      <h2><span class="steps__n">1</span> Prieš pokalbį pažiūrėkite šį trumpą video</h2>
+      <YtFacade video={VIDEOS.pokalbis} />
+    </div>
+
+    <div class="cb__step">
+      <h2><span class="steps__n">2</span> Mūsų darbų rezultatai</h2>
+      <ul class="cb__proof">
+        <li><a href={GOOGLE.url} target="_blank" rel="noopener"><b>Google {GOOGLE.rating}</b><span>Jarvis Systems įvertinimas</span></a></li>
+        <li><a href="/musu-darbai"><b>605</b><span>organiniai paspaudimai iš Google per 3 mėn. – arbcut.lt</span></a></li>
+        <li><a href="/musu-darbai"><b>786</b><span>organiniai paspaudimai iš Google per 3 mėn. – betonogaminiai.lt</span></a></li>
+      </ul>
+      <p class="cb__more"><a href="/musu-darbai">Visi mūsų darbai <Icon name="arrow" size={18} /></a></p>
+    </div>
+
+    <p class="cb__call">Norite greičiau? Skambinkite: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
+  </section>
+</O2Layout>
+<script>
+  const q = new URLSearchParams(location.search);
+  const name = (q.get('v') ?? '').trim().slice(0, 60);
+  const spoken: Record<string, string> = { morning: 'rytą', day: 'dieną', evening: 'vakare' };
+  const n = document.querySelector('[data-cb-name]'); if (n && name) n.textContent = `, ${name}`;
+  const t = document.querySelector('[data-cb-time]'); const tv = spoken[q.get('t') ?? '']; if (t && tv) t.textContent = tv;
+  if (q.get('p') === '1') { const s = document.querySelector('[data-cb-status]'); if (s) s.textContent = 'Peržiūra – registracija neišsiųsta'; }
+</script>

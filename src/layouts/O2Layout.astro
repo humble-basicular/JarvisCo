@@ -8,8 +8,8 @@ import Icon from '@components/o2/Icon.astro';
 import BookDialog from '@components/o2/BookDialog.astro';
 import { FEATURE_PAGES } from '@data/o2-pages.js';
 /* `path` = this route ('/', '/kainos', '/funkcijos/kampanijos' …): canonical, active nav and booking context. */
-interface Props { title: string; description: string; path?: string }
-const { title, description, path = '/' } = Astro.props;
+interface Props { title: string; description: string; path?: string; noindex?: boolean }
+const { title, description, path = '/', noindex = false } = Astro.props;
 const canonical = new URL(path, brand.url).href;
 const active = (href: string) => path === href || path.startsWith(`${href}/`);
 const feats = o2.features.items.map((it) => ({ title: it.title, href: `/funkcijos/${FEATURE_PAGES[it.id].slug}` }));
@@ -26,6 +26,7 @@ const year = new Date().getFullYear();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#1F2236" />
     <link rel="icon" href="/jarvis-systems/favicon/favicon.ico" sizes="48x48" />

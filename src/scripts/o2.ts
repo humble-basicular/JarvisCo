@@ -120,9 +120,7 @@ if (book) {
     const company = String(fd.get('company') ?? '').trim();
     if (book.dataset.bookMode !== 'live') {
       // Review build: no /t/form route on this host. Validate, then say plainly that nothing was sent.
-      status.dataset.tone = ''; status.textContent = msgs.previewOk; if (call) call.hidden = false;
-      book.querySelector('[data-book-next]')?.removeAttribute('hidden');
-      status.focus();
+      location.href = `/susisieksime?${new URLSearchParams({ v: name, t: time, p: '1' })}`;
       return;
     }
     const body = new FormData();
@@ -140,7 +138,8 @@ if (book) {
       if (!res.ok) throw new Error(String(res.status));
       book.querySelector('[data-book-fields]')?.setAttribute('hidden', '');
       status.textContent = msgs.ok.replace('{name}', name ? `, ${name}` : '').replace('{time}', msgs.timesSpoken[time] ?? msgs.timesSpoken['']);
-      status.focus();
+      // Stone-style next step: confirmation + pre-call video + proof (no calendar).
+      location.href = `/susisieksime?${new URLSearchParams({ v: name, t: time })}`;
     } catch {
       status.dataset.tone = 'err';
       status.textContent = msgs.err;
