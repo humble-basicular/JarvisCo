@@ -10,6 +10,8 @@ import Icon from '@components/o2/Icon.astro';
 import { o2, O2_CTA } from '@data/o2.js';
 import { FEATURE_PAGES } from '@data/o2-pages.js';
 import { BETONO } from '@data/o2-device.js';
+import YtFacade from '@components/o2/YtFacade.astro';
+import { VIDEOS } from '@data/o2-videos.js';
 export function getStaticPaths() {
   return o2.features.items.map((it, i) => ({ params: { slug: FEATURE_PAGES[it.id].slug }, props: { it, i } }));
 }
@@ -28,6 +30,7 @@ const others = o2.features.items.filter((x) => x.id !== it.id);
         {F.facts.map(([t, d]) => <li><h2><Icon name="badge" size={22} />{t}</h2><p>{d}</p></li>)}
       </ul>
       <div class="fdet__panel">
+        {VIDEOS[it.id] && <YtFacade video={VIDEOS[it.id]} />}
         <div class="fdet__vis"><Scene kind={it.scene} side={i % 2 ? 'right' : 'left'} label={`${it.title}: animuota demonstracija`} /></div>
         {F.shot && <figure class="fdet__shot"><img src={BETONO.empty} width="1440" height="783" alt="„Dailius ir ko“ svetainės užklausos forma su vardu, telefonu ir el. paštu" loading="lazy" /><figcaption>betonogaminiai.lt – užklausos forma</figcaption></figure>}
       </div>

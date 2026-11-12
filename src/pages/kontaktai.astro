@@ -6,6 +6,8 @@ import PageHead from '@components/o2/PageHead.astro';
 import { O2_CTA, APP_URL } from '@data/o2.js';
 import { pages } from '@data/o2-pages.js';
 import { brand } from '@data/content.js';
+import YtFacade from '@components/o2/YtFacade.astro';
+import { VIDEOS } from '@data/o2-videos.js';
 const P = pages.kontaktai;
 ---
 <O2Layout title={P.title} description={P.description} path="/kontaktai">
@@ -18,5 +20,6 @@ const P = pages.kontaktai;
       </div>
       <img class="contact__img" src="/jarvis-systems/mascot-present.webp" width="520" height="780" alt="Jarvis Systems talismanas rodo į pokalbio mygtuką" loading="lazy" />
     </div>
+    <YtFacade video={VIDEOS.pokalbis} class="contact__vid" />
   </PageHead>
 </O2Layout>

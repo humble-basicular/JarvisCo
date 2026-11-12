@@ -1,0 +1,28 @@
+---
+/* YouTube facade: our own poster until click, then youtube-nocookie iframe (no YouTube request before click). */
+interface Props { video: { id: string; title: string; poster: string }; class?: string }
+const { video, class: cls } = Astro.props;
+---
+<figure class:list={['yt', cls]}>
+  <div class="yt__box" data-yt={video.id}>
+    <button class="yt__btn" type="button" aria-label={`Paleisti vaizdo įrašą: ${video.title}`}>
+      <img src={video.poster} alt="" width="1280" height="720" loading="lazy" decoding="async" />
+      <span class="yt__play" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></span>
+    </button>
+  </div>
+  <figcaption class="yt__cap">{video.title}</figcaption>
+</figure>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-yt]').forEach((el) => {
+    const btn = el.querySelector('button');
+    btn?.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${el.dataset.yt}?autoplay=1&rel=0&playsinline=1`;
+      f.title = btn.getAttribute('aria-label') ?? 'Vaizdo įrašas';
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      el.replaceChildren(f);
+      f.focus();
+    }, { once: true });
+  });
+</script>
