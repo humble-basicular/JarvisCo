@@ -4,7 +4,7 @@
    Serves ./dist on 127.0.0.1; every non-local request is BLOCKED and every POST recorded (expected none).
    Per route: HTTP 200, <title>, canonical, active nav, no in-page # links (skip link excepted), all link targets
    200, overflow at 320/390/768/1024/1280/1440, full-page shots at 390 + 1440 → contact sheets.
-   Behaviour on subpages: menu Escape/focus, booking quiz from header/menu/body CTA, quiz walk (auto-advance, back,
+   Behaviour: menu Escape/focus, every CTA links to /registracija (click navigates), quiz on /registracija: walk (auto-advance, back,
    required phone/email/name/company validation), live-mode FormData contract with fetch intercepted INSIDE the page,
    preview no-send message, Escape focus. */
 import { spawn } from 'node:child_process';
@@ -16,7 +16,8 @@ import sharp from 'sharp';
 
 const out = process.argv[2] ?? '/tmp/o2-pages-qa';
 mkdirSync(out, { recursive: true });
-const ROUTES = ['/', '/funkcijos', '/funkcijos/funkcionali-svetaine', '/funkcijos/atsiliepimu-rinkimas', '/funkcijos/praleistas-skambutis', '/funkcijos/kampanijos', '/funkcijos/vietinis-seo', '/kainos', '/atsiliepimai', '/musu-darbai', '/apie', '/kaip-dirbame', '/sritys', '/kontaktai'];
+const ROUTES = ['/', '/funkcijos', '/funkcijos/funkcionali-svetaine', '/funkcijos/atsiliepimu-rinkimas', '/funkcijos/praleistas-skambutis', '/funkcijos/kampanijos', '/funkcijos/vietinis-seo', '/kainos', '/atsiliepimai', '/musu-darbai', '/apie', '/kaip-dirbame', '/sritys', '/kontaktai', '/registracija', '/susisieksime'];
+const FUNNEL = ['/registracija', '/susisieksime'];
 const NAV = { '/funkcijos': '/funkcijos', '/kainos': '/kainos', '/atsiliepimai': '/atsiliepimai', '/musu-darbai': '/musu-darbai', '/apie': '/apie' };
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.ico': 'image/x-icon', '.json': 'application/json', '.pdf': 'application/pdf' };
 const missing = [];
@@ -64,7 +65,7 @@ try {
   for (const route of ROUTES) {
     const status = (await fetch(base + route)).status;
     await load(route, 1440);
-    const meta = await ev(`(()=>({title:document.title,canonical:document.querySelector('link[rel=canonical]')?.href,current:[...document.querySelectorAll('.hdr__nav > a[aria-current=page], .hdr__dd > a[aria-current=page]')].map(a=>a.getAttribute('href')),hash:[...document.querySelectorAll('a[href^="#"]')].map(a=>a.getAttribute('href')).filter(h=>h!=='#turinys'),links:[...new Set([...document.querySelectorAll('a[href^="/"]')].map(a=>a.getAttribute('href')))],h1:document.querySelectorAll('h1').length,brokenImgs:[...document.images].filter(i=>i.getAttribute('src')&&!i.naturalWidth).map(i=>i.src),bookDialog:!!document.querySelector('dialog[data-book-dialog] [data-book-form]'),robots:document.querySelector('meta[name=robots]')?.content??''}))()`);
+    const meta = await ev(`(()=>({title:document.title,canonical:document.querySelector('link[rel=canonical]')?.href,current:[...document.querySelectorAll('.hdr__nav > a[aria-current=page], .hdr__dd > a[aria-current=page]')].map(a=>a.getAttribute('href')),hash:[...document.querySelectorAll('a[href^="#"]')].map(a=>a.getAttribute('href')).filter(h=>h!=='#turinys'),links:[...new Set([...document.querySelectorAll('a[href^="/"]')].map(a=>a.getAttribute('href')))],h1:document.querySelectorAll('h1').length,brokenImgs:[...document.images].filter(i=>i.getAttribute('src')&&!i.naturalWidth).map(i=>i.src),bookDialog:!!document.querySelector('dialog[data-book-dialog] [data-book-form]'),ctas:[...document.querySelectorAll('a')].filter(a=>/Užsiregistruoti pokalbiui/.test(a.textContent)).map(a=>a.getAttribute('href')+(a.hasAttribute('data-book-open')?'#dlg':'')),robots:document.querySelector('meta[name=robots]')?.content??''}))()`);
     receipt.routes[route] = { status, ...meta };
     const want = new URL(route, 'https://jarvisweb.lt').href;
     const nav = Object.keys(NAV).find((k) => route === k || route.startsWith(`${k}/`));
@@ -73,7 +74,9 @@ try {
     if (meta.hash.length) fails.push(`${route}: in-page # links ${meta.hash}`);
     if (meta.h1 !== 1) fails.push(`${route}: ${meta.h1} h1`);
     if (meta.brokenImgs.length) fails.push(`${route}: broken images ${meta.brokenImgs}`);
-    if (!meta.bookDialog) fails.push(`${route}: no booking dialog`);
+    // Like Stone: only /registracija carries the quiz; every other „Užsiregistruoti pokalbiui“ is a plain link to it.
+    if (meta.bookDialog !== (route === '/registracija')) fails.push(`${route}: booking dialog present=${meta.bookDialog}`);
+    if (!FUNNEL.includes(route) && (!meta.ctas.length || meta.ctas.some((h) => h !== '/registracija'))) fails.push(`${route}: CTAs ${meta.ctas}`);
     if (JSON.stringify(meta.current) !== JSON.stringify(nav ? [nav] : [])) fails.push(`${route}: active nav ${meta.current}`);
     for (const l of meta.links) { const p = l.split('#')[0].split('?')[0]; if (!(p in receipt.links)) receipt.links[p] = (await fetch(base + p)).status; }
     for (const w of [320, 390, 768, 1024, 1280, 1440]) {
@@ -112,16 +115,30 @@ try {
     c.menuOpen = await ev(`(()=>{const b=document.querySelector('[data-menu-open]');b.focus();b.click();return document.querySelector('[data-menu]').open && document.querySelectorAll('[data-menu] .menu__sub a').length===5})()`);
     await key('Escape');
     c.menuEscFocus = await ev(`!document.querySelector('[data-menu]').open && document.activeElement===document.querySelector('[data-menu-open]')`);
+    c.menuCta = await ev(`document.querySelector('[data-menu] a.btn').getAttribute('href')`);
+    // Body CTA: a real click must land on /registracija straight away (no dialog on this page).
+    await ev(`(()=>{const o=[...document.querySelectorAll('main a[href="/registracija"]')].pop();o.scrollIntoView({block:'center'});o.click();return 1})()`);
+    await sleep(900);
+    c.navigated = await ev(`location.pathname`);
+    if (!(c.menuOpen && c.menuEscFocus && c.menuCta === '/registracija' && c.navigated === '/registracija')) fails.push(`${route}: behaviour ${JSON.stringify(c)}`);
+  }
+  {
+    const route = '/registracija';
+    await load(route, 390);
+    const c = C[route] = {};
     const onQ1 = `document.activeElement.matches('[data-q-pick]') && !document.querySelector('[data-q-step="0"]').hidden`;
-    c.bookFromMenu = await ev(`(async()=>{document.querySelector('[data-menu-open]').click();await new Promise(r=>setTimeout(r,100));document.querySelector('[data-menu] [data-book-open]').click();await new Promise(r=>setTimeout(r,100));const ok=document.querySelector('[data-book-dialog]').open&&!document.querySelector('[data-menu]').open&&${onQ1};const closed=new Promise(r=>document.querySelector('[data-book-dialog]').addEventListener('close',r,{once:true}));document.querySelector('[data-book-close]').click();await closed;return ok&&document.activeElement===document.querySelector('[data-menu-open]')})()`);
-    c.bookFromBody = await ev(`(()=>{const o=[...document.querySelectorAll('main [data-book-open]')].pop();o.scrollIntoView();o.focus();o.click();return document.querySelector('[data-book-dialog]').open && ${onQ1}})()`);
-    if (route === '/kainos') await sharp(Buffer.from((await cdp('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')).toFile(join(out, 'dlg-quiz-q1-kainos-390.png'));
+    c.open = await ev(`(()=>{const o=document.querySelector('.fnl__cta');o.scrollIntoView();o.focus();o.click();return document.querySelector('[data-book-dialog]').open && ${onQ1}})()`);
+    await sharp(Buffer.from((await cdp('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')).toFile(join(out, 'dlg-quiz-q1-390.png'));
+    await key('Escape');
+    c.escFocus = await ev(`!document.querySelector('[data-book-dialog]').open && document.activeElement===document.querySelector('.fnl__cta')`);
+    await ev(`document.querySelector('.fnl__cta').click();1`);
     // Quiz walk: 4 choice slides (auto-advance, back keeps the answer), then phone → email → name → company, each required.
     c.quiz = await ev(`(async()=>{const W=ms=>new Promise(r=>setTimeout(r,ms));const f=document.querySelector('[data-book-form]');const d=document.querySelector('[data-book-dialog]');f.dataset.noRedirect='1';
       const vis=()=>[...f.querySelectorAll('[data-q-step]')].findIndex(s=>!s.hidden);const bar=()=>Number(d.querySelector('[data-q-bar]').getAttribute('aria-valuenow'));
-      const r={start:vis(),bar0:bar(),title:d.querySelector('#bd-h').textContent.trim().replace(/\\u00a0/g,' '),backHidden:d.querySelector('[data-q-back]').hidden};
+      const chrome=()=>[!d.querySelector('[data-q-head]').hidden,!d.querySelector('[data-book-close]').hidden,!d.querySelector('[data-q-back]').hidden].map(Number).join('');
+      const r={start:vis(),bar0:bar(),label0:d.querySelector('[data-q-bar] span').textContent,title:d.querySelector('#bd-h').textContent.trim(),chrome0:chrome()};
       const pick=async(i)=>{f.querySelector('[data-q-step]:not([hidden])').querySelectorAll('[data-q-pick]')[i].click();await W(300)};
-      await pick(0);r.afterQ1=vis();d.querySelector('[data-q-back]').click();await W(50);r.backTo=vis();r.kept=f.querySelector('[name=q_audience]').value;
+      await pick(0);r.afterQ1=vis();r.chrome1=chrome();d.querySelector('[data-q-back]').click();await W(50);r.backTo=vis();r.kept=f.querySelector('[name=q_audience]').value;
       await pick(1);await pick(1);await pick(0);await pick(3);r.atPhone=vis()===4&&document.activeElement.name==='phone';r.bar4=bar();
       const go=async(n,v)=>{f.querySelector('[name='+n+']').value=v;f.requestSubmit();await W(60);return f.querySelector('[name='+n+']').getAttribute('aria-invalid')==='true'};
       r.phoneShort=await go('phone','12345')&&vis()===4;r.phoneForeign=await go('phone','+44 7700 900123')&&vis()===4;r.phoneOk=!(await go('phone','+370 612 34567'))&&vis()===5;
@@ -135,18 +152,16 @@ try {
       r.live={calls:sent.length,url:sent[0]?.[0],kind:g('kind')[0],name:g('name')[0],phone:g('phone')[0],email:g('email')[0],company:g('company')[0],time:g('contact_time').length,website:g('website').length,standout:g('standout')[0]};
       const sent2=[];window.fetch=async(...a)=>{sent2.push(a);return new Response('{}')};f.requestSubmit();await W(150);window.fetch=real;
       r.preview={mode:f.dataset.bookMode,calls:sent2.length,status:f.querySelector('[data-status]').textContent};return r})()`);
-    if (route === '/kainos') { await sharp(Buffer.from((await cdp('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')).toFile(join(out, 'dlg-book-kainos-390.png')); }
-    await key('Escape');
-    c.bookEscFocus = await ev(`!document.querySelector('[data-book-dialog]').open && document.activeElement===[...document.querySelectorAll('main [data-book-open]')].pop()`);
+    await sharp(Buffer.from((await cdp('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')).toFile(join(out, 'dlg-quiz-last-390.png'));
     const q = c.quiz ?? {}; const L = q.live ?? {};
-    const quizOk = q.start === 0 && q.bar0 === 50 && q.backHidden && q.title === 'Daugiau užklausų Jūsų verslui už 97 €/mėn.' && q.afterQ1 === 1 && q.backTo === 0 && q.kept === 'Gyventojams'
-      && q.atPhone && q.bar4 > 50 && q.phoneShort && q.phoneForeign && q.phoneOk && q.emailEmpty && q.emailBad && q.emailOk && q.nameEmpty && q.nameOk && q.companyEmpty
+    const quizOk = c.open && c.escFocus && q.start === 0 && q.bar0 === 50 && q.label0 === '50%' && q.chrome0 === '110' && q.chrome1 === '001' && q.title === 'Daugiau užklausų Jūsų verslui už'
+      && q.afterQ1 === 1 && q.backTo === 0 && q.kept === 'Gyventojams'
+      && q.atPhone && q.bar4 === 84 && q.phoneShort && q.phoneForeign && q.phoneOk && q.emailEmpty && q.emailBad && q.emailOk && q.nameEmpty && q.nameOk && q.companyEmpty
       && q.submitLabel === 'Taip, noriu daugiau užklausų' && !q.contactTime && q.honeypot
       && L.calls === 1 && L.url?.endsWith('/t/form') && L.kind === 'callback_request' && L.name === 'Jonas' && L.phone === '+370 612 34567' && L.email === 'jonas@example.com' && L.company === 'Stogai, Kaunas' && L.time === 0 && L.website === 1
       && L.standout?.includes(route) && L.standout.includes('Kam dirbate? Įmonėms') && L.standout.includes('Kaip dabar sekasi? Darbų yra, bet nepastoviai') && L.standout.includes('Kada norėtumėte tai spręsti? Iš karto') && L.standout.includes('Mėnesio apyvarta? daugiau nei 30 tūkst. €') && L.standout.includes('Įmonė/veikla: Stogai, Kaunas')
       && q.preview?.mode === 'preview' && q.preview.calls === 0 && q.preview.status.includes('neišsiųsta');
-    const ok = c.menuOpen && c.menuEscFocus && c.bookFromMenu && c.bookFromBody && c.bookEscFocus && quizOk;
-    if (!ok) fails.push(`${route}: behaviour ${JSON.stringify(c)}`);
+    if (!quizOk) fails.push(`${route}: quiz ${JSON.stringify(c)}`);
   }
   // Desktop dropdown: keyboard focus reveals the five feature links
   await load('/apie', 1440);

@@ -5,7 +5,6 @@ import O2Layout from '@layouts/O2Layout.astro';
 import PageHead from '@components/o2/PageHead.astro';
 import { O2_CTA, APP_URL } from '@data/o2.js';
 import { pages } from '@data/o2-pages.js';
-import { brand } from '@data/content.js';
 import YtFacade from '@components/o2/YtFacade.astro';
 import { VIDEOS } from '@data/o2-videos.js';
 const P = pages.kontaktai;
@@ -15,7 +14,7 @@ const P = pages.kontaktai;
     <div class="contact">
       <div class="contact__card">
         <dl>{P.rows.map(([k, v, h]) => <div><dt>{k}</dt><dd>{h ? <a href={h}>{v}</a> : v}</dd></div>)}</dl>
-        <a class="btn" href={brand.telHref} data-book-open data-track="cta_book">{O2_CTA}</a>
+        <a class="btn" href="/registracija" data-track="cta_book">{O2_CTA}</a>
         <p class="contact__app"><a href={APP_URL}>{P.app}</a></p>
       </div>
       <img class="contact__img" src="/jarvis-systems/mascot-present.webp" width="520" height="780" alt="Jarvis Systems talismanas rodo į pokalbio mygtuką" loading="lazy" />

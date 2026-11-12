@@ -18,7 +18,7 @@ const qs = P.faq.map((n) => o2.faq.items[Number(n)]);
       <h2 class="plan__name">{L.name}</h2>
       <p class="plan__price"><b>{L.price}</b><span>{L.per}</span></p>
       <ul class="plan__terms">{L.terms.map(([v, t]) => <li><b>{v}</b> {t}</li>)}</ul>
-      <a class="btn plan__cta" href="/kontaktai" data-book-open data-track="cta_book">{O2_CTA}</a>
+      <a class="btn plan__cta" href="/registracija" data-track="cta_book">{O2_CTA}</a>
       <h3 class="plan__inc">Kas įeina</h3>
       <ul class="plan__list">{L.includes.map((t) => <li><Icon name="badge" size={22} />{t}</li>)}</ul>
       <p class="plan__extra">{L.extra}</p>

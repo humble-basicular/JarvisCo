@@ -1,0 +1,21 @@
+---
+/* /registracija — copy of Stone's grow.stonesystems.io/home/original-two (checked 2026-11-12), where every "Book A Call"
+   leads: logo, headline + price 👇, step-1 video, green „see how it works“ button that opens the quiz dialog
+   (BookDialog via O2Layout funnel), proof cards, copyright. Difference on purpose: Stone's "video" is a blurred
+   static image that only opens the quiz; ours is the real 1-minute intro video (plays on click). noindex. */
+import O2Layout from '@layouts/O2Layout.astro';
+import YtFacade from '@components/o2/YtFacade.astro';
+import FunnelProof from '@components/o2/FunnelProof.astro';
+import { VIDEOS } from '@data/o2-videos.js';
+import { O2_OFFER } from '@data/o2.js';
+---
+<O2Layout title="Užsiregistruoti pokalbiui | Jarvis Systems" description={`Daugiau užklausų meistrams su funkcionalia svetaine, AI paieškos optimizavimu ir 5★ atsiliepimais už ${O2_OFFER.monthly}`} path="/registracija" noindex funnel>
+  <section class="fnl__top">
+    <h1 class="fnl__h">Padedame meistrams gauti daugiau užklausų su funkcionalia svetaine, AI paieškos optimizavimu ir 5★ atsiliepimais tik už</h1>
+    <p class="fnl__price">{O2_OFFER.monthly}<span aria-hidden="true">👇</span></p>
+    <YtFacade video={VIDEOS.intro} class="fnl__vid" />
+    <p class="fnl__step"><u>1 žingsnis:</u> pažiūrėkite šį trumpą video – ką darome ir kaip padedame augti</p>
+    <button class="fnl__cta" type="button" data-book-open data-track="cta_book" aria-haspopup="dialog">Spauskite ir sužinokite, kaip tai veikia</button>
+  </section>
+  <FunnelProof />
+</O2Layout>

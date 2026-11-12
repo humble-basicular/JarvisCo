@@ -15,7 +15,7 @@ const P = pages.apie;
       <div class="about__txt">
         {P.paras.map((t) => <p>{t}</p>)}
         <dl class="about__facts">{P.facts.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-        <p class="about__acts"><a class="btn" href="/kontaktai" data-book-open data-track="cta_book">{O2_CTA}</a><a class="btn btn--ghost" href="/musu-darbai">Mūsų darbai</a></p>
+        <p class="about__acts"><a class="btn" href="/registracija" data-track="cta_book">{O2_CTA}</a><a class="btn btn--ghost" href="/musu-darbai">Mūsų darbai</a></p>
       </div>
       <figure class="about__photo">
         <Image src={matas} width={720} alt="Matas Bašinskas prie darbo stalo su kompiuteriais" format="webp" quality={82} loading="eager" />

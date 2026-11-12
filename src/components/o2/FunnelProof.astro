@@ -1,0 +1,27 @@
+---
+/* Funnel proof cards: where Stone shows three customer testimonial videos (Frank, Ryan, Manny) we have no customer
+   videos or quotes, so the same card slots hold our real proof only: ArbCut Search Console (605 clicks, 3 months),
+   ArbCut Web3Forms total (31) and the Google profile (src/assets/proof/PROVENANCE.md, Matas 2026-11-12). */
+import { Image } from 'astro:assets';
+import { proofImage } from '@data/proof-images';
+import { GOOGLE } from '@data/o2.js';
+const gsc = proofImage('arbcut-gsc-3m-2026-11-12');
+const forms = proofImage('arbcut-web3forms-total-2026-11-12');
+const stars = '★★★★★';
+---
+<section class="fproof" aria-label="Rezultatai">
+  <article class="fcard fcard--big">
+    <Image src={gsc} width={900} alt="Google Search Console, arbcut.lt, paskutiniai 3 mėnesiai: 605 paspaudimai" format="webp" quality={88} loading="lazy" />
+    <div class="fcard__t"><p><b>605</b> organiniai paspaudimai iš Google per 3 mėn.</p><p class="fcard__n">arbcut.lt · Google Search Console</p></div>
+  </article>
+  <div class="frow">
+    <article class="fcard">
+      <div class="fcard__img fcard__img--forms"><Image src={forms} width={262} alt="Web3Forms, arbcut.lt: iš viso 31 pateikta užklausa" format="webp" quality={88} loading="lazy" /></div>
+      <div class="fcard__t"><p><b>31</b> užklausa per svetainės formą</p><p class="fcard__n">arbcut.lt · Web3Forms</p></div>
+    </article>
+    <a class="fcard fcard--g" href={GOOGLE.url} target="_blank" rel="noopener">
+      <div class="fcard__img fcard__img--g"><b>{GOOGLE.rating}</b><span class="fcard__stars" aria-hidden="true">{stars}</span></div>
+      <div class="fcard__t"><p>Google įvertinimas {GOOGLE.rating} iš 5 ({GOOGLE.count})</p><p class="fcard__n">Jarvis Systems Google profilis</p></div>
+    </a>
+  </div>
+</section>

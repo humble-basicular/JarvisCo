@@ -1,36 +1,27 @@
 ---
-/* /susisieksime — Stone-style callback step after "Užsiregistruoti pokalbiui" (CALLBACK-FUNNEL-ADDENDUM.md):
-   confirmation that we call them (no calendar), short pre-call video, real proof. Name comes from the query
-   string set by the booking quiz (src/scripts/o2.ts). noindex. */
+/* /susisieksime — copy of Stone's grow.stonesystems.io/we-will-call-you (checked 2026-11-12), shown after the quiz:
+   label, headline + price, step 1 = short video with sound, next = we call you (no calendar), proof cards.
+   Stone's video is Kai (56 s); ours is VIDEOS.pokalbis. Name and preview flag come from the query string set by
+   src/scripts/o2.ts (v=<name>, p=1 in preview builds). noindex. */
 import O2Layout from '@layouts/O2Layout.astro';
 import YtFacade from '@components/o2/YtFacade.astro';
+import FunnelProof from '@components/o2/FunnelProof.astro';
 import Icon from '@components/o2/Icon.astro';
 import { VIDEOS } from '@data/o2-videos.js';
-import { GOOGLE, PROOF } from '@data/o2.js';
+import { O2_OFFER } from '@data/o2.js';
 import { brand } from '@data/content.js';
 ---
-<O2Layout title="Ačiū – paskambinsime Jums | Jarvis Systems" description="Registracija pokalbiui gauta. Paskambinsime Jums patys." path="/susisieksime" noindex>
-  <section class="cb">
-    <p class="cb__ok"><Icon name="badge" size={26} /> <span data-cb-status>Registracija gauta</span></p>
-    <h1 class="h1c h1c--900">Ačiū<span data-cb-name></span>! Paskambinsime Jums artimiausiu metu</h1>
-    <p class="cb__lead">Kalendoriuje rinktis laiko nereikia – susisieksime patys numeriu, kurį nurodėte.</p>
-
-    <div class="cb__step">
-      <h2><span class="steps__n">1</span> Prieš pokalbį pažiūrėkite šį trumpą video</h2>
-      <YtFacade video={VIDEOS.pokalbis} />
-    </div>
-
-    <div class="cb__step">
-      <h2><span class="steps__n">2</span> Mūsų darbų rezultatai</h2>
-      <ul class="cb__proof">
-        <li><a href={GOOGLE.url} target="_blank" rel="noopener"><b>Google {GOOGLE.rating}</b><span>Jarvis Systems įvertinimas</span></a></li>
-        {PROOF.map(([n, t, site]) => <li><a href="/musu-darbai"><b>{n}</b><span>{t} – {site}</span></a></li>)}
-      </ul>
-      <p class="cb__more"><a href="/musu-darbai">Visi mūsų darbai <Icon name="arrow" size={18} /></a></p>
-    </div>
-
-    <p class="cb__call">Norite greičiau? Skambinkite: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
+<O2Layout title="Ačiū – paskambinsime Jums | Jarvis Systems" description="Registracija pokalbiui gauta. Paskambinsime Jums patys." path="/susisieksime" noindex funnel>
+  <section class="fnl__top">
+    <p class="cb__ok"><Icon name="badge" size={22} /> <span data-cb-status>Ačiū<span data-cb-name></span>! Registracija gauta</span></p>
+    <p class="fnl__kicker">Meistrams</p>
+    <h1 class="fnl__h">Kaip su AI ir funkcionalia svetaine padedame meistrams augti – tik už</h1>
+    <p class="fnl__price fnl__price--blue">{O2_OFFER.monthly}</p>
+    <p class="fnl__steps"><b>1 žingsnis:</b> pažiūrėkite šį <u>trumpą video</u> (įjunkite garsą).<br /><b>Toliau:</b> susisieksime su Jumis patys – kalendoriuje rinktis laiko nereikia.</p>
+    <YtFacade video={VIDEOS.pokalbis} class="fnl__vid" />
   </section>
+  <FunnelProof />
+  <p class="cb__call">Norite greičiau? Skambinkite: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
 </O2Layout>
 <script>
   const q = new URLSearchParams(location.search);

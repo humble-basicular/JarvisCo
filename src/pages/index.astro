@@ -24,7 +24,7 @@ const ext = (h: string) => /^https?:/.test(href(h));
         <h1 class="hero__h">{hero.title.map((l) => <span>{l}</span>)}</h1>
         <div class="hero__row">
           <p class="hero__lead">{hero.lead[0]}<br />{hero.lead[1]}</p>
-          <a class="btn hero__cta" href="/kontaktai" data-book-open data-track="cta_book">{O2_CTA}</a>
+          <a class="btn hero__cta" href="/registracija" data-track="cta_book">{O2_CTA}</a>
         </div>
         <ul class="pbar" aria-label="Įvertinimai ir rezultatai">
           <li><a class="pbar__it" href={GOOGLE.url} target="_blank" rel="noopener" aria-label={`Google įvertinimas ${GOOGLE.rating} iš 5`}>
@@ -75,7 +75,7 @@ const ext = (h: string) => /^https?:/.test(href(h));
       </ul>
       <button class="car__btn" type="button" data-car="1" aria-label={trades.next}><Icon name="chev" size={44} /></button>
     </div>
-    <a class="btn" href="/kontaktai" data-book-open>{trades.cta}</a>
+    <a class="btn" href="/registracija">{trades.cta}</a>
   </section>
 
   <Steps />

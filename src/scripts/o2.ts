@@ -96,15 +96,21 @@ const steps = [...(book?.querySelectorAll<HTMLElement>('[data-q-step]') ?? [])];
 const bar = bookDlg?.querySelector<HTMLElement>('[data-q-bar]');
 const back = bookDlg?.querySelector<HTMLButtonElement>('[data-q-back]');
 let step = 0;
+// Stone's bar values (50 % on the first question, 84 % on the phone slide).
+const PCT = [50, 60, 68, 76, 84, 90, 95, 98];
+const head = bookDlg?.querySelector<HTMLElement>('[data-q-head]');
+const closeX = bookDlg?.querySelector<HTMLElement>('[data-book-close]');
 const show = (i: number, focus = true) => {
   step = Math.max(0, Math.min(i, steps.length - 1));
   steps.forEach((s, j) => { s.hidden = j !== step; });
+  // Stone: title, price and X only on the first slide; „← Atgal“ after that.
   if (back) back.hidden = step === 0;
-  // Stone starts the bar half full: the visitor already "started" by clicking the CTA.
-  const pct = Math.round(50 + (50 * step) / steps.length);
+  if (head) head.hidden = step > 0;
+  if (closeX) closeX.hidden = step > 0;
+  const pct = PCT[step] ?? 98;
   bar?.setAttribute('aria-valuenow', String(pct));
   const fill = bar?.firstElementChild as HTMLElement | null | undefined;
-  if (fill) fill.style.width = `${pct}%`;
+  if (fill) { fill.style.width = `${pct}%`; fill.textContent = `${pct}%`; }
   const cur = steps[step];
   if (!focus || !cur) return;
   (cur.querySelector<HTMLElement>('input:not([type=hidden])') ?? cur.querySelector<HTMLElement>('[aria-pressed=true]') ?? cur.querySelector<HTMLElement>('[data-q-pick]'))?.focus();
