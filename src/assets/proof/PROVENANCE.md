@@ -97,3 +97,16 @@ Same capture session as the 2026-10-17 run above (`.proof-runs/2026-10-17-codex/
 | File here | Shows |
 |---|---|
 | arbcut-gsc-pages-2026-10-17.png | Search Console Top pages by clicks, rows 1–17: all 10 `/medziu-pjovimas-<miestas>/` pages (69, 56, 50, 45, 42, 37, 35, 35, 16, 8 clicks = 393). Figures in `src/data/arbcut-towns-proof.json`. |
+
+## Proof refresh 2026-11-11 (Offer 2 /musu-darbai)
+Claude, T3 in-app browser, 2026-11-11 ~21:25–21:36 Europe/Vilnius (thread mcp:56f661d1…, run 2). Element/region screenshots, no pixel edits. Checked 2026-11-12: no emails, names or lead data visible.
+
+| File here | Shows |
+|---|---|
+| betono-gsc-3m-2026-11-11.png | Search Console (https://www.betonogaminiai.lt/, matasbasinskas1), 3 mėnesiai 2026-08-10 – 2026-11-09: 778 paspaudimai, 10,7 tūkst. parodymų, PR 7,3 %, pozicija 7,2. New site live 2026-10-28, so the window also covers the previous site (stated on page). |
+| arbcut-gsc-3m-2026-11-11.png | Search Console (arbcut.lt, mbwebdv account), 3 months from 8/10/26 (to 9 Nov): clicks 604, impressions 12.3K, CTR 4.9 %, position 8.7 |
+| arbcut-web3forms-overview-2026-11-11.png | Web3Forms (mbwebdv): this month 0/250, total 31, spam 0 |
+| arbcut-web3forms-aug/sep/oct-2026-11-11.png | Web3Forms chart tooltips: Aug 2026 7, Sep 2026 13, Oct 2026 4 |
+
+Betono form counts: WordPress admin not accessed in this session → not shown anywhere.
+Site captures for /musu-darbai (`public/jarvis-systems/work/sites/*`): headless Chrome 2026-11-11 21:51–21:53, 1440×900 and 390×844 @2x, resized to 960×600 / 390×844 WebP q78 with sharp; no edits.

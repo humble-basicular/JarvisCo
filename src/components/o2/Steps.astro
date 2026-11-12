@@ -1,5 +1,5 @@
 ---
-/* Three process steps (gold circles + dotted connector), shared by / and /kaip-dirbame. */
+/* Three process steps (gold circles + dotted connector anchored to each circle, so it cannot drift with text height), shared by / and /kaip-dirbame. */
 import { o2 } from '@data/o2.js';
 interface Props { heading?: boolean; level?: 'h1' | 'h2' }
 const { heading = true } = Astro.props;
@@ -8,7 +8,12 @@ const { process: proc } = o2;
 <section class="steps sec--grey chev" id="procesas" aria-labelledby={heading ? 'p-h' : undefined} aria-label={heading ? undefined : proc.title}>
   {heading && <h2 class="h1c h1c--900" id="p-h">{proc.title}</h2>}
   <ol class="steps__row">
-    {proc.steps.map(([t, s, d], i) => <li><span class="steps__n">{i + 1}</span><h3>{t}<br />{s}</h3><p>{d}</p></li>)}
+    {proc.steps.map(([t, s, d], i) => (
+      <li>
+        <span class="steps__n">{i + 1}</span>
+        {i < proc.steps.length - 1 && <svg class="steps__link" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M2 4 C 55 40, 145 40, 198 4" /></svg>}
+        <h3>{t}<br />{s}</h3><p>{d}</p>
+      </li>
+    ))}
   </ol>
-  <svg class="steps__wave" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true"><path d="M230 20 C 300 50, 420 50, 470 20 M 530 20 C 600 50, 720 50, 770 20" /></svg>
 </section>

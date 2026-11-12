@@ -3,7 +3,6 @@
    Layout types follow the Stone page map in docs/jarvis-stone-source-match/USER13-DESIGN-CORRECTIONS.md. */
 import { brand } from './content.js';
 import { O2_OFFER } from './o2.js';
-import proof from './arbcut-proof.json';
 
 /** Feature detail routes /funkcijos/<slug>; `id` = homepage row id, `scene` = shared loop. */
 export const FEATURE_PAGES = {
@@ -127,44 +126,74 @@ export const pages = {
   },
   darbai: {
     title: 'Mūsų darbai – Jarvis Systems',
-    description: 'Tikri mūsų darbai: betonogaminiai.lt, arbcut.lt, vensland.lt ir meselektra.lt. Atvejai su datuotais, patikrinamais skaičiais.',
+    description: 'Mūsų sukurtos svetainės: betonogaminiai.lt, arbcut.lt, vensland.lt, meselektra.lt ir peržiūros klientams. Betono ir ArbCut atvejai su Search Console ir formų duomenimis.',
     h: ['Mūsų darbai', 'tikri, ne pavyzdiniai'],
-    // Case-study figures: Drive Business/JarvisWeb/management/audits/betonogaminiai-2026-11-09/REPORT.md (E1, E5, E9, E10)
-    // and audits/arbcut-2026-11-11/REPORT.md (C1, C2, F4, evidence log); ArbCut clicks/forms from arbcut-proof.json.
-    // Single dated observations, not promises. No testimonials.
+    // Stats ONLY for Betono + ArbCut, exactly as shown in src/assets/proof/*-2026-11-11.png (see PROVENANCE.md, 2026-11-11):
+    //  betono-gsc-3m: 778 clicks, 10,7 tūkst. impressions, CTR 7,3 %, position 7,2, 2026-08-10 – 2026-11-09 (new site live 2026-10-28,
+    //  handoff 2026-10-28-1123-codex-betonogaminiai-closed.md, so the window also covers the previous site — stated on the page).
+    //  arbcut-gsc-3m: 604 clicks, 12.3K impressions, CTR 4.9 %, position 8.7, 10 Aug – 9 Nov. Web3Forms (mbwebdv): Aug 7, Sep 13, Oct 4, total 31, spam 0.
+    // Audit facts: Drive audits/betonogaminiai-2026-11-09/REPORT.md (E1, E5, E9, E10), audits/arbcut-2026-11-11/REPORT.md (C1, C2, F4).
+    // Betono form counts not verified (WordPress admin not accessed) -> not shown. No testimonials.
     items: [
       {
-        name: 'UAB „Dailius ir ko“', site: 'betonogaminiai.lt', url: 'https://www.betonogaminiai.lt/',
-        img: '/jarvis-systems/demo/betono-actual/home.webp', w: 1440, h: 783,
-        img2: '/jarvis-systems/demo/betono-actual/details-filled.webp',
-        text: 'Betoninių gaminių gamintojas Ražiškiuose. Naują svetainę paleidome 2026-11-08: prekių ir paslaugų puslapiai, kainos ir „Gauti pasiūlymą“ forma.',
-        facts: [
-          ['36', 'puslapiai svetainės žemėlapyje'],
-          ['94 / 100', 'Lighthouse mobiliam: greitis / SEO (pradžios puslapis)'],
-          ['#2', 'Google paieškoje „šulinių žiedai kaunas“'],
-          ['1-as', 'paminėtas Google AI režimo atsakyme apie šulinių žiedus Kaune'],
+        name: 'UAB „Dailius ir ko“', site: 'betonogaminiai.lt', url: 'https://www.betonogaminiai.lt/', shot: 'betono',
+        text: 'Betoninių gaminių gamintojas Ražiškiuose. Naują svetainę paleidome 2026-10-28: prekių ir paslaugų puslapiai, kainos ir „Gauti pasiūlymą“ forma su apsauga nuo šlamšto.',
+        period: 'Google Search Console, 3 mėn.: 2026-08-10 – 2026-11-09',
+        stats: [
+          ['778', 'paspaudimų iš Google paieškos'],
+          ['10,7 tūkst.', 'parodymų Google paieškoje'],
+          ['7,3 %', 'paspaudimų dalis (CTR)'],
+          ['7,2', 'vidutinė pozicija'],
         ],
-        note: 'Patikrinta 2026-11-09, vienkartinis stebėjimas: pozicijos keičiasi pagal vietą ir įrenginį.',
+        points: [
+          '#2 Google paieškoje „šulinių žiedai kaunas“',
+          'Pirmas paminėtas Google AI režimo atsakyme apie šulinių žiedus Kaune',
+          '36 puslapiai svetainės žemėlapyje',
+          'Lighthouse mobiliam: greitis 94, SEO 100',
+        ],
+        note: 'Laikotarpis apima ir ankstesnę svetainę – naujoji veikia nuo 2026-10-28. Pozicijos ir AI atsakymas patikrinti 2026-11-09, vienkartinis stebėjimas: jie keičiasi pagal vietą ir įrenginį.',
+        proof: [['betono-gsc-3m-2026-11-11', 'Search Console, 3 mėn. (2026-08-10 – 2026-11-09)']],
         tags: ['Svetainė', 'Vietinis SEO', 'Užklausos forma'],
       },
       {
-        name: 'ArbCut – arboristas Kaune', site: 'arbcut.lt', url: 'https://arbcut.lt/',
-        img: '/jarvis-systems/work/arbcut-mobile.webp', w: 390, h: 844, mobile: true,
-        text: 'Medžių pjovimo ir darbų aukštyje svetainė su atskirais paslaugų ir miestų puslapiais.',
-        facts: [
-          [String(proof.gsc.clicks), `paspaudimai iš Google paieškos per 3 mėn. (${proof.gsc.from}–${proof.gsc.to})`],
-          [String(proof.forms.total), `formos užklausos (${proof.forms.created}–${proof.forms.captured})`],
-          ['12 + 18', 'paslaugų ir miestų puslapių'],
-          ['AI', 'arbcut.lt cituojamas Google AI apžvalgoje „medžių pjovimas Kaune“'],
+        name: 'ArbCut – arboristas Kaune', site: 'arbcut.lt', url: 'https://arbcut.lt/', shot: 'arbcut',
+        text: 'Medžių pjovimo ir darbų aukštyje svetainė: 12 paslaugų ir 18 miestų puslapių, užklausos forma, kuri siunčia užklausas tiesiai meistrui.',
+        period: 'Google Search Console, 3 mėn.: 2026-08-10 – 2026-11-09 · Formos: rugpjūtis–spalis',
+        stats: [
+          ['604', 'paspaudimai iš Google paieškos'],
+          ['12,3 tūkst.', 'parodymų Google paieškoje'],
+          ['8,7', 'vidutinė pozicija'],
+          ['24', 'formos užklausos rugpjūtį–spalį (7 + 13 + 4)'],
         ],
-        note: 'Paspaudimai ir užklausos – iš Search Console ir Web3Forms ekrano kopijų; AI apžvalga patikrinta 2026-11-11.',
+        points: [
+          'arbcut.lt cituojamas Google AI apžvalgoje „medžių pjovimas Kaune“ (2026-11-11)',
+          '31 formos užklausa nuo formos sukūrimo 2026-04-19, 0 šlamšto',
+          '12 paslaugų ir 18 miestų puslapių',
+        ],
+        note: 'Formų skaičiai – Web3Forms, kalendoriniai mėnesiai, patikrinta 2026-11-11. Paspaudimai nėra užklausos, todėl jų nesumuojame.',
+        proof: [
+          ['arbcut-gsc-3m-2026-11-11', 'Search Console, 3 mėn. (2026-08-10 – 2026-11-09)'],
+          ['arbcut-web3forms-overview-2026-11-11', 'Web3Forms: iš viso 31 užklausa, 0 šlamšto'],
+          ['arbcut-web3forms-aug-2026-11-11', 'Web3Forms: 2026 m. rugpjūtis – 7'],
+          ['arbcut-web3forms-sep-2026-11-11', 'Web3Forms: 2026 m. rugsėjis – 13'],
+          ['arbcut-web3forms-oct-2026-11-11', 'Web3Forms: 2026 m. spalis – 4'],
+        ],
         tags: ['Svetainė', 'Vietinis SEO', 'Užklausos forma'],
       },
     ],
-    liveTitle: 'Kitos veikiančios svetainės',
-    live: [
-      ['VensLand', 'Vejos įrengimas ir priežiūra Vilniuje', 'https://vensland.lt/'],
-      ['MesElektra', 'Elektrikas Klaipėdoje', 'https://meselektra.lt/'],
+    // Every site we built. Captures: headless Chrome 2026-11-11 (1440×900 and 390×844 @2x), resized to WebP, no edits.
+    // live = client's own domain (200 on 2026-11-12); preview = draft on jarvisweb.lt/perziura, not launched by the client.
+    allTitle: 'Visos mūsų svetainės',
+    allLead: 'Telefone ir kompiuteryje. Atidarykite bet kurią ir patikrinkite patys.',
+    status: { live: 'Veikia', preview: 'Peržiūra klientui' },
+    all: [
+      ['UAB „Dailius ir ko“', 'Betoniniai gaminiai, Ražiškiai', 'https://www.betonogaminiai.lt/', 'betono', 'live'],
+      ['ArbCut', 'Arboristas, Kaunas', 'https://arbcut.lt/', 'arbcut', 'live'],
+      ['VensLand', 'Vejos įrengimas ir priežiūra Vilniuje', 'https://vensland.lt/', 'vensland', 'live'],
+      ['MesElektra', 'Elektrikas Klaipėdoje', 'https://meselektra.lt/', 'meselektra', 'live'],
+      ['LaiKam', 'Vaizdo kamerų montavimas, Kaunas', 'https://jarvisweb.lt/perziura/ejgb7a33zs/', 'laikam', 'preview'],
+      ['MasAukštalipiai', 'Aukštalipių paslaugos visoje Lietuvoje', 'https://jarvisweb.lt/perziura/cfa9bwee8q/', 'mas', 'preview'],
+      ['Šilta srovė', 'Santechnika ir šildymas Panevėžyje', 'https://jarvisweb.lt/perziura/486rd84se6/', 'silta', 'preview'],
     ],
   },
 

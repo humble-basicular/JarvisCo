@@ -1,38 +1,69 @@
 ---
-/* /musu-darbai — Stone "Our work": centred heading on grey, two-column showcases (one on mobile).
-   Only own work: Betono + ArbCut case studies with dated audit figures, plus other live client sites (laikam.lt excluded: Hostinger AI Builder site, not our build). */
+/* /musu-darbai — Stone "Our work": two case studies with real proof screenshots (Betono, ArbCut only),
+   then every site we built (live client domains + client previews) as desktop + phone captures.
+   Figures and their sources: src/data/o2-pages.js (pages.darbai) and src/assets/proof/PROVENANCE.md. No JS. */
+import { Image, getImage } from 'astro:assets';
 import O2Layout from '@layouts/O2Layout.astro';
 import PageHead from '@components/o2/PageHead.astro';
 import Talk from '@components/o2/Talk.astro';
 import Icon from '@components/o2/Icon.astro';
 import { pages } from '@data/o2-pages.js';
+import { proofImage } from '@data/proof-images';
 const P = pages.darbai;
+const W = '/jarvis-systems/work/sites';
+const host = (u: string) => u.replace(/^https:\/\/(www\.)?|\/$/g, '');
+
+const items = await Promise.all(P.items.map(async (w) => ({
+  ...w,
+  proof: await Promise.all(w.proof.map(async ([name, caption]) => {
+    const src = proofImage(name);
+    const full = await getImage({ src, width: Math.min(src.width, 1600), format: 'webp', quality: 85 });
+    return { src, href: full.src, caption };
+  })),
+})));
 ---
 <O2Layout title={P.title} description={P.description} path="/musu-darbai">
   <PageHead title={P.h} flat>
-    <ul class="work">
-      {P.items.map((w) => (
-        <li class="work__it">
-          <div class={`work__media${w.mobile ? ' work__media--phone' : ''}`}>
-            <img src={w.img} width={w.w} height={w.h} alt={`${w.name} – ${w.site} svetainės ekrano kopija`} loading="lazy" />
-            {w.img2 && <img class="work__second" src={w.img2} width="1440" height="783" alt={`${w.site} užklausos forma`} loading="lazy" />}
+    <ul class="case">
+      {items.map((w) => (
+        <li class="case__it">
+          <div class="case__media" aria-hidden="true">
+            <img class="case__desk" src={`${W}/${w.shot}-desktop.webp`} width="960" height="600" alt="" loading="lazy" />
+            <img class="case__phone" src={`${W}/${w.shot}-mobile.webp`} width="390" height="844" alt="" loading="lazy" />
           </div>
-          <div class="work__txt">
+          <div class="case__txt">
             <h2>{w.name}</h2>
             <a class="work__site" href={w.url} target="_blank" rel="noopener">{w.site}</a>
             <p>{w.text}</p>
-            {w.facts && <dl class="work__facts">{w.facts.map(([n, t]) => <div><dt>{n}</dt><dd>{t}</dd></div>)}</dl>}
-            {w.note && <p class="work__note">{w.note}</p>}
-            <ul class="work__tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
-            {w.more && <a class="work__more" href={w.more[1]}>{w.more[0]} <Icon name="arrow" size={18} /></a>}
+            <p class="case__period">{w.period}</p>
+            <dl class="case__stats">{w.stats.map(([n, t]) => <div><dt>{n}</dt><dd>{t}</dd></div>)}</dl>
+            <ul class="case__points">{w.points.map((t) => <li>{t}</li>)}</ul>
+            <ul class="case__proof">
+              {w.proof.map((s) => (
+                <li><a href={s.href} target="_blank" rel="noopener">
+                  <Image src={s.src} width={480} alt={s.caption} format="webp" quality={80} loading="lazy" />
+                  <span>{s.caption}</span>
+                </a></li>
+              ))}
+            </ul>
+            <p class="work__note">{w.note}</p>
           </div>
         </li>
       ))}
     </ul>
-    <h2 class="work__live-h">{P.liveTitle}</h2>
-    <ul class="work__live">
-      {P.live.map(([name, what, url]) => (
-        <li><a href={url} target="_blank" rel="noopener"><strong>{name}</strong><span>{what}</span><span class="work__site">{url.replace(/^https:\/\/|\/$/g, '')}</span></a></li>
+
+    <h2 class="work__live-h" id="visos">{P.allTitle}</h2>
+    <p class="work__live-p">{P.allLead}</p>
+    <ul class="sites">
+      {P.all.map(([name, what, url, shot, kind]) => (
+        <li><a href={url} target="_blank" rel="noopener">
+          <span class="sites__media">
+            <img class="sites__desk" src={`${W}/${shot}-desktop.webp`} width="960" height="600" alt={`${name} – svetainė kompiuteryje`} loading="lazy" />
+            <img class="sites__phone" src={`${W}/${shot}-mobile.webp`} width="390" height="844" alt={`${name} – svetainė telefone`} loading="lazy" />
+            <span class={`sites__tag sites__tag--${kind}`}>{P.status[kind]}</span>
+          </span>
+          <span class="sites__txt"><strong>{name}</strong><span>{what}</span><span class="work__site">{host(url)} <Icon name="arrow" size={16} /></span></span>
+        </a></li>
       ))}
     </ul>
   </PageHead>

@@ -63,7 +63,7 @@ export const o2 = {
     mascotAlt: 'Jarvis Systems talismanas – statybininkas geltona liemene, rankos sukryžiuotos',
   },
   features: {
-    title: ['Paprastos sistemos, kurios tiesiog veikia', 'Diplomo nereikia'],
+    title: ['Paprastos sistemos, kurios tiesiog veikia', 'Naudotis jomis diplomo nereikia'],
     demoBtn: 'Trumpa demonstracija', moreBtn: 'Plačiau',
     items: [
       {
