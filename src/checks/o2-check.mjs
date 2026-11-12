@@ -15,7 +15,7 @@ check(betono.initial.compact && !betono.initial.banner && !betono.capture.previe
 check(Object.entries(betono.assets).every(([name, asset]) => createHash('sha256').update(readFileSync(`public/jarvis-systems/demo/betono-actual/${name}`)).digest('hex') === asset.sha256), 'Betono media must match the verified latest-source capture receipt');
 check(!/demo\/bg-hero\.webp|site__form|>BG<|Betono gaminiai/.test(html), 'invented BG demo site/brand must stay gone (USER13)');
 check(['phone-left', 'phone-right', 'laptop'].every((d) => html.includes(`/jarvis-systems/device/${d}-glass.webp`) && existsSync(`public/jarvis-systems/device/${d}-glass.webp`)) && !html.includes('dev__isl'), 'device screens must be trimmed by the derived glass masks');
-check(!/class="proof|proof__/.test(html) && (html.match(/class="gbadge"/g) ?? []).length === 1, 'USER13: big Google proof slot removed, small hero badge kept');
+check(!/class="proof|proof__/.test(html) && (html.match(/class="pbar"/g) ?? []).length === 1 && /pbar__it[^>]*Google įvertinimas/.test(html), 'USER13: big Google proof slot removed; Matas 2026-11-12: Stone-style hero proof bar with Google');
 check(!/Google įvertinim[aą]\b(?![^<]*iš 5)/.test(html.replace(/aria-label="Google įvertinimas [^"]*"/, '')), 'no Google boast outside the hero badge');
 check(/<input name="email" type="email"[^>]*autocomplete="email"/.test(html) && !/name="email"[^>]*required/.test(html), 'booking form has an optional e-mail field');
 check(/if \(email\) body\.append\('email', email\)/.test(ts) && /validEmail\(email\)/.test(ts), 'e-mail is validated when given and sent as `email`');
