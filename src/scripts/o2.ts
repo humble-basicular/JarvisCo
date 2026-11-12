@@ -136,7 +136,7 @@ book?.querySelectorAll<HTMLButtonElement>('[data-q-pick]').forEach((b) => b.addE
 }));
 // Per-lead CRM code from the SMS link (jarvisweb.lt/p/p2345 -> /registracija?r=p2345). Kept for the tab session so
 // it survives clicks to other pages before the quiz; sent as callback_request.code so the CRM maps the lead.
-const LEAD_CODE = /^[ap][23456789abcdefghjkmnpqrstuvwxyz]{4}$/;
+const LEAD_CODE = /^p[23456789abcdefghjkmnpqrstuvwxyz]{4}$/; // CRM contract: only p-codes; anything else -> code:null (phone match)
 const leadCode = (() => {
   const fromUrl = new URLSearchParams(location.search).get('r') ?? '';
   try {
