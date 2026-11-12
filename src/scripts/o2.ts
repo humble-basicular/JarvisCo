@@ -38,20 +38,34 @@ let demoOpener: HTMLElement | null = null;
 document.querySelectorAll<HTMLElement>('[data-demo-open]').forEach((b) => b.addEventListener('click', () => {
   const row = document.getElementById(b.dataset.demoOpen ?? '');
   const scene = row?.querySelector<HTMLElement>('[data-dev]');
-  if (!demoDlg || !demoSlot || !scene) return;
+  const yt = b.dataset.demoYt;
+  if (!demoDlg || !demoSlot || (!scene && !yt)) return;
   demoOpener = b;
-  const copy = scene.cloneNode(true) as HTMLElement;
-  copy.classList.add('is-on');
-  demoSlot.replaceChildren(copy);
+  const name = row?.querySelector('h3')?.textContent ?? '';
   const title = demoDlg.querySelector<HTMLElement>('[data-demo-title]');
-  if (title) title.textContent = row?.querySelector('h3')?.textContent ?? '';
-  demoDlg.showModal();
-  watch(copy);
+  if (title) title.textContent = name;
+  demoDlg.classList.toggle('demodlg--yt', !!yt);
+  if (yt) {
+    // Demo video (YouTube, no-cookie) – loads only when the dialog opens.
+    const f = document.createElement('iframe');
+    f.src = `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&rel=0&playsinline=1`;
+    f.title = `Demonstracija: ${name}`;
+    f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    demoSlot.replaceChildren(f);
+    demoDlg.showModal();
+  } else if (scene) {
+    const copy = scene.cloneNode(true) as HTMLElement;
+    copy.classList.add('is-on');
+    demoSlot.replaceChildren(copy);
+    demoDlg.showModal();
+    watch(copy);
+  }
   demoDlg.querySelector<HTMLElement>('[data-demo-close]')?.focus();
 }));
 demoDlg?.querySelector('[data-demo-close]')?.addEventListener('click', () => demoDlg.close());
 demoDlg?.addEventListener('click', (e) => { if (e.target === demoDlg) demoDlg.close(); });
-demoDlg?.addEventListener('close', () => { const c = demoSlot?.firstElementChild as HTMLElement | null; if (c) ro?.unobserve(c); demoSlot?.replaceChildren(); demoOpener?.focus(); });
+demoDlg?.addEventListener('close', () => { const c = demoSlot?.firstElementChild as HTMLElement | null; if (c && c.tagName !== 'IFRAME') ro?.unobserve(c); demoSlot?.replaceChildren(); demoOpener?.focus(); });
 
 // ---------- 4. Trades carousel ----------
 const track = document.querySelector<HTMLElement>('[data-car-track]');
