@@ -352,14 +352,22 @@ function submit(fields, files) {
   return request('/t/form', { method: 'POST', body: formBody(fields, files), headers: { 'User-Agent': 'Mozilla/5.0', 'CF-Connecting-IP': '192.0.2.1', Cookie: 'private=secret' } });
 }
 
-test('new p prefix redirects both hosts while a stays unchanged', async () => {
+test('p prefix redirects both hosts to /registracija while a stays unchanged', async () => {
   for (const host of ['jarvisweb.lt', 'www.jarvisweb.lt']) {
     const response = await request('/p/p2345', {}, host);
     assert.equal(response.status, 302);
-    assert.equal(response.headers.get('Location'), '/rezultatai?r=p2345');
+    assert.equal(response.headers.get('Location'), '/registracija?r=p2345');
   }
   assert.equal((await post('p2345', 'preview_cta')).status, 204);
   assert.deepEqual((await (await pull()).json()).events.map(e => e.type), ['click', 'click', 'preview_cta']);
+});
+
+test('p prefix (Offer 2 registration) redirects to /registracija and carries the code on callback_request', async () => {
+  const response = await submit({ kind: 'callback_request', code: 'p2345', name: 'Testas', phone: '+37060000000', email: 'a@b.lt', standout: 'Kam dirbate: Gyventojams' });
+  assert.equal(response.status, 200);
+  const entry = (await (await pull()).json()).events.find(e => e.type === 'callback_request');
+  assert.equal(entry.code, 'p2345');
+  assert.equal(entry.submission.standout, 'Kam dirbate: Gyventojams');
 });
 
 test('multipart happy path trims answers, stores two files with metadata and exposes exact submission shape', async () => {
