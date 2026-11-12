@@ -134,51 +134,20 @@ export const pages = {
     //  arbcut-gsc-3m: 604 clicks, 12.3K impressions, CTR 4.9 %, position 8.7, 10 Aug – 9 Nov. Web3Forms (mbwebdv): Aug 7, Sep 13, Oct 4, total 31, spam 0.
     // Audit facts: Drive audits/betonogaminiai-2026-11-09/REPORT.md (E1, E5, E9, E10), audits/arbcut-2026-11-11/REPORT.md (C1, C2, F4).
     // Betono form counts not verified (WordPress admin not accessed) -> not shown. No testimonials.
+    // Matas 2026-11-12: just the 3-month Search Console screenshots as the main proof; ArbCut forms = Web3Forms total only (31).
     items: [
       {
         name: 'UAB „Dailius ir ko“', site: 'betonogaminiai.lt', url: 'https://www.betonogaminiai.lt/', shot: 'betono',
-        text: 'Betoninių gaminių gamintojas Ražiškiuose. Naują svetainę paleidome 2026-10-28: prekių ir paslaugų puslapiai, kainos ir „Gauti pasiūlymą“ forma su apsauga nuo šlamšto.',
-        period: 'Google Search Console, 3 mėn.: 2026-08-10 – 2026-11-09 · daugiausia ankstesnė svetainė, naujoji nuo 2026-10-28',
-        stats: [
-          ['778', 'paspaudimų iš Google paieškos'],
-          ['10,7 tūkst.', 'parodymų Google paieškoje'],
-          ['7,3 %', 'paspaudimų dalis (CTR)'],
-          ['7,2', 'vidutinė pozicija'],
-        ],
-        points: [
-          '#2 Google paieškoje „šulinių žiedai kaunas“',
-          'Pirmas paminėtas Google AI režimo atsakyme apie šulinių žiedus Kaune',
-          '36 puslapiai svetainės žemėlapyje',
-          'Lighthouse mobiliam: greitis 94, SEO 100',
-        ],
-        note: 'Pozicijos ir AI atsakymas patikrinti 2026-11-09, vienkartinis stebėjimas: jie keičiasi pagal vietą ir įrenginį.',
-        proof: [['betono-gsc-3m-2026-11-11', 'Search Console, 3 mėn. (2026-08-10 – 2026-11-09)']],
-        tags: ['Svetainė', 'Vietinis SEO', 'Užklausos forma'],
+        text: 'Betoninių gaminių gamintojas Ražiškiuose. Svetainė su prekių ir paslaugų puslapiais, kainomis ir „Gauti pasiūlymą“ forma.',
+        gsc: ['betono-gsc-3m-2026-11-11', 'Google Search Console – paskutiniai 3 mėnesiai'],
+        nums: [['778', 'paspaudimų iš Google'], ['10,7 tūkst.', 'parodymų Google']],
       },
       {
         name: 'ArbCut – arboristas Kaune', site: 'arbcut.lt', url: 'https://arbcut.lt/', shot: 'arbcut',
         text: 'Medžių pjovimo ir darbų aukštyje svetainė: 12 paslaugų ir 18 miestų puslapių, užklausos forma.',
-        period: 'Google Search Console, 3 mėn.: 2026-08-10 – 2026-11-09 · Formos: rugpjūtis–spalis',
-        stats: [
-          ['604', 'paspaudimai iš Google paieškos'],
-          ['12,3 tūkst.', 'parodymų Google paieškoje'],
-          ['8,7', 'vidutinė pozicija'],
-          ['24', 'pateiktos formos rugpjūtį–spalį (7 + 13 + 4), Web3Forms skaičiavimu'],
-        ],
-        points: [
-          'arbcut.lt cituojamas Google AI apžvalgoje „medžių pjovimas Kaune“ (2026-11-11)',
-          'Web3Forms suskaičiavo 31 pateiktą formą nuo 2026-04-19, 0 šlamšto',
-          '12 paslaugų ir 18 miestų puslapių',
-        ],
-        note: 'Formų skaičiai – Web3Forms, kalendoriniai mėnesiai, patikrinta 2026-11-11. Paspaudimai nėra užklausos, todėl jų nesumuojame.',
-        proof: [
-          ['arbcut-gsc-3m-2026-11-11', 'Search Console, 3 mėn. (2026-08-10 – 2026-11-09)'],
-          ['arbcut-web3forms-overview-2026-11-11', 'Web3Forms: iš viso 31 užklausa, 0 šlamšto'],
-          ['arbcut-web3forms-aug-2026-11-11', 'Web3Forms: 2026 m. rugpjūtis – 7'],
-          ['arbcut-web3forms-sep-2026-11-11', 'Web3Forms: 2026 m. rugsėjis – 13'],
-          ['arbcut-web3forms-oct-2026-11-11', 'Web3Forms: 2026 m. spalis – 4'],
-        ],
-        tags: ['Svetainė', 'Vietinis SEO', 'Užklausos forma'],
+        gsc: ['arbcut-gsc-3m-2026-11-11', 'Google Search Console – paskutiniai 3 mėnesiai'],
+        forms: ['arbcut-web3forms-total-2026-11-11', 'Web3Forms – iš viso pateiktų užklausų formų'],
+        nums: [['604', 'paspaudimai iš Google'], ['12,3 tūkst.', 'parodymų Google'], ['31', 'užklausa per formą']],
       },
     ],
     // Every site we built. Captures: headless Chrome 2026-11-11 (1440×900 and 390×844 @2x), resized to WebP, no edits.

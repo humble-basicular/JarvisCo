@@ -13,13 +13,15 @@ const P = pages.darbai;
 const W = '/jarvis-systems/work/sites';
 const host = (u: string) => u.replace(/^https:\/\/(www\.)?|\/$/g, '');
 
+const shot = async ([name, caption]: [string, string]) => {
+  const src = proofImage(name);
+  const full = await getImage({ src, width: Math.min(src.width, 1600), format: 'webp', quality: 90 });
+  return { src, href: full.src, caption };
+};
 const items = await Promise.all(P.items.map(async (w) => ({
   ...w,
-  proof: await Promise.all(w.proof.map(async ([name, caption]) => {
-    const src = proofImage(name);
-    const full = await getImage({ src, width: Math.min(src.width, 1600), format: 'webp', quality: 85 });
-    return { src, href: full.src, caption };
-  })),
+  gsc: await shot(w.gsc),
+  forms: w.forms ? await shot(w.forms) : null,
 })));
 ---
 <O2Layout title={P.title} description={P.description} path="/musu-darbai">
@@ -27,26 +29,31 @@ const items = await Promise.all(P.items.map(async (w) => ({
     <ul class="case">
       {items.map((w) => (
         <li class="case__it">
-          <div class="case__media" aria-hidden="true">
-            <img class="case__desk" src={`${W}/${w.shot}-desktop.webp`} width="960" height="600" alt="" loading="lazy" />
-            <img class="case__phone" src={`${W}/${w.shot}-mobile.webp`} width="390" height="844" alt="" loading="lazy" />
+          <div class="case__head">
+            <div class="case__intro">
+              <h2>{w.name}</h2>
+              <a class="work__site" href={w.url} target="_blank" rel="noopener">{w.site} <Icon name="arrow" size={16} /></a>
+              <p>{w.text}</p>
+            </div>
+            <dl class="case__nums">{w.nums.map(([n, t]) => <div><dt>{n}</dt><dd>{t}</dd></div>)}</dl>
           </div>
-          <div class="case__txt">
-            <h2>{w.name}</h2>
-            <a class="work__site" href={w.url} target="_blank" rel="noopener">{w.site}</a>
-            <p>{w.text}</p>
-            <p class="case__period">{w.period}</p>
-            <dl class="case__stats">{w.stats.map(([n, t]) => <div><dt>{n}</dt><dd>{t}</dd></div>)}</dl>
-            <ul class="case__points">{w.points.map((t) => <li>{t}</li>)}</ul>
-            <ul class="case__proof">
-              {w.proof.map((s) => (
-                <li><a href={s.href} target="_blank" rel="noopener">
-                  <Image src={s.src} width={480} alt="" format="webp" quality={80} loading="lazy" />
-                  <span>{s.caption}</span>
-                </a></li>
-              ))}
-            </ul>
-            <p class="work__note">{w.note}</p>
+          <div class="case__body">
+            <figure class="case__gsc">
+              <a href={w.gsc.href} target="_blank" rel="noopener"><Image src={w.gsc.src} width={900} alt={`${w.gsc.caption}: ${w.site}`} format="webp" quality={90} loading="lazy" /></a>
+              <figcaption>{w.gsc.caption}</figcaption>
+            </figure>
+            <div class="case__side">
+              <div class="case__media" aria-hidden="true">
+                <img class="case__desk" src={`${W}/${w.shot}-desktop.webp`} width="960" height="600" alt="" loading="lazy" />
+                <img class="case__phone" src={`${W}/${w.shot}-mobile.webp`} width="390" height="844" alt="" loading="lazy" />
+              </div>
+              {w.forms && (
+                <figure class="case__forms">
+                  <Image src={w.forms.src} width={262} alt={`${w.forms.caption}: 31`} format="webp" quality={90} loading="lazy" />
+                  <figcaption>{w.forms.caption}</figcaption>
+                </figure>
+              )}
+            </div>
           </div>
         </li>
       ))}
