@@ -41,7 +41,7 @@ const items = await Promise.all(P.items.map(async (w) => ({
             <ul class="case__proof">
               {w.proof.map((s) => (
                 <li><a href={s.href} target="_blank" rel="noopener">
-                  <Image src={s.src} width={480} alt={s.caption} format="webp" quality={80} loading="lazy" />
+                  <Image src={s.src} width={480} alt="" format="webp" quality={80} loading="lazy" />
                   <span>{s.caption}</span>
                 </a></li>
               ))}

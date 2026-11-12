@@ -138,7 +138,7 @@ export const pages = {
       {
         name: 'UAB „Dailius ir ko“', site: 'betonogaminiai.lt', url: 'https://www.betonogaminiai.lt/', shot: 'betono',
         text: 'Betoninių gaminių gamintojas Ražiškiuose. Naują svetainę paleidome 2026-10-28: prekių ir paslaugų puslapiai, kainos ir „Gauti pasiūlymą“ forma su apsauga nuo šlamšto.',
-        period: 'Google Search Console, 3 mėn.: 2026-08-10 – 2026-11-09',
+        period: 'Google Search Console, 3 mėn.: 2026-08-10 – 2026-11-09 · daugiausia ankstesnė svetainė, naujoji nuo 2026-10-28',
         stats: [
           ['778', 'paspaudimų iš Google paieškos'],
           ['10,7 tūkst.', 'parodymų Google paieškoje'],
@@ -151,23 +151,23 @@ export const pages = {
           '36 puslapiai svetainės žemėlapyje',
           'Lighthouse mobiliam: greitis 94, SEO 100',
         ],
-        note: 'Laikotarpis apima ir ankstesnę svetainę – naujoji veikia nuo 2026-10-28. Pozicijos ir AI atsakymas patikrinti 2026-11-09, vienkartinis stebėjimas: jie keičiasi pagal vietą ir įrenginį.',
+        note: 'Pozicijos ir AI atsakymas patikrinti 2026-11-09, vienkartinis stebėjimas: jie keičiasi pagal vietą ir įrenginį.',
         proof: [['betono-gsc-3m-2026-11-11', 'Search Console, 3 mėn. (2026-08-10 – 2026-11-09)']],
         tags: ['Svetainė', 'Vietinis SEO', 'Užklausos forma'],
       },
       {
         name: 'ArbCut – arboristas Kaune', site: 'arbcut.lt', url: 'https://arbcut.lt/', shot: 'arbcut',
-        text: 'Medžių pjovimo ir darbų aukštyje svetainė: 12 paslaugų ir 18 miestų puslapių, užklausos forma, kuri siunčia užklausas tiesiai meistrui.',
+        text: 'Medžių pjovimo ir darbų aukštyje svetainė: 12 paslaugų ir 18 miestų puslapių, užklausos forma.',
         period: 'Google Search Console, 3 mėn.: 2026-08-10 – 2026-11-09 · Formos: rugpjūtis–spalis',
         stats: [
           ['604', 'paspaudimai iš Google paieškos'],
           ['12,3 tūkst.', 'parodymų Google paieškoje'],
           ['8,7', 'vidutinė pozicija'],
-          ['24', 'formos užklausos rugpjūtį–spalį (7 + 13 + 4)'],
+          ['24', 'pateiktos formos rugpjūtį–spalį (7 + 13 + 4), Web3Forms skaičiavimu'],
         ],
         points: [
           'arbcut.lt cituojamas Google AI apžvalgoje „medžių pjovimas Kaune“ (2026-11-11)',
-          '31 formos užklausa nuo formos sukūrimo 2026-04-19, 0 šlamšto',
+          'Web3Forms suskaičiavo 31 pateiktą formą nuo 2026-04-19, 0 šlamšto',
           '12 paslaugų ir 18 miestų puslapių',
         ],
         note: 'Formų skaičiai – Web3Forms, kalendoriniai mėnesiai, patikrinta 2026-11-11. Paspaudimai nėra užklausos, todėl jų nesumuojame.',
