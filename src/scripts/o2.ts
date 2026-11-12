@@ -120,7 +120,9 @@ if (book) {
     const company = String(fd.get('company') ?? '').trim();
     if (book.dataset.bookMode !== 'live') {
       // Review build: no /t/form route on this host. Validate, then say plainly that nothing was sent.
-      location.href = `/susisieksime?${new URLSearchParams({ v: name, t: time, p: '1' })}`;
+      status.dataset.tone = ''; status.textContent = msgs.previewOk; if (call) call.hidden = false;
+      // data-no-redirect: QA script keeps the dialog in place to assert the message.
+      if (!book.dataset.noRedirect) location.href = `/susisieksime?${new URLSearchParams({ v: name, t: time, p: '1' })}`;
       return;
     }
     const body = new FormData();
@@ -139,7 +141,7 @@ if (book) {
       book.querySelector('[data-book-fields]')?.setAttribute('hidden', '');
       status.textContent = msgs.ok.replace('{name}', name ? `, ${name}` : '').replace('{time}', msgs.timesSpoken[time] ?? msgs.timesSpoken['']);
       // Stone-style next step: confirmation + pre-call video + proof (no calendar).
-      location.href = `/susisieksime?${new URLSearchParams({ v: name, t: time })}`;
+      if (!book.dataset.noRedirect) location.href = `/susisieksime?${new URLSearchParams({ v: name, t: time })}`;
     } catch {
       status.dataset.tone = 'err';
       status.textContent = msgs.err;
