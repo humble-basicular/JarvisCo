@@ -582,3 +582,19 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .fnl__lockbox p{margin:0;max-width:440px;font-size:17px;line-height:1.4}
 .fnl__lockicon{font-size:34px}
 .fnl__lockbox .fnl__cta{font-size:18px;padding:14px 26px;text-decoration:none}
+/* /pradzia onboarding form */
+.onb{max-width:640px;margin:0 auto;padding:48px 20px 64px}
+.onb__h{font-size:clamp(28px,5vw,40px);line-height:1.15;margin:16px 0 8px}
+.onb__lead{font-size:18px;margin:0 0 28px;color:#3b4351}
+.onb__form{display:grid;gap:20px}
+.onb__f{display:grid;gap:6px;border:0;margin:0;padding:0;min-width:0}
+.onb__f label,.onb__f legend{font-weight:700;font-size:17px;padding:0}
+.onb__f small{color:#5b6472;font-size:15px;line-height:1.45}
+.onb__f input:not([type=file]),.onb__f textarea{font:inherit;font-size:17px;padding:12px 14px;border:1.5px solid #c9d0db;border-radius:10px;width:100%;box-sizing:border-box;background:#fff}
+.onb__f input:focus,.onb__f textarea:focus{outline:3px solid #f5b70a;outline-offset:1px;border-color:#0b1f3a}
+.onb__f [aria-invalid=true]{border-color:#e02424}
+.onb__f .err{color:#e02424}
+.onb__file{font-weight:400!important;font-size:15px!important;margin-top:6px}
+.onb__f input[type=file]{font-size:15px;margin-bottom:8px}
+.onb__go{justify-self:start}
+.onb .status{font-size:18px;font-weight:700;color:#1d6b3a}.onb .status[data-tone=err]{color:#e02424}

@@ -60,7 +60,7 @@ const V4_PAGES = new Set(['svetaines/index.html', 'sildymui/index.html', 'noriu/
 // USER13 (2026-11-08): the separate Jarvis Systems pages share the homepage's facts and therefore its rules —
 // exactly these 13 routes, no prefix wildcard, so every other page keeps the stricter agency rules.
 const O2_SUBPAGES = ['funkcijos', ...['funkcionali-svetaine', 'atsiliepimu-rinkimas', 'praleistas-skambutis', 'kampanijos', 'vietinis-seo'].map((s) => `funkcijos/${s}`),
-  'kainos', 'atsiliepimai', 'musu-darbai', 'apie', 'kaip-dirbame', 'sritys', 'kontaktai', 'susisieksime', 'registracija'].map((r) => `${r}/index.html`);
+  'kainos', 'atsiliepimai', 'musu-darbai', 'apie', 'kaip-dirbame', 'sritys', 'kontaktai', 'susisieksime', 'registracija', 'pradzia'].map((r) => `${r}/index.html`);
 // Shared terms now describe the same full O2 package; legacy content pages retain their own rules.
 const O2_PAGES = new Set(['index.html', 'taisykles/index.html', 'pavyzdys/pokalbis/index.html', ...O2_SUBPAGES]);
 const o2Banned = [

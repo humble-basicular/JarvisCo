@@ -134,6 +134,17 @@ book?.querySelectorAll<HTMLButtonElement>('[data-q-pick]').forEach((b) => b.addE
   const at = steps.indexOf(set);
   setTimeout(() => { if (step === at) show(at + 1); }, reduced ? 0 : 180);
 }));
+// Per-lead CRM code from the SMS link (jarvisweb.lt/p/p2345 -> /registracija?r=p2345). Kept for the tab session so
+// it survives clicks to other pages before the quiz; sent as callback_request.code so the CRM maps the lead.
+const LEAD_CODE = /^[ap][23456789abcdefghjkmnpqrstuvwxyz]{4}$/;
+const leadCode = (() => {
+  const fromUrl = new URLSearchParams(location.search).get('r') ?? '';
+  try {
+    if (LEAD_CODE.test(fromUrl)) sessionStorage.setItem('o2_r', fromUrl);
+    const kept = sessionStorage.getItem('o2_r') ?? '';
+    return LEAD_CODE.test(kept) ? kept : '';
+  } catch { return LEAD_CODE.test(fromUrl) ? fromUrl : ''; }
+})();
 if (book) {
   const msgs = JSON.parse(book.dataset.messages ?? '{}');
   const status = book.querySelector<HTMLElement>('[data-status]')!;
@@ -170,6 +181,7 @@ if (book) {
     }
     const body = new FormData();
     body.append('kind', 'callback_request');
+    if (leadCode) body.append('code', leadCode);
     body.append('name', name);
     body.append('phone', phone);
     body.append('email', email);

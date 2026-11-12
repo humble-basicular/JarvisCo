@@ -5,7 +5,7 @@ import LegalPage from '@components/LegalPage.astro';
 import { brand } from '@data/content.js';
 import { O2_OFFER } from '@data/o2.js';
 ---
-<LegalPage title="Taisyklės" description="Jarvis Systems paslaugos sąlygos: kaina, SMS, garantija, atsisakymas ir svetainės išsipirkimas." updated="2026-11-10">
+<LegalPage title="Taisyklės" description="Jarvis Systems paslaugos sąlygos: kaina, SMS, garantija, atsisakymas ir svetainės išsipirkimas." updated="2026-11-12">
   <h2>Kas teikia paslaugą</h2>
   <p>
     {brand.owner}, {brand.status.toLowerCase()} (individualios veiklos pažyma Nr. 1509154), {brand.city}.
@@ -19,7 +19,7 @@ import { O2_OFFER } from '@data/o2.js';
   <p>Svetainę ir sistemas paleidžiame per 7 dienas nuo tada, kai gauname informaciją apie Jūsų verslą ir reikalingas prieigas. Tikslią darbų apimtį suderiname raštu prieš pirmą mokėjimą.</p>
 
   <h2>Mokėjimas</h2>
-  <p>Prenumerata mėnesinė: {O2_OFFER.monthly} nuskaičiuojama kas mėnesį iš kortelės, kurią nurodote apmokėdami pirmą kartą.</p>
+  <p>Prenumerata mėnesinė: {O2_OFFER.monthly} nuskaičiuojama kas mėnesį iš kortelės, kurią nurodote apmokėdami pirmą kartą. Mokėjimus apdoroja Stripe. Papildomos SMS pridedamos prie tos pačios mėnesio sąskaitos.</p>
 
   <h2>SMS žinutės</h2>
   <p>{O2_OFFER.smsDetails}</p>
@@ -27,6 +27,7 @@ import { O2_OFFER } from '@data/o2.js';
 
   <h2>Pinigų grąžinimo garantija</h2>
   <p>{O2_OFFER.guaranteeDetails}</p>
+  <p>Norėdami pasinaudoti garantija, parašykite <a href={brand.emailHref}>{brand.email}</a>.</p>
 
   <h2>Atsisakymas</h2>
   <p>{O2_OFFER.cancelDetails}</p>

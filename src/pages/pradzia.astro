@@ -1,0 +1,142 @@
+---
+/* /pradzia — onboarding form after payment. The Stripe payment link (plink_1Uawp3DXEEwDkLrlZDNkkL6w, 97 €/mėn.)
+   redirects here with ?s=<checkout session id>. Collects what the 7-day launch needs: business name, SMS sender
+   name (≤11 Latin letters/digits), owner name + mobile + email, services, past customers (file or pasted list).
+   Live builds POST to same-origin /t/form as kind=preview_request (the only first-party kinds the Worker/D1 accept;
+   the note starts with "PRADŽIOS FORMA" so the owner alert and CRM row are unambiguous). A pasted customer list is
+   sent as klientai.txt; .csv uploads are re-typed as text/plain (the Worker accepts xls/xlsx/pdf/txt/images).
+   Preview builds validate and send nothing. noindex. */
+import O2Layout from '@layouts/O2Layout.astro';
+import { bookingLive } from '@data/o2-env.js';
+import { brand } from '@data/content.js';
+---
+<O2Layout title="Pradžia – keli duomenys paleidimui | Jarvis Systems" description="Trumpa forma po apmokėjimo: duomenys, kurių reikia paleidimui per 7 dienas." path="/pradzia" noindex>
+  <section class="onb">
+    <p class="cb__ok">Apmokėjimas gautas</p>
+    <h1 class="onb__h">Keli duomenys paleidimui</h1>
+    <p class="onb__lead">Užpildykite formą (~3 min.). Paleidimo 7 dienos skaičiuojamos nuo tada, kai gauname šiuos duomenis.</p>
+    <form class="onb__form" action="/t/form" method="post" enctype="multipart/form-data" data-onb-form data-mode={bookingLive ? 'live' : 'preview'} novalidate>
+      <div class="onb__f">
+        <label for="o-company">Verslo pavadinimas</label>
+        <input id="o-company" name="company" required maxlength="80" autocomplete="organization" />
+        <span class="err" data-err="company"></span>
+      </div>
+      <div class="onb__f">
+        <label for="o-sender">SMS siuntėjo vardas</label>
+        <small id="o-sender-h">Taip klientai matys automatines žinutes. Iki 11 lotyniškų raidžių ar skaičių, be lietuviškų raidžių, pvz. <b>SantJonas</b>.</small>
+        <input id="o-sender" name="sender" required maxlength="11" autocomplete="off" aria-describedby="o-sender-h" />
+        <span class="err" data-err="sender"></span>
+      </div>
+      <div class="onb__f">
+        <label for="o-name">Jūsų vardas</label>
+        <input id="o-name" name="name" required maxlength="60" autocomplete="name" />
+        <span class="err" data-err="name"></span>
+      </div>
+      <div class="onb__f">
+        <label for="o-phone">Jūsų mobilusis</label>
+        <small id="o-phone-h">Į šį numerį peradresuosime skambučius ir siųsime pranešimus.</small>
+        <input id="o-phone" name="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="+370 6xx xxxxx" aria-describedby="o-phone-h" />
+        <span class="err" data-err="phone"></span>
+      </div>
+      <div class="onb__f">
+        <label for="o-email">El. paštas</label>
+        <input id="o-email" name="email" type="email" required autocomplete="email" />
+        <span class="err" data-err="email"></span>
+      </div>
+      <div class="onb__f">
+        <label for="o-services">Paslaugos, kurias teikiate</label>
+        <small id="o-services-h">Po vieną eilutėje, pvz. „Medžių pjovimas“.</small>
+        <textarea id="o-services" name="services_text" required rows="4" maxlength="700" aria-describedby="o-services-h"></textarea>
+        <span class="err" data-err="services_text"></span>
+      </div>
+      <fieldset class="onb__f">
+        <legend>Ankstesni klientai</legend>
+        <small>Jiems galėsime išsiųsti atsiliepimų prašymus ir kampanijas. Įkelkite failą (Excel, CSV, PDF ar ekrano nuotrauką) arba įklijuokite sąrašą: vardas ir telefono numeris eilutėje. Jei sąrašo dar neturite, galite atsiųsti vėliau.</small>
+        <label class="onb__file" for="o-files">Įkelti failą</label>
+        <input id="o-files" name="files" type="file" multiple accept=".xlsx,.xls,.csv,.txt,.pdf,.doc,.docx,image/*" />
+        <label class="sr" for="o-list">Klientų sąrašas</label>
+        <textarea id="o-list" name="customers" rows="5" placeholder={'Jonas +370 600 00000\nRasa +370 611 11111'}></textarea>
+        <span class="err" data-err="files"></span>
+      </fieldset>
+      <label class="hp" aria-hidden="true">Svetainė<input name="website" tabindex="-1" autocomplete="off" /></label>
+      <button class="fnl__cta onb__go" type="submit" disabled>Išsiųsti</button>
+      <p class="status" data-status role="status" aria-live="polite" tabindex="-1"></p>
+    </form>
+    <p class="cb__call">Klausimai: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a> · <a href={brand.emailHref}>{brand.email}</a></p>
+  </section>
+</O2Layout>
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-onb-form]');
+  const LEAD_CODE = /^[ap][23456789abcdefghjkmnpqrstuvwxyz]{4}$/;
+  const OK_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/gif', 'application/pdf', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain'];
+  const MAX_FILE = 10 * 1024 * 1024;
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const go = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    const val = (n: string) => String(new FormData(form).get(n) ?? '').trim();
+    const setErr = (n: string, msg: string) => {
+      form.querySelector(`[name="${n}"]`)?.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      const out = form.querySelector<HTMLElement>(`[data-err="${n}"]`); if (out) out.textContent = msg;
+      return !msg;
+    };
+    // .csv often arrives as text/csv or empty type: re-type it as text/plain, which the Worker accepts.
+    const files = (): File[] | null => {
+      const picked = [...(form.querySelector<HTMLInputElement>('#o-files')?.files ?? [])];
+      const out: File[] = [];
+      for (const f of picked) {
+        const type = /\.csv$/i.test(f.name) || f.type === 'text/csv' ? 'text/plain' : f.type;
+        if (!OK_TYPES.includes(type) || f.size > MAX_FILE) return null;
+        out.push(type === f.type ? f : new File([f], f.name, { type }));
+      }
+      const list = val('customers');
+      if (list) out.push(new File([list], 'klientai.txt', { type: 'text/plain' }));
+      return out.length > 8 ? null : out;
+    };
+    const checks: Record<string, [(v: string) => boolean, string]> = {
+      company: [(v) => [...v].length >= 2 && v.length <= 80, 'Įrašykite verslo pavadinimą.'],
+      sender: [(v) => /^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9 .-]{1,10}$/.test(v), 'Iki 11 lotyniškų raidžių ar skaičių, be ą, č, ę ir pan.'],
+      name: [(v) => [...v].length >= 2 && v.length <= 60, 'Įrašykite vardą.'],
+      phone: [(v) => /^(?:\+370|00370|8)?6\d{7}$/.test(v.replace(/[\s()-]/g, '')), 'Įrašykite mobiliojo numerį, pvz. +370 600 00000.'],
+      email: [(v) => v.length <= 120 && /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/.test(v), 'Patikrinkite el. pašto adresą.'],
+      services_text: [(v) => v.length >= 3, 'Įrašykite bent vieną paslaugą.'],
+    };
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bad = Object.keys(checks).filter((n) => !setErr(n, checks[n][0](val(n)) ? '' : checks[n][1]));
+      const attached = files();
+      if (!setErr('files', attached ? '' : 'Netinkamas failas: iki 8 failų po 10 MB (Excel, CSV, PDF, Word, TXT ar nuotrauka).')) bad.push('files');
+      if (bad.length) { form.querySelector<HTMLElement>(`[name="${bad[0] === 'files' ? 'files' : bad[0]}"]`)?.focus(); return; }
+      if (form.dataset.mode !== 'live') { status.dataset.tone = ''; status.textContent = 'Peržiūra – forma patikrinta, bet neišsiųsta.'; return; }
+      const services = val('services_text').split(/\n+/).map((s) => s.trim()).filter(Boolean);
+      const session = (new URLSearchParams(location.search).get('s') ?? '').replace(/[^A-Za-z0-9_]/g, '').slice(0, 80);
+      let code = ''; try { code = sessionStorage.getItem('o2_r') ?? ''; } catch { /* storage blocked */ }
+      const body = new FormData();
+      body.append('kind', 'preview_request');
+      if (LEAD_CODE.test(code)) body.append('code', code);
+      body.append('name', val('name'));
+      body.append('phone', val('phone'));
+      body.append('email', val('email'));
+      services.slice(0, 12).forEach((s) => body.append('services', s.slice(0, 60)));
+      body.append('standout', ['PRADŽIOS FORMA (po apmokėjimo)', `Verslas: ${val('company')}`, `SMS siuntėjas: ${val('sender')}`,
+        `Paslaugos: ${services.join('; ')}`, `Klientų sąrašas: ${attached!.length ? `${attached!.length} failas(-ai)` : 'atsiųs vėliau'}`,
+        session ? `Stripe sesija: ${session}` : ''].filter(Boolean).join('\n').slice(0, 1000));
+      attached!.forEach((f) => body.append('files', f));
+      body.append('website', val('website'));
+      go.disabled = true; const label = go.textContent; go.textContent = 'Siunčiama…';
+      status.dataset.tone = ''; status.textContent = '';
+      try {
+        const res = await fetch(form.action, { method: 'POST', body, credentials: 'omit' });
+        if (!res.ok) throw new Error(String(res.status));
+        form.querySelectorAll('.onb__f, .onb__go').forEach((el) => el.setAttribute('hidden', ''));
+        status.textContent = 'Ačiū, duomenys gauti. Susisieksime ir pradėsime paleidimą.';
+        status.focus();
+      } catch {
+        status.dataset.tone = 'err';
+        status.textContent = 'Nepavyko išsiųsti. Pabandykite dar kartą arba parašykite el. paštu.';
+      } finally { go.disabled = false; go.textContent = label; }
+    });
+    go.disabled = false;
+  }
+</script>
