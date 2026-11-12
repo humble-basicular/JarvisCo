@@ -47,8 +47,11 @@ interface Cursor {
   high: string;
 }
 
-// Both prefixes land on the proof page: the SMS says "Rezultatai:" (Jarvis 2026-10-18).
-const PREFIXES: Readonly<Record<string, string>> = { a: '/rezultatai', p: '/rezultatai' };
+// a = proof page (SMS says "Rezultatai:", Jarvis 2026-10-18).
+// p = Offer 2 registration link (12 Nov 2026): /p/p2345 -> /registracija?r=p2345. The quiz posts the same
+// code back as callback_request.code, so the CRM maps the registration to its lead. D1 CHECKs allow only
+// a/p, so Offer 2 reuses p (last p-code activity 28 Oct) instead of a new prefix needing a table rebuild.
+const PREFIXES: Readonly<Record<string, string>> = { a: '/rezultatai', p: '/registracija' };
 const CODE = /^[23456789abcdefghjkmnpqrstuvwxyz]{5}$/;
 const TYPES: readonly string[] = ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut', 'preview_cta'];
 const BOT = /facebookexternalhit|whatsapp|telegrambot|slackbot|twitterbot|skypeuripreview|googlebot|bingbot|google-pagerenderer|bot|crawler|spider|preview/i;
