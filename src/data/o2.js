@@ -66,7 +66,7 @@ export const o2 = {
   hero: {
     title: ['Svetainės ir', 'rinkodaros sistemos', 'Jūsų verslui'],
     // Matas 2026-11-13: Stone-style honesty line instead of the feature/price summary.
-    lead: ['Be pasakų – rinkodara nėra raketų mokslas.', 'Jokia agentūra (taip, ir mūsų) neturi stebuklingos formulės visoms Jūsų problemoms. Duosime Jums įrankius laimėti, bet turite įsipareigoti jais naudotis!'],
+    lead: ['Be pasakų – rinkodara nėra raketų mokslas.', 'Jokia agentūra (taip, ir mūsų) neturi stebuklingos formulės visoms Jūsų problemoms. Duosime Jums įrankius laimėti, bet turite įsipareigoti jais naudotis!', 'Be įrengimo mokesčio, su 30 dienų pinigų grąžinimo garantija.'],
     mascotAlt: 'Jarvis Systems talismanas – statybininkas geltona liemene, rankos sukryžiuotos',
   },
   features: {
