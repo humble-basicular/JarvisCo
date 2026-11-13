@@ -116,8 +116,10 @@ const show = (i: number, focus = true) => {
   (cur.querySelector<HTMLElement>('input:not([type=hidden])') ?? cur.querySelector<HTMLElement>('[aria-pressed=true]') ?? cur.querySelector<HTMLElement>('[data-q-pick]'))?.focus();
 };
 let bookOpener: HTMLElement | null = null;
+const registered = () => { try { return sessionStorage.getItem('o2_reg') === '1'; } catch { return false; } };
 document.querySelectorAll<HTMLElement>('[data-book-open]').forEach((o) => o.addEventListener('click', (e) => {
-  if (!bookDlg) return; e.preventDefault();
+  // Gated video (YtFacade gate): once the quiz is done the facade plays it, no dialog.
+  if (!bookDlg || (o.hasAttribute('data-yt-gate') && registered())) return; e.preventDefault();
   // An opener inside the (now closing) menu sheet is not focusable afterwards: return to the menu button.
   bookOpener = menu?.contains(o) ? menuOpener : o;
   bookDlg.showModal();

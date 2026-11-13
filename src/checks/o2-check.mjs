@@ -31,7 +31,9 @@ check(/validPhone = \(v: string\) => \/\^\(\?:\\\+370\|00370\|8\)\?\[3-9\]/.test
 check(/class="pbar"[\s\S]*?>605<[\s\S]*?>31<[\s\S]*?<\/ul>/.test(html) && !/786|betonogaminiai\.lt/.test(html.slice(html.indexOf('class="pbar"'), html.indexOf('</ul>', html.indexOf('class="pbar"')))), 'landing proof bar: Google | 605 | 31 (ArbCut), no Betono');
 const cb = readFileSync('dist/susisieksime/index.html', 'utf8');
 check(cb.includes('>605<') && cb.includes('>31<') && !/786|betonogaminiai/.test(cb) && !/data-cb-time|rytą|vakare/.test(cb), '/susisieksime: ArbCut 605 + 31 proof, no Betono, no contact time');
-check(cb.includes('data-gate data-locked') && cb.includes('href="/registracija"') && cb.includes("sessionStorage.getItem('o2_reg')"), '/susisieksime: video locked until quiz done');
+const gated = (h) => /<button class="yt__btn"[^>]*data-book-open[^>]*data-yt-gate/.test(h) && /<dialog[^>]*data-book-dialog/.test(h);
+check(gated(reg), '/registracija: video click opens the quiz until it is done');
+check(gated(cb) && cb.includes('data-gate data-locked') && !cb.includes('fnl__lock') && cb.includes("sessionStorage.getItem('o2_reg')"), '/susisieksime: same video gate, quiz dialog on page');
 const darbai = readFileSync('dist/musu-darbai/index.html', 'utf8');
 check((darbai.match(/<a href="[^"]+\.webp" data-zoom/g) ?? []).length >= 3 && !/case__gsc"><a[^>]*target="_blank"/.test(darbai) && /data-zoom-dialog/.test(darbai) && /betonogaminiai/.test(darbai), '/musu-darbai: GSC + forms shots open in the lightbox; Betono stays');
 check(!/data-demo-form|Pavyzdys<|Iliustracija\.|Nuotraukos – iliustracijos|Kad nė viena|Septintos neradome|tcard--txt|programele"/.test(html), 'removed demo section, captions, placeholders and rejected copy must stay gone');

@@ -1,11 +1,13 @@
 ---
-/* YouTube facade: our own poster until click, then youtube-nocookie iframe (no YouTube request before click). */
-interface Props { video: { id: string; title: string; poster: string }; class?: string }
-const { video, class: cls } = Astro.props;
+/* YouTube facade: our own poster until click, then youtube-nocookie iframe (no YouTube request before click).
+   `gate` (funnel pages, Matas 2026-11-13): until the quiz is done in this tab (sessionStorage o2_reg=1, set in o2.ts)
+   a click opens the quiz dialog instead (o2.ts handles [data-book-open]); after that it plays. */
+interface Props { video: { id: string; title: string; poster: string }; class?: string; gate?: boolean }
+const { video, class: cls, gate = false } = Astro.props;
 ---
 <figure class:list={['yt', cls]}>
   <div class="yt__box" data-yt={video.id}>
-    <button class="yt__btn" type="button" aria-label={`Paleisti vaizdo įrašą: ${video.title}`}>
+    <button class="yt__btn" type="button" aria-label={`Paleisti vaizdo įrašą: ${video.title}`} data-book-open={gate ? '' : undefined} data-yt-gate={gate ? '' : undefined} aria-haspopup={gate ? 'dialog' : undefined}>
       <img src={video.poster} alt="" width="1280" height="720" loading="lazy" decoding="async" />
       <span class="yt__play" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></span>
     </button>
@@ -15,7 +17,7 @@ const { video, class: cls } = Astro.props;
 <script>
   document.querySelectorAll<HTMLElement>('[data-yt]').forEach((el) => {
     const btn = el.querySelector('button');
-    btn?.addEventListener('click', () => {
+    const play = () => {
       const f = document.createElement('iframe');
       f.src = `https://www.youtube-nocookie.com/embed/${el.dataset.yt}?autoplay=1&rel=0&playsinline=1`;
       f.title = btn.getAttribute('aria-label') ?? 'Vaizdo įrašas';
@@ -23,6 +25,9 @@ const { video, class: cls } = Astro.props;
       f.allowFullscreen = true;
       el.replaceChildren(f);
       f.focus();
-    }, { once: true });
+    };
+    const reg = () => { try { return sessionStorage.getItem('o2_reg') === '1'; } catch { return false; } };
+    const onClick = () => { if (btn?.hasAttribute('data-yt-gate') && !reg()) return; btn?.removeEventListener('click', onClick); play(); };
+    btn?.addEventListener('click', onClick);
   });
 </script>

@@ -574,14 +574,8 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .quiz .status[data-tone=err]{color:#e02424}
 .quiz .book__call a{color:#1a5cff}
 @media (max-width:600px){.quiz{padding:16px 14px 20px}.quiz__x{top:-12px;right:-10px}}
-/* /susisieksime gate: video unlocked only after the quiz (sessionStorage o2_reg, set in o2.ts) */
+/* /susisieksime gate: thank-you line only after the quiz (sessionStorage o2_reg, set in o2.ts) */
 [data-gate][data-locked] [data-unlocked-only],[data-gate]:not([data-locked]) [data-locked-only]{display:none!important}
-.fnl__lock{position:relative;max-width:768px;margin:8px auto 0;border-radius:16px;overflow:hidden;aspect-ratio:16/9}
-.fnl__lock img{width:100%;height:100%;object-fit:cover;filter:blur(14px) brightness(.55)}
-.fnl__lockbox{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:10px;padding:16px;color:#fff;text-align:center}
-.fnl__lockbox p{margin:0;max-width:440px;font-size:17px;line-height:1.4}
-.fnl__lockicon{font-size:34px}
-.fnl__lockbox .fnl__cta{font-size:18px;padding:14px 26px;text-decoration:none}
 /* /pradzia onboarding form */
 .onb{max-width:640px;margin:0 auto;padding:48px 20px 64px}
 .onb__h{font-size:clamp(28px,5vw,40px);line-height:1.15;margin:16px 0 8px}
