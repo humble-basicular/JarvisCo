@@ -102,7 +102,7 @@ const year = new Date().getFullYear();
             <div><h2>{f.colAbout}</h2><ul>{f.about.map(([l, h]) => <li><a href={h}>{l}</a></li>)}</ul></div>
             <div class="ftr__feat"><h2>{f.colFeatures}</h2><ul>{feats.map((it) => <li><a href={it.href}>{it.title}</a></li>)}</ul></div>
           </div>
-          <div class="ftr__legal"><a href="/taisykles">{f.terms}</a><a href="/privatumo-politika">{f.privacy}</a><a href={brand.telHref}>{brand.phone}</a><a href={`mailto:${brand.email}`}>{brand.email}</a></div>
+          <div class="ftr__legal"><a href="/taisykles">{f.terms}</a><a href="/privatumo-politika">{f.privacy}</a><a href={brand.telHref}>{brand.phone}</a><a href={`mailto:${brand.email}`}>{brand.email}</a><span class="ftr__soc">{([["ig", "Instagram", brand.instagram], ["fb", "Facebook", brand.facebook], ["yt", "YouTube", brand.youtube]] as const).map(([i, l, h]) => <a href={h} rel="me noopener" target="_blank" aria-label={`Jarvis Systems ${l}`}><Icon name={i} size={22} /></a>)}</span></div>
           <p class="ftr__copy">© {year} {NAME} · {brand.owner}, {brand.status.toLowerCase()} · {brand.city}, Lietuva</p>
         </div>
       </footer>

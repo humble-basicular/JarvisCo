@@ -282,6 +282,8 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .ftr__feat ul{columns:2;column-gap:40px}
 .ftr__legal{display:flex;gap:16px 24px;flex-wrap:wrap;font-size:16px}
 .ftr__legal a{color:var(--muted);text-decoration:none}.ftr__legal a:hover{color:#fff}
+.ftr__soc{display:flex;gap:16px;margin-left:auto}.ftr__soc a{display:inline-flex}
+@media (max-width:767px){.ftr__soc{margin-left:0;width:100%}}
 .ftr__copy{margin-top:26px;color:var(--muted);font-size:15px}
 @media (max-width:1000px){.ftr__cols{grid-template-columns:1fr 1fr}.ftr__learn{grid-column:1/-1}}
 @media (max-width:600px){.ftr__cols{grid-template-columns:1fr 1fr;gap:32px 20px}.ftr__feat{grid-column:1/-1}.ftr__learn{text-align:center}.ftr__feat ul{columns:1}.ftr .btn{white-space:normal;text-align:center;height:auto;min-height:48px}}

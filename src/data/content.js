@@ -30,7 +30,9 @@ export const brand = {
   emailHref: 'mailto:matas@jarvisweb.lt',
   gbp: 'https://www.google.com/maps/place/JarvisCo/@55.1680551,22.5645915,8z/data=!4m6!3m5!1s0x46e725ccf8f540d9:0x58d0ee5e75771802!8m2!3d55.1736006!4d23.8832615!16s%2Fg%2F11npf5rgkj',
   facebook: 'https://www.facebook.com/profile.php?id=61562921045681',
-  instagram: 'https://www.instagram.com/jarvisworks_co/',
+  // 2026-11-13: account renamed to @jarvissystemslt (old handle no longer resolves); YouTube = demo-video channel.
+  instagram: 'https://www.instagram.com/jarvissystemslt/',
+  youtube: 'https://www.youtube.com/@JarvisSystemsLT',
 };
 
 export const cta = {

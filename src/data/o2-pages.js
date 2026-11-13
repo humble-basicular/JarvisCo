@@ -194,7 +194,7 @@ export const pages = {
     description: `Susisiekite su Jarvis Systems: ${brand.phone}, ${brand.email}. ${brand.city}.`,
     h: ['Kontaktai'],
     lead: 'Greičiausia – užsiregistruoti pokalbiui. Paskambinsime Jums patogiu laiku.',
-    rows: [['Telefonas', brand.phone, brand.telHref], ['El. paštas', brand.email, `mailto:${brand.email}`], ['Vieta', `${brand.city}, Lietuva`, null], ['Veikla', `${brand.owner}, ${brand.status.toLowerCase()}`, null]],
+    rows: [['Telefonas', brand.phone, brand.telHref], ['El. paštas', brand.email, `mailto:${brand.email}`], ['Instagram', '@jarvissystemslt', brand.instagram], ['Facebook', 'Jarvis Systems', brand.facebook], ['YouTube', '@JarvisSystemsLT', brand.youtube], ['Vieta', `${brand.city}, Lietuva`, null], ['Veikla', `${brand.owner}, ${brand.status.toLowerCase()}`, null]],
     app: 'Jau esate klientas? Prisijunkite prie programėlės',
   },
 };
