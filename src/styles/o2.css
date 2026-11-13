@@ -42,7 +42,10 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .menu__x{background:none;border:0;padding:8px;cursor:pointer;color:#000}
 .menu nav{display:grid;gap:4px;margin-bottom:24px}
 .menu nav a{font-weight:600;font-size:20px;text-decoration:none;color:var(--navy);padding:12px 0;border-bottom:1px solid #eee}
-@media (max-width:1240px){.hdr__nav{display:none}.hdr__cta{margin-right:0}.hdr__burger{display:block;margin-left:0}}
+@media (max-width:1240px){.hdr__nav,.o2 .hdr__login{display:none}.hdr__cta{margin-right:0;margin-left:auto}.hdr__burger{display:block;margin-left:0}}
+/* „Prisijungti“ lives in the burger menu once the nav collapses (Matas 2026-11-13). Phone: sticky CTA bar like Stone. */
+.mcta{display:none}
+@media (max-width:767px){.o2 .mcta{display:block;position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--gold);color:#fff;text-align:center;font-weight:700;font-size:20px;line-height:1.2;padding:18px 16px calc(18px + env(safe-area-inset-bottom));text-decoration:none;box-shadow:0 -4px 16px rgba(0,0,0,.12)}.o2 .ftr{padding-bottom:calc(96px + env(safe-area-inset-bottom))}}
 @media (max-width:767px){.hdr__cta,.hdr__login{display:none}.hdr__burger{margin-left:auto}.hdr__logo img{width:170px}}
 
 /* Hero: navy, H1 76.8/1.2 with left rule, lead + CTA row, Google rating row, front mascot right */

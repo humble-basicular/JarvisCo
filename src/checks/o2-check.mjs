@@ -21,7 +21,7 @@ const reg = readFileSync('dist/registracija/index.html', 'utf8');
 // Booking quiz (Matas 2026-11-12): 4 choice slides, then phone → email → name → company, all required; no contact time.
 const steps = [...reg.matchAll(/data-q-step="(\d+)"/g)].map((m) => m[1]);
 check(steps.join() === '0,1,2,3,4,5,6,7', `quiz needs 8 slides in order, got ${steps}`);
-check(['Kam dirbate?', 'Kaip dabar sekasi?', 'Kada norėtumėte tai spręsti?', 'Mėnesio apyvarta?'].every((q) => reg.includes(`>${q}</legend>`)), 'quiz questions Q1–Q4');
+check(['Kam dirbate?', 'Kaip dabar sekasi?', 'Kada norėtumėte tai išspręsti?', 'Mėnesio apyvarta?'].every((q) => reg.includes(`>${q}</legend>`)), 'quiz questions Q1–Q4');
 check((reg.match(/data-q-pick=/g) ?? []).length === 16 && reg.includes('data-q-pick="Neturiu paslaugų verslo"') && reg.includes('data-q-pick="daugiau nei 30 tūkst. €"'), 'four answers per question');
 check([...reg.matchAll(/data-q-field="(\w+)"/g)].map((m) => m[1]).join() === 'phone,email,name,company', 'fields in order phone → email → name → company');
 check(['phone', 'email', 'name', 'company'].every((n) => new RegExp(`<input[^>]*name="${n}"[^>]*required|<input[^>]*required[^>]*name="${n}"`).test(reg)), 'every quiz field is required');

@@ -175,7 +175,7 @@ export const o2 = {
       questions: [
         ['audience', 'Kam dirbate?', ['Gyventojams', 'Įmonėms', 'Abiem', 'Neturiu paslaugų verslo']],
         ['state', 'Kaip dabar sekasi?', ['Trūksta darbų', 'Darbų yra, bet nepastoviai', 'Užimtas, darbų pilna', 'Tik pradedu']],
-        ['when', 'Kada norėtumėte tai spręsti?', ['Iš karto', 'Per 1–2 mėn.', 'Vėliau šiais metais', 'Tik domiuosi']],
+        ['when', 'Kada norėtumėte tai išspręsti?', ['Iš karto', 'Per 1–2 mėn.', 'Vėliau šiais metais', 'Tik domiuosi']],
         ['revenue', 'Mėnesio apyvarta?', ['iki 3 000 €', '3–10 tūkst. €', '10–30 tūkst. €', 'daugiau nei 30 tūkst. €']],
       ],
       // Stone wording: a question heading, a visually hidden label and a placeholder per field.
