@@ -67,6 +67,13 @@ demoDlg?.querySelector('[data-demo-close]')?.addEventListener('click', () => dem
 demoDlg?.addEventListener('click', (e) => { if (e.target === demoDlg) demoDlg.close(); });
 demoDlg?.addEventListener('close', () => { const c = demoSlot?.firstElementChild as HTMLElement | null; if (c && c.tagName !== 'IFRAME') ro?.unobserve(c); demoSlot?.replaceChildren(); demoOpener?.focus(); });
 
+// ---------- Phone sticky CTA: slides in after a bit of scrolling (Stone-style), hides again at the top ----------
+const mcta = document.querySelector<HTMLElement>('.mcta');
+if (mcta) {
+  const tick = () => mcta.classList.toggle('is-on', scrollY > 300);
+  addEventListener('scroll', tick, { passive: true }); tick();
+}
+
 // ---------- 4. Trades carousel ----------
 const track = document.querySelector<HTMLElement>('[data-car-track]');
 document.querySelectorAll<HTMLButtonElement>('[data-car]').forEach((b) => b.addEventListener('click', () => {
