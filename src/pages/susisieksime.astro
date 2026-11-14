@@ -1,7 +1,7 @@
 ---
 /* /susisieksime — copy of Stone's grow.stonesystems.io/we-will-call-you (checked 2026-11-12), shown after the quiz:
    label, headline + price, step 1 = short video with sound, next = we call you (no calendar), proof cards.
-   Stone's video is Kai (56 s); ours is VIDEOS.pokalbis. Name and preview flag come from the query string set by
+   Stone's video is Kai (56 s); ours is VIDEOS.susisieksime (Matas's unlisted video, 2026-11-14). Name and preview flag come from the query string set by
    src/scripts/o2.ts (v=<name>, p=1 in preview builds). Same gate as /registracija (Matas 2026-11-13): until the quiz
    is done in this tab, a click on the video opens the quiz dialog; the thank-you line shows only after it. noindex. */
 import O2Layout from '@layouts/O2Layout.astro';
@@ -19,7 +19,7 @@ import { brand } from '@data/content.js';
     <h1 class="fnl__h">Kaip su AI ir funkcionalia svetaine padedame meistrams augti – tik už</h1>
     <p class="fnl__price fnl__price--blue">{O2_OFFER.monthly}</p>
     <p class="fnl__steps"><b>1 žingsnis:</b> pažiūrėkite šį <u>trumpą video</u> (įjunkite garsą).<br /><b>Toliau:</b> susisieksime su Jumis patys – kalendoriuje rinktis laiko nereikia.</p>
-    <YtFacade video={VIDEOS.pokalbis} class="fnl__vid" gate />
+    <YtFacade video={VIDEOS.susisieksime} class="fnl__vid" gate />
   </section>
   <script is:inline>try{if(sessionStorage.getItem('o2_reg')==='1')document.querySelector('[data-gate]').removeAttribute('data-locked')}catch(e){}</script>
   <FunnelProof />
