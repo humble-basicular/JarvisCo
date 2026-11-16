@@ -180,11 +180,16 @@ assert.equal(STORAGE_KEY, 'jw_proof_code');
 assert.deepEqual(EVENT_TYPES, ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut', 'preview_cta']);
 assert.equal(TRACKING_PREFIXES.a, '/rezultatai');
 const redirects = JSON.parse(readFileSync('vercel.json', 'utf8')).redirects;
-for (const source of ['/arboristams', '/arboristams/']) {
-  check(redirects.some((rule) => rule.source === source && rule.destination === '/rezultatai' && rule.statusCode === 301), `Missing exact 301: ${source}`);
+// 2026-11-16 (4ec2c8eb): legacy website-offer pages 301 straight to their canonical Jarvis Systems page (no chains).
+const LEGACY = { '/arboristams': '/musu-darbai', '/rezultatai': '/musu-darbai', '/svetaines': '/', '/noriu': '/', '/sildymui': '/' };
+for (const [base, destination] of Object.entries(LEGACY)) {
+  for (const source of [base, `${base}/`]) {
+    check(redirects.some((rule) => rule.source === source && rule.destination === destination && rule.statusCode === 301), `Missing exact 301: ${source} -> ${destination}`);
+  }
 }
+check(!redirects.some((rule) => Object.keys(LEGACY).some((b) => rule.destination === b || rule.destination === `${b}/`)), 'Redirect chain: a rule points at a legacy (redirected) page');
 const sitemap = readFileSync('dist/sitemap-0.xml', 'utf8');
-check(sitemap.includes(`${origin}/rezultatai`) && !sitemap.includes('/arboristams'), 'Sitemap routes incorrect');
+check(sitemap.includes(`${origin}/musu-darbai`) && !Object.keys(LEGACY).some((b) => sitemap.includes(`${origin}${b}/`) || sitemap.includes(`${origin}${b}<`)), 'Sitemap routes incorrect (canonical missing or a redirected legacy page listed)');
 check(!/\/(perziura|pavyzdys)\//.test(sitemap), 'Sitemap lists a preview page');
 errors.forEach((error) => console.error(error));
 console.log(`static-check: ${built.length} pages, local links/assets, evidence, forms, tracking and redirect configuration: ${errors.length ? 'FAILED' : 'ok'}`);
