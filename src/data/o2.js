@@ -34,9 +34,9 @@ export const O2_OFFER = {
     'Svetainės sukūrimas ir prijungimas prie sistemos',
     'Optimizavimas Google ir AI paieškai: SEO, AEO ir GEO',
     'Svetainės užklausos – SMS pokalbiai ir pranešimai Jums',
-    'Automatinė žinutė po praleisto skambučio',
+    'Automatinė žinutė po praleisto skambučio ir AI atsakymai klientams iki susitarimo perskambinti',
     'Atsiliepimų prašymai vienu paspaudimu ir automatinis priminimas',
-    'Buvusių klientų susigrąžinimo kampanijos',
+    'Pirmo mėnesio pagalba: atsiliepimai ir kampanijos tikriems buvusiems klientams',
     'Rinkodaros kampanijos vienu paspaudimu',
     'Atskiras žinučių numeris ir viską sujungianti programėlė',
   ],
@@ -98,7 +98,7 @@ export const o2 = {
         quote: 'Skambučių praleidžia visi, bet atrašo ne visi. Būkite tas, kuris atrašo, ir aplenkite konkurentus.',
         points: [
           ['Išsiskirkite iš konkurentų', 'Visi praleidžia skambučius, bet ne visi atrašo. Atrašykite Jūs ir būsite pastebėti.'],
-          ['Nebeprarastos užklausos', 'Dirbate objekte ir negalite atsiliepti? Ne bėda – išsiųsime žinutę ir pradėsime pokalbį už Jus.'],
+          ['Nebeprarastos užklausos', 'Dirbate objekte ir negalite atsiliepti? Ne bėda – išsiųsime žinutę, atsakysime pagal Jūsų patvirtintą informaciją ir susitarsime, kada perskambinsite.'],
           ['Parodykite, kad Jums rūpi', 'Buvusiai antrai pusei nepatiko, kai neatsiliepdavote – klientams irgi. Bent parašykite, kad žinotų: Jums rūpi.'],
           ['Pasiekiami visą parą', 'Praleidote skambutį po darbo? Žinutė išeis ir tada, kai Jūs jau ilsitės.'],
         ],
@@ -134,7 +134,7 @@ export const o2 = {
     steps: [
       ['Pokalbis', '(15–20 min.)', 'Iš tikrųjų tai pardavimo pokalbis – tik nenorėjome Jūsų išgąsdinti. O rimtai: atsakysime į klausimus ir parodysime, kaip sistema veiktų Jūsų versle.'],
       ['Paruošiame visą paketą', '(per 7 dienas)', 'Sukuriame svetainę, optimizuojame ją Google ir AI paieškai, prijungiame užklausas, žinutes, atsiliepimų prašymus ir kampanijas prie vienos programėlės.'],
-      ['Paleidžiame ir parodome', `(${O2_OFFER.monthly})`, 'Kartu patikriname svetainę ir sistemas, parodome programėlę bei atsakome į klausimus. Įrengimo mokesčio nėra, o pilnam paketui taikoma 30 dienų pinigų grąžinimo garantija.'],
+      ['Paleidžiame ir parodome', `(${O2_OFFER.monthly})`, 'Kartu patikriname svetainę ir sistemas, parodome programėlę bei atsakome į klausimus. Pirmą mėnesį aktyviai padedame: pradedame nuo atsiliepimų iš tikrų buvusių klientų. Įrengimo mokesčio nėra, o pilnam paketui taikoma 30 dienų pinigų grąžinimo garantija.'],
     ],
   },
   why: {
@@ -151,7 +151,7 @@ export const o2 = {
   faq: {
     title: 'Dažniausi klausimai',
     items: [
-      { q: 'Kada pamatysiu rezultatus?', a: 'Sistema pradeda veikti nuo paleidimo dienos: užklausa iš svetainės ar praleistas skambutis iškart sulaukia žinutės. Daugiau užsakymų nežadame – ar žmogus taps klientu, vis dar priklauso ir nuo Jūsų.' },
+      { q: 'Kada pamatysiu rezultatus?', a: 'Sistema pradeda veikti nuo paleidimo dienos: užklausa iš svetainės ar praleistas skambutis iškart sulaukia žinutės. Pirmą mėnesį nelaukiame vien naujos svetainės: pradedame nuo Jūsų tikrų buvusių klientų (pirmiausia atsiliepimų prašymai, vėliau tinkami priminimai ar rekomendacijos), o senoms užklausoms, kurios netapo užsakymais, – tik tinkama tolesnė žinutė, be atsiliepimo prašymo. Daugiau užsakymų nežadame – ar žmogus taps klientu, vis dar priklauso ir nuo Jūsų.' },
       { q: 'Kiek kainuoja?', a: `Pilnas paketas kainuoja ${O2_OFFER.monthly} Įrengimo mokesčio nėra, domenas įskaičiuotas. Svetainė, SEO, AEO, GEO, automatinės žinutės, atsiliepimų prašymai, klientų kampanijos ir bendra programėlė įeina į šią kainą. Taikoma 30 dienų pinigų grąžinimo garantija.` },
       { q: 'Kiek SMS įeina?', a: O2_OFFER.smsDetails },
       { q: 'Ar galiu atsisakyti?', a: `Taip, bet kada – prenumerata mėnesinė. Atsisakius viskas išjungiama, taip pat ir svetainė. ${O2_OFFER.keepSite}` },
@@ -161,7 +161,7 @@ export const o2 = {
       { q: 'Kam to reikia, jei klientų atveda rekomendacijos?', a: 'Rekomenduotas žmogus vis tiek pirmiausia paskambina ar parašo. Sistema pasirūpina, kad toks skambutis ar užklausa neliktų be atsakymo, o laimingi klientai būtų paprašyti atsiliepimo.' },
       { q: 'Ar už svetainę ir SEO reikės mokėti papildomai?', a: `Ne. Svetainė ir SEO, AEO bei GEO optimizavimas yra pilno ${O2_OFFER.monthly} paketo dalis, kartu su užklausų, žinučių, atsiliepimų ir kampanijų sistemomis.` },
       { q: 'Ar pasikeis mano numeris?', a: 'Ne. Jūsų numeris lieka visur, kur yra dabar, ir klientams skambinate iš jo. Kai neatsiliepiate, operatorius skambutį nukreipia į sistemą, o žinutės klientams išeina iš atskiro sistemos numerio. Nutraukus paslaugą tereikia išjungti nukreipimą.' },
-      { q: 'Ar veiks mano telefone? Ar atsako robotas?', a: 'Taip, ir iPhone, ir Android: programėlė atsidaro naršyklėje ir įsidiegia į telefono ekraną. Automatinė yra tik pirma žinutė – toliau su klientu rašote Jūs, kaip įprastai.' },
+      { q: 'Ar veiks mano telefone? Ar atsako robotas?', a: 'Taip, ir iPhone, ir Android: programėlė atsidaro naršyklėje ir įsidiegia į telefono ekraną. Į kliento žinutes automatiškai atsako AI asistentas: tik pagal Jūsų patvirtintą verslo informaciją ir kainas, klausia tik trūkstamų detalių ir susitaria, kada perskambinsite. Jums ateina vienas trumpas pranešimas su kliento numeriu ir sutartu laiku, o perskambinate iš savo numerio. Paklaustas asistentas neslepia, kad yra AI, o pokalbį bet kada galite perimti patys.' },
     ],
   },
   talk: {

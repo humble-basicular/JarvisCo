@@ -147,9 +147,9 @@ const conf = Array.from({ length: 26 }, (_, i) => ({ x: (i * 53) % 360 + 10, y: 
           <div class="sms__who"><span class="av"><img src={B.logo} width="500" height="284" alt="" loading="lazy" /></span>{B.name}</div>
           <div class="sms">
             <p class={`bb bb--dots bb--out ${k.d1}`}><i></i><i></i><i></i></p>
-            <p class={`bb bb--out ${k.b1}`}>Sveiki, Jonai! Čia Dailius ir ko. Gavome Jūsų užklausą dėl šulinio žiedų – netrukus atsakysime dėl kainos su pristatymu. Gal turite klausimų?</p>
+            <p class={`bb bb--out ${k.b1}`}>Sveiki, Jonai! Čia Dailius ir Ko. Ačiū už užklausą dėl šulinio žiedų. Kainą su pristatymu paskaičiuosime pagal adresą – kur vežti ir kada Jums perskambinti?</p>
             <p class={`bb bb--dots bb--in ${k.d2}`}><i></i><i></i><i></i></p>
-            <p class={`bb bb--in ${k.b2}`}>Ačiū už greitą atsakymą! Kol kas klausimų nėra, laukiu skambučio.</p>
+            <p class={`bb bb--in ${k.b2}`}>Į Jonavą, adresą parašysiu. Patogu po 16 val.</p>
           </div>
         </>)}
         {kind === 'reviews' && (<>
@@ -175,9 +175,9 @@ const conf = Array.from({ length: 26 }, (_, i) => ({ x: (i * 53) % 360 + 10, y: 
             <div class="call__sl"><span>slinkite, kad atsilieptumėte</span><i class={k.ring}><svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" fill="#fff" /></svg></i></div>
           </div>
           <div class="sms sms--top">
-            <p class={`bb bb--out bb--wide ${k.b1}`}>Sveiki! Atsiprašau, kad nespėjau atsiliepti – esu objekte. Parašykite, ko reikia, arba užpildykite užklausą svetainėje. Perskambinsiu, kai tik galėsiu.</p>
+            <p class={`bb bb--out bb--wide ${k.b1}`}>Sveiki, čia Dailius ir Ko. Praleidome Jūsų skambutį. Kuo galime padėti?</p>
             <p class={`bb bb--dots bb--in ${k.d2}`}><i></i><i></i><i></i></p>
-            <p class={`bb bb--in bb--wide ${k.b2}`}>Ačiū už greitą atsakymą! Jau užpildžiau užklausą svetainėje. Lauksiu skambučio.</p>
+            <p class={`bb bb--in bb--wide ${k.b2}`}>Reikėtų šulinio žiedų su pristatymu. Kiek kainuotų?</p>
           </div>
         </>)}
         {kind === 'campaign' && (<>
