@@ -3,7 +3,7 @@
    one-click review requests, reactivation/marketing campaigns and connected app.
    30-day money-back guarantee replaces first-five / 50 € setup / free-trial offer.
    User3: guarantee starts with the first 97 € payment.
-   User4 (2026-11-09): refund 60 % of the first payment (58,20 €); ~25 € setup is a fixed cost.
+   User4 (2026-11-09): Historical60% superseded16Nov2026 (4ec2c8eb): refund50% of first97€ payment =48,50€; time is excluded from cash costs.
    Do not invent refund restrictions,
    usage caps, unlimited messaging, billing mechanics or promised search/AI results.
    Accepted Stone design, real proof and verified Betono media remain unchanged.
@@ -20,7 +20,7 @@ export const APP_URL = 'https://jarvisweb-sistema.jarvisworks-co.workers.dev/';
 export const O2_OFFER = {
   price: '97 €', per: '/mėn.', monthly: '97 €/mėn.',
   guarantee: '30 dienų pinigų grąžinimo garantija',
-  guaranteeDetails: '30 dienų skaičiuojame nuo pirmo 97 € mokėjimo. Per šį laikotarpį paprašius grąžinti pinigus, grąžiname 60 % pirmo mokėjimo (58,20 €). Likusi dalis padengia jau atliktus paleidimo darbus.',
+  guaranteeDetails: '30 dienų skaičiuojame nuo pirmo 97 € mokėjimo. Per šį laikotarpį paprašius grąžinti pinigus, grąžiname 50 % pirmo mokėjimo (48,50 €). Likusi dalis padengia jau atliktus paleidimo darbus.',
   setup: 'Be įrengimo mokesčio',
   launch: 'Paleidžiame per 7 dienas',
   cancel: 'Atsisakyti galite bet kada',
