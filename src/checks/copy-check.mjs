@@ -66,7 +66,8 @@ const O2_SUBPAGES = ['funkcijos', ...['funkcionali-svetaine', 'atsiliepimu-rinki
 const O2_PAGES = new Set(['index.html', 'taisykles/index.html', 'privatumo-politika/index.html', '404.html', 'pavyzdys/pokalbis/index.html', ...O2_SUBPAGES]);
 const o2Banned = [
   /197\s?€/u, /\b49\s?€/u, /39\s?€/u,                 // current O2 offer: one full 97 €/month package
-  /50\s?€|pirm(?:iems|iesiems)\s+5|30\s+(?:dienų|d\.)\s+nemokamai|tik\s+(?:jei|pasakę)[^.]*tęsi/iu, // superseded pilot terms
+  /(?<![\d,.])50\s?€|pirm(?:iems|iesiems)\s+5|30\s+(?:dienų|d\.)\s+nemokamai|tik\s+(?:jei|pasakę)[^.]*tęsi/iu, // superseded pilot terms
+  /58,20\s?€|60\s?%\s+pirm/iu,                       // superseded 60 % refund (16 Nov 2026, 4ec2c8eb: now 50 % = 48,50 €)
   /garantuoj(?:ame|u)\b/iu,                           // no result guarantees ("Ar garantuojate" question stays allowed)
   /penkių žvaigždučių|tik geri atsiliepim/iu,        // review filter decided 2026-11-10 (OFFER.md §1); still no 'only good reviews' claim
   /revoliucin|geriausi|dirbtin\w+ intelekt|\bDI\b/iu,
