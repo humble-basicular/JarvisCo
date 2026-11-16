@@ -16,10 +16,10 @@ export const FEATURE_PAGES = {
     ],
     how: [
       ['Klientas užpildo formą', 'Vardas, telefonas, el. paštas ir ko reikia – tiek, kiek klausia Jūsų forma.'],
-      ['Atsako AI asistentas', 'Žinutė iš atskiro žinučių numerio prasideda Jūsų verslo vardu ir atsako į kliento klausimą pagal Jūsų patvirtintą informaciją ir kainas, jei jos žinomos.'],
-      ['Perskambinate Jūs', 'Asistentas klausia tik trūkstamų detalių ir susitaria dėl perskambinimo. Jūs gaunate vieną pranešimą, o pokalbį programėlėje galite perimti bet kada.'],
+      ['Atsako AI asistentas', 'Žinutė iš atskiro žinučių numerio prasideda Jūsų verslo vardu ir atsako į kliento klausimą pagal Jūsų patvirtintus svetainės faktus ir joje nurodytas kainas, jei jos žinomos.'],
+      ['Perskambinate Jūs', 'Asistentas klausia tik trūkstamų detalių ir susitaria dėl perskambinimo. Jūs gaunate vieną pranešimą ir perskambinate iš savo numerio, o pokalbį programėlėje galite perimti bet kada.'],
     ],
-    note: 'Animacija ir ekrano kopija yra demonstracija: realios „Dailius ir ko“ svetainės naujausia versija, forma neišsiunčia duomenų.',
+    note: 'AI ir dvipusės SMS dar ruošiamos ir tikrinamos. Animacija ir ekrano kopija yra demonstracija: realios „Dailius ir ko“ svetainės naujausia versija, forma neišsiunčia duomenų.',
     shot: true,
   },
   'atsiliepimai-sistema': {
@@ -48,7 +48,7 @@ export const FEATURE_PAGES = {
     how: [
       ['Kažkas skambina', 'Žmogus skambina Jūsų numeriu, kaip įprastai.'],
       ['Neatsiliepiate', 'Operatorius skambutį nukreipia į sistemą, ir iš atskiro žinučių numerio žmogui išeina trumpa žinutė, prasidedanti Jūsų verslo vardu.'],
-      ['Perskambinate sutartu laiku', 'AI asistentas atsako pagal Jūsų patvirtintą informaciją, klausia trūkstamų detalių ir susitaria dėl perskambinimo. Gaunate vieną pranešimą ir perskambinate iš savo numerio.'],
+      ['Perskambinate sutartu laiku', 'AI asistentas atsako pagal Jūsų patvirtintus svetainės faktus, klausia trūkstamų detalių ir susitaria dėl perskambinimo. Gaunate vieną pranešimą ir perskambinate iš savo numerio.'],
     ],
     note: 'SMS paslaugų teikėjas dar neaktyvuotas: animacija rodo, kaip veiks, o ne išsiųstas žinutes.',
   },
@@ -65,7 +65,7 @@ export const FEATURE_PAGES = {
       ['Peržiūra ir laikas', 'Galite paleisti iškart, suplanuoti arba atšaukti prieš išsiunčiant.'],
       ['Atsakymai – programėlėje', 'Atrašę klientai patenka į tą patį pokalbių sąrašą.'],
     ],
-    note: 'Kampanijų rezultatų nežadame: kiek žmonių atsilieps, priklauso nuo pasiūlymo ir Jūsų klientų.',
+    note: 'Tai planuojamas veikimas: realus kampanijų siuntimas ir palaipsnis išsiuntimas dar nepatikrinti. Kampanijų rezultatų nežadame: kiek žmonių atsilieps, priklauso nuo pasiūlymo ir Jūsų klientų.',
   },
   seo: {
     slug: 'vietinis-seo',
