@@ -273,3 +273,5 @@ Public-workflow-copy review1 CHANGESREQUESTED: neutralize free-preview CTA/title
 16 Nov · Stage3 review/acceptance · Codex gpt-6.1-sol high · thread2bd2e90d for lead4ec2c8eb · sole site writer after Claude release02fd705; owns focused fixes/checks/acceptance artifacts. No deploy.
 
 16 Nov · Stage3 review completed · Codex thread2bd2e90d · fixes55aa150 +4ea42c7; build/copy/JS/static PASS, 20 page screenshots + focused phone captures, 36 Vercel-local redirect cases PASS; overlay83/83 production-build bytes and318 referenced assets identical; public bytes normalize only CF email protection. Approved for local preparation, no deploy; source ownership released to lead4ec2c8eb.
+
+16 Nov · Stage5 fix round · Codex c87ae915 for lead4ec2c8eb · COMPLETE: F7 Footer.astro direct /musu-darbai link; build/copy/JS/static PASS. Ownership released to lead; no merge/deploy.
