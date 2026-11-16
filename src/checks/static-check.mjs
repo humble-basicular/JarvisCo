@@ -174,12 +174,13 @@ for (const [route, page] of routes) {
 }
 check(routes.has('/pavyzdys/sildymas'), 'Missing /pavyzdys/sildymas');
 assert.equal(FORM_ENDPOINT, '/t/form');
-assert.equal(TRACKING_PREFIXES.p, '/rezultatai');
 assert.equal(BEACON_ENDPOINT, '/t/e');
 assert.equal(STORAGE_KEY, 'jw_proof_code');
 assert.deepEqual(EVENT_TYPES, ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut', 'preview_cta']);
-assert.equal(TRACKING_PREFIXES.a, '/rezultatai');
-const redirects = JSON.parse(readFileSync('vercel.json', 'utf8')).redirects;
+assert.deepEqual(TRACKING_PREFIXES, { a: '/musu-darbai', p: '/musu-darbai' });
+const redirectConfig = JSON.parse(readFileSync('vercel.json', 'utf8'));
+const redirects = JSON.parse(readFileSync(redirectConfig.bulkRedirectsPath, 'utf8'));
+check(redirects.every((rule) => rule.preserveQueryParams === true), 'Legacy redirects must preserve proof/attribution query strings');
 // 2026-11-16 (4ec2c8eb): legacy website-offer pages 301 straight to their canonical Jarvis Systems page (no chains).
 const LEGACY = { '/arboristams': '/musu-darbai', '/rezultatai': '/musu-darbai', '/svetaines': '/', '/noriu': '/', '/sildymui': '/' };
 for (const [base, destination] of Object.entries(LEGACY)) {

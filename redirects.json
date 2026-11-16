@@ -1,0 +1,74 @@
+[
+  {
+    "source": "/svetaines",
+    "destination": "/",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/svetaines/",
+    "destination": "/",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/noriu",
+    "destination": "/",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/noriu/",
+    "destination": "/",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/sildymui",
+    "destination": "/",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/sildymui/",
+    "destination": "/",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/rezultatai",
+    "destination": "/musu-darbai",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/rezultatai/",
+    "destination": "/musu-darbai",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/arboristams",
+    "destination": "/musu-darbai",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/arboristams/",
+    "destination": "/musu-darbai",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/salygos",
+    "destination": "/taisykles",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  },
+  {
+    "source": "/salygos/",
+    "destination": "/taisykles",
+    "statusCode": 301,
+    "preserveQueryParams": true
+  }
+]
