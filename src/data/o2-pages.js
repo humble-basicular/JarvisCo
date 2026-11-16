@@ -42,12 +42,12 @@ export const FEATURE_PAGES = {
     lead: 'Nespėjote atsiliepti? Skambinusiam žmogui išeina žinutė, ir pokalbis prasideda be Jūsų.',
     facts: [
       ['Žinutė po praleisto skambučio', 'Skambinęs žmogus gauna SMS, kad perskambinsite arba kad gali parašyti.'],
-      ['Jūsų numeris lieka', 'Papildomai gaunate verslo numerį, kurį skelbiate ten, kur norite užklausų.'],
+      ['Jūsų numeris lieka', 'Niekur nieko keisti nereikia: klientai skambina Jūsų numeriu, kaip ir dabar.'],
       ['Ir po darbo', 'Žinutė išeina ir tada, kai jau ilsitės.'],
     ],
     how: [
-      ['Kažkas skambina', 'Skambutis ateina į verslo numerį ir peradresuojamas Jums.'],
-      ['Neatsiliepiate', 'Sistema išsiunčia trumpą žinutę Jūsų vardu.'],
+      ['Kažkas skambina', 'Žmogus skambina Jūsų numeriu, kaip įprastai.'],
+      ['Neatsiliepiate', 'Operatorius skambutį nukreipia į sistemą, ir žmogui išeina trumpa žinutė Jūsų verslo vardu.'],
       ['Atsakote, kai galite', 'Atsakymą matote programėlėje ir tęsiate pokalbį.'],
     ],
     note: 'SMS paslaugų teikėjas dar neaktyvuotas: animacija rodo, kaip veiks, o ne išsiųstas žinutes.',
@@ -119,7 +119,7 @@ export const pages = {
     description: 'Mūsų Google verslo profilis ir atlikti darbai, kuriuos galite patikrinti patys.',
     h: ['Atsiliepimai'],
     lead: 'Esame nauji, todėl atsiliepimų kol kas mažai. Neišpūsime jų ir nekursime pavyzdinių.',
-    profile: 'JarvisCo Google verslo profilis',
+    profile: 'Jarvis Systems Google verslo profilis',
     profileMore: 'Atidaryti Google',
     work: ['Daugiau nei žodžiai – atlikti darbai', 'Svetainės, formų užklausos ir paieškos duomenys su datomis.', 'Žiūrėti darbus'],
     system: ['Norite daugiau atsiliepimų sau?', 'Atsiliepimų rinkimo sistema klientams išsiunčia nuorodą į Jūsų Google profilį.', 'Kaip tai veikia'],
@@ -181,7 +181,7 @@ export const pages = {
     description: `Pokalbis, svetainės ir sistemų paruošimas, bendras paleidimas. Pilnas paketas – ${O2_OFFER.monthly}, su 30 dienų pinigų grąžinimo garantija.`,
     h: ['Kaip dirbame'],
     lead: 'Nuo pirmo pokalbio iki veikiančios svetainės ir klientų sistemų – trys žingsniai.',
-    need: ['Ko reikės iš Jūsų', ['Pagrindinė informacija apie verslą ir paslaugas', 'Turimos svetainės ir domeno prieigos, jei juos jau turite', 'Telefono numeris, į kurį peradresuosime skambučius', 'Jūsų patvirtinimas SMS tekstams prieš paleidimą']],
+    need: ['Ko reikės iš Jūsų', ['Pagrindinė informacija apie verslą ir paslaugas', 'Turimos svetainės ir domeno prieigos, jei juos jau turite', 'Jūsų telefono numeris (skambučių nukreipimą nustatysime kartu)', 'Jūsų patvirtinimas SMS tekstams prieš paleidimą']],
   },
   sritys: {
     title: 'Sritys – Jarvis Systems',

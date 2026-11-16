@@ -5,7 +5,7 @@ import LegalPage from '@components/LegalPage.astro';
 import { brand } from '@data/content.js';
 import { O2_OFFER } from '@data/o2.js';
 ---
-<LegalPage title="Taisyklės" description="Jarvis Systems paslaugos sąlygos: kaina, SMS, garantija, atsisakymas ir svetainės išsipirkimas." updated="2026-11-12">
+<LegalPage path="/taisykles" title="Taisyklės" description="Jarvis Systems paslaugos sąlygos: kaina, SMS, garantija, atsisakymas ir svetainės išsipirkimas." updated="2026-11-16">
   <h2>Kas teikia paslaugą</h2>
   <p>
     {brand.owner}, {brand.status.toLowerCase()} (individualios veiklos pažyma Nr. 1509154), {brand.city}.
@@ -23,7 +23,7 @@ import { O2_OFFER } from '@data/o2.js';
 
   <h2>SMS žinutės</h2>
   <p>{O2_OFFER.smsDetails}</p>
-  <p>Automatinės žinutės (po praleisto skambučio, po užklausos, atsiliepimų prašymai, kampanijos) siunčiamos Jūsų verslo vardu. Žinutes, kurias rašote patys, klientas gauna iš Jūsų verslo numerio.</p>
+  <p>Automatinės žinutės (po praleisto skambučio, po užklausos, atsiliepimų prašymai, kampanijos) siunčiamos iš atskiro sistemos žinučių numerio ir prasideda Jūsų verslo vardu. Klientui galite atsakyti programėlėje (žinutė išeis iš to paties numerio) arba perskambinti iš savo numerio.</p>
 
   <h2>Pinigų grąžinimo garantija</h2>
   <p>{O2_OFFER.guaranteeDetails}</p>

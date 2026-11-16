@@ -54,7 +54,7 @@ const headings = new Map([
 const required = new Map([...headings].map(([path, title]) => [path, [...v4Shared, title]]));
 // Honest wording rule (plan §1): every "0 €" is followed by its limit, and the page names the domain fee.
 const ZERO = /(?<![\d,.])0\s?€/gu;
-const V4_PAGES = new Set(['svetaines/index.html', 'sildymui/index.html', 'noriu/index.html', 'rezultatai/index.html', '404.html']);
+const V4_PAGES = new Set(['svetaines/index.html', 'sildymui/index.html', 'noriu/index.html', 'rezultatai/index.html']);
 // Offer2 homepage (index.html, 2026-11-05): its own claims rules. It legitimately talks about missed calls,
 // automatic SMS and Google reviews, so the website-offer bans above do not apply to it.
 // USER13 (2026-11-08): the separate Jarvis Systems pages share the homepage's facts and therefore its rules —
@@ -62,7 +62,8 @@ const V4_PAGES = new Set(['svetaines/index.html', 'sildymui/index.html', 'noriu/
 const O2_SUBPAGES = ['funkcijos', ...['funkcionali-svetaine', 'atsiliepimu-rinkimas', 'praleistas-skambutis', 'kampanijos', 'vietinis-seo'].map((s) => `funkcijos/${s}`),
   'kainos', 'atsiliepimai', 'musu-darbai', 'apie', 'kaip-dirbame', 'sritys', 'kontaktai', 'susisieksime', 'registracija', 'pradzia'].map((r) => `${r}/index.html`);
 // Shared terms now describe the same full O2 package; legacy content pages retain their own rules.
-const O2_PAGES = new Set(['index.html', 'taisykles/index.html', 'pavyzdys/pokalbis/index.html', ...O2_SUBPAGES]);
+// 2026-11-16 (75d538b2): 404 and privacy moved into the O2 shell (its nav/footer name the features), so O2 rules apply.
+const O2_PAGES = new Set(['index.html', 'taisykles/index.html', 'privatumo-politika/index.html', '404.html', 'pavyzdys/pokalbis/index.html', ...O2_SUBPAGES]);
 const o2Banned = [
   /197\s?€/u, /\b49\s?€/u, /39\s?€/u,                 // current O2 offer: one full 97 €/month package
   /50\s?€|pirm(?:iems|iesiems)\s+5|30\s+(?:dienų|d\.)\s+nemokamai|tik\s+(?:jei|pasakę)[^.]*tęsi/iu, // superseded pilot terms

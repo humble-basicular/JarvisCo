@@ -28,7 +28,7 @@ export const brand = {
   smsHref: `sms:${PHONE_E164}?&body=${encodeURIComponent(SMS_BODY)}`,
   email: 'matas@jarvisweb.lt',
   emailHref: 'mailto:matas@jarvisweb.lt',
-  gbp: 'https://www.google.com/maps/place/JarvisCo/@55.1680551,22.5645915,8z/data=!4m6!3m5!1s0x46e725ccf8f540d9:0x58d0ee5e75771802!8m2!3d55.1736006!4d23.8832615!16s%2Fg%2F11npf5rgkj',
+  gbp: 'https://www.google.com/maps/place/Jarvis+Systems/@55.1680551,22.5645915,8z/data=!4m6!3m5!1s0x46e725ccf8f540d9:0x58d0ee5e75771802!8m2!3d55.1736006!4d23.8832615!16s%2Fg%2F11npf5rgkj',
   facebook: 'https://www.facebook.com/profile.php?id=61562921045681',
   // 2026-11-13: account renamed to @jarvissystemslt (old handle no longer resolves); YouTube = demo-video channel.
   instagram: 'https://www.instagram.com/jarvissystemslt/',

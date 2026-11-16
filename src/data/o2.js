@@ -29,7 +29,7 @@ export const O2_OFFER = {
   smsDetails: 'Į kainą įskaičiuota 100 SMS per mėnesį. Kiekviena papildoma SMS kainuoja 0,08 € ir pridedama prie tos pačios mėnesio sąskaitos. Ilga žinutė arba žinutė su lietuviškomis raidėmis gali būti skaičiuojama kaip kelios SMS.',
   cancelDetails: 'Prenumerata mėnesinė, atsisakyti galite bet kada. Atsisakius viskas išjungiama, taip pat ir svetainė.',
   keepSite: 'Jei norite pasilikti svetainę, ją galite išsipirkti už 999 € vienkartinai. Svetainė lieka be sistemų, su paprasta el. pašto forma.',
-  number: 'Verslo numeris išjungiamas ir neperduodamas. Jūsų paties numeris niekada nesikeičia, todėl Google ir kitur tiesiog vėl nurodote jį.',
+  number: 'Sistemos numeriai išjungiami ir neperduodami. Jūsų paties numeris niekada nesikeičia – tereikia išjungti skambučių nukreipimą.',
   includes: [
     'Svetainės sukūrimas ir prijungimas prie sistemos',
     'Optimizavimas Google ir AI paieškai: SEO, AEO ir GEO',
@@ -38,7 +38,7 @@ export const O2_OFFER = {
     'Atsiliepimų prašymai vienu paspaudimu ir automatinis priminimas',
     'Buvusių klientų susigrąžinimo kampanijos',
     'Rinkodaros kampanijos vienu paspaudimu',
-    'Verslo numeris ir viską sujungianti programėlė',
+    'Atskiras žinučių numeris ir viską sujungianti programėlė',
   ],
 };
 export const GOOGLE = { rating: '5,0', count: '1 atsiliepimas', url: brand.gbp };
@@ -160,7 +160,7 @@ export const o2 = {
       { q: 'Ar įeina optimizavimas Google ir AI paieškai?', a: 'Taip. Į paketą įeina svetainė ir jos optimizavimas Google bei vietinei paieškai (SEO), aiškiems atsakymams į klientų klausimus (AEO) ir generatyvinei AI paieškai (GEO). Konkreti pozicija Google ar paminėjimas AI atsakyme nėra garantuojami.' },
       { q: 'Kam to reikia, jei klientų atveda rekomendacijos?', a: 'Rekomenduotas žmogus vis tiek pirmiausia paskambina ar parašo. Sistema pasirūpina, kad toks skambutis ar užklausa neliktų be atsakymo, o laimingi klientai būtų paprašyti atsiliepimo.' },
       { q: 'Ar už svetainę ir SEO reikės mokėti papildomai?', a: `Ne. Svetainė ir SEO, AEO bei GEO optimizavimas yra pilno ${O2_OFFER.monthly} paketo dalis, kartu su užklausų, žinučių, atsiliepimų ir kampanijų sistemomis.` },
-      { q: 'Ar pasikeis mano numeris?', a: 'Ne. Jūsų telefonas ir numeris lieka. Papildomai gaunate verslo numerį, kurį skelbiate ten, kur norite gauti užklausų. Nutraukus paslaugą verslo numeris išjungiamas ir neperduodamas, o skelbimuose vėl nurodote savo numerį.' },
+      { q: 'Ar pasikeis mano numeris?', a: 'Ne. Jūsų numeris lieka visur, kur yra dabar, ir klientams skambinate iš jo. Kai neatsiliepiate, operatorius skambutį nukreipia į sistemą, o žinutės klientams išeina iš atskiro sistemos numerio. Nutraukus paslaugą tereikia išjungti nukreipimą.' },
       { q: 'Ar veiks mano telefone? Ar atsako robotas?', a: 'Taip, ir iPhone, ir Android: programėlė atsidaro naršyklėje ir įsidiegia į telefono ekraną. Automatinė yra tik pirma žinutė – toliau su klientu rašote Jūs, kaip įprastai.' },
     ],
   },

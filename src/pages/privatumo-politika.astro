@@ -2,19 +2,19 @@
 import LegalPage from '@components/LegalPage.astro';
 import { brand } from '@data/content.js';
 ---
-<LegalPage title="Privatumo politika" description="Kokius duomenis renka jarvisweb.lt, kam jie naudojami ir kiek laiko saugomi." updated="2026-10-11">
+<LegalPage path="/privatumo-politika" title="Privatumo politika" description="Kokius duomenis renka jarvisweb.lt, kam jie naudojami ir kiek laiko saugomi." updated="2026-11-16">
   <h2>Kas tvarko duomenis</h2>
   <p>
     {brand.owner}, {brand.status.toLowerCase()}, {brand.city}. El. paštas
     <a href={brand.emailHref}>{brand.email}</a>, tel. <a href={brand.telHref}>{brand.phone}</a>.
   </p>
 
-  <h2>Užklausos forma</h2>
+  <h2>Registracijos pokalbiui forma</h2>
   <p>
-    Kai pateikiate formą, gaunu Jūsų vardą, telefono numerį, el. pašto adresą ir žinutę. Juos naudoju tik
-    atsakyti į Jūsų užklausą ir tartis dėl svetainės. Pagrindas – Jūsų prašymas prieš sudarant sutartį.
-    Forma veikia per paslaugą Web3Forms, kuri užklausą persiunčia man el. paštu. Duomenis saugau tiek, kiek
-    reikia bendrauti dėl užklausos.
+    Kai užpildote registracijos pokalbiui formą, gaunu Jūsų atsakymus į jos klausimus apie verslą, vardą, įmonę,
+    telefono numerį ir el. pašto adresą. Juos naudoju tik tam, kad susisiekčiau ir susitartume dėl pokalbio.
+    Pagrindas – Jūsų prašymas prieš sudarant sutartį. Jei atėjote per asmeninę nuorodą iš SMS, prie formos
+    pridedamas ir tos nuorodos kodas.
   </p>
 
   <h2>Asmeninės nuorodos iš SMS</h2>
@@ -25,7 +25,7 @@ import { brand } from '@data/content.js';
   <ul>
     <li>kodą ir laiką (UTC), kada nuoroda atidaryta;</li>
     <li>ar atidarė žmogus, ar automatinė nuorodų peržiūros programa (vien šis požymis, ne visas naršyklės aprašas);</li>
-    <li>kuriuos veiksmus atlikote puslapyje: ar puslapis buvo parodytas, ar peržiūrėjote rezultatus, ar spaudėte „Parašyti SMS“, „Skambinti“, „Taip, noriu nemokamos peržiūros“, PDF atsisiuntimą ar nuorodą į arbcut.lt.</li>
+    <li>kuriuos veiksmus atlikote puslapyje (pvz. ar puslapis buvo parodytas, ar spaudėte „Skambinti“, „Parašyti SMS“ ar „Užsiregistruoti pokalbiui“).</li>
   </ul>
   <p>
     IP adreso ir viso naršyklės aprašo nesaugau. Slapukų nenaudoju. Kodas apsilankymo metu laikomas tik Jūsų
@@ -37,26 +37,19 @@ import { brand } from '@data/content.js';
     numeriu {brand.phone} – įrašus ištrinsiu.
   </p>
 
-  <!-- DRAFT 2026-10-14 (funnel spec §9): needs Jarvis's approval before the
-       preview form goes live in production. Update `updated` above on approval. -->
-  <h2>Nemokamos peržiūros forma ir failai</h2>
+  <h2>Paleidimo forma (klientams)</h2>
   <p>
-    Kai pateikiate nemokamos peržiūros formą, gaunu tai, ką joje įrašote ar pasirenkate: vardą, telefono numerį
-    ar el. paštą (jei juos nurodote), paslaugas, vietoves, ar galiu naudoti Jūsų darbų nuotraukas, kuo išsiskiriate, kada
-    patogu susisiekti, ir pridėtus failus (pvz. darbų nuotraukas, logotipą, kainoraštį). Jei atėjote per
-    asmeninę nuorodą iš SMS, prie formos pridedamas ir tos nuorodos kodas. Jei paskutiniame žingsnyje
-    paspaudžiate „Paskambinkite man“, gaunu prašymą paskambinti ir visus Jūsų atsakymus.
+    Po pirmo mokėjimo užpildote paleidimo formą: informaciją apie verslą ir paslaugas, kontaktus ir, jei norite,
+    failus (pvz. darbų nuotraukas, logotipą, kainoraštį). Šiuos duomenis naudoju tik Jūsų svetainei ir sistemoms
+    paruošti ir paleisti. Pagrindas – sutarties vykdymas.
   </p>
+
+  <h2>Kur saugomi formų duomenys</h2>
   <p>
-    Šiuos duomenis ir failus naudoju tik tam, kad paruoščiau Jūsų svetainės peržiūrą, ją Jums atsiųsčiau ir
-    susisiekčiau dėl jos. Jūsų darbų nuotraukas peržiūroje naudoju tik tada, jei formoje tam pritarėte arba
-    jas atsiuntėte patys. Pagrindas – Jūsų prašymas prieš sudarant sutartį.
-  </p>
-  <p>
-    Forma ir failai saugomi Cloudflare serveriuose (Cloudflare Workers). Ten jie ištrinami automatiškai po
-    12 mėnesių. Iš ten juos nukopijuoju į savo kompiuteryje veikiančią klientų apskaitos programą (CRM) ir saugau
-    tiek, kiek reikia bendrauti dėl svetainės. Kartu įrašomas tik požymis, ar formą pateikė žmogus, ar
-    automatinė programa. IP adreso, viso naršyklės aprašo ir slapukų forma nesaugo.
+    Formos ir failai saugomi Cloudflare serveriuose (Cloudflare Workers). Ten jie ištrinami automatiškai po
+    12 mėnesių. Iš ten juos nukopijuoju į savo klientų apskaitos programą (CRM) ir saugau tiek, kiek reikia
+    bendrauti dėl paslaugos. Kartu įrašomas tik požymis, ar formą pateikė žmogus, ar automatinė programa.
+    IP adreso, viso naršyklės aprašo ir slapukų formos nesaugo.
   </p>
   <p>
     Jei norite, kad duomenis ar failus ištrinčiau anksčiau, parašykite <a href={brand.emailHref}>{brand.email}</a>
@@ -78,7 +71,7 @@ import { brand } from '@data/content.js';
 
   <h2>Kas dar gali matyti duomenis</h2>
   <p>
-    Svetainę talpina Vercel, nuorodų įrašus, peržiūros formą ir failus tvarko Cloudflare, užklausos formą – Web3Forms. Jie duomenis tvarko tik
+    Svetainę talpina Vercel, nuorodų įrašus, formas ir failus tvarko Cloudflare. Jie duomenis tvarko tik
     tam, kad šios paslaugos veiktų.
   </p>
 

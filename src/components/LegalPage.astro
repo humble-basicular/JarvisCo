@@ -1,25 +1,30 @@
 ---
-import Layout from '@layouts/Layout.astro';
+/* Legal pages (/taisykles, /privatumo-politika) in the Jarvis Systems O2 shell (header/footer of the live site).
+   The old Layout carried the dead "Gauti nemokamą peržiūrą" CTA and the JarvisCo footer (audit 2026-11-16, 75d538b2 #3). */
+import O2Layout from '@layouts/O2Layout.astro';
 import { utility } from '@data/content.js';
-interface Props { title: string; description: string; updated: string }
-const { title, description, updated } = Astro.props;
+interface Props { title: string; description: string; updated: string; path: string }
+const { title, description, updated, path } = Astro.props;
 ---
-<Layout title={`${title} | jarvisweb.lt`} description={description}>
-  <article class="wrap legal">
+<O2Layout title={`${title} | Jarvis Systems`} description={description} path={path}>
+  <article class="legal">
     <header class="legal__head">
-      <a class="link" href="/">← {utility.home}</a>
-      <h1 class="head__title">{title}</h1>
-      <p class="small">{utility.updated} {updated}</p>
+      <a href="/">← {utility.home}</a>
+      <h1>{title}</h1>
+      <p class="legal__upd">{utility.updated} {updated}</p>
     </header>
     <div class="legal__body"><slot /></div>
   </article>
-</Layout>
+</O2Layout>
 <style>
-  .legal { max-width: 52rem; padding-block: clamp(2.5rem, 7vw, 5rem); }
-  .legal__head { display: grid; gap: 1.25rem; justify-items: start; padding-bottom: 2rem; border-bottom: 1px solid var(--ink); }
-  .legal__head .head__title { max-width: none; }
-  .legal__body :global(h2) { font-size: clamp(1.375rem, 3vw, 1.75rem); letter-spacing: -0.025em; margin: 2.5rem 0 1rem; }
+  .legal { max-width: 52rem; margin: 0 auto; padding: clamp(2.5rem, 7vw, 5rem) 16px; color: var(--navy); line-height: 1.6; font-size: 17px; }
+  .legal__head { display: grid; gap: 1rem; justify-items: start; padding-bottom: 2rem; border-bottom: 1px solid var(--navy); }
+  .legal__head a { color: var(--navy); font-weight: 600; }
+  .legal__head h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; font-weight: 700; margin: 0; }
+  .legal__upd { font-size: 15px; opacity: 0.75; margin: 0; }
+  .legal__body :global(h2) { font-size: clamp(1.375rem, 3vw, 1.75rem); font-weight: 700; letter-spacing: -0.02em; margin: 2.5rem 0 1rem; }
+  .legal__body :global(p) { margin: 0 0 1rem; }
   .legal__body :global(ul) { padding-left: 1.25rem; margin-bottom: 1.5rem; list-style: disc; }
   .legal__body :global(li) { margin-bottom: 0.75rem; }
-  .legal__body :global(a) { display: inline-block; min-height: 3rem; padding-block: 0.5rem; overflow-wrap: anywhere; }
+  .legal__body :global(a) { color: var(--navy); overflow-wrap: anywhere; }
 </style>

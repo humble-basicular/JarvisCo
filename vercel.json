@@ -1,13 +1,53 @@
 {
   "redirects": [
     {
+      "source": "/svetaines",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/svetaines/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/noriu",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/noriu/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sildymui",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sildymui/",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/rezultatai",
+      "destination": "/musu-darbai",
+      "statusCode": 301
+    },
+    {
+      "source": "/rezultatai/",
+      "destination": "/musu-darbai",
+      "statusCode": 301
+    },
+    {
       "source": "/arboristams",
-      "destination": "/rezultatai",
+      "destination": "/musu-darbai",
       "statusCode": 301
     },
     {
       "source": "/arboristams/",
-      "destination": "/rezultatai",
+      "destination": "/musu-darbai",
       "statusCode": 301
     },
     {
