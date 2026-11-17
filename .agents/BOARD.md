@@ -1,3 +1,11 @@
+## S2 outreach-ready site changes — 17 November 2026, PREVIEW, waits Codex review + Matas (gate before S5 deploy)
+
+Lead thread 692035c5 (hub `Jarvis Systems`, plan `plans/2026-11-17-outreach-ready.md` S2); worker thread 8f1196ae. Branch `site/s2-outreach-ready-20261117` from `site/prepare-refilm-4ec2c8eb` (655a971), worktree `~/.ai-powerhouse/worktrees/JarvisCo/s2-outreach-ready-20261117`. No deploy, no push, no Vercel.
+
+| Stage | Owner / reviewer | Owned files | Status |
+|---|---|---|---|
+| s2-site-changes | Claude Sonnet 5.5 / Codex gpt-6.1-sol medium | `src/components/o2/{Scene,FunnelProof}.astro`, `src/data/{o2,o2-pages,o2-videos,o2-convo,content}.js`, `src/styles/o2.css`, `src/checks/{o2-check,video-slots-check}.mjs`, `scripts/o2-qa.mjs`, `package.json` (one script) | In progress: card rename + order, full-conversation phone scenes, proof periods, video slot map; Drive `management/site-s2-20261117/` |
+
 # JarvisWeb proof-site autonomous run
 
 ## MesElektra + VensLand security/attribution — 29 October 2026, deployed

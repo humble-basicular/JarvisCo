@@ -102,11 +102,11 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .scr{position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden;background:#fff;font-family:Sora,Arial,sans-serif;color:#111;backface-visibility:hidden}
 .scr>*{position:absolute}
 .scr__bar{left:0;right:0;top:0;display:flex;justify-content:space-between;padding:20px 36px 0;height:62px;font-weight:600;font-size:17px;z-index:4}
-.scr__sig{width:44px;height:12px;border-radius:3px;background:linear-gradient(90deg,#111 0 60%,transparent 60% 70%,#111 70%);margin-top:6px}
+.scr__sig{width:44px;height:12px;border-radius:3px;background:linear-gradient(90deg,currentColor 0 60%,transparent 60% 70%,currentColor 70%);margin-top:6px}
 .scr__bg{inset:-30px;background:#cfd3da center/cover;filter:blur(14px) saturate(.9)}
 .scr__bg--reviews,.scr__bg--campaign{background-image:url('/jarvis-systems/demo/betono-actual/home.webp')}
 .scr__bg--missed{background-image:url('/jarvis-systems/demo/betono-actual/home.webp');filter:blur(16px) brightness(.55)}
-.scr--missed .scr__bar,.scr--missed .scr__sig{color:#fff}.scr--missed .scr__sig{background:linear-gradient(90deg,#fff 0 60%,transparent 60% 70%,#fff 70%)}
+.scr--missed .scr__bar{color:#111}
 .scr__bg--seo{background:#e9ebee;background-image:linear-gradient(90deg,transparent 46%,#fff 46% 50%,transparent 50%),linear-gradient(0deg,transparent 30%,#fff 30% 33%,transparent 33%),linear-gradient(35deg,transparent 60%,#fff 60% 63%,transparent 63%),radial-gradient(circle at 20% 70%,#c8e6c9 0 18%,transparent 19%),radial-gradient(circle at 80% 20%,#c8e6c9 0 14%,transparent 15%),linear-gradient(#aecbfa,#aecbfa);background-size:100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,30% 22%;background-repeat:no-repeat;background-position:0 0,0 0,0 0,0 0,0 0,90% 80%;filter:blur(5px)}
 .cur{position:absolute;left:0;top:0;z-index:6;opacity:0;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));transform-origin:5px 3px}
 .ty{display:inline-block;white-space:nowrap}
@@ -124,6 +124,24 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .bb--dots{display:flex;gap:6px;padding:16px 18px;position:absolute;opacity:0}
 .bb--dots.bb--out{right:0}.bb--dots.bb--in{left:0}
 .sms .bb--dots{position:absolute;bottom:-60px}
+/* S2 (17 Nov): full conversation. Rows grow in from 0 height inside a bottom-anchored viewport, so older rows scroll up like a
+   real thread. Base CSS = FINAL state (reduced motion shows the finished chat, not the owner alert). */
+.chatl{inset:0}.scr--missed .chatl{background:#fff}.chatl .sms__who{position:absolute;z-index:2;background:linear-gradient(#fff 82%,rgba(255,255,255,0));padding-bottom:12px}
+.chat{position:absolute;left:18px;right:18px;top:178px;bottom:36px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 34px);mask-image:linear-gradient(to bottom,transparent 0,#000 34px)}
+.cw{display:flex;flex-direction:column;overflow:hidden;max-height:420px;flex:none}
+.cw .bb{margin-top:12px;max-width:90%}
+.cw:has(.bb--dots){max-height:0;opacity:0}
+.cw .bb--dots{position:static;opacity:1;width:max-content}
+.cw .bb--dots i{animation:dotp 1s ease-in-out infinite}.cw .bb--dots i:nth-child(2){animation-delay:.15s}.cw .bb--dots i:nth-child(3){animation-delay:.3s}
+@keyframes dotp{0%,100%{opacity:.3}50%{opacity:.9}}
+.own{inset:0;opacity:0;background:linear-gradient(180deg,#22344d,#0d1522 70%);color:#fff;z-index:3}
+.own__tag{position:absolute;left:0;right:0;top:96px;margin:0;text-align:center;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#aebbd0}
+.own__time{position:absolute;left:0;right:0;top:140px;margin:0;text-align:center;font-size:96px;font-weight:300;line-height:1}
+.own__card{position:absolute;left:18px;right:18px;top:300px;padding:16px 18px 20px;border-radius:24px;background:rgba(255,255,255,.94);color:#111;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.own__top{display:flex;align-items:center;gap:10px;font-size:14px;letter-spacing:.06em;color:#555}.own__top em{margin-left:auto;font-style:normal;letter-spacing:0}
+.own__ic{width:30px;height:30px;border-radius:8px;background:#E8A743;color:#111;display:grid;place-items:center;font-weight:800;font-size:17px}
+.own__from{margin:12px 0 4px;font-weight:700;font-size:21px;position:static}
+.own__txt{margin:0;font-size:20px;line-height:1.36;position:static}
 .bb--dots i{width:10px;height:10px;border-radius:50%;background:currentColor;opacity:.7}
 /* web: laptop showing the actual captured betonogaminiai.lt (1440×783, scaled onto the glass) */
 .lapl{opacity:0}

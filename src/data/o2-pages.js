@@ -41,7 +41,7 @@ export const FEATURE_PAGES = {
     slug: 'praleistas-skambutis',
     lead: 'Nespėjote atsiliepti? Skambinusiam žmogui išeina žinutė, ir pokalbis prasideda be Jūsų.',
     facts: [
-      ['Žinutė po praleisto skambučio', 'Skambinęs žmogus gauna SMS ir gali iškart parašyti, ko jam reikia.'],
+      ['Automatinis pokalbis po praleisto skambučio', 'Skambinęs žmogus gauna SMS ir gali iškart parašyti, ko jam reikia. Pokalbis baigiasi susitarimu, kada perskambinsite.'],
       ['Jūsų numeris lieka', 'Niekur nieko keisti nereikia: klientai skambina Jūsų numeriu, kaip ir dabar.'],
       ['Ir po darbo', 'Žinutė išeina ir tada, kai jau ilsitės.'],
     ],
@@ -147,7 +147,7 @@ export const pages = {
         text: 'Medžių pjovimo ir darbų aukštyje svetainė: 12 paslaugų ir 18 miestų puslapių, užklausos forma.',
         gsc: ['arbcut-gsc-3m-2026-11-12', 'Google Search Console – paskutiniai 3 mėnesiai'],
         forms: ['arbcut-web3forms-total-2026-11-12', 'Web3Forms – iš viso pateiktų užklausų formų'],
-        nums: [['605', 'paspaudimai iš Google'], ['12,3 tūkst.', 'parodymų Google'], ['31', 'užklausa per formą']],
+        nums: [['605', 'paspaudimai iš Google'], ['12,3 tūkst.', 'parodymų Google'], ['31', 'užklausų per formą iš viso (2026-11-12)']],
       },
     ],
     // Every site we built. Captures: headless Chrome 2026-11-11 (1440×900 and 390×844 @2x), resized to WebP, no edits.

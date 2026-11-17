@@ -8,7 +8,7 @@ const errors = [];
 const check = (ok, msg) => { if (!ok) errors.push(msg); };
 check(html.includes('/jarvis-systems/og-1200x630.jpg') && existsSync('public/jarvis-systems/og-1200x630.jpg'), 'og image must be the Jarvis Systems kit card');
 const scenes = [...html.matchAll(/data-scene="(\w+)" data-side="(\w+)"/g)].map((m) => `${m[1]}:${m[2]}`);
-check(scenes.join() === 'web:left,reviews:right,missed:left,campaign:right,seo:left', `five source scenes in order with alternating phones, got ${scenes}`);
+check(scenes.join() === 'web:left,missed:right,reviews:left,campaign:right,seo:left', `five source scenes in order with alternating phones, got ${scenes}`);
 check(html.includes('laptop-blank.webp') && ['home', 'form-empty', 'form-filled', 'details-empty', 'details-filled'].every((f) => html.includes(`/jarvis-systems/demo/betono-actual/${f}.webp`)), 'first feature must show both actual steps of the latest non-live Betono rebuild');
 const betono = JSON.parse(readFileSync('docs/jarvis-stone-source-match/qa/betono-actual-capture-user19.json', 'utf8'));
 check(betono.initial.compact && !betono.initial.banner && !betono.capture.previewHeaderDOMRemoval && betono.source.baseCommit !== '9a94599' && betono.details.stage === 'details', 'USER19: use the rebuilt inline form, with the banner removed in website source');

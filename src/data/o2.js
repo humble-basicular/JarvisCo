@@ -34,7 +34,7 @@ export const O2_OFFER = {
     'Svetainės sukūrimas ir prijungimas prie sistemos',
     'Optimizavimas Google ir AI paieškai: SEO, AEO ir GEO',
     'Svetainės užklausos – SMS pokalbiai ir pranešimai Jums',
-    'Automatinė žinutė po praleisto skambučio ir AI atsakymai klientams iki susitarimo perskambinti',
+    'Automatinis pokalbis po praleisto skambučio: AI atsakymai klientams iki susitarimo perskambinti',
     'Atsiliepimų prašymai vienu paspaudimu ir automatinis priminimas',
     'Pirmo mėnesio pagalba: atsiliepimai ir kampanijos tikriems buvusiems klientams',
     'Rinkodaros kampanijos vienu paspaudimu',
@@ -45,8 +45,8 @@ export const GOOGLE = { rating: '5,0', count: '1 atsiliepimas', url: brand.gbp }
 /* Landing + /susisieksime proof (Matas 2026-11-12): ArbCut only. 605 = GSC organic clicks, 3 months; 31 = Web3Forms total
    (no period). Sources: src/assets/proof/PROVENANCE.md. Betono stays on /musu-darbai only. */
 export const PROOF = [
-  ['605', 'organiniai paspaudimai iš Google per 3 mėn.', 'arbcut.lt'],
-  ['31', 'užklausa per svetainės formą', 'arbcut.lt'],
+  ['605', 'organiniai paspaudimai iš Google per 3 mėn.', 'arbcut.lt · iki 2026-11-09'],
+  ['31', 'užklausų per svetainės formą iš viso', 'arbcut.lt · 2026-11-12'],
 ];
 
 export const o2 = {
@@ -84,6 +84,16 @@ export const o2 = {
         ],
       },
       {
+        id: 'skambuciai', scene: 'missed', title: 'Automatinis pokalbis po praleisto skambučio',
+        quote: 'Skambučių praleidžia visi, bet atrašo ne visi. Būkite tas, kuris atrašo, ir aplenkite konkurentus.',
+        points: [
+          ['Išsiskirkite iš konkurentų', 'Visi praleidžia skambučius, bet ne visi atrašo. Atrašykite Jūs ir būsite pastebėti.'],
+          ['Nebeprarastos užklausos', 'Dirbate objekte ir negalite atsiliepti? Ne bėda – išsiųsime žinutę, atsakysime pagal Jūsų patvirtintus svetainės faktus ir susitarsime, kada perskambinsite. Jums ateina viena žinutė su viskuo, ko reikia.'],
+          ['Parodykite, kad Jums rūpi', 'Buvusiai antrai pusei nepatiko, kai neatsiliepdavote – klientams irgi. Bent parašykite, kad žinotų: Jums rūpi.'],
+          ['Pasiekiami visą parą', 'Praleidote skambutį po darbo? Žinutė išeis ir tada, kai Jūs jau ilsitės.'],
+        ],
+      },
+      {
         id: 'atsiliepimai-sistema', scene: 'reviews', title: 'Atsiliepimų rinkimo sistema',
         quote: '„Būtinai parašysiu atsiliepimą“, – sako visi, bet žmonės pamiršta. Mes mandagiai priminsime.',
         points: [
@@ -91,16 +101,6 @@ export const o2 = {
           ['Automatinis priminimas', '„Būtinai parašysiu“, bet pamiršta. Vienas mandagus priminimas – ne dešimt.'],
           ['Prašymas vienu paspaudimu', 'Kaip žadėjome – paprasta. Jei susipainiosite, kalti mes ir mums labai gėda.'],
           ['Nebereikia spėlioti', 'Nuorodą gauna kiekvienas klientas, o programėlėje matote, kas ją atidarė.'],
-        ],
-      },
-      {
-        id: 'skambuciai', scene: 'missed', title: 'Žinutė po praleisto skambučio',
-        quote: 'Skambučių praleidžia visi, bet atrašo ne visi. Būkite tas, kuris atrašo, ir aplenkite konkurentus.',
-        points: [
-          ['Išsiskirkite iš konkurentų', 'Visi praleidžia skambučius, bet ne visi atrašo. Atrašykite Jūs ir būsite pastebėti.'],
-          ['Nebeprarastos užklausos', 'Dirbate objekte ir negalite atsiliepti? Ne bėda – išsiųsime žinutę, atsakysime pagal Jūsų patvirtintus svetainės faktus ir susitarsime, kada perskambinsite.'],
-          ['Parodykite, kad Jums rūpi', 'Buvusiai antrai pusei nepatiko, kai neatsiliepdavote – klientams irgi. Bent parašykite, kad žinotų: Jums rūpi.'],
-          ['Pasiekiami visą parą', 'Praleidote skambutį po darbo? Žinutė išeis ir tada, kai Jūs jau ilsitės.'],
         ],
       },
       {

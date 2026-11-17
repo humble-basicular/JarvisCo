@@ -56,7 +56,7 @@ try {
     await ev(`(async()=>{document.querySelectorAll('img[loading=lazy]').forEach(i=>i.loading='eager');await Promise.all([...document.images].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));await document.fonts.ready;return 1})()`);
     await sleep(300);
   };
-  const sections = ['header.hdr', '.hero', '#funkcijos', '#svetaine', '#atsiliepimai-sistema', '#skambuciai', '#kampanijos', '#seo', '#sritys', '#procesas', '#kodel', '#duk', '#pokalbis', 'footer.ftr'];
+  const sections = ['header.hdr', '.hero', '#funkcijos', '#svetaine', '#skambuciai', '#atsiliepimai-sistema', '#kampanijos', '#seo', '#sritys', '#procesas', '#kodel', '#duk', '#pokalbis', 'footer.ftr'];
   for (const w of [320, 390, 768, 1024, 1280, 1440]) {
     await load(w);
     // pause all scene loops at a representative mid-cycle moment for full-page shots
@@ -74,15 +74,18 @@ try {
     }
   }
   // Scene frames: seek every animation of each scene to t and capture the scene box
-  await load(1440);
-  const times = { web: [0.3, 0.9, 1.2, 1.5, 2.2, 3.0, 3.8, 4.6, 5.0, 5.6, 6.8, 8.0, 10.0, 13.0], reviews: [0.5, 1.5, 2.5, 3.4, 4.3, 5.6, 7.0, 8.5], missed: [0.5, 2.0, 3.3, 4.5, 5.6, 7.0, 12.0], campaign: [0.5, 1.6, 2.5, 3.4, 4.4, 5.9, 7.2, 9.0], seo: [0.5, 1.4, 2.4, 2.9, 3.6, 6.0] };
+  let times;
+  for (const sw of [1440, 390]) {
+  await load(sw);
+  times = { web: [0.9, 2.5, 4.6, 6.8, 8.9, 10.4, 12.0, 13.5, 15.5, 17.5], reviews: [0.5, 1.5, 2.5, 3.4, 4.3, 5.6, 7.0, 8.5], missed: [0.5, 2.0, 3.6, 5.0, 6.2, 8.2, 10.6, 13.8, 16.6, 18.5, 20.5, 22.5], campaign: [0.5, 1.6, 2.5, 3.4, 4.4, 5.9, 7.2, 9.0], seo: [0.5, 1.4, 2.4, 2.9, 3.6, 6.0] };
   for (const [kind, ts] of Object.entries(times)) {
     receipt.scenes[kind] = await ev(`(()=>{const s=document.querySelector('[data-scene=${kind}]');const as=s.getAnimations({subtree:true});return {animations:as.length,durations:[...new Set(as.map(a=>a.effect.getTiming().duration))],iterations:[...new Set(as.map(a=>String(a.effect.getTiming().iterations)))]}})()`);
     for (const t of ts) {
       const r = await ev(`(()=>{const s=document.querySelector('[data-scene=${kind}]');s.scrollIntoView({block:'center'});s.getAnimations({subtree:true}).forEach(a=>{a.pause();a.currentTime=${t * 1000}});const b=s.getBoundingClientRect();return {x:b.left+scrollX,y:b.top+scrollY,width:b.width,height:b.height}})()`);
       await sleep(120);
-      await shot(`scene-${kind}-${String(t).replace('.', '_')}.png`, r);
+      await shot(`scene-${sw}-${kind}-${String(t).replace('.', '_')}.png`, r);
     }
+  }
   }
   // Behaviour at 390: menu, booking dialog, demo dialog, Escape/focus
   await load(390);

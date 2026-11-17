@@ -15,7 +15,7 @@ const PHONE_E164 = '+37067699395';
 const SMS_BODY = 'Sveiki, domina svetainė';
 
 export const brand = {
-  name: 'JarvisCo',
+  name: 'Jarvis Systems', // was 'JarvisCo' (S1 audit W7, 17 Nov: old visible brand on legacy pages)
   owner: 'Matas Bašinskas',
   status: 'Individuali veikla',
   city: 'Kaunas',
