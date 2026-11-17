@@ -42,7 +42,11 @@ const POP = 'cubic-bezier(.3,1.5,.55,1)';
 /** visible between a and b (fade f), optional entry transform */
 const vis = (a: number, b = T - 0.3, from = '', f = 0.3) => kf([
   [0, `opacity:0${from ? `;transform:${from}` : ''}`], [a, `opacity:0${from ? `;transform:${from}` : ''}`, OUT],
-  [a + f, 'opacity:1;transform:none'], [b, 'opacity:1;transform:none', E], [Math.min(T, b + 0.3), 'opacity:0;transform:none'], [T, 'opacity:0'],
+  [a + f, 'opacity:1;transform:none'],
+  // b ≥ T: hold to the loop end (the parent layer does the fade); otherwise fade out (≤ 0.3 s); never two frames at 100 % (Codex r1 P3)
+  ...(b >= T ? [[T, 'opacity:1;transform:none']] as Fr[]
+    : b + 0.3 >= T ? [[b, 'opacity:1;transform:none', E], [T, 'opacity:0;transform:none']] as Fr[]
+    : [[b, 'opacity:1;transform:none', E], [b + 0.3, 'opacity:0;transform:none'], [T, 'opacity:0']] as Fr[]),
 ]);
 /** layer that is already visible at t=0 and leaves at b */
 const first = (b: number) => kf([[0, 'opacity:1'], [b, 'opacity:1', E], [b + 0.35, 'opacity:0'], [T, 'opacity:0']]);
