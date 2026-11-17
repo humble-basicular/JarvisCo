@@ -9,7 +9,7 @@
    Accepted Stone design, real proof and verified Betono media remain unchanged.
    SMS provider is not active; demos do not prove real delivery.
    2026-11-10 closed terms (~/WebAgency Biz/brains/v2/OFFER.md §1): no setup fee, cancel anytime,
-   7-day launch, domain included, 100 SMS/month then 0,08 € each (same monthly invoice), everything
+   7-day launch, domain = 15 € ONE-TIME only when the client has none (17 Nov, dd149652), 100 SMS/month then 0,08 € each (same monthly invoice), everything
    switched off on cancel, 999 € one-off to keep the website, business number switched off at exit.
    Marketing texts carry no STOP line (OFFER.md §6). */
 import { brand } from './content.js';
@@ -24,7 +24,8 @@ export const O2_OFFER = {
   setup: 'Be įrengimo mokesčio',
   launch: 'Paleidžiame per 7 dienas',
   cancel: 'Atsisakyti galite bet kada',
-  domain: 'Domenas įskaičiuotas į kainą',
+  domain: 'Jei domeno dar neturite – naujas domenas kainuoja 15 € vienkartinai; jei jau turite, nieko papildomai',
+  domainShort: '15 € vienkartinai, jei domeno dar neturite',
   sms: '100 SMS per mėnesį įskaičiuota, kiekviena papildoma SMS – 0,08 €',
   smsDetails: 'Į kainą įskaičiuota 100 SMS per mėnesį. Kiekviena papildoma SMS kainuoja 0,08 € ir pridedama prie tos pačios mėnesio sąskaitos. Ilga žinutė arba žinutė su lietuviškomis raidėmis gali būti skaičiuojama kaip kelios SMS.',
   cancelDetails: 'Prenumerata mėnesinė, atsisakyti galite bet kada. Atsisakius viskas išjungiama, taip pat ir svetainė.',
@@ -42,11 +43,11 @@ export const O2_OFFER = {
   ],
 };
 export const GOOGLE = { rating: '5,0', count: '1 atsiliepimas', url: brand.gbp };
-/* Landing + /susisieksime proof (Matas 2026-11-12): ArbCut only. 605 = GSC organic clicks, 3 months; 31 = Web3Forms total
-   (no period). Sources: src/assets/proof/PROVENANCE.md. Betono stays on /musu-darbai only. */
+/* Landing + /susisieksime proof (Matas 2026-11-12): ArbCut only. 605 = GSC organic clicks, 3 months; 33 = Web3Forms total as of 2026-11-17
+   (31 on the 12 Nov screenshot + 2 more, user-reported by Matas 17 Nov, dd149652). Sources: src/assets/proof/PROVENANCE.md. Betono stays on /musu-darbai only. */
 export const PROOF = [
   ['605', 'organiniai paspaudimai iš Google per 3 mėn.', 'arbcut.lt · iki 2026-11-09'],
-  ['31', 'užklausų per svetainės formą iš viso', 'arbcut.lt · 2026-11-12'],
+  ['33', 'užklausų per svetainės formą iš viso', 'arbcut.lt · iki 2026-11-17'],
 ];
 
 export const o2 = {
@@ -165,7 +166,7 @@ export const o2 = {
     title: 'Dažniausi klausimai',
     items: [
       { q: 'Kada pamatysiu rezultatus?', a: 'Sistema pradeda veikti nuo paleidimo dienos: užklausa iš svetainės ar praleistas skambutis iškart sulaukia žinutės. Pirmą mėnesį nelaukiame vien naujos svetainės: pradedame nuo Jūsų tikrų buvusių klientų (pirmiausia atsiliepimų prašymai, vėliau tinkami priminimai ar rekomendacijos), o senoms užklausoms, kurios netapo užsakymais, – tik tinkama tolesnė žinutė, be atsiliepimo prašymo. Daugiau užsakymų nežadame – ar žmogus taps klientu, vis dar priklauso ir nuo Jūsų.' },
-      { q: 'Kiek kainuoja?', a: `Pilnas paketas kainuoja ${O2_OFFER.monthly} Įrengimo mokesčio nėra, domenas įskaičiuotas. Svetainė, SEO, AEO, GEO, automatinės žinutės, atsiliepimų prašymai, klientų kampanijos ir bendra programėlė įeina į šią kainą. Taikoma 30 dienų pinigų grąžinimo garantija.` },
+      { q: 'Kiek kainuoja?', a: `Pilnas paketas kainuoja ${O2_OFFER.monthly} Įrengimo mokesčio nėra. Jei domeno dar neturite, naujas domenas kainuoja 15 € vienkartinai; jei turite – nieko papildomai. Svetainė, SEO, AEO, GEO, automatinės žinutės, atsiliepimų prašymai, klientų kampanijos ir bendra programėlė įeina į šią kainą. Taikoma 30 dienų pinigų grąžinimo garantija.` },
       { q: 'Kiek SMS įeina?', a: O2_OFFER.smsDetails },
       { q: 'Ar galiu atsisakyti?', a: `Taip, bet kada – prenumerata mėnesinė. Atsisakius viskas išjungiama, taip pat ir svetainė. ${O2_OFFER.keepSite}` },
       { q: 'Per kiek laiko paleidžiate?', a: 'Per 7 dienas nuo tada, kai gauname informaciją apie Jūsų verslą ir prieigas. Prieš paleidimą kartu patikriname svetainę ir SMS tekstus.' },

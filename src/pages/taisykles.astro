@@ -5,7 +5,7 @@ import LegalPage from '@components/LegalPage.astro';
 import { brand } from '@data/content.js';
 import { O2_OFFER } from '@data/o2.js';
 ---
-<LegalPage path="/taisykles" title="Taisyklės" description="Jarvis Systems paslaugos sąlygos: kaina, SMS, garantija, atsisakymas ir svetainės išsipirkimas." updated="2026-11-16">
+<LegalPage path="/taisykles" title="Taisyklės" description="Jarvis Systems paslaugos sąlygos: kaina, SMS, garantija, atsisakymas ir svetainės išsipirkimas." updated="2026-11-18">
   <h2>Kas teikia paslaugą</h2>
   <p>
     {brand.owner}, {brand.status.toLowerCase()} (individualios veiklos pažyma Nr. 1509154), {brand.city}.
@@ -14,9 +14,12 @@ import { O2_OFFER } from '@data/o2.js';
   </p>
 
   <h2>Jarvis Systems paketas</h2>
-  <p>Kaina – {O2_OFFER.monthly} Įrengimo mokesčio nėra. Domenas įskaičiuotas į kainą. Į paketą įeina:</p>
+  <p>Kaina – {O2_OFFER.monthly} Įrengimo mokesčio nėra. Į paketą įeina:</p>
   <ul>{O2_OFFER.includes.map((item) => <li>{item}</li>)}</ul>
   <p>Svetainę ir sistemas paleidžiame per 7 dienas nuo tada, kai gauname informaciją apie Jūsų verslą ir reikalingas prieigas. Tikslią darbų apimtį suderiname raštu prieš pirmą mokėjimą.</p>
+
+  <h2>Domenas</h2>
+  <p>{O2_OFFER.domain}. Šis 15 € mokestis – vienkartinis, mėnesinės kainos jis nekeičia.</p>
 
   <h2>Mokėjimas</h2>
   <p>Prenumerata mėnesinė: {O2_OFFER.monthly} nuskaičiuojama kas mėnesį iš kortelės, kurią nurodote apmokėdami pirmą kartą. Mokėjimus apdoroja Stripe. Papildomos SMS pridedamos prie tos pačios mėnesio sąskaitos.</p>

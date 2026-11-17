@@ -676,6 +676,7 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .fcard__img--forms img{max-width:262px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.12)}
 .fcard__img--g{background:var(--navy);color:#fff;gap:6px;align-content:center}
 .fcard__img--g b{font-size:64px;font-weight:800;line-height:1}
+.fcard__sub{font-size:14px;opacity:.8}
 .fcard__stars,.fcard__t .fcard__stars{color:#f5b301;font-size:26px;letter-spacing:4px}
 .fcard__t{padding:14px 16px 16px;font-size:14px;font-weight:600;line-height:1.45}
 .fcard__t b{font-size:18px;font-weight:800}

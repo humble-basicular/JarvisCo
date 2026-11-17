@@ -18,7 +18,9 @@
     "proof:refresh": "node scripts/proof-refresh.mjs",
     "check:inquiry": "node --test src/checks/inquiry-track-test.mjs",
     "check:o2": "node src/checks/o2-check.mjs",
-    "check:video-slots": "node src/checks/video-slots-check.mjs"
+    "check:video-slots": "node src/checks/video-slots-check.mjs",
+    "videos:fill": "node scripts/fill-video-ids.mjs",
+    "logo:apply": "node scripts/apply-logo.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.3.0",

@@ -1,21 +1,27 @@
 #!/bin/sh
-# Copy the client previews that are live on jarvisweb.lt (/perziura/*, /previews/*) into ./dist
-# after `npm run build`. Their inputs are private and git-ignored, and the live pages were built
-# from older template code, so they are carried over as built files, not rebuilt.
-# Sources (2026-11-11): seo-services-20261026 prebuilt output (27 Oct) + MAS pages from
-# mas-feedback-20261108/dist (deployed 8 Nov, dpl_EtjEKe7qEZBYPbg3xQdBPxMnKuRM).
+# Carry the client previews that are live on jarvisweb.lt (/perziura/*: 83 pages, /previews/*, their _astro assets) into ./dist
+# after `npm run build`. Their inputs are private and git-ignored and the live pages were built from older template code, so they
+# are shipped as the built files, not rebuilt.
+# Source (durable, S5 18 Nov 2026): the tarball in Drive `management/site-s5-20261118/overlay/` (50 MB, copy also in
+# `site-s2-20261117/overlay-backup/`), checked against scripts/overlay-tarball.sha256, then every extracted file is checked against
+# scripts/overlay-manifest.sha256. It was proven identical to production on 18 Nov (see DEPLOY-RUNBOOK.md §A).
+# Override the location with OVERLAY_TGZ=/path/to/overlay-perziura-previews-83.tgz. Legacy rebuild from two old worktrees:
+# scripts/overlay-from-worktrees.sh (only if the tarball is lost).
 set -eu
-W="${JARVISCO_WORKTREES:-$HOME/Work/Code projects/JarvisCo-worktrees}"
-BASE="$W/seo-services-20261026/.vercel/output/static"
-MAS="$W/mas-feedback-20261108/dist"
-[ -d "$BASE/perziura" ] && [ -d "$MAS/perziura/cfa9bwee8q" ] || { echo "overlay: source output missing" >&2; exit 1; }
+cd "$(dirname "$0")/.."
+DRIVE="$HOME/Library/CloudStorage/GoogleDrive-matasbasinskas1@gmail.com/My Drive/Business/JarvisWeb/management"
+TGZ="${OVERLAY_TGZ:-}"
+if [ -z "$TGZ" ]; then
+  for c in "$DRIVE/site-s5-20261118/overlay/overlay-perziura-previews-83.tgz" "$DRIVE/site-s2-20261117/overlay-backup/overlay-perziura-previews-83.tgz"; do [ -f "$c" ] && { TGZ="$c"; break; }; done
+fi
+[ -n "$TGZ" ] && [ -f "$TGZ" ] || { echo "overlay: tarball not found (set OVERLAY_TGZ)" >&2; exit 1; }
 [ -d dist ] || { echo "overlay: run npm run build first" >&2; exit 1; }
-[ -e dist/perziura ] && { echo "overlay: dist/perziura already exists (previews/*.json present?)" >&2; exit 1; }
-cp -R "$BASE/perziura" dist/perziura
-rm -rf dist/perziura/cfa9bwee8q && cp -R "$MAS/perziura/cfa9bwee8q" dist/perziura/
-mkdir -p dist/previews dist/_astro
-cp -R "$BASE/previews/." dist/previews/ 2>/dev/null || true
-rm -rf dist/previews/cfa9bwee8q && cp -R "$MAS/previews/cfa9bwee8q" dist/previews/ 2>/dev/null || true
-cp -Rn "$BASE/_astro/." dist/_astro/ 2>/dev/null || true
-cp -Rn "$MAS/_astro/." dist/_astro/ 2>/dev/null || true
-echo "overlay: $(find dist/perziura -name index.html | wc -l | tr -d ' ') preview pages copied"
+[ -e dist/perziura ] && { echo "overlay: dist/perziura already exists (overlay already applied?)" >&2; exit 1; }
+want="$(cut -d' ' -f1 scripts/overlay-tarball.sha256)"
+have="$(shasum -a 256 "$TGZ" | cut -d' ' -f1)"
+[ "$want" = "$have" ] || { echo "overlay: tarball checksum mismatch ($have, expected $want)" >&2; exit 1; }
+tar -xzkf "$TGZ" -C .
+shasum -a 256 -c scripts/overlay-manifest.sha256 --quiet || { echo "overlay: file checksum mismatch after extraction" >&2; exit 1; }
+n="$(find dist/perziura -name index.html | wc -l | tr -d ' ')"
+[ "$n" = 83 ] || { echo "overlay: expected 83 /perziura pages, found $n" >&2; exit 1; }
+echo "overlay: $n /perziura pages + $(find dist/previews -type f | wc -l | tr -d ' ') /previews files + $(find dist/_astro -type f | wc -l | tr -d ' ') _astro files, all checksums ok"

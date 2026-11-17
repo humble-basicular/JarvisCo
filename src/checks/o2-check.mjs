@@ -1,6 +1,7 @@
 /* Focused regressions for the Jarvis Systems homepage — source-match contract (USER7, 2026-11-07).
    Run after a build: node src/checks/o2-check.mjs */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 const html = readFileSync('dist/index.html', 'utf8');
 const ts = readFileSync('src/scripts/o2.ts', 'utf8');
@@ -34,9 +35,9 @@ check(['phone', 'email', 'name', 'company'].every((n) => new RegExp(`<input[^>]*
 check(/>Daugiau užklausų Jūsų verslui už<\/h2>\s*<p class="quiz__price">97 €\/mėn\.<\/p>/.test(reg) && reg.includes('>Taip, noriu daugiau užklausų</button>') && /aria-valuenow="50"/.test(reg), 'quiz title, final button, progress starts at 50 %');
 check(!/name="contact_time"/.test(reg) && /name="website"/.test(reg), 'contact time removed, honeypot kept');
 check(/validPhone = \(v: string\) => \/\^\(\?:\\\+370\|00370\|8\)\?\[3-9\]/.test(ts) && /body\.append\('email', email\)/.test(ts) && /body\.append\('company', company\)/.test(ts) && /\.\.\.answers/.test(ts), 'LT phone check; live POST carries email, company and the quiz answers in standout');
-check(/class="pbar"[\s\S]*?>605<[\s\S]*?>31<[\s\S]*?<\/ul>/.test(html) && !/786|betonogaminiai\.lt/.test(html.slice(html.indexOf('class="pbar"'), html.indexOf('</ul>', html.indexOf('class="pbar"')))), 'landing proof bar: Google | 605 | 31 (ArbCut), no Betono');
+check(/class="pbar"[\s\S]*?>605<[\s\S]*?>33<[\s\S]*?<\/ul>/.test(html) && !/786|betonogaminiai\.lt/.test(html.slice(html.indexOf('class="pbar"'), html.indexOf('</ul>', html.indexOf('class="pbar"')))), 'landing proof bar: Google | 605 | 33 (ArbCut), no Betono');
 const cb = readFileSync('dist/susisieksime/index.html', 'utf8');
-check(cb.includes('>605<') && cb.includes('>31<') && !/786|betonogaminiai/.test(cb) && !/data-cb-time|rytą|vakare/.test(cb), '/susisieksime: ArbCut 605 + 31 proof, no Betono, no contact time');
+check(cb.includes('>605<') && cb.includes('>33<') && !/786|betonogaminiai/.test(cb) && !/data-cb-time|rytą|vakare/.test(cb), '/susisieksime: ArbCut 605 + 33 proof, no Betono, no contact time');
 const gated = (h) => /<button class="yt__btn"[^>]*data-book-open[^>]*data-yt-gate/.test(h) && /<dialog[^>]*data-book-dialog/.test(h);
 check(gated(reg), '/registracija: video click opens the quiz until it is done');
 check(gated(cb) && cb.includes('data-gate data-locked') && !cb.includes('fnl__lock') && cb.includes("sessionStorage.getItem('o2_reg')"), '/susisieksime: same video gate, quiz dialog on page');
@@ -53,5 +54,23 @@ check((html.match(/class="why__card"/g) ?? []).length === 6, 'six why cards');
 check(/if \(menuNav\) \{ menuNav = false; return; \} menuOpener\?\.focus\(\)/.test(ts), 'menu close must always restore the opener');
 check(!/api\/public\/enquiry|api\/health/.test(ts), 'no demo backend calls from the homepage');
 if (/data-book-mode="preview"/.test(html)) check(/bookMode !== 'live'[\s\S]*?return;[\s\S]*?fetch\(book\.action/.test(ts), 'preview booking must return before any POST');
+// S5 (18 Nov 2026): every OFFER §1 term is on /taisykles; no superseded refund, old names or domain-included wording.
+const terms = readFileSync('dist/taisykles/index.html', 'utf8').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/g, ' ').replace(/\s+/g, ' ');
+for (const [label, re] of [
+  ['97 €/mėn.', /97 €\/mėn\./], ['no setup fee', /Įrengimo mokesčio nėra/], ['refund 50 % = 48,50 € within 30 days of the first payment', /30 dienų skaičiuojame nuo pirmo 97 € mokėjimo.{0,120}grąžiname 50 % pirmo mokėjimo \(48,50 €\)/],
+  ['7-day launch', /per 7 dienas/], ['100 SMS + 0,08 €', /100 SMS per mėnesį.{0,120}0,08 €/], ['domain 15 € one-time when none', /neturite[^.]*15 € vienkartinai/], ['cancel anytime', /atsisakyti galite bet kada/i],
+  ['everything off on cancel', /Atsisakius viskas išjungiama/], ['999 € buy-out', /999 € vienkartinai/], ['numbers switched off at exit', /Sistemos numeriai išjungiami/],
+]) check(re.test(terms), `/taisykles is missing the term: ${label}`);
+check(!/domenas įskaičiuotas|domenas įeina|Domenas įskaičiuotas/i.test(terms), '/taisykles must not say the domain is included');
+const allHtml = [];
+const walkHtml = (d) => { for (const n of readdirSync(d)) { const p = join(d, n); if (statSync(p).isDirectory()) { if (n !== 'perziura' && n !== 'previews' && n !== '_astro') walkHtml(p); } else if (p.endsWith('.html')) allHtml.push(p); } };
+walkHtml('dist');
+for (const f of allHtml) {
+  const t = readFileSync(f, 'utf8').replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ');
+  if (/JarvisCo|Žinutė po praleisto skambučio|58,20/.test(t)) errors.push(`${f}: old brand/card name or 58,20 € in visible text`);
+  if (/(?<![\d,.%(])60 ?% (?:pirm|pinig|grąž)/i.test(t)) errors.push(`${f}: 60 % refund wording`);
+}
+check(!/facebook|instagram|messenger/i.test(readFileSync('src/components/o2/Scene.astro', 'utf8')), 'inbox scene shows no Facebook/Instagram (Matas 17 Nov: left out)');
+check(existsSync('src/data/video-ids.json') && existsSync('scripts/fill-video-ids.mjs') && existsSync('scripts/apply-logo.mjs'), 'S5 tooling present: video-ids.json, fill-video-ids.mjs, apply-logo.mjs');
 if (errors.length) { console.error(errors.map((e) => `o2-check: ${e}`).join('\n')); process.exit(1); }
 console.log('o2-check: ok');

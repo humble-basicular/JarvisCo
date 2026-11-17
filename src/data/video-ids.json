@@ -1,0 +1,9 @@
+{
+  "_help": "S5 mapping. After Matas uploads the six 17 Nov videos, replace each TODO-ID with the 11-character YouTube ID (and optionally set poster to the new cover file, absolute path, png/jpg/webp). Then run: npm run videos:fill  (add -- --build to also build + run all checks). Keys = slots in src/data/o2-videos.js. kampanijos, seo and dezute keep their old videos and are not listed.",
+  "intro": { "id": "TODO-ID", "poster": "" },
+  "susisieksime": { "id": "TODO-ID", "poster": "" },
+  "pokalbis": { "id": "TODO-ID", "poster": "" },
+  "svetaine": { "id": "TODO-ID", "poster": "" },
+  "skambuciai": { "id": "TODO-ID", "poster": "" },
+  "atsiliepimai-sistema": { "id": "TODO-ID", "poster": "" }
+}
