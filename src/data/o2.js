@@ -34,7 +34,7 @@ export const O2_OFFER = {
     'Svetainės sukūrimas ir prijungimas prie sistemos',
     'Optimizavimas Google ir AI paieškai: SEO, AEO ir GEO',
     'Svetainės užklausos – SMS pokalbiai ir pranešimai Jums',
-    'Automatinis pokalbis po praleisto skambučio: AI atsakymai klientams iki susitarimo perskambinti',
+    'AI registracijų centras: automatinis pokalbis po praleisto skambučio ir svetainės užklausos – iki susitarimo perskambinti',
     'Atsiliepimų prašymai vienu paspaudimu ir automatinis priminimas',
     'Pirmo mėnesio pagalba: atsiliepimai ir kampanijos tikriems buvusiems klientams',
     'Rinkodaros kampanijos vienu paspaudimu',
@@ -85,12 +85,14 @@ export const o2 = {
       },
       {
         id: 'skambuciai', scene: 'missed', title: 'Automatinis pokalbis po praleisto skambučio',
-        quote: 'Skambučių praleidžia visi, bet atrašo ne visi. Būkite tas, kuris atrašo, ir aplenkite konkurentus.',
+        // Round 2 (17 Nov, Matas 2eeb25e4): stand out from competitors, say plainly it is an AI registracijų centras,
+        // strong first point. Variant A (implemented); variant B in Drive management/site-animations-r2-20261117/COPY.md.
+        quote: 'Tai ne viena šabloninė žinutė. Tai AI registracijų centras: per kelias sekundes atrašo klientui, atsako į jo klausimus ir susitaria, kada perskambinsite.',
         points: [
-          ['Išsiskirkite iš konkurentų', 'Visi praleidžia skambučius, bet ne visi atrašo. Atrašykite Jūs ir būsite pastebėti.'],
-          ['Nebeprarastos užklausos', 'Dirbate objekte ir negalite atsiliepti? Ne bėda – išsiųsime žinutę, atsakysime pagal Jūsų patvirtintus svetainės faktus ir susitarsime, kada perskambinsite. Jums ateina viena žinutė su viskuo, ko reikia.'],
-          ['Parodykite, kad Jums rūpi', 'Buvusiai antrai pusei nepatiko, kai neatsiliepdavote – klientams irgi. Bent parašykite, kad žinotų: Jums rūpi.'],
-          ['Pasiekiami visą parą', 'Praleidote skambutį po darbo? Žinutė išeis ir tada, kai Jūs jau ilsitės.'],
+          ['Klientas gauna pokalbį, ne tylą', 'Kol dirbate objekte, AI iškart atrašo klientui, atsako pagal Jūsų kainas ir svetainės faktus, sužino, ko reikia, ir sutaria, kada perskambinsite.'],
+          ['Jums – tik esmė', 'Viena žinutė telefone: kas skambino, ko nori, kur ir iki kada perskambinti. Jokio susirašinėjimo – tik paskambinate.'],
+          ['Ne „perskambinsime“, o tikras pokalbis', 'Įprasta automatinė žinutė pasako tik „perskambinsime“ ir tyli. Mūsų AI tęsia pokalbį: klausia vardo, kiekio, adreso ir laiko – kaip geras administratorius.'],
+          ['Dirba ir po darbo valandų', 'Skambutis 21 val.? Klientas atsakymą gauna iškart, o Jūs pokalbio santrauką pamatote, kai patogu.'],
         ],
       },
       {
@@ -122,6 +124,17 @@ export const o2 = {
           ['Turinys AI paieškai', 'GEO – optimizavimas generatyvinei paieškai. Sutvarkome turinį ir verslo informaciją, kad AI sistemoms būtų lengviau juos suprasti.'],
         ],
       },
+    ],
+  },
+  /* Round 2 (17 Nov, Matas 2eeb25e4 "maybe the all-in-one inbox shouldn't be just a video"): animated inbox row
+     replaces the lone video box; the old video stays one click away behind the demo button. */
+  inbox: {
+    id: 'dezute', scene: 'inbox', video: 'dezute', title: 'Visos užklausos vienoje vietoje',
+    quote: 'Skambučiai, SMS ir svetainės užklausos – viename sąraše Jūsų telefone. Matote, ką atsakė AI, ir nieko nepamirštate.',
+    points: [
+      ['Viskas viename sąraše', 'Praleisti skambučiai, SMS žinutės, svetainės užklausos ir nauji atsiliepimai – vienoje programėlėje, naujausi viršuje.'],
+      ['Matote, ką atsakė AI', 'Kiekviename pokalbyje matote visą susirašinėjimą ir galite bet kada perimti pokalbį patys.'],
+      ['Niekas nepasimeta', 'Užklausa nepradings tarp asmeninių žinučių – iškart matote, kam reikia perskambinti.'],
     ],
   },
   trades: {

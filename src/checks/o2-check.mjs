@@ -8,10 +8,16 @@ const errors = [];
 const check = (ok, msg) => { if (!ok) errors.push(msg); };
 check(html.includes('/jarvis-systems/og-1200x630.jpg') && existsSync('public/jarvis-systems/og-1200x630.jpg'), 'og image must be the Jarvis Systems kit card');
 const scenes = [...html.matchAll(/data-scene="(\w+)" data-side="(\w+)"/g)].map((m) => `${m[1]}:${m[2]}`);
-check(scenes.join() === 'web:left,missed:right,reviews:left,campaign:right,seo:left', `five source scenes in order with alternating phones, got ${scenes}`);
-check(html.includes('laptop-blank.webp') && ['home', 'form-empty', 'form-filled', 'details-empty', 'details-filled'].every((f) => html.includes(`/jarvis-systems/demo/betono-actual/${f}.webp`)), 'first feature must show both actual steps of the latest non-live Betono rebuild');
+check(scenes.join() === 'web:left,missed:right,reviews:left,campaign:right,seo:left,inbox:right', `five feature scenes + inbox row in order with alternating phones, got ${scenes}`);
+// Round 2 (17 Nov 2026, Matas 2eeb25e4): the laptop keeps the real captured Betono home as background, but the enquiry form on
+// top is OUR two-step form (Matas: the captured two-step form is "terrible"); its captured form/detail pixels are no longer shown.
+check(html.includes('laptop-blank.webp') && html.includes('/jarvis-systems/demo/betono-actual/home.webp') && /class="fm /.test(html) && (html.match(/class="fm__pane"/g) ?? []).length === 2, 'first feature: real Betono home behind the own two-step form (2 panes)');
+check(!/betono-actual\/(?:form-empty|form-filled|details-empty|details-filled)\.webp/.test(html), 'round 2: the old captured form pixels must stay off the homepage');
+check((html.match(/\/jarvis-systems\/app\/icon\.svg/g) ?? []).length >= 3 && existsSync('public/jarvis-systems/app/icon.svg'), 'owner notifications / app screens show the Jarvis Systems app icon');
+check(!/class="scr__sig"|class="own__ic"/.test(html) && (html.match(/class="sb /g) ?? []).length + (html.match(/class="sb"/g) ?? []).length === 6, 'clean iOS status bar on every phone, old battery bar and letter avatar gone');
+check(html.includes('šildymas kaunas') && html.includes('sildymaskaune.com') && !/šulinio žiedai kaunas/.test(html), 'SEO scene: generic heating example, not the father\'s business');
+check(!/class="vbox"/.test(html) && /data-demo-open="dezute" data-demo-yt="z7ns8qtnBbE"/.test(html), 'inbox: animated row replaces the lone video box; the old video stays behind the demo button');
 const betono = JSON.parse(readFileSync('docs/jarvis-stone-source-match/qa/betono-actual-capture-user19.json', 'utf8'));
-check(betono.initial.compact && !betono.initial.banner && !betono.capture.previewHeaderDOMRemoval && betono.source.baseCommit !== '9a94599' && betono.details.stage === 'details', 'USER19: use the rebuilt inline form, with the banner removed in website source');
 check(Object.entries(betono.assets).every(([name, asset]) => createHash('sha256').update(readFileSync(`public/jarvis-systems/demo/betono-actual/${name}`)).digest('hex') === asset.sha256), 'Betono media must match the verified latest-source capture receipt');
 check(!/demo\/bg-hero\.webp|site__form|>BG<|Betono gaminiai/.test(html), 'invented BG demo site/brand must stay gone (USER13)');
 check(['phone-left', 'phone-right', 'laptop'].every((d) => html.includes(`/jarvis-systems/device/${d}-glass.webp`) && existsSync(`public/jarvis-systems/device/${d}-glass.webp`)) && !html.includes('dev__isl'), 'device screens must be trimmed by the derived glass masks');
@@ -39,7 +45,7 @@ check((darbai.match(/<a href="[^"]+\.webp" data-zoom/g) ?? []).length >= 3 && !/
 check(!/data-demo-form|Pavyzdys<|Iliustracija\.|Nuotraukos – iliustracijos|Kad nė viena|Septintos neradome|tcard--txt|programele"/.test(html), 'removed demo section, captions, placeholders and rejected copy must stay gone');
 check((html.match(/trades-stock\/[a-z-]+\.webp/g) ?? []).length === 10, 'all 10 trade cards need stock photos');
 check(html.includes('href="https://jarvisweb-sistema.jarvisworks-co.workers.dev/"'), 'login must point to the verified app entry');
-check((html.match(/data-demo-open=/g) ?? []).length === 5 && /<dialog[^>]*data-demo-dialog/.test(html), 'each feature needs its own short-demo action');
+check((html.match(/data-demo-open=/g) ?? []).length === 6 && /<dialog[^>]*data-demo-dialog/.test(html), 'each feature row (5 + inbox) needs its own short-demo action');
 // Matas 2026-11-12: like Stone, every „Užsiregistruoti pokalbiui“ is a plain link to the funnel page /registracija.
 check(!/data-book-dialog|data-book-open/.test(html) && (html.match(/<a[^>]*href="\/registracija"/g) ?? []).length >= 4, 'home: CTAs are plain links to /registracija, no booking dialog');
 check(/<dialog[^>]*data-book-dialog/.test(reg) && /data-book-form[\s\S]*?<button[^>]*type="submit"[^>]*disabled/.test(reg) && /<button class="fnl__cta"[^>]*data-book-open/.test(reg) && !/class="hdr"|class="ftr"/.test(reg) && /noindex/.test(reg), '/registracija: Stone funnel page (logo only), green button opens the quiz dialog');

@@ -6,12 +6,12 @@
    Adaptations (generic example, nothing real):
    - addresses: the recorded „Liepų g. 7, Garliava“ → „Pavyzdžio g. 7, Garliava“ (invented street); the form scene keeps the
      address already shown on the captured laptop form;
-   - web scene (the laptop pixels are the pre-existing captured form with its example values; the phone/alert text repeats
-     neither its street address nor its number): the form captured on the laptop says Jonas / 4 žiedai / „Kokia kaina su pristatymu į Kauno rajoną?“, so the
-     recorded form conversation is adapted to that request (name Jonas, no lid line, delivery „bus patikslintas pagal adresą“,
-     no transport figure invented);
+   - web scene (round 2: the laptop shows OUR two-step form filled with Šulinio žiedai / 4 / Reikia pristatymo / Kauno r. /
+     Jonas / +370 612 34567; the phone/alert text never repeats the full number): the recorded form conversation is adapted
+     to that request (name Jonas, no lid line, delivery „bus patikslintas pagal adresą“, no transport figure invented);
    - numbers: the shown business number is the fictional +370 645 12980 from the preview; customer numbers are masked.
-   `from: 'biz'` = the business texts the customer (grey, left, typing dots first); `from: 'cus'` = customer reply (blue, right). */
+   `from: 'biz'` = the business texts the customer (grey, left, typing dots first); `from: 'cus'` = customer reply (blue, right,
+   typed in the input bar first). `ownerTitle` + `owner` = the owner's lock-screen notification from the Jarvis Systems app. */
 export const CONVO = {
   web: {
     steps: [
@@ -19,7 +19,8 @@ export const CONVO = {
       { from: 'cus', text: 'Iki penktadienio butu gerai' },
       { from: 'biz', text: 'Aciu, Jonai. Paskambinsime is +370 645 12980 siandien iki 17 val. Tikslia suma su pristatymu patvirtinsime susiskambine.' },
     ],
-    owner: 'Jonas (+370 612 •• •••) nori 4 vnt. šulinio žiedų su pristatymu į Kauną, iki penktadienio. Perskambinti šiandien iki 17 val.',
+    ownerTitle: 'Perskambinti: Jonas, iki 17 val.',
+    owner: 'Jonas (+370 612 •• •••) nori 4 šulinio žiedų su pristatymu į Kauno r., iki penktadienio.',
   },
   missed: {
     steps: [
@@ -33,21 +34,23 @@ export const CONVO = {
       { from: 'cus', text: 'Kita savaite' },
       { from: 'biz', text: 'Aciu, Tomai. Paskambinsim is +370 645 12980 siandien iki 17 val. Tikslia kaina ir pristatymo suma pasakysim susiskambine.' },
     ],
-    owner: 'Tomas (+370 673 •• •••) nori 3 šulinio žiedų, 1 m skersmens, 70 cm aukščio, atvežti į Pavyzdžio g. 7, Garliava, kitą savaitę. Perskambinti šiandien iki 17 val.',
+    ownerTitle: 'Perskambinti: Tomas, iki 17 val.',
+    owner: 'Tomas (+370 673 •• •••) nori 3 šulinio žiedų, 1 m skersmens, 70 cm aukščio, atvežti į Pavyzdžio g. 7, Garliava, kitą savaitę.',
   },
 };
 
-/** Timeline in seconds. `start` = when the first typing dots appear; returns per-step times + loop length.
- *  Business texts get typing dots (`dotsA`→`at`); customer texts just appear. Reading pause grows with text length. */
+/** Timeline in seconds (round 2, 17 Nov). `start` = when the first typing dots appear.
+ *  Business texts: typing dots (`dotsA`→`at`). Customer texts: typed in the input bar (`typeA`→`at`), then sent.
+ *  Reading pause before each step grows with the previous text's length. `own` = owner lock-screen alert. */
 export function buildConvo(kind, start) {
-  const { steps, owner } = CONVO[kind];
+  const { steps, owner, ownerTitle } = CONVO[kind];
   let t = start;
   const out = steps.map((s, i) => {
-    const prev = i ? steps[i - 1].text.length : 0;
-    if (i) t += 0.6 + prev / 100;
-    if (s.from === 'biz') { const r = { ...s, dotsA: t, at: t + 0.6 }; t = r.at; return r; }
-    return { ...s, at: t };
+    if (i) t += 0.5 + steps[i - 1].text.length / 115;
+    if (s.from === 'biz') { const r = { ...s, dotsA: t, at: t + 0.85 }; t = r.at; return r; }
+    const d = Math.min(1.7, 0.35 + s.text.length * 0.02);
+    const r = { ...s, typeA: t, at: +(t + d + 0.2).toFixed(2) }; t = r.at; return r;
   });
-  const own = t + 0.6 + steps[steps.length - 1].text.length / 100 + 1.0;
-  return { steps: out, owner, own, T: +(own + 0.4 + 4.4).toFixed(2) };
+  const own = +(t + 0.6 + steps[steps.length - 1].text.length / 115 + 0.5).toFixed(2);
+  return { steps: out, owner, ownerTitle, own, T: +(own + 0.7 + 4.8).toFixed(2) };
 }

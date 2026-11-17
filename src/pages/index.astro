@@ -1,6 +1,6 @@
 ---
 /* Jarvis Systems homepage — Stone source-match (docs/jarvis-stone-source-match/SPEC.md, USER7):
-   hero (small Google badge only; USER13 removed the big proof slot) → 5 feature rows (website laptop→SMS, reviews, missed call, campaigns, local SEO)
+   hero (small Google badge only; USER13 removed the big proof slot) → 5 feature rows (website laptop→SMS, missed call, reviews, campaigns, local SEO) + animated inbox row (round 2, replaces the video box)
    → trades carousel → 3 steps → 6 "why" cards → FAQ → talk card → footer. Press, partners and the second
    testimonial strip of the source are omitted (no truthful equivalent). /svetaines is the website offer. */
 import O2Layout from '@layouts/O2Layout.astro';
@@ -13,7 +13,7 @@ import { VIDEOS } from '@data/o2-videos.js';
 import { FEATURE_PAGES } from '@data/o2-pages.js';
 import { o2, O2_CTA, GOOGLE, PROOF } from '@data/o2.js';
 import { TRADES } from '@data/o2-trades.js';
-const { hero, features, trades, why, faq } = o2;
+const { hero, features, trades, why, faq, inbox } = o2;
 const href = (h: string) => (h === 'gbp' ? GOOGLE.url : h);
 const ext = (h: string) => /^https?:/.test(href(h));
 ---
@@ -63,7 +63,17 @@ const ext = (h: string) => /^https?:/.test(href(h));
         </div>
       </article>
     ))}
-    <div class="vbox"><YtFacade video={VIDEOS.dezute} /></div>
+    <article class="feat feat--rev" id={inbox.id}>
+      <div class="feat__vis" data-scene-box><Scene kind={inbox.scene} side="right" label={`${inbox.title}: animuota demonstracija`} /></div>
+      <div class="feat__txt">
+        <h3 class="feat__h">{inbox.title}</h3>
+        <p class="feat__q">{inbox.quote}</p>
+        <ul class="feat__pts">
+          {inbox.points.map(([t, d]) => <li><h4><Icon name="badge" size={22} />{t}</h4><p>{d}</p></li>)}
+        </ul>
+        <p class="feat__acts"><button class="btn" type="button" data-demo-open={inbox.id} data-demo-yt={VIDEOS[inbox.video].id} aria-haspopup="dialog">{features.demoBtn}</button></p>
+      </div>
+    </article>
   </section>
 
   <section class="trades slant chev chev--navy" id="sritys" aria-labelledby="t-h">

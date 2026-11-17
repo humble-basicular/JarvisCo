@@ -19,8 +19,7 @@ export const FEATURE_PAGES = {
       ['Atsako AI asistentas', 'Žinutė iš atskiro žinučių numerio prasideda Jūsų verslo vardu ir atsako į kliento klausimą pagal Jūsų patvirtintus svetainės faktus ir joje nurodytas kainas, jei jos žinomos.'],
       ['Perskambinate Jūs', 'Asistentas klausia tik trūkstamų detalių ir susitaria dėl perskambinimo. Jūs gaunate vieną pranešimą ir perskambinate iš savo numerio, o pokalbį programėlėje galite perimti bet kada.'],
     ],
-    note: 'AI ir dvipusės SMS dar ruošiamos ir tikrinamos. Animacija ir ekrano kopija yra demonstracija: realios „Dailius ir ko“ svetainės naujausia versija, forma neišsiunčia duomenų.',
-    shot: true,
+    note: 'AI ir dvipusės SMS dar ruošiamos ir tikrinamos. Animacija yra demonstracija: realios „Dailius ir ko“ svetainės fonas su mūsų dviejų žingsnių užklausos forma; forma neišsiunčia duomenų.',
   },
   'atsiliepimai-sistema': {
     slug: 'atsiliepimu-rinkimas',
