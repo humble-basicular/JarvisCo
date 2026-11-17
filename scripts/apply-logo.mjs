@@ -26,9 +26,10 @@ const pick = (...bases) => {
   for (const b of bases) { const f = files.find((x) => new RegExp(`^${b}\\.(svg|png|webp|jpe?g)$`, 'i').test(x)); if (f) return join(dir, f); }
   return null;
 };
-const white = pick('logo-on-white', 'logo');
-const navy = pick('logo-on-navy') ?? white;
-const icon = pick('icon');
+// Also accepts the Marketing folder naming (foundation-20261118/BRAND/logo-v2/<X>/): lockup-horizontal-on-white|navy, app-icon-1024.
+const white = pick('logo-on-white', 'lockup-horizontal-on-white', 'logo');
+const navy = pick('logo-on-navy', 'lockup-horizontal-on-navy') ?? white;
+const icon = pick('icon', 'app-icon-1024');
 const og = pick('og');
 if (!white) { console.error('missing logo-on-white.* (or logo.*) in ' + dir); process.exit(2); }
 if (!icon) { console.error('missing icon.* (square app icon) in ' + dir); process.exit(2); }
