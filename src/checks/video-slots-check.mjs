@@ -10,7 +10,11 @@ const NEW = ['intro', 'susisieksime', 'pokalbis', 'svetaine', 'skambuciai', 'ats
 const KEEP = ['kampanijos', 'seo', 'dezute'];
 for (const [k, v] of Object.entries(VIDEOS)) {
   if (!YT.test(v.id)) errors.push(`${k}: live id "${v.id}" is not a YouTube ID`);
-  if ('newId' in v && v.newId !== TODO_ID && !YT.test(v.newId)) errors.push(`${k}: newId "${v.newId}" is neither ${TODO_ID} nor a YouTube ID`);
+  if ('newId' in v && v.newId !== TODO_ID) {
+    if (!YT.test(v.newId)) errors.push(`${k}: newId "${v.newId}" is neither ${TODO_ID} nor a YouTube ID`);
+    else if (v.newId !== v.id) errors.push(`${k}: half-swapped slot: newId ${v.newId} is set but id ${v.id} still plays. Set id = newId, replace the poster, delete newId`);
+    else errors.push(`${k}: swap finished, delete the leftover newId`);
+  }
 }
 for (const k of NEW) if (!VIDEOS[k]) errors.push(`missing slot ${k}`);
 for (const k of KEEP) { if (!VIDEOS[k]) errors.push(`missing slot ${k}`); else if ('newId' in VIDEOS[k]) errors.push(`${k} keeps its old video, remove newId`); }

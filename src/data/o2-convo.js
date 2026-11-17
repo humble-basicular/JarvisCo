@@ -6,7 +6,8 @@
    Adaptations (generic example, nothing real):
    - addresses: the recorded „Liepų g. 7, Garliava“ → „Pavyzdžio g. 7, Garliava“ (invented street); the form scene keeps the
      address already shown on the captured laptop form;
-   - web scene: the form captured on the laptop says Jonas / 4 žiedai / „Kokia kaina su pristatymu į Kauno rajoną?“, so the
+   - web scene (the laptop pixels are the pre-existing captured form with its example values; the phone/alert text repeats
+     neither its street address nor its number): the form captured on the laptop says Jonas / 4 žiedai / „Kokia kaina su pristatymu į Kauno rajoną?“, so the
      recorded form conversation is adapted to that request (name Jonas, no lid line, delivery „bus patikslintas pagal adresą“,
      no transport figure invented);
    - numbers: the shown business number is the fictional +370 645 12980 from the preview; customer numbers are masked.
@@ -18,7 +19,7 @@ export const CONVO = {
       { from: 'cus', text: 'Iki penktadienio butu gerai' },
       { from: 'biz', text: 'Aciu, Jonai. Paskambinsime is +370 645 12980 siandien iki 17 val. Tikslia suma su pristatymu patvirtinsime susiskambine.' },
     ],
-    owner: 'Jonas (+370 612 34567) nori 4 vnt. šulinio žiedų su pristatymu (Vytauto g. 10, Kaunas), iki penktadienio. Perskambinti šiandien iki 17 val.',
+    owner: 'Jonas (+370 612 •• •••) nori 4 vnt. šulinio žiedų su pristatymu į Kauną, iki penktadienio. Perskambinti šiandien iki 17 val.',
   },
   missed: {
     steps: [
