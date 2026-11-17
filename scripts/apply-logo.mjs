@@ -34,23 +34,31 @@ const og = pick('og');
 if (!white) { console.error('missing logo-on-white.* (or logo.*) in ' + dir); process.exit(2); }
 if (!icon) { console.error('missing icon.* (square app icon) in ' + dir); process.exit(2); }
 
-const write = (path, buf) => { if (flag('--dry')) { console.log('[dry] ' + path); return; } mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, buf); console.log('wrote ' + path); };
+// Render EVERYTHING first (a bad input file throws here, before any file is touched), then write all outputs.
+const outputs = [];
+const write = (path, buf) => outputs.push([path, buf]);
 const logoBox = (src) => sharp(src, { density: 300 }).resize(560, 205, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).webp({ quality: 92 }).toBuffer();
 const square = (src, n) => sharp(src, { density: 300 }).resize(n, n, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
+const touch = (src) => sharp(src, { density: 300 }).resize(180, 180, { fit: 'contain', background: '#ffffff' }).flatten({ background: '#ffffff' }).png().toBuffer();
 
 write(join(OUT, 'logo-on-white.webp'), await logoBox(white));
 write(join(OUT, 'logo-on-navy.webp'), await logoBox(navy));
 for (const n of [16, 32, 48]) write(join(OUT, 'favicon', `favicon-${n}.png`), await square(icon, n));
 for (const n of [192, 512]) write(join(OUT, 'favicon', `icon-${n}.png`), await square(icon, n));
-write(join(OUT, 'favicon', 'apple-touch-icon-180.png'), await sharp(icon, { density: 300 }).resize(180, 180, { fit: 'contain', background: '#ffffff' }).flatten({ background: '#ffffff' }).png().toBuffer());
-write(join(PUBLIC_ROOT, 'apple-touch-icon.png'), await sharp(icon, { density: 300 }).resize(180, 180, { fit: 'contain', background: '#ffffff' }).flatten({ background: '#ffffff' }).png().toBuffer());
-// .ico with 16/32 PNG frames (PNG-in-ICO is valid for every current browser)
-const p16 = await square(icon, 16), p32 = await square(icon, 32);
-const head = Buffer.alloc(6); head.writeUInt16LE(0, 0); head.writeUInt16LE(1, 2); head.writeUInt16LE(2, 4);
-const ent = (px, buf, off) => { const e = Buffer.alloc(16); e[0] = px; e[1] = px; e.writeUInt16LE(1, 4); e.writeUInt16LE(32, 6); e.writeUInt32LE(buf.length, 8); e.writeUInt32LE(off, 12); return e; };
-write(join(OUT, 'favicon', 'favicon.ico'), Buffer.concat([head, ent(16, p16, 6 + 32), ent(32, p32, 6 + 32 + p16.length), p16, p32]));
+write(join(OUT, 'favicon', 'apple-touch-icon-180.png'), await touch(icon));
+write(join(PUBLIC_ROOT, 'apple-touch-icon.png'), await touch(icon));
+// .ico with 16/32/48 PNG frames (PNG-in-ICO is valid for every current browser; the layout declares sizes="48x48")
+const frames = [[16, await square(icon, 16)], [32, await square(icon, 32)], [48, await square(icon, 48)]];
+const head = Buffer.alloc(6); head.writeUInt16LE(0, 0); head.writeUInt16LE(1, 2); head.writeUInt16LE(frames.length, 4);
+let off = 6 + 16 * frames.length;
+const dir16 = frames.map(([px, buf]) => { const e = Buffer.alloc(16); e[0] = px; e[1] = px; e.writeUInt16LE(1, 4); e.writeUInt16LE(32, 6); e.writeUInt32LE(buf.length, 8); e.writeUInt32LE(off, 12); off += buf.length; return e; });
+write(join(OUT, 'favicon', 'favicon.ico'), Buffer.concat([head, ...dir16, ...frames.map(([, b]) => b)]));
 // app icon used inside the phone animations (referenced as /jarvis-systems/app/icon.svg)
 const iconSvg = /\.svg$/i.test(icon) ? readFileSync(icon) : Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Jarvis Systems"><image href="data:image/png;base64,${(await square(icon, 256)).toString('base64')}" width="64" height="64"/></svg>`);
 write(join(OUT, 'app', 'icon.svg'), iconSvg);
 if (og) write(join(OUT, 'og-1200x630.jpg'), await sharp(og).resize(1200, 630, { fit: 'cover' }).jpeg({ quality: 88 }).toBuffer());
+for (const [path, buf] of outputs) {
+  if (flag('--dry')) { console.log('[dry] ' + path); continue; }
+  mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, buf); console.log('wrote ' + path);
+}
 console.log(flag('--dry') ? 'dry run: nothing written' : 'logo applied. Next: npm run build && npm run check:o2');

@@ -58,17 +58,20 @@ if (/data-book-mode="preview"/.test(html)) check(/bookMode !== 'live'[\s\S]*?ret
 const terms = readFileSync('dist/taisykles/index.html', 'utf8').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/g, ' ').replace(/\s+/g, ' ');
 for (const [label, re] of [
   ['97 €/mėn.', /97 €\/mėn\./], ['no setup fee', /Įrengimo mokesčio nėra/], ['refund 50 % = 48,50 € within 30 days of the first payment', /30 dienų skaičiuojame nuo pirmo 97 € mokėjimo.{0,120}grąžiname 50 % pirmo mokėjimo \(48,50 €\)/],
-  ['7-day launch', /per 7 dienas/], ['100 SMS + 0,08 €', /100 SMS per mėnesį.{0,120}0,08 €/], ['domain 15 € one-time when none', /neturite[^.]*15 € vienkartinai/], ['cancel anytime', /atsisakyti galite bet kada/i],
+  ['7-day launch', /per 7 dienas/], ['100 SMS + 0,08 €', /100 SMS segmentų per mėnesį.{0,120}0,08 €/], ['domain 15 € one-time when none', /neturite, taikomas vienkartinis 15 € domeno mokestis/], ['cancel anytime', /atsisakyti galite bet kada/i],
   ['everything off on cancel', /Atsisakius viskas išjungiama/], ['999 € buy-out', /999 € vienkartinai/], ['numbers switched off at exit', /Sistemos numeriai išjungiami/],
 ]) check(re.test(terms), `/taisykles is missing the term: ${label}`);
-check(!/domenas įskaičiuotas|domenas įeina|Domenas įskaičiuotas/i.test(terms), '/taisykles must not say the domain is included');
 const allHtml = [];
 const walkHtml = (d) => { for (const n of readdirSync(d)) { const p = join(d, n); if (statSync(p).isDirectory()) { if (n !== 'perziura' && n !== 'previews' && n !== '_astro') walkHtml(p); } else if (p.endsWith('.html')) allHtml.push(p); } };
 walkHtml('dist');
+const DOMAIN_INCLUDED = /domen\w*(?:\s+\w+){0,2}\s+(?:įskaičiuot|įeina)|(?:įskaičiuot|įeina)\w*(?:\s+\w+){0,3}\s+domen/i;
 for (const f of allHtml) {
-  const t = readFileSync(f, 'utf8').replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ');
-  if (/JarvisCo|Žinutė po praleisto skambučio|58,20/.test(t)) errors.push(`${f}: old brand/card name or 58,20 € in visible text`);
-  if (/(?<![\d,.%(])60 ?% (?:pirm|pinig|grąž)/i.test(t)) errors.push(`${f}: 60 % refund wording`);
+  const raw = readFileSync(f, 'utf8').replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g, ' ');
+  const labels = [...raw.matchAll(/\b(?:alt|aria-label|title|content|placeholder|data-caption|data-alt|data-messages)="([^"]*)"/g)].map((m) => m[1]).join(' ');
+  const t = `${raw.replace(/<[^>]+>/g, ' ')} ${labels}`.replace(/&nbsp;|&#160;/g, ' ').replace(/\s+/g, ' ');
+  if (/JarvisCo|Žinutė po praleisto skambučio|58,20/.test(t)) errors.push(`${f}: old brand/card name or 58,20 € in visible text, metadata or labels`);
+  if (/(?<![\d,.])60\s?%/.test(t)) errors.push(`${f}: "60 %" in visible text, metadata or labels (refund is 50 % = 48,50 €)`);
+  if (DOMAIN_INCLUDED.test(t)) errors.push(`${f}: says the domain is included (it is 15 € one-time when the client has none)`);
 }
 check(!/facebook|instagram|messenger/i.test(readFileSync('src/components/o2/Scene.astro', 'utf8')), 'inbox scene shows no Facebook/Instagram (Matas 17 Nov: left out)');
 check(existsSync('src/data/video-ids.json') && existsSync('scripts/fill-video-ids.mjs') && existsSync('scripts/apply-logo.mjs'), 'S5 tooling present: video-ids.json, fill-video-ids.mjs, apply-logo.mjs');

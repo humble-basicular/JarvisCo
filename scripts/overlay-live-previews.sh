@@ -22,8 +22,15 @@ fi
 want="$(cut -d' ' -f1 scripts/overlay-tarball.sha256)"
 have="$(shasum -a 256 "$TGZ" | cut -d' ' -f1)"
 [ "$want" = "$have" ] || { echo "overlay: tarball checksum mismatch ($have, expected $want)" >&2; exit 1; }
-tar -xzkf "$TGZ" -C "$T" --strip-components=1
-sed "s# dist/# $T/#" scripts/overlay-manifest.sha256 | shasum -a 256 -c --quiet || { echo "overlay: file checksum mismatch after extraction" >&2; exit 1; }
-n="$(find "$T/perziura" -name index.html | wc -l | tr -d ' ')"
-[ "$n" = 83 ] || { echo "overlay: expected 83 /perziura pages, found $n" >&2; exit 1; }
-echo "overlay: $n /perziura pages + $(find "$T/previews" -type f | wc -l | tr -d ' ') /previews files + $(find "$T/_astro" -type f | wc -l | tr -d ' ') _astro files, all checksums ok"
+# Stage first: nothing in $T changes unless the archive, every file checksum, the page count and all _astro collisions are fine.
+STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
+tar -xzf "$TGZ" -C "$STAGE"
+( cd "$STAGE" && shasum -a 256 -c --quiet "$OLDPWD/scripts/overlay-manifest.sha256" ) || { echo "overlay: file checksum mismatch in the archive, $T untouched" >&2; exit 1; }
+n="$(find "$STAGE/dist/perziura" -name index.html | wc -l | tr -d ' ')"
+[ "$n" = 83 ] || { echo "overlay: expected 83 /perziura pages, found $n, $T untouched" >&2; exit 1; }
+[ -e "$T/previews" ] && { echo "overlay: $T/previews already exists, $T untouched" >&2; exit 1; }
+( cd "$STAGE/dist/_astro" && find . -type f ) | while read -r f; do
+  if [ -e "$T/_astro/$f" ] && ! cmp -s "$STAGE/dist/_astro/$f" "$T/_astro/$f"; then echo "overlay: _astro collision (different content): $f, $T untouched" >&2; exit 1; fi
+done || exit 1
+cp -R "$STAGE/dist/." "$T/"
+echo "overlay: $n /perziura pages + $(find "$T/previews" -type f | wc -l | tr -d ' ') /previews files + $(find "$T/_astro" -type f | wc -l | tr -d ' ') _astro files in $T, all checksums ok"
