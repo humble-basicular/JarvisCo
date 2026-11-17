@@ -8,7 +8,7 @@
    independently of the ID, so it can be supplied in a later run too.
    All validation and image conversion happens first; files are written only if everything succeeded (no half-applied state).
    Idempotent. ID format: 11 chars [A-Za-z0-9_-]. */
-import { readFileSync, writeFileSync, existsSync, renameSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, renameSync, unlinkSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import sharp from 'sharp';
 
@@ -49,8 +49,12 @@ if (requireAll) {
   for (const k of REQUIRED) { const b = (src.match(blockRe(k)) ?? [''])[0]; if (/\bnewId:/.test(b)) errors.push(`${k}: still waiting (TODO-ID / not swapped)`); }
 }
 if (errors.length) { console.error(errors.map((e) => 'fill-video-ids: ' + e).join('\n') + '\nnothing written'); process.exit(1); }
-writeFileSync(DATA + '.tmp', src); renameSync(DATA + '.tmp', DATA);
-for (const p of posters) { writeFileSync(p.target + '.tmp', p.buf); renameSync(p.target + '.tmp', p.target); done.push(`${p.key} poster -> ${p.target} (${p.size})`); }
+// Stage every output as a .tmp file first; the originals are replaced only after ALL temp files were written.
+const staged = [[DATA, Buffer.from(src)], ...posters.map((p) => [p.target, p.buf])];
+try { for (const [t, buf] of staged) writeFileSync(t + '.tmp', buf); }
+catch (e) { for (const [t] of staged) try { unlinkSync(t + '.tmp'); } catch {} console.error('fill-video-ids: could not stage outputs (' + e.message + '), nothing written'); process.exit(1); }
+for (const [t] of staged) renameSync(t + '.tmp', t);
+for (const p of posters) done.push(`${p.key} poster -> ${p.target} (${p.size})`);
 console.log('filled:\n  ' + (done.join('\n  ') || '(nothing)'));
 console.log('still waiting: ' + (waiting.join(', ') || 'none'));
 if (args.includes('--build')) for (const c of ['npm run build', 'npm run check:js', 'npm run check:o2', 'npm run check:video-slots']) { console.log('> ' + c); execSync(c, { stdio: 'inherit' }); }

@@ -105,7 +105,7 @@ export const pages = {
         ['Atsisakyti', 'galite bet kada'],
         ['Paleidžiame', 'per 7 dienas'],
         ['Domenas', O2_OFFER.domainShort],
-        ['100 SMS', 'per mėnesį įskaičiuota, papildoma – 0,08 €'],
+        ['100 SMS segmentų', 'per mėnesį įskaičiuota, papildomas – 0,08 €'],
       ],
       includes: O2_OFFER.includes,
       extra: O2_OFFER.guaranteeDetails,

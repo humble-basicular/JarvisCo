@@ -28,6 +28,8 @@ tar -xzf "$TGZ" -C "$STAGE"
 ( cd "$STAGE" && shasum -a 256 -c --quiet "$OLDPWD/scripts/overlay-manifest.sha256" ) || { echo "overlay: file checksum mismatch in the archive, $T untouched" >&2; exit 1; }
 n="$(find "$STAGE/dist/perziura" -name index.html | wc -l | tr -d ' ')"
 [ "$n" = 83 ] || { echo "overlay: expected 83 /perziura pages, found $n, $T untouched" >&2; exit 1; }
+[ -e "$T/_astro" ] && [ ! -d "$T/_astro" ] && { echo "overlay: $T/_astro is not a directory, $T untouched" >&2; exit 1; }
+[ -w "$T" ] || { echo "overlay: $T is not writable" >&2; exit 1; }
 [ -e "$T/previews" ] && { echo "overlay: $T/previews already exists, $T untouched" >&2; exit 1; }
 ( cd "$STAGE/dist/_astro" && find . -type f ) | while read -r f; do
   if [ -e "$T/_astro/$f" ] && ! cmp -s "$STAGE/dist/_astro/$f" "$T/_astro/$f"; then echo "overlay: _astro collision (different content): $f, $T untouched" >&2; exit 1; fi

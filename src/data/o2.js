@@ -26,7 +26,7 @@ export const O2_OFFER = {
   cancel: 'Atsisakyti galite bet kada',
   domain: 'Jei domeno dar neturite, taikomas vienkartinis 15 € domeno mokestis. Jei domeną jau turite, papildomo mokesčio nėra.',
   domainShort: '15 € vienkartinai, jei domeno dar neturite',
-  sms: '100 SMS per mėnesį įskaičiuota, kiekviena papildoma SMS – 0,08 €',
+  sms: '100 SMS segmentų per mėnesį įskaičiuota, kiekvienas papildomas segmentas – 0,08 €',
   smsDetails: 'Į kainą įskaičiuota 100 SMS segmentų per mėnesį. Kiekvienas papildomas segmentas kainuoja 0,08 € ir pridedamas prie tos pačios mėnesio sąskaitos. Ilga žinutė ar žinutė su lietuviškomis raidėmis gali sudaryti kelis segmentus.',
   cancelDetails: 'Prenumerata mėnesinė, atsisakyti galite bet kada. Atsisakius viskas išjungiama, taip pat ir svetainė.',
   keepSite: 'Jei norite pasilikti svetainę, ją galite išsipirkti už 999 € vienkartinai. Svetainė lieka be sistemų, su paprasta el. pašto forma.',
