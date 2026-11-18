@@ -179,8 +179,9 @@ assert.equal(STORAGE_KEY, 'jw_proof_code');
 assert.deepEqual(EVENT_TYPES, ['view', 'scroll_proof', 'cta_sms', 'cta_call', 'pdf', 'arbcut', 'preview_cta']);
 assert.deepEqual(TRACKING_PREFIXES, { a: '/musu-darbai', p: '/musu-darbai' });
 const redirectConfig = JSON.parse(readFileSync('vercel.json', 'utf8'));
-const redirects = JSON.parse(readFileSync(redirectConfig.bulkRedirectsPath, 'utf8'));
-check(redirects.every((rule) => rule.preserveQueryParams === true), 'Legacy redirects must preserve proof/attribution query strings');
+// 18 Nov: bulk redirects are not available on the Hobby plan (deploy failed) -> plain vercel.json redirects, which pass the query string through by default.
+const redirects = redirectConfig.redirects ?? [];
+check(redirects.length > 0 && redirects.every((rule) => rule.statusCode === 301 && !rule.destination.includes('?')), 'Legacy redirects must be plain 301s (query strings pass through)');
 // 2026-11-16 (4ec2c8eb): legacy website-offer pages 301 straight to their canonical Jarvis Systems page (no chains).
 const LEGACY = { '/arboristams': '/musu-darbai', '/rezultatai': '/musu-darbai', '/svetaines': '/', '/noriu': '/', '/sildymui': '/' };
 for (const [base, destination] of Object.entries(LEGACY)) {

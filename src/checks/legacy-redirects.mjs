@@ -6,7 +6,7 @@ import { TRACKING_PREFIXES } from '../data/tracking.js';
 const origin = process.argv[2] ?? 'http://127.0.0.1:4338';
 assert(['localhost', '127.0.0.1'].includes(new URL(origin).hostname));
 const config = JSON.parse(readFileSync('vercel.json', 'utf8'));
-const rules = JSON.parse(readFileSync(config.bulkRedirectsPath, 'utf8'));
+const rules = config.redirects;
 const receipts = [];
 for (const rule of rules) {
   for (const query of ['', '?r=a2345&utm_source=review&value=a%20b', '?r=p2345&tag=one&tag=two&encoded=%26%3D']) {
