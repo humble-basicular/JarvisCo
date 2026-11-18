@@ -28,11 +28,11 @@ export const VIDEOS = {
   /* /susisieksime (booking page): unlisted. Matas 2026-11-17: this one is the SHORT video; the detailed one is `pokalbis`. */
   susisieksime: { id: 'UTHOH4o2tm4', title: 'Susisieksime | Jarvis Systems', poster: '/video/7-susisieksime.webp' },
   /* Detailed pre-call video: sent after booking, not embedded on any page (kept here so S5 has one map). */
-  pokalbis: { id: 'sh9svy3DnC4', newId: TODO_ID, title: 'Ko tikėtis prieš pokalbį', poster: '/video/0-pries-pokalbi.webp' },
-  svetaine: { tvarkomas: true, title: 'Funkcionali svetainė', poster: '/video/1-funkcionali-svetaine.webp' },
+  pokalbis: { id: '6rXDiad6J-w', title: 'Ko tikėtis prieš pokalbį', poster: '/video/0-pries-pokalbi.webp' },
+  svetaine: { id: 'BKD3fftoCtA', title: 'Funkcionali svetainė', poster: '/video/1-funkcionali-svetaine.webp' },
   /* Renamed 2026-11-17 (Matas): „Automatinis pokalbis po praleisto skambučio“. The old cover still carries the old title; replace it with the new one. */
-  skambuciai: { tvarkomas: true, title: 'Automatinis pokalbis po praleisto skambučio', poster: '/video/2-zinute-po-praleisto-skambucio.webp' },
-  'atsiliepimai-sistema': { tvarkomas: true, title: 'Atsiliepimų rinkimas', poster: '/video/3-atsiliepimai.webp' },
+  skambuciai: { id: 'nqpCPtlR420', title: 'Automatinis pokalbis po praleisto skambučio', poster: '/video/2-zinute-po-praleisto-skambucio.webp' },
+  'atsiliepimai-sistema': { id: 'J53inQA2SGE', title: 'Atsiliepimų rinkimas', poster: '/video/3-atsiliepimai.webp' },
   kampanijos: { id: '0HAYKTG8EjA', title: 'Kampanijos', poster: '/video/4-kampanijos.webp' },
   seo: { id: '8KRV7Yavkzc', title: 'SEO, AEO ir GEO', poster: '/video/5-seo-aeo-geo.webp' },
   dezute: { id: 'z7ns8qtnBbE', title: 'Visos žinutės vienoje dėžutėje', poster: '/video/6-viena-dezute.webp' },
