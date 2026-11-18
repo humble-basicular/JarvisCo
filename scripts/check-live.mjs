@@ -60,7 +60,7 @@ if (!process.argv.includes('--perziura-only')) {
     for (const m of r.text.matchAll(/data-(?:demo-)?yt="([^"]+)"/g)) if (!allIds.has(m[1])) errors.push(`${p}: stale or unknown YouTube ID ${m[1]} (not in src/data/o2-videos.js)`);
     // 4. Cloudflare Web Analytics: exactly one beacon (ours, from PUBLIC_CF_ANALYTICS_TOKEN; a second one = dashboard auto-injection is also on)
     const beacons = [...r.text.matchAll(/<script[^>]*static\.cloudflareinsights\.com\/beacon\.min\.js[^>]*>/g)].map((m) => m[0]);
-    const tok = (beacons[0]?.match(/&quot;token&quot;:&quot;([0-9a-f]{32})&quot;|"token":"([0-9a-f]{32})"/) ?? []).slice(1).find(Boolean);
+    const tok = (beacons[0]?.match(/(?:&quot;|&#34;|")token(?:&quot;|&#34;|"):(?:&quot;|&#34;|")([0-9a-f]{32})/) ?? []).slice(1).find(Boolean);
     if (beacons.length !== 1 || !tok) errors.push(`${p}: expected 1 Cloudflare analytics beacon with a token, found ${beacons.length}`);
     else if (process.env.PUBLIC_CF_ANALYTICS_TOKEN && tok !== process.env.PUBLIC_CF_ANALYTICS_TOKEN) errors.push(`${p}: analytics token ${tok} != PUBLIC_CF_ANALYTICS_TOKEN`);
   }
