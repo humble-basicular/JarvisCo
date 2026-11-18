@@ -7,6 +7,9 @@
              `id = newId`, replace `poster` with the new cover, then delete `newId`. `node src/checks/video-slots-check.mjs`
              (run by `npm run check:video-slots`) fails if a slot is half-swapped or an ID is malformed.
 
+   18 Nov (Matas): intro + susisieksime swapped to the new uploads; svetaine, skambuciai, atsiliepimai-sistema show the
+   "Video tvarkomas" sign (`tvarkomas: true`, no player) until their new videos are uploaded; pokalbis (not on the site) waits.
+
    | key                  | where it shows                                   | new video (17 Nov)                                    | status |
    |----------------------|--------------------------------------------------|-------------------------------------------------------|--------|
    | intro                | home „Pažiūrėkite, kaip tai veikia“, /registracija | Jarvis Systems per 1 minutę (intro)                   | TODO-ID |
@@ -21,15 +24,15 @@
 */
 export const TODO_ID = 'TODO-ID';
 export const VIDEOS = {
-  intro: { id: '4ngEf35FUVk', newId: TODO_ID, title: 'Jarvis Systems per 1 minutę', poster: '/video/00-svetaines-intro.webp' },
+  intro: { id: 'XC5AcGkpsB8', title: 'Jarvis Systems per 1 minutę', poster: '/video/00-svetaines-intro.webp' },
   /* /susisieksime (booking page): unlisted. Matas 2026-11-17: this one is the SHORT video; the detailed one is `pokalbis`. */
-  susisieksime: { id: 'pjRZEfHBaH4', newId: TODO_ID, title: 'Susisieksime | Jarvis Systems', poster: '/video/7-susisieksime.webp' },
+  susisieksime: { id: 'UTHOH4o2tm4', title: 'Susisieksime | Jarvis Systems', poster: '/video/7-susisieksime.webp' },
   /* Detailed pre-call video: sent after booking, not embedded on any page (kept here so S5 has one map). */
   pokalbis: { id: 'sh9svy3DnC4', newId: TODO_ID, title: 'Ko tikėtis prieš pokalbį', poster: '/video/0-pries-pokalbi.webp' },
-  svetaine: { id: '8a9SUuZ0mcg', newId: TODO_ID, title: 'Funkcionali svetainė', poster: '/video/1-funkcionali-svetaine.webp' },
+  svetaine: { tvarkomas: true, title: 'Funkcionali svetainė', poster: '/video/1-funkcionali-svetaine.webp' },
   /* Renamed 2026-11-17 (Matas): „Automatinis pokalbis po praleisto skambučio“. The old cover still carries the old title; replace it with the new one. */
-  skambuciai: { id: 'dwALsgz9NzE', newId: TODO_ID, title: 'Automatinis pokalbis po praleisto skambučio', poster: '/video/2-zinute-po-praleisto-skambucio.webp' },
-  'atsiliepimai-sistema': { id: 'fKqbEM6Mwu4', newId: TODO_ID, title: 'Atsiliepimų rinkimas', poster: '/video/3-atsiliepimai.webp' },
+  skambuciai: { tvarkomas: true, title: 'Automatinis pokalbis po praleisto skambučio', poster: '/video/2-zinute-po-praleisto-skambucio.webp' },
+  'atsiliepimai-sistema': { tvarkomas: true, title: 'Atsiliepimų rinkimas', poster: '/video/3-atsiliepimai.webp' },
   kampanijos: { id: '0HAYKTG8EjA', title: 'Kampanijos', poster: '/video/4-kampanijos.webp' },
   seo: { id: '8KRV7Yavkzc', title: 'SEO, AEO ir GEO', poster: '/video/5-seo-aeo-geo.webp' },
   dezute: { id: 'z7ns8qtnBbE', title: 'Visos žinutės vienoje dėžutėje', poster: '/video/6-viena-dezute.webp' },

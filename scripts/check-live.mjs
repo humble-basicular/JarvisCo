@@ -40,6 +40,7 @@ if (!process.argv.includes('--perziura-only')) {
   // 3. pages
   const vids = readFileSync('src/data/o2-videos.js', 'utf8');
   const id = (k) => (vids.match(new RegExp(`(?:'${k}'|${k}):\\s*\\{\\s*id:\\s*'([^']+)'`)) ?? [])[1];
+  const fixing = (k) => new RegExp(`(?:'${k}'|${k}):\\s*\\{\\s*tvarkomas:\\s*true`).test(vids);
   const allIds = new Set([...vids.matchAll(/\bid:\s*'([A-Za-z0-9_-]{11})'/g)].map((m) => m[1]));
   const where = { '/': ['intro', 'svetaine', 'skambuciai', 'atsiliepimai-sistema', 'kampanijos', 'seo', 'dezute'], '/susisieksime': ['susisieksime'], '/kontaktai': ['susisieksime'], '/registracija': ['intro'],
     '/funkcijos/funkcionali-svetaine': ['svetaine'], '/funkcijos/praleistas-skambutis': ['skambuciai'], '/funkcijos/atsiliepimu-rinkimas': ['atsiliepimai-sistema'], '/funkcijos/kampanijos': ['kampanijos'], '/funkcijos/vietinis-seo': ['seo'] };
@@ -48,7 +49,8 @@ if (!process.argv.includes('--perziura-only')) {
     if (r.status !== 200) { errors.push(`${p}: ${r.status}`); continue; }
     if (r.text.includes('TODO-ID')) errors.push(`${p}: contains TODO-ID`);
     if (/JarvisCo|Žinutė po praleisto skambučio/.test(r.text.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g, ''))) errors.push(`${p}: old brand/card name`);
-    for (const k of where[p] ?? []) if (!r.text.includes(id(k))) errors.push(`${p}: video ${k} (${id(k)}) not embedded`);
+    for (const k of where[p] ?? []) if (fixing(k)) { if (!r.text.includes(p === '/' ? `data-demo-open="${k}"` : 'Video tvarkomas') || (p === '/' && !new RegExp(`data-demo-open="${k}"[^>]*data-demo-fix`).test(r.text))) errors.push(`${p}: ${k} should show Video tvarkomas`); }
+    else if (!r.text.includes(id(k))) errors.push(`${p}: video ${k} (${id(k)}) not embedded`);
     for (const m of r.text.matchAll(/data-(?:demo-)?yt="([^"]+)"/g)) if (!allIds.has(m[1])) errors.push(`${p}: stale or unknown YouTube ID ${m[1]} (not in src/data/o2-videos.js)`);
   }
   const s = await get('/susisieksime'); if (!s.text.includes('>33<')) errors.push('/susisieksime: 33 enquiries missing');

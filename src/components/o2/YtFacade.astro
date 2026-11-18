@@ -2,9 +2,17 @@
 /* YouTube facade: our own poster until click, then youtube-nocookie iframe (no YouTube request before click).
    `gate` (funnel pages, Matas 2026-11-13): until the quiz is done in this tab (sessionStorage o2_reg=1, set in o2.ts)
    a click opens the quiz dialog instead (o2.ts handles [data-book-open]); after that it plays. */
-interface Props { video: { id: string; title: string; poster: string }; class?: string; gate?: boolean }
+interface Props { video: { id?: string; title: string; poster: string; tvarkomas?: boolean }; class?: string; gate?: boolean }
 const { video, class: cls, gate = false } = Astro.props;
 ---
+{video.tvarkomas ? (
+<figure class:list={['yt', cls]}>
+  <div class="yt__box yt__fix" role="img" aria-label={`${video.title}: video tvarkomas`}>
+    <strong>Video tvarkomas</strong><span>Netrukus čia bus naujas vaizdo įrašas.</span>
+  </div>
+  <figcaption class="yt__cap">{video.title}</figcaption>
+</figure>
+) : (
 <figure class:list={['yt', cls]}>
   <div class="yt__box" data-yt={video.id}>
     <button class="yt__btn" type="button" aria-label={`Paleisti vaizdo įrašą: ${video.title}`} data-book-open={gate ? '' : undefined} data-yt-gate={gate ? '' : undefined} aria-haspopup={gate ? 'dialog' : undefined}>
@@ -14,6 +22,7 @@ const { video, class: cls, gate = false } = Astro.props;
   </div>
   <figcaption class="yt__cap">{video.title}</figcaption>
 </figure>
+)}
 <script>
   document.querySelectorAll<HTMLElement>('[data-yt]').forEach((el) => {
     const btn = el.querySelector('button');

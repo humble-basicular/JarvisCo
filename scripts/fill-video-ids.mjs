@@ -7,7 +7,9 @@
    existing cover and written over public/video/<same name>.webp (filename stays, no page changes); the poster is handled
    independently of the ID, so it can be supplied in a later run too.
    All validation and image conversion happens first; files are written only if everything succeeded (no half-applied state).
-   Idempotent. ID format: 11 chars [A-Za-z0-9_-]. */
+   Idempotent. ID format: 11 chars [A-Za-z0-9_-].
+   "id": "TVARKOMAS" (18 Nov, Matas: "uzdek kokia Video tvarkomi") = the slot shows the on-brand "Video tvarkomas" sign
+   instead of a player (`tvarkomas: true`, no id); a later run with a real ID replaces the sign with the video. */
 import { readFileSync, writeFileSync, existsSync, renameSync, unlinkSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import sharp from 'sharp';
@@ -31,7 +33,15 @@ for (const key of [...new Set([...REQUIRED, ...Object.keys(map)])]) {
   let block = m[0];
   const cur = (block.match(/\bid:\s*'([^']+)'/) ?? [])[1];
   const hasNew = /\bnewId:/.test(block);
+  const isFix = /\btvarkomas:\s*true/.test(block);
   if (id === '' || id === 'TODO-ID') { if (hasNew) waiting.push(key); }
+  else if (id === 'TVARKOMAS') {
+    if (hasNew) { block = block.replace(/\bid:\s*'[^']+',\s*newId:\s*(?:TODO_ID|'[^']*'),?\s*/, 'tvarkomas: true, '); done.push(`${key} ${cur} -> Video tvarkomas sign`); }
+    else if (isFix) done.push(`${key} (already Video tvarkomas)`);
+    else { errors.push(`${key}: slot already plays ${cur}, mapping says TVARKOMAS`); continue; }
+  }
+  else if (!YT.test(id)) { errors.push(`${key}: "${id}" is not an 11-character YouTube ID`); continue; }
+  else if (isFix) { block = block.replace(/\btvarkomas:\s*true,?\s*/, `id: '${id}', `); done.push(`${key} Video tvarkomas -> ${id}`); }
   else if (!YT.test(id)) { errors.push(`${key}: "${id}" is not an 11-character YouTube ID`); continue; }
   else if (hasNew) { block = block.replace(/\bid:\s*'[^']+',\s*newId:\s*(?:TODO_ID|'[^']*'),?\s*/, `id: '${id}', `); done.push(`${key} ${cur} -> ${id}`); }
   else if (cur === id) done.push(`${key} (already ${id})`);
@@ -43,10 +53,10 @@ for (const key of [...new Set([...REQUIRED, ...Object.keys(map)])]) {
     const target = `public${pm[1]}`;
     try { const meta = await sharp(target).metadata(); posters.push({ key, target, buf: await sharp(v.poster).resize(meta.width, meta.height, { fit: 'cover' }).webp({ quality: 88 }).toBuffer(), size: `${meta.width}x${meta.height}` }); }
     catch (e) { errors.push(`${key}: poster conversion failed: ${e.message}`); }
-  } else if (!v.poster && id && id !== 'TODO-ID') console.log(`note: ${key} has no poster, the old cover stays`);
+  } else if (!v.poster && id && id !== 'TODO-ID' && id !== 'TVARKOMAS') console.log(`note: ${key} has no poster, the old cover stays`);
 }
 if (requireAll) {
-  for (const k of REQUIRED) { const b = (src.match(blockRe(k)) ?? [''])[0]; if (/\bnewId:/.test(b)) errors.push(`${k}: still waiting (TODO-ID / not swapped)`); }
+  for (const k of REQUIRED) { const b = (src.match(blockRe(k)) ?? [''])[0]; if (/\bnewId:|\btvarkomas:/.test(b)) errors.push(`${k}: still waiting (TODO-ID / Video tvarkomas / not swapped)`); }
 }
 if (errors.length) { console.error(errors.map((e) => 'fill-video-ids: ' + e).join('\n') + '\nnothing written'); process.exit(1); }
 // Stage every output as a .tmp file first; the originals are replaced only after ALL temp files were written.

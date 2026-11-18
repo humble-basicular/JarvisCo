@@ -39,13 +39,23 @@ document.querySelectorAll<HTMLElement>('[data-demo-open]').forEach((b) => b.addE
   const row = document.getElementById(b.dataset.demoOpen ?? '');
   const scene = row?.querySelector<HTMLElement>('[data-dev]');
   const yt = b.dataset.demoYt;
-  if (!demoDlg || !demoSlot || (!scene && !yt)) return;
+  const fix = b.hasAttribute('data-demo-fix');
+  if (!demoDlg || !demoSlot || (!scene && !yt && !fix)) return;
   demoOpener = b;
   const name = row?.querySelector('h3')?.textContent ?? '';
   const title = demoDlg.querySelector<HTMLElement>('[data-demo-title]');
   if (title) title.textContent = name;
-  demoDlg.classList.toggle('demodlg--yt', !!yt);
-  if (yt) {
+  demoDlg.classList.toggle('demodlg--yt', !!yt || fix);
+  if (fix) {
+    // New video not ready yet (18 Nov): plain "Video tvarkomas" sign in the video frame.
+    const d = document.createElement('div');
+    d.className = 'yt__fix';
+    d.setAttribute('role', 'img');
+    d.setAttribute('aria-label', `${name}: video tvarkomas`);
+    d.innerHTML = '<strong>Video tvarkomas</strong><span>Netrukus čia bus naujas vaizdo įrašas.</span>';
+    demoSlot.replaceChildren(d);
+    demoDlg.showModal();
+  } else if (yt) {
     // Demo video (YouTube, no-cookie) – loads only when the dialog opens.
     const f = document.createElement('iframe');
     f.src = `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&rel=0&playsinline=1`;

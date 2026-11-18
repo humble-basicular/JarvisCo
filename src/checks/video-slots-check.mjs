@@ -9,6 +9,11 @@ const YT = /^[A-Za-z0-9_-]{11}$/;
 const NEW = ['intro', 'susisieksime', 'pokalbis', 'svetaine', 'skambuciai', 'atsiliepimai-sistema'];
 const KEEP = ['kampanijos', 'seo', 'dezute'];
 for (const [k, v] of Object.entries(VIDEOS)) {
+  if (v.tvarkomas === true) {
+    if (!NEW.includes(k)) errors.push(`${k}: only the six 17 Nov slots may show Video tvarkomas`);
+    if ('id' in v || 'newId' in v) errors.push(`${k}: Video tvarkomas slot must not carry id/newId`);
+    continue;
+  }
   if (!YT.test(v.id)) errors.push(`${k}: live id "${v.id}" is not a YouTube ID`);
   if ('newId' in v && v.newId !== TODO_ID) {
     if (!YT.test(v.newId)) errors.push(`${k}: newId "${v.newId}" is neither ${TODO_ID} nor a YouTube ID`);
@@ -21,4 +26,4 @@ for (const k of KEEP) { if (!VIDEOS[k]) errors.push(`missing slot ${k}`); else i
 const walk = (d) => readdirSync(d).flatMap((n) => { const p = join(d, n); return statSync(p).isDirectory() ? (n === 'perziura' || n === 'previews' ? [] : walk(p)) : p.endsWith('.html') ? [p] : []; });
 try { for (const f of walk('dist')) if (readFileSync(f, 'utf8').includes(TODO_ID)) errors.push(`${f} embeds ${TODO_ID}`); } catch { errors.push('dist/ missing: run npm run build first'); }
 if (errors.length) { console.error(errors.map((e) => `video-slots-check: ${e}`).join('\n')); process.exit(1); }
-console.log(`video-slots-check: ok (${NEW.filter((k) => VIDEOS[k].newId === TODO_ID).length} slots waiting for a new ID, ${KEEP.length} kept)`);
+console.log(`video-slots-check: ok (${NEW.filter((k) => VIDEOS[k].newId === TODO_ID).length} slots waiting for a new ID, ${NEW.filter((k) => VIDEOS[k].tvarkomas).length} showing Video tvarkomas, ${KEEP.length} kept)`);

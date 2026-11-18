@@ -59,7 +59,7 @@ const ext = (h: string) => /^https?:/.test(href(h));
           <ul class="feat__pts">
             {it.points.map(([t, d]) => <li><h4><Icon name="badge" size={22} />{t}</h4><p>{d}</p></li>)}
           </ul>
-          <p class="feat__acts"><button class="btn" type="button" data-demo-open={it.id} data-demo-yt={VIDEOS[it.id]?.id} aria-haspopup="dialog">{features.demoBtn}</button></p>
+          <p class="feat__acts"><button class="btn" type="button" data-demo-open={it.id} data-demo-yt={VIDEOS[it.id]?.id} data-demo-fix={VIDEOS[it.id]?.tvarkomas ? '' : undefined} aria-haspopup="dialog">{features.demoBtn}</button></p>
         </div>
       </article>
     ))}
