@@ -729,3 +729,7 @@ body.o2{margin:0;font-family:Sora,Arial,sans-serif;color:#000;background:#fff;fo
 .onb__f input[type=file]{font-size:15px;margin-bottom:8px}
 .onb__go{justify-self:start}
 .onb .status{font-size:18px;font-weight:700;color:#1d6b3a}.onb .status[data-tone=err]{color:#e02424}
+
+/* 18 Nov (14550b84): keep proof source lines on one line where they fit, never split a date */
+.pbar__site,.fcard__n{white-space:nowrap}
+@media (min-width:768px){.pbar__t--sm{max-width:220px}}
