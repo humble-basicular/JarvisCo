@@ -14,7 +14,7 @@ check(scenes.join() === 'web:left,missed:right,reviews:left,campaign:right,seo:l
 // top is OUR two-step form (Matas: the captured two-step form is "terrible"); its captured form/detail pixels are no longer shown.
 check(html.includes('laptop-blank.webp') && html.includes('/jarvis-systems/demo/betono-actual/home.webp') && /class="fm /.test(html) && (html.match(/class="fm__pane"/g) ?? []).length === 2, 'first feature: real Betono home behind the own two-step form (2 panes)');
 check(!/betono-actual\/(?:form-empty|form-filled|details-empty|details-filled)\.webp/.test(html), 'round 2: the old captured form pixels must stay off the homepage');
-check((html.match(/\/jarvis-systems\/app\/icon\.svg/g) ?? []).length >= 3 && existsSync('public/jarvis-systems/app/icon.svg'), 'owner notifications / app screens show the Jarvis Systems app icon');
+check((html.match(/\/jarvis-systems\/app\/icon-h\.png/g) ?? []).length >= 3 && existsSync('public/jarvis-systems/app/icon-h.png'), 'owner notifications / app screens show the Jarvis Systems app icon');
 check(!/class="scr__sig"|class="own__ic"/.test(html) && (html.match(/class="sb /g) ?? []).length + (html.match(/class="sb"/g) ?? []).length === 6, 'clean iOS status bar on every phone, old battery bar and letter avatar gone');
 check(html.includes('šildymas kaunas') && html.includes('sildymaskaune.com') && !/šulinio žiedai kaunas/.test(html), 'SEO scene: generic heating example, not the father\'s business');
 check(!/class="vbox"/.test(html) && /data-demo-open="dezute" data-demo-yt="z7ns8qtnBbE"/.test(html), 'inbox: animated row replaces the lone video box; the old video stays behind the demo button');

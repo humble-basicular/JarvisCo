@@ -4,7 +4,7 @@
    - every phone screen is own HTML UI with a clean iOS status bar (signal · Wi-Fi · battery);
    - chats start at the TOP and flow down; once the screen is full, older rows scroll up (flex-end + trailing spacer);
    - customer replies are typed in the input bar first, then sent; business replies show typing dots first;
-   - owner alerts are iOS lock-screen notifications from the Jarvis Systems app (logo = public/jarvis-systems/app/icon.svg);
+   - owner alerts are iOS lock-screen notifications from the Jarvis Systems app (logo = public/jarvis-systems/app/icon-h.png, app icon H picked by Matas 18 Nov);
    - web: the laptop shows the real betonogaminiai.lt home (captured pixels) with OUR redesigned two-step enquiry form;
    - reviews: owner long-presses "Darbas atliktas" → customer SMS → review page → 5 stars → Google review;
    - seo: generic heating example (search "šildymas kaunas", sildymaskaune.com), not the father's business;
@@ -15,7 +15,7 @@ import { glassMatrix, FRAMES, SCREEN_W, SCREEN_H, LAPTOP, BETONO } from '@data/o
 import { buildConvo } from '@data/o2-convo.js';
 interface Props { kind: 'web' | 'reviews' | 'missed' | 'campaign' | 'seo' | 'inbox'; side: 'left' | 'right'; label: string }
 const { kind, side, label } = Astro.props;
-const ICON = '/jarvis-systems/app/icon.svg';
+const ICON = '/jarvis-systems/app/icon-h.png';
 const WEB_PHONE = 9.0; // web: laptop part ends, phone part starts
 const convo = kind === 'web' ? buildConvo('web', WEB_PHONE + 1.2) : kind === 'missed' ? buildConvo('missed', 4.9) : null;
 const T = convo ? convo.T : { reviews: 17.5, campaign: 13.99, seo: 10.5, inbox: 13 }[kind];
