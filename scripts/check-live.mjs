@@ -49,7 +49,12 @@ if (!process.argv.includes('--perziura-only')) {
     if (r.status !== 200) { errors.push(`${p}: ${r.status}`); continue; }
     if (r.text.includes('TODO-ID')) errors.push(`${p}: contains TODO-ID`);
     if (/JarvisCo|Žinutė po praleisto skambučio/.test(r.text.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g, ''))) errors.push(`${p}: old brand/card name`);
-    for (const k of where[p] ?? []) if (fixing(k)) { if (!r.text.includes(p === '/' ? `data-demo-open="${k}"` : 'Video tvarkomas') || (p === '/' && !new RegExp(`data-demo-open="${k}"[^>]*data-demo-fix`).test(r.text))) errors.push(`${p}: ${k} should show Video tvarkomas`); }
+    for (const k of where[p] ?? []) if (fixing(k)) {
+      const btn = (r.text.match(new RegExp(`<button[^>]*data-demo-open="${k}"[^>]*>`)) ?? [''])[0];
+      const ok = p === '/' ? /\bdata-demo-fix\b/.test(btn) && !/data-demo-yt=/.test(btn)
+        : /<div class="yt__box yt__fix"[^>]*>\s*<strong>Video tvarkomas<\/strong>/.test(r.text) && !/data-yt="/.test(r.text);
+      if (!ok) errors.push(`${p}: ${k} should show Video tvarkomas (and no player)`);
+    }
     else if (!r.text.includes(id(k))) errors.push(`${p}: video ${k} (${id(k)}) not embedded`);
     for (const m of r.text.matchAll(/data-(?:demo-)?yt="([^"]+)"/g)) if (!allIds.has(m[1])) errors.push(`${p}: stale or unknown YouTube ID ${m[1]} (not in src/data/o2-videos.js)`);
   }

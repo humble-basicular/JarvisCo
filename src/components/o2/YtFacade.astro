@@ -7,7 +7,7 @@ const { video, class: cls, gate = false } = Astro.props;
 ---
 {video.tvarkomas ? (
 <figure class:list={['yt', cls]}>
-  <div class="yt__box yt__fix" role="img" aria-label={`${video.title}: video tvarkomas`}>
+  <div class="yt__box yt__fix">
     <strong>Video tvarkomas</strong><span>Netrukus čia bus naujas vaizdo įrašas.</span>
   </div>
   <figcaption class="yt__cap">{video.title}</figcaption>

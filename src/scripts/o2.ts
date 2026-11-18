@@ -50,8 +50,6 @@ document.querySelectorAll<HTMLElement>('[data-demo-open]').forEach((b) => b.addE
     // New video not ready yet (18 Nov): plain "Video tvarkomas" sign in the video frame.
     const d = document.createElement('div');
     d.className = 'yt__fix';
-    d.setAttribute('role', 'img');
-    d.setAttribute('aria-label', `${name}: video tvarkomas`);
     d.innerHTML = '<strong>Video tvarkomas</strong><span>Netrukus čia bus naujas vaizdo įrašas.</span>';
     demoSlot.replaceChildren(d);
     demoDlg.showModal();
