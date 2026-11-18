@@ -1,0 +1,22 @@
+---
+/* /video — short link sent to a lead after Matas books the Meet (Matas 18 Nov, 14550b84: "a subpage where its basically just
+   the video", "shorter link"). Plays the detailed pre-call video (VIDEOS.pokalbis, Unlisted on YouTube, nocookie facade).
+   Optional ?v=<name> greets the lead. noindex, not linked from the menu. */
+import O2Layout from '@layouts/O2Layout.astro';
+import YtFacade from '@components/o2/YtFacade.astro';
+import { VIDEOS } from '@data/o2-videos.js';
+import { brand } from '@data/content.js';
+---
+<O2Layout title="Prieš mūsų pokalbį | Jarvis Systems" description="Trumpas video prieš mūsų pokalbį." path="/video" noindex funnel>
+  <section class="fnl__top">
+    <p class="fnl__kicker">Prieš mūsų pokalbį</p>
+    <h1 class="fnl__h">Sveiki<span data-v-name></span>, pažiūrėkite šį video prieš susitikimą</h1>
+    <p class="fnl__steps">~7 min. Parodau visą sistemą ir kas tiksliai daroma, kad pokalbio metu galėtume kalbėti apie Jūsų verslą. Įjunkite garsą.</p>
+    <YtFacade video={VIDEOS.pokalbis} class="fnl__vid" />
+  </section>
+  <p class="cb__call">Klausimai prieš susitikimą? Skambinkite: <a href={brand.telHref} data-track="cta_call">{brand.phone}</a></p>
+</O2Layout>
+<script>
+  const name = (new URLSearchParams(location.search).get('v') ?? '').trim().slice(0, 60);
+  const n = document.querySelector('[data-v-name]'); if (n && name) n.textContent = `, ${name}`;
+</script>
