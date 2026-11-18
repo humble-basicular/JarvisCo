@@ -64,7 +64,7 @@ if (!process.argv.includes('--perziura-only')) {
     if (beacons.length !== 1 || !tok) errors.push(`${p}: expected 1 Cloudflare analytics beacon with a token, found ${beacons.length}`);
     else if (process.env.PUBLIC_CF_ANALYTICS_TOKEN && tok !== process.env.PUBLIC_CF_ANALYTICS_TOKEN) errors.push(`${p}: analytics token ${tok} != PUBLIC_CF_ANALYTICS_TOKEN`);
   }
-  const s = await get('/susisieksime'); if (!s.text.includes('>33<')) errors.push('/susisieksime: 33 enquiries missing');
+  const s = await get('/susisieksime'); if (!s.text.includes('>26<')) errors.push('/susisieksime: 26 enquiries missing');
   console.log('key pages, video IDs, analytics beacon, 33 proof checked');
 }
 if (errors.length) { console.error(errors.map((e) => 'check-live: ' + e).join('\n')); process.exit(1); }

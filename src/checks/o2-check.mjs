@@ -35,9 +35,9 @@ check(['phone', 'email', 'name', 'company'].every((n) => new RegExp(`<input[^>]*
 check(/>Daugiau užklausų Jūsų verslui už<\/h2>\s*<p class="quiz__price">97 €\/mėn\.<\/p>/.test(reg) && reg.includes('>Taip, noriu daugiau užklausų</button>') && /aria-valuenow="50"/.test(reg), 'quiz title, final button, progress starts at 50 %');
 check(!/name="contact_time"/.test(reg) && /name="website"/.test(reg), 'contact time removed, honeypot kept');
 check(/validPhone = \(v: string\) => \/\^\(\?:\\\+370\|00370\|8\)\?\[3-9\]/.test(ts) && /body\.append\('email', email\)/.test(ts) && /body\.append\('company', company\)/.test(ts) && /\.\.\.answers/.test(ts), 'LT phone check; live POST carries email, company and the quiz answers in standout');
-check(/class="pbar"[\s\S]*?>605<[\s\S]*?>33<[\s\S]*?<\/ul>/.test(html) && !/786|betonogaminiai\.lt/.test(html.slice(html.indexOf('class="pbar"'), html.indexOf('</ul>', html.indexOf('class="pbar"')))), 'landing proof bar: Google | 605 | 33 (ArbCut), no Betono');
+check(/class="pbar"[\s\S]*?>605<[\s\S]*?>26<[\s\S]*?<\/ul>/.test(html) && !/786|betonogaminiai\.lt/.test(html.slice(html.indexOf('class="pbar"'), html.indexOf('</ul>', html.indexOf('class="pbar"')))), 'landing proof bar: Google | 605 | 26 (ArbCut), no Betono');
 const cb = readFileSync('dist/susisieksime/index.html', 'utf8');
-check(cb.includes('>605<') && cb.includes('>33<') && !/786|betonogaminiai/.test(cb) && !/data-cb-time|rytą|vakare/.test(cb), '/susisieksime: ArbCut 605 + 33 proof, no Betono, no contact time');
+check(cb.includes('>605<') && cb.includes('>26<') && !/786|betonogaminiai/.test(cb) && !/data-cb-time|rytą|vakare/.test(cb), '/susisieksime: ArbCut 605 + 26 proof, no Betono, no contact time');
 const gated = (h) => /<button class="yt__btn"[^>]*data-book-open[^>]*data-yt-gate/.test(h) && /<dialog[^>]*data-book-dialog/.test(h);
 check(gated(reg), '/registracija: video click opens the quiz until it is done');
 check(gated(cb) && cb.includes('data-gate data-locked') && !cb.includes('fnl__lock') && cb.includes("sessionStorage.getItem('o2_reg')"), '/susisieksime: same video gate, quiz dialog on page');

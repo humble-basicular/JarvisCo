@@ -146,7 +146,7 @@ export const pages = {
         text: 'Medžių pjovimo ir darbų aukštyje svetainė: 12 paslaugų ir 18 miestų puslapių, užklausos forma.',
         gsc: ['arbcut-gsc-3m-2026-11-12', 'Google Search Console – paskutiniai 3 mėnesiai'],
         forms: ['arbcut-web3forms-total-2026-11-12', 'Web3Forms ekrano kopija, 2026-11-12: tada buvo 31 užklausa (iki 2026-11-17 – jau 33)'],
-        nums: [['605', 'paspaudimai iš Google'], ['12,3 tūkst.', 'parodymų Google'], ['33', 'užklausų per formą iš viso (iki 2026-11-17)']],
+        nums: [['605', 'paspaudimai iš Google'], ['12,3 tūkst.', 'parodymų Google'], ['26', 'užklausos per formą per 3,5 mėn. (iki 2026-11-17)']],
       },
     ],
     // Every site we built. Captures: headless Chrome 2026-11-11 (1440×900 and 390×844 @2x), resized to WebP, no edits.
