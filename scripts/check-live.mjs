@@ -6,6 +6,7 @@
       35 pages byte-identical raw, 48 identical after reversal, 0 other differences).
    2. /taisykles: 50 %, 48,50 €, 15 € one-time domain, 999 €, 0,08 €, no 60 % / 58,20 / "domenas įskaičiuotas".
    3. key pages 200, no 'TODO-ID', configured YouTube IDs present on their pages, no old card name.
+   4. each key page carries exactly one Cloudflare Web Analytics beacon (18 Nov); with PUBLIC_CF_ANALYTICS_TOKEN set, it must be that token.
    Exit 1 on any failure. Needs a prior `npm run videos:fill` build (reads src/data/o2-videos.js for the IDs). */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -57,9 +58,14 @@ if (!process.argv.includes('--perziura-only')) {
     }
     else if (!r.text.includes(id(k))) errors.push(`${p}: video ${k} (${id(k)}) not embedded`);
     for (const m of r.text.matchAll(/data-(?:demo-)?yt="([^"]+)"/g)) if (!allIds.has(m[1])) errors.push(`${p}: stale or unknown YouTube ID ${m[1]} (not in src/data/o2-videos.js)`);
+    // 4. Cloudflare Web Analytics: exactly one beacon (ours, from PUBLIC_CF_ANALYTICS_TOKEN; a second one = dashboard auto-injection is also on)
+    const beacons = [...r.text.matchAll(/<script[^>]*static\.cloudflareinsights\.com\/beacon\.min\.js[^>]*>/g)].map((m) => m[0]);
+    const tok = (beacons[0]?.match(/&quot;token&quot;:&quot;([0-9a-f]{32})&quot;|"token":"([0-9a-f]{32})"/) ?? []).slice(1).find(Boolean);
+    if (beacons.length !== 1 || !tok) errors.push(`${p}: expected 1 Cloudflare analytics beacon with a token, found ${beacons.length}`);
+    else if (process.env.PUBLIC_CF_ANALYTICS_TOKEN && tok !== process.env.PUBLIC_CF_ANALYTICS_TOKEN) errors.push(`${p}: analytics token ${tok} != PUBLIC_CF_ANALYTICS_TOKEN`);
   }
   const s = await get('/susisieksime'); if (!s.text.includes('>33<')) errors.push('/susisieksime: 33 enquiries missing');
-  console.log('key pages, video IDs, 33 proof checked');
+  console.log('key pages, video IDs, analytics beacon, 33 proof checked');
 }
 if (errors.length) { console.error(errors.map((e) => 'check-live: ' + e).join('\n')); process.exit(1); }
 console.log('check-live: ok');
