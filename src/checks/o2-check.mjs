@@ -58,7 +58,7 @@ if (/data-book-mode="preview"/.test(html)) check(/bookMode !== 'live'[\s\S]*?ret
 const terms = readFileSync('dist/taisykles/index.html', 'utf8').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/g, ' ').replace(/\s+/g, ' ');
 for (const [label, re] of [
   ['97 €/mėn.', /97 €\/mėn\./], ['no setup fee', /Įrengimo mokesčio nėra/], ['refund 50 % = 48,50 € within 30 days of the first payment', /30 dienų skaičiuojame nuo pirmo 97 € mokėjimo.{0,120}grąžiname 50 % pirmo mokėjimo \(48,50 €\)/],
-  ['7-day launch', /per 7 dienas/], ['100 SMS + 0,08 €', /100 SMS segmentų per mėnesį.{0,120}0,08 €/], ['domain 15 € one-time when none', /neturite, taikomas vienkartinis 15 € domeno mokestis/], ['cancel anytime', /atsisakyti galite bet kada/i],
+  ['7-day launch', /per 7 dienas/], ['300 SMS month one, then 100 + 0,08 €', /Pirmą mėnesį į kainą įskaičiuota 300 SMS segmentų.{0,200}100 SMS segmentų per mėnesį.{0,120}0,08 €/], ['extra SMS outside the refund', /garantija taikoma pirmam 97 € mokėjimui, ne papildomoms SMS/], ['domain 15 € one-time when none', /neturite, taikomas vienkartinis 15 € domeno mokestis/], ['cancel anytime', /atsisakyti galite bet kada/i],
   ['everything off on cancel', /Atsisakius viskas išjungiama/], ['999 € buy-out', /999 € vienkartinai/], ['numbers switched off at exit', /Sistemos numeriai išjungiami/],
 ]) check(re.test(terms), `/taisykles is missing the term: ${label}`);
 const allHtml = [];

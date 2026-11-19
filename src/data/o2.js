@@ -9,7 +9,7 @@
    Accepted Stone design, real proof and verified Betono media remain unchanged.
    SMS provider is not active; demos do not prove real delivery.
    2026-11-10 closed terms (~/WebAgency Biz/brains/v2/OFFER.md §1): no setup fee, cancel anytime,
-   7-day launch, domain = 15 € ONE-TIME only when the client has none (17 Nov, dd149652), 100 SMS/month then 0,08 € each (same monthly invoice), everything
+   7-day launch, domain = 15 € ONE-TIME only when the client has none (17 Nov, dd149652), 300 SMS in month one, then 100/month, then 0,08 € each (19 Nov, 05c56aac; bigger campaigns charged before sending, outside the refund), everything
    switched off on cancel, 999 € one-off to keep the website, business number switched off at exit.
    Marketing texts carry no STOP line (OFFER.md §6). */
 import { brand } from './content.js';
@@ -26,8 +26,8 @@ export const O2_OFFER = {
   cancel: 'Atsisakyti galite bet kada',
   domain: 'Jei domeno dar neturite, taikomas vienkartinis 15 € domeno mokestis. Jei domeną jau turite, papildomo mokesčio nėra.',
   domainShort: '15 € vienkartinai, jei domeno dar neturite',
-  sms: '100 SMS segmentų per mėnesį įskaičiuota, kiekvienas papildomas segmentas – 0,08 €',
-  smsDetails: 'Į kainą įskaičiuota 100 SMS segmentų per mėnesį. Kiekvienas papildomas segmentas kainuoja 0,08 € ir pridedamas prie tos pačios mėnesio sąskaitos. Ilga žinutė ar žinutė su lietuviškomis raidėmis gali sudaryti kelis segmentus.',
+  sms: 'Pirmą mėnesį įskaičiuota 300 SMS segmentų, vėliau 100 SMS segmentų per mėnesį, kiekvienas papildomas segmentas – 0,08 €',
+  smsDetails: 'Pirmą mėnesį į kainą įskaičiuota 300 SMS segmentų, kad pirma kampanija buvusiems klientams nekainuotų papildomai. Vėliau įskaičiuota 100 SMS segmentų per mėnesį. Kiekvienas papildomas segmentas kainuoja 0,08 € ir pridedamas prie kitos mėnesio sąskaitos. Didesnei kampanijai iš anksto pasakome tikslią sumą: siunčiame tik Jums patvirtinus, o suma nuskaičiuojama prieš siuntimą. Pinigų grąžinimo garantija taikoma pirmam 97 € mokėjimui, ne papildomoms SMS. Ilga žinutė ar žinutė su lietuviškomis raidėmis gali sudaryti kelis segmentus.',
   cancelDetails: 'Prenumerata mėnesinė, atsisakyti galite bet kada. Atsisakius viskas išjungiama, taip pat ir svetainė.',
   keepSite: 'Jei norite pasilikti svetainę, ją galite išsipirkti už 999 € vienkartinai. Svetainė lieka be sistemų, su paprasta el. pašto forma.',
   number: 'Sistemos numeriai išjungiami ir neperduodami. Jūsų paties numeris niekada nesikeičia – tereikia išjungti skambučių nukreipimą.',

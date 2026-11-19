@@ -35,7 +35,7 @@ execSync(`rm -rf "${tmp}"`);
 if (!process.argv.includes('--perziura-only')) {
   // 2. terms
   const t = await get('/taisykles'); const tx = t.text.replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/g, ' ').replace(/\s+/g, ' ');
-  for (const [l, re] of [['50 % = 48,50 €', /grąžiname 50 % pirmo mokėjimo \(48,50 €\)/], ['domain 15 € one-time', /neturite, taikomas vienkartinis 15 € domeno mokestis/], ['999 €', /999 € vienkartinai/], ['0,08 €', /0,08 €/], ['97 €/mėn.', /97 €\/mėn\./], ['7 dienas', /per 7 dienas/]]) if (!re.test(tx)) errors.push(`/taisykles missing: ${l}`);
+  for (const [l, re] of [['50 % = 48,50 €', /grąžiname 50 % pirmo mokėjimo \(48,50 €\)/], ['domain 15 € one-time', /neturite, taikomas vienkartinis 15 € domeno mokestis/], ['999 €', /999 € vienkartinai/], ['0,08 €', /0,08 €/], ['300 SMS month one', /Pirmą mėnesį į kainą įskaičiuota 300 SMS segmentų/], ['97 €/mėn.', /97 €\/mėn\./], ['7 dienas', /per 7 dienas/]]) if (!re.test(tx)) errors.push(`/taisykles missing: ${l}`);
   if (t.status !== 200 || /60 ?% pirmo|58,20|domenas įskaičiuotas/i.test(tx)) errors.push('/taisykles status or old wording (60 % / 58,20 / domain included)');
   console.log('/taisykles: ' + (errors.some((e) => e.startsWith('/taisykles')) ? 'FAIL' : '50 % + all terms ok'));
   // 3. pages
