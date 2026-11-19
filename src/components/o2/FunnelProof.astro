@@ -1,17 +1,17 @@
 ---
 /* Funnel proof cards: where Stone shows three customer testimonial videos (Frank, Ryan, Manny) we have no customer
-   videos or quotes, so the same card slots hold our real proof only: ArbCut Search Console (605 clicks, 3 months),
+   videos or quotes, so the same card slots hold our real proof only: ArbCut Search Console (611 clicks, 3 months),
    ArbCut Web3Forms total (33 as of 17 Nov; the 12 Nov screenshot showed 31, so the card is a number tile now) and the Google profile (src/assets/proof/PROVENANCE.md, Matas 2026-11-12). */
 import { Image } from 'astro:assets';
 import { proofImage } from '@data/proof-images';
 import { GOOGLE } from '@data/o2.js';
-const gsc = proofImage('arbcut-gsc-3m-2026-11-12');
+const gsc = proofImage('arbcut-gsc-3m-2026-11-19');
 const stars = '★★★★★';
 ---
 <section class="fproof" aria-label="Rezultatai">
   <article class="fcard fcard--big">
-    <Image src={gsc} width={900} alt="Google Search Console, arbcut.lt, paskutiniai 3 mėnesiai: 605 paspaudimai" format="webp" quality={88} loading="lazy" />
-    <div class="fcard__t"><p><b>605</b> organiniai paspaudimai iš Google per 3 mėn.</p><p class="fcard__n">arbcut.lt · iki lapkr. 9 d.</p></div>
+    <Image src={gsc} width={900} alt="Google Search Console, arbcut.lt, paskutiniai 3 mėnesiai: 611 paspaudimų" format="webp" quality={88} loading="lazy" />
+    <div class="fcard__t"><p><b>611</b> organinių paspaudimų iš Google per 3 mėn.</p><p class="fcard__n">arbcut.lt · iki lapkr. 17 d.</p></div>
   </article>
   <div class="frow">
     <article class="fcard">

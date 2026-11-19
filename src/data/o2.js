@@ -43,10 +43,10 @@ export const O2_OFFER = {
   ],
 };
 export const GOOGLE = { rating: '5,0', count: '1 atsiliepimas', url: brand.gbp };
-/* Landing + /susisieksime proof (Matas 2026-11-12): ArbCut only. 605 = GSC organic clicks, 3 months; 26 = Web3Forms submissions 2026-08-01..2026-11-17 (33 total as of 17 Nov minus 7 before Aug per arbcut-proof.json; Matas 18 Nov 14550b84: show a period, not 'iš viso'). Was: 33 = Web3Forms total as of 2026-11-17
+/* Landing + /susisieksime proof (Matas 2026-11-12): ArbCut only. 611 = GSC organic clicks, 3 months to 2026-11-17 (was 605 to 11-09); 26 = Web3Forms submissions 2026-08-01..2026-11-17 (33 total as of 17 Nov minus 7 before Aug per arbcut-proof.json; Matas 18 Nov 14550b84: show a period, not 'iš viso'). Was: 33 = Web3Forms total as of 2026-11-17
    (31 on the 12 Nov screenshot + 2 more, user-reported by Matas 17 Nov, dd149652). Sources: src/assets/proof/PROVENANCE.md. Betono stays on /musu-darbai only. */
 export const PROOF = [
-  ['605', 'organiniai paspaudimai iš Google per 3 mėn.', 'arbcut.lt · iki lapkr. 9 d.'],
+  ['611', 'organinių paspaudimų iš Google per 3 mėn.', 'arbcut.lt · iki lapkr. 17 d.'],
   ['26', 'užklausos per svetainės formą per 3,5 mėn.', 'arbcut.lt · nuo rugpj. 1 d.'],
 ];
 

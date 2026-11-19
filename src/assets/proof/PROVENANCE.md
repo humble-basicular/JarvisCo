@@ -110,3 +110,11 @@ Claude, T3 in-app browser, 2026-11-11 ~21:25–21:36 Europe/Vilnius (thread mcp:
 
 Betono form counts: WordPress admin not accessed in this session → not shown anywhere.
 Site captures for /musu-darbai (`public/jarvis-systems/work/sites/*`): headless Chrome 2026-11-11 21:51–21:53, 1440×900 and 390×844 @2x, resized to 960×600 / 390×844 WebP q78 with sharp; no edits.
+
+## Search Console refresh 2026-11-19 (thread a4115956)
+Codex (GPT-6.2-Sol) via computer use in Matas's own Chrome, 2026-11-19. Chrome DevTools PNG at native Retina resolution, rectangular crop only (ImageMagick), no resize or edits; 3736×1616. No emails, names or lead data visible (checked by Claude).
+
+| File here | Shows |
+|---|---|
+| betono-gsc-3m-2026-11-19.png | Search Console (https://www.betonogaminiai.lt/, matasbasinskas1), 3 mėnesiai 2026-08-18 – 2026-11-17: 807 paspaudimai, 11,2 tūkst. parodymų, PR 7,2 %, pozicija 7 |
+| arbcut-gsc-3m-2026-11-19.png | Search Console (sc-domain:arbcut.lt, mbwebdv), 3 months 8/18/26 – 11/17/26: clicks 611, impressions 12.5K, CTR 4.9 %, position 8.8 |

@@ -134,19 +134,20 @@ export const pages = {
     // Audit facts: Drive audits/betonogaminiai-2026-11-09/REPORT.md (E1, E5, E9, E10), audits/arbcut-2026-11-11/REPORT.md (C1, C2, F4).
     // Betono form counts not verified (WordPress admin not accessed) -> not shown. No testimonials.
     // Matas 2026-11-12: full-resolution GSC screenshots taken by Matas 2026-11-12 (ArbCut 605 / 12.3K, Betono 786 / 10,8 tūkst., 3 months to 2026-11-09); just the 3-month Search Console screenshots as the main proof; ArbCut forms = Web3Forms total only (31).
+    // Refresh 2026-11-19 (Matas, thread a4115956): Codex computer use in Matas's Chrome, 3 months 2026-08-18 – 2026-11-17: Betono 807 / 11,2 tūkst. / 7,2 % / 7; ArbCut 611 / 12.5K / 4.9 % / 8.8 (PROVENANCE).
     items: [
       {
         name: 'UAB „Dailius ir ko“', site: 'betonogaminiai.lt', url: 'https://www.betonogaminiai.lt/', shot: 'betono',
         text: 'Betoninių gaminių gamintojas Ražiškiuose. Svetainė su prekių ir paslaugų puslapiais, kainomis ir „Gauti pasiūlymą“ forma.',
-        gsc: ['betono-gsc-3m-2026-11-12', 'Google Search Console – paskutiniai 3 mėnesiai'],
-        nums: [['786', 'paspaudimai iš Google'], ['10,8 tūkst.', 'parodymų Google']],
+        gsc: ['betono-gsc-3m-2026-11-19', 'Google Search Console – paskutiniai 3 mėnesiai'],
+        nums: [['807', 'paspaudimai iš Google'], ['11,2 tūkst.', 'parodymų Google']],
       },
       {
         name: 'ArbCut – arboristas Kaune', site: 'arbcut.lt', url: 'https://arbcut.lt/', shot: 'arbcut',
         text: 'Medžių pjovimo ir darbų aukštyje svetainė: 12 paslaugų ir 18 miestų puslapių, užklausos forma.',
-        gsc: ['arbcut-gsc-3m-2026-11-12', 'Google Search Console – paskutiniai 3 mėnesiai'],
+        gsc: ['arbcut-gsc-3m-2026-11-19', 'Google Search Console – paskutiniai 3 mėnesiai'],
         forms: ['arbcut-web3forms-total-2026-11-12', 'Web3Forms ekrano kopija, 2026-11-12: tada buvo 31 užklausa (iki 2026-11-17 – jau 33)'],
-        nums: [['605', 'paspaudimai iš Google'], ['12,3 tūkst.', 'parodymų Google'], ['26', 'užklausos per formą per 3,5 mėn. (iki 2026-11-17)']],
+        nums: [['611', 'paspaudimų iš Google'], ['12,5 tūkst.', 'parodymų Google'], ['26', 'užklausos per formą per 3,5 mėn. (iki 2026-11-17)']],
       },
     ],
     // Every site we built. Captures: headless Chrome 2026-11-11 (1440×900 and 390×844 @2x), resized to WebP, no edits.
